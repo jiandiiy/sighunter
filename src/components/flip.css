@@ -6,6 +6,17 @@
   padding: 2rem;
   font-family: "Pretendard", sans-serif;
 }
+.reset-btn {
+  background: linear-gradient(135deg, #ff7eb3, #ffb6c1);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  padding: 0.45rem 0.90rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.3s;
+}
+
 
 /* 카드 영역 */
 .card-grid {
