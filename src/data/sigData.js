@@ -83,9 +83,9 @@ export const sigCards = [
       "/images/3/sig_1078.png"
     ],
     messages: [
-      { text: "기여도 +2", tier: "희귀" },
-      { text: "소셜 감사 카드 등록", tier: "희귀" },
-      { text: "감탄 스티커 부여 ✨", tier: "레어" }
+           { text: "기여도 +1", tier: "일반" },
+      { text: "칭찬 배지 획득", tier: "희귀" },
+      { text: "감사 메시지 표시!", tier: "일반" }
     ]
   },
   {
@@ -113,14 +113,14 @@ export const sigCards = [
       "/images/4/sig_1111.png"
     ],
     messages: [
-      { text: "기여도 +3", tier: "레어" },
-      { text: "특별 감사 배너 등록", tier: "레어" },
-      { text: "비공개 콘텐츠 접근권", tier: "전설" }
+          { text: "기여도 +1", tier: "일반" },
+      { text: "칭찬 배지 획득", tier: "희귀" },
+      { text: "감사 메시지 표시!", tier: "일반" }
     ]
   },
   {
     id: 5,
-    amount: 6666,
+    amount: 1110,
     frontImages: ["/images/5/sig_1112.png",
       "/images/5/sig_1114.png",
       "/images/5/sig_1117.png",
@@ -142,14 +142,14 @@ export const sigCards = [
       "/images/5/sig_1220.png"
     ],
     messages: [
-      { text: "기여도 +4", tier: "레어" },
-      { text: "피드명 예배지 등록", tier: "레어" },
-      { text: "시그 코멘트 부여 🎁", tier: "전설" }
+           { text: "기여도 +1", tier: "일반" },
+      { text: "칭찬 배지 획득", tier: "희귀" },
+      { text: "감사 메시지 표시!", tier: "일반" }
     ]
   },
   {
     id: 6,
-    amount: 10002,
+    amount: 1500,
     frontImages: ["/images/6/sig_1250.png",
 "/images/6/sig_1300.png",
 "/images/6/sig_1345.png",
@@ -171,14 +171,14 @@ export const sigCards = [
 "/images/6/sig_2009.png"
     ],
     messages: [
-      { text: "기여도 +5", tier: "전설" },
-      { text: "한정 굿즈 응모권", tier: "레전드" },
-      { text: "VIP 명예의 전당 등록", tier: "레전드" }
+           { text: "기여도 +1", tier: "일반" },
+      { text: "칭찬 배지 획득", tier: "희귀" },
+      { text: "감사 메시지 표시!", tier: "일반" }
     ]
   },
   {
     id: 7,
-    amount: 10007,
+    amount: 2000,
     frontImages: ["/images/7/sig_2060.png",
       "/images/7/sig_2090.png",
       "/images/7/sig_2150.png",
@@ -199,9 +199,9 @@ export const sigCards = [
       "/images/7/sig_3000.png"
     ],
     messages: [
-      { text: "기여도 +7", tier: "전설" },
-      { text: "슈퍼 도네이션 인증 📜", tier: "레전드" },
-      { text: "시그 헌터 박스 오픈!", tier: "레전드" }
+           { text: "기여도 +1", tier: "일반" },
+      { text: "칭찬 배지 획득", tier: "희귀" },
+      { text: "감사 메시지 표시!", tier: "일반" }
     ]
   },
   {
@@ -234,7 +234,7 @@ export const sigCards = [
     ],
     messages: [
       { text: "기여도 +10", tier: "레전드" },
-      { text: "한정판 세리머니 발동 🏆", tier: "레전드" },
+      { text: "한정판 세리머니 발동 🏆", tier: "전설" },
       { text: "궁극 시그청룡 등급 획득", tier: "레전드" }
     ]
   },
@@ -254,7 +254,7 @@ export const sigCards = [
     ],
     messages: [
       { text: "기여도 +10", tier: "레전드" },
-      { text: "한정판 세리머니 발동 🏆", tier: "레전드" },
+      { text: "한정판 세리머니 발동 🏆", tier: "전설" },
       { text: "궁극 시그청룡 등급 획득", tier: "레전드" }
     ]
   },
@@ -272,7 +272,7 @@ export const sigCards = [
     ],
     messages: [
       { text: "기여도 +10", tier: "레전드" },
-      { text: "한정판 세리머니 발동 🏆", tier: "레전드" },
+      { text: "한정판 세리머니 발동 🏆", tier: "전설" },
       { text: "궁극 시그청룡 등급 획득", tier: "레전드" }
     ]
   }
