@@ -144,9 +144,8 @@ export default function SigHunterNatural() {
             </div>
           );
         })}
-      </div>
 
-      {/* 팝업 */}
+          {/* 팝업 */}
       {popup && (
         <div className="popup-overlay" onClick={closePopup}>
           <div className="popup-box">
@@ -158,5 +157,8 @@ export default function SigHunterNatural() {
         </div>
       )}
     </div>
+      </div>
+
+    
   );
 }
