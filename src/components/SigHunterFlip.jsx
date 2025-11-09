@@ -10,50 +10,98 @@ export default function SigHunterNatural() {
     return saved ? JSON.parse(saved) : {};
   });
   const [popup, setPopup] = useState(null);
-  const [randomImages, setRandomImages] = useState({}); // 🎨 이미지 상태 추가
+  const [randomImages, setRandomImages] = useState({}); // 이미지 파일 저장 상태
 
-  /** 초기 랜덤 이미지 한 번 세팅 **/
+  /** 🎨 초기 이미지 불러오기 **/
   useEffect(() => {
-    const initialImages = {};
-    sigCards.forEach((card) => {
-      const imgs = card.frontImages || [card.frontImage];
-      const randomImage = imgs[Math.floor(Math.random() * imgs.length)];
-      initialImages[card.id] = randomImage;
-    });
-    setRandomImages(initialImages);
+    const savedImages = localStorage.getItem("sigImages");
+    if (savedImages) {
+      setRandomImages(JSON.parse(savedImages));
+    } else {
+      const initialImages = {};
+      sigCards.forEach((card) => {
+        const imgs = card.frontImages || [card.frontImage];
+        const randomImage = imgs[Math.floor(Math.random() * imgs.length)];
+        initialImages[card.id] = randomImage;
+      });
+      setRandomImages(initialImages);
+    }
   }, []);
 
-  /** 🎇 Confetti 강도 계산 (후원금 비례) **/
-  const fireConfetti = (amount) => {
-    const power = Math.min(amount / 300, 4);
-    const colors =
-      amount >= 1000
-        ? ["#ffd700", "#ff69b4", "#fff7b5"]
-        : amount >= 500
-        ? ["#93f9b9", "#1d976c"]
-        : ["#77a1d3", "#79cbca", "#e684ae"];
+  /** 🎇 Confetti 애니메이션 **/
+const fireConfetti = (amount, tier = "") => {
+  const basePower = Math.min(amount / 300, 4);
+  const isLegend = ["전설", "레전드"].includes(tier);
+  const isRare = ["희귀", "레어"].includes(tier);
 
-    confetti({
-      particleCount: 80 * power,
-      spread: 50 + power * 10,
-      ticks: 150,
-      startVelocity: 30 + power * 8,
-      gravity: 0.8,
-      scalar: 0.8 + power * 0.1,
-      colors,
-    });
-  };
+  // 💫 일반 등급 색상 & 전설 색상
+  const colors = isLegend
+    ? ["#ffd700", "#fff4b3", "#fa709a", "#fddb92"]
+    : amount >= 1000
+    ? ["#ffd700", "#ff69b4", "#fff7b5"]
+    : amount >= 500
+    ? ["#93f9b9", "#1d976c"]
+    : ["#77a1d3", "#79cbca", "#e684ae"];
 
-  /** 💫 카드 클릭 처리 (이미지 리롤 포함) **/
-  const handleFlip = (card) => {
-    const { id, amount, messages, frontImages } = card;
-    if (revealed[id]) return;
+    if (!isLegend && !isRare) return;
 
+  // 🌈 전설/레전드면 대폭죽 (화면 전체)
+  if (isLegend) {
+    const duration = 2000; // 2초간 퍼지는 폭죽
+    const end = Date.now() + duration;
+
+    (function frame() {
+      // 여러 방향에서 동시에 confetti
+      confetti({
+  shapes: ['square', 'circle', 'star'],
+  colors,
+  particleCount: 8 + Math.random() * 10,
+  startVelocity: 60,
+  origin: { x: Math.random(), y: Math.random() - 0.1 },
+});
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    })();
+    return;
+  }
+
+  // 🎇 일반 폭죽 (카드 중심 정도의 크기)
+  if (isRare){
+  confetti({
+    particleCount: 80 * basePower,
+    spread: 50 + basePower * 10,
+    ticks: 150,
+    startVelocity: 30 + basePower * 8,
+    gravity: 0.8,
+    scalar: 0.9,
+    origin: { y: 0.7 },
+    colors,
+  });
+  }
+};
+
+const handleFlip = (card) => {
+  const { id, amount, messages } = card;
+
+  // flip 토글
+  setFlipped((prev) => ({ ...prev, [id]: !prev[id] }));
+
+  // 클릭 시 confetti (앞면 → 뒷면으로 전환할 때)
+  setTimeout(() => {
+    if (!flipped[id]) {
+      const tier = revealed[id]?.tier;
+      fireConfetti(amount, tier || ""); // tier 전달
+    }
+  }, 10);
+
+  // 뒷면 메시지가 아직 없을 때만 랜덤 메시지 추첨
+  if (!revealed[id]) {
     const random = messages[Math.floor(Math.random() * messages.length)];
     const result = { [id]: random };
-    fireConfetti(amount);
 
-    /** 전설·레전드일 때 팝업 표시 **/
+    fireConfetti(amount, random.tier); // 🎆 전설이면 대폭죽 자동 실행
+
     if (["전설", "레전드"].includes(random.tier)) {
       setPopup({
         title: "🎶 전설 시그!",
@@ -62,44 +110,61 @@ export default function SigHunterNatural() {
       });
     }
 
-    /** 시그 메시지 저장 **/
     setRevealed((prev) => {
       const updated = { ...prev, ...result };
       localStorage.setItem("sigRevealed", JSON.stringify(updated));
       return updated;
     });
-    setFlipped((prev) => ({ ...prev, [id]: true }));
+  }
+};
 
-    /** 🖼 클릭된 카드만 랜덤 이미지 다시 뽑기 **/
-    const imgs = frontImages || [card.frontImage];
-    const newImage = imgs[Math.floor(Math.random() * imgs.length)];
-    setRandomImages((prev) => ({ ...prev, [id]: newImage }));
+  /** 🖼 이미지 업로드 **/
+  const handleImageChange = (event, cardId) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const newImageUrl = e.target.result;
+
+    // 🖼 이미지 교체 + localStorage 저장
+    setRandomImages((prev) => {
+      const updated = { ...prev, [cardId]: newImageUrl };
+      localStorage.setItem("sigImages", JSON.stringify(updated));
+      return updated;
+    });
+
+    // ✅ 업로드 후엔 바로 앞면 보여주기 (뒤집힌 상태 해제)
+    setFlipped((prev) => ({ ...prev, [cardId]: false }));
   };
 
-  /** 🔄 전체 초기화 (모든 이미지, 카드 상태 리셋) **/
+  reader.readAsDataURL(file);
+};
+
+  /** 🔄 전체 초기화 **/
   const resetAll = () => {
     localStorage.removeItem("sigRevealed");
+    localStorage.removeItem("sigImages");
     setRevealed({});
     setFlipped({});
 
-    // 모든 카드 이미지 다시 랜덤 셋팅
-    const newImages = {};
+    const resetImages = {};
     sigCards.forEach((card) => {
       const imgs = card.frontImages || [card.frontImage];
       const randomImg = imgs[Math.floor(Math.random() * imgs.length)];
-      newImages[card.id] = randomImg;
+      resetImages[card.id] = randomImg;
     });
-    setRandomImages(newImages);
+    setRandomImages(resetImages);
   };
 
   const closePopup = () => setPopup(null);
 
-  /** 🖼 렌더 부분 **/
+  /** 🖥 UI 렌더링 **/
   return (
     <div className="natural-container">
       <h2>💖 시그헌터 💖</h2>
       <button className="reset-btn" onClick={resetAll}>
-        🔄 초기화
+        🔄 전체 초기화
       </button>
 
       <div className="card-grid">
@@ -117,15 +182,16 @@ export default function SigHunterNatural() {
               onClick={() => handleFlip(card)}
             >
               <div className="card-inner">
-                {/* 앞면: 현재 선택된 이미지 보여줌 */}
+                {/* 앞면 */}
                 <div className="card-front">
                   <img
+                    key={randomImages[card.id]} // 이미지 변경 시 즉시 갱신
                     src={randomImages[card.id]}
                     alt="시그 이미지"
                   />
                 </div>
 
-                {/* 뒷면: 결과 메시지 */}
+                {/* 뒷면 */}
                 <div className="card-back">
                   {revealedMsg ? (
                     <>
@@ -139,26 +205,36 @@ export default function SigHunterNatural() {
                   ) : (
                     <h3>?</h3>
                   )}
+
+                  {/* 🖼 이미지 변경 버튼 */}
+                  <label htmlFor={`file-${card.id}`} className="upload-btn">
+                    🖼
+                  </label>
+                  <input
+                    id={`file-${card.id}`}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={(e) => handleImageChange(e, card.id)}
+                  />
                 </div>
               </div>
             </div>
           );
         })}
 
-          {/* 팝업 */}
-      {popup && (
-        <div className="popup-overlay" onClick={closePopup}>
-          <div className="popup-box">
-            <h2>{popup.title}</h2>
-            <p>🪙 {popup.amount} 하트</p>
-            <p>{popup.message}</p>
-            <button onClick={closePopup}>닫기 ✨</button>
+        {/* 팝업 */}
+        {popup && (
+          <div className="popup-overlay" onClick={closePopup}>
+            <div className="popup-box" onClick={(e) => e.stopPropagation()}>
+              <h2>{popup.title}</h2>
+              <p>🪙 {popup.amount} 하트</p>
+              <p>{popup.message}</p>
+              <button onClick={closePopup}>닫기 ✨</button>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
       </div>
-
-    
+    </div>
   );
 }
