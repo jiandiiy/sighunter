@@ -11,7 +11,7 @@
 
 .natural-container h2 {
   color: #000;
-  font-size: 25px;
+  font-size: 30px;
   margin-bottom: 1rem;
 }
 
@@ -20,11 +20,12 @@
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 16px;
   padding: 0.45rem 0.9rem;
   cursor: pointer;
   transition: transform 0.2s ease, background 0.3s;
-  margin-bottom: 2rem;
+  margin: 0 0 2rem;
+  
 }
 
 .reset-btn:hover {
@@ -59,10 +60,17 @@
 
 /* ✅ 특별 카드 스타일 (크고 화려하게) */
 .special-card {
-  width: clamp(320px, 28vw, 450px) !important;
+  width: clamp(380px, 40vw, 450px) !important;
   aspect-ratio: 10 / 9;
-  box-shadow: 0 12px 30px rgba(255, 215, 0, 0.6) !important;
+  box-shadow: 0 15px 40px rgba(255, 215, 0, 0.8) !important;
   animation: specialGlow 3s infinite alternate ease-in-out;
+}
+
+/* 모바일 보정 */
+@media (max-width: 600px) {
+  .special-card {
+    width: 90% !important;
+  }
 }
 
 @keyframes specialGlow {
@@ -80,12 +88,12 @@
 }
 
 .special-card .back-content h1 {
-  font-size: 8rem !important;
+  font-size: 10rem !important;
 }
 
 /* 일반 카드 */
 .natural-card {
-  width: clamp(180px, 16vw, 250px);
+  width: clamp(250px, 16vw, 350px);
   aspect-ratio: 10 / 9;
   perspective: 1000px;
   transition: transform 0.3s ease, box-shadow 0.3s;
@@ -122,79 +130,72 @@
   overflow: hidden;
 }
 
-.card-front {
-  background: linear-gradient(135deg, #ffb6c1, #ff7eb3);
-}
-
 .card-front img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
+  z-index: 1;
 }
 
-/* ✅ 메시지 수정 버튼 */
+.admin-btn,
+.edit-msg-btn {
+  z-index: 5;
+}
+
+/* 공통 버튼 */
+.admin-btn,
 .edit-msg-btn {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  background: rgba(0, 0, 0, 0.6);
-  color: #fff;
+  top: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px; /* 이모지 크기 */
+  width: 28px;     /* ✅ 기존 36px → 28px 줄임 */
+  height: 28px;    /* ✅ 크기를 이모지 맞춰 */
+  background: transparent;
   border: none;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  font-size: 18px;
+  border-radius: 8px;
   cursor: pointer;
   opacity: 0;
   pointer-events: none;
-  z-index: 5;
-  transition: opacity 0.3s ease, transform 0.2s ease;
+  z-index: 10;
+  transition: all 0.25s ease;
 }
 
+/* 위치 */
+.edit-msg-btn {
+  right: 8px;
+}
+.admin-btn {
+  right: 40px; /* ⚙️을 조금만 왼쪽으로 */
+}
+
+
+/* 카드 hover 시 표시 */
+.natural-card:hover .admin-btn,
 .natural-card:hover .edit-msg-btn {
   opacity: 1;
   pointer-events: auto;
 }
 
+
+
+/* hover 효과 */
+.admin-btn:hover,
 .edit-msg-btn:hover {
-  transform: scale(1.15);
-  background: rgba(0, 0, 0, 0.8);
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.4);
 }
 
-/* ✅ 확률 조절 버튼 (카드 앞면 우측 상단) */
-.admin-btn {
-  position: absolute;
-  top: 10px;
-  right: 55px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  font-size: 16px;
-  cursor: pointer;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
-  z-index: 5;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease, transform 0.2s ease;
-}
-
-.natural-card:hover .admin-btn {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.admin-btn:hover {
-  transform: scale(1.15) rotate(15deg);
-  box-shadow: 0 5px 12px rgba(102, 126, 234, 0.5);
-}
 
 .card-back {
   background: linear-gradient(135deg, #443288, #7a60d1);
   transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; /* ✅ 세로 중심 정렬 추가 */
 }
 
 .glow .card-back {
@@ -203,10 +204,10 @@
 
 @keyframes subtleGlow {
   from {
-    box-shadow: 0 0 15px 4px rgba(255, 255, 180, 0.6);
+    box-shadow: 0 0 4px 4px rgba(255, 255, 180, 0.6);
   }
   to {
-    box-shadow: 0 0 30px 10px rgba(255, 255, 200, 0.8);
+    box-shadow: 0 0 10px 10px rgba(255, 255, 200, 0.8);
   }
 }
 
@@ -215,7 +216,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  gap: 10px;
 }
 
 .tier {
@@ -223,11 +224,11 @@
   border-radius: 16px;
   font-size: 14px;
   font-weight: 600;
+  margin: 0;
 }
 
 .tier.일반 {
-  background: #fff;
-  color: #333;
+  color: #fff;
 }
 
 .tier.희귀 {
@@ -238,6 +239,8 @@
 .tier.레어 {
   background: #68d391;
   color: #1d4438;
+  border: 1px solid #eee;
+  font-weight: bold;
 }
 
 .tier.전설,
@@ -248,20 +251,25 @@
 }
 
 .back-content h3 {
-  font-size: 35px;
+  font-size: 75px;
   margin: 0;
 }
 
 .upload-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  width: 16px;          /* ✅ 크기 고정 */
+  height: 16px;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  margin-top: 10px;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.3);
-  margin-top: 8px;
-  padding: 0 0;
-  transition: 0.2s;
-  border-color: transparent;
-  z-index: 9999;
+  transition: background 0.2s ease, transform 0.2s ease;
+  z-index: 5;
   pointer-events: auto;
-  font-size: 16px;
 }
 
 .upload-btn:hover {
@@ -348,149 +356,6 @@
   transform: scale(1.08);
 }
 
-/* ✅ 확률 조절 팝업 (더 큰 사이즈) */
-.admin-popup {
-  max-width: 750px !important;
-  max-height: 85vh;
-  overflow-y: auto;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-  padding: 2.5rem !important;
-}
-
-.admin-popup h2 {
-  color: white !important;
-  text-align: center;
-  margin-bottom: 25px;
-  font-size: 2rem;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-/* ✅ 확률 섹션 */
-.probability-section {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 15px;
-  padding: 20px;
-  margin-bottom: 20px;
-  backdrop-filter: blur(10px);
-}
-
-.probability-section h4 {
-  color: white;
-  margin-bottom: 15px;
-  font-size: 1.4rem;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
-  padding-bottom: 10px;
-}
-
-/* ✅ 확률 조절 컨트롤 */
-.prob-control {
-  display: flex;
-  align-items: center;
-  margin-bottom: 15px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-  transition: all 0.3s ease;
-}
-
-.prob-control:hover {
-  background: rgba(255, 255, 255, 0.15);
-  transform: translateX(5px);
-}
-
-.prob-control label {
-  flex: 0 0 220px;
-  font-weight: bold;
-  font-size: 1rem;
-  color: white;
-}
-
-.prob-percent {
-  margin-left: 10px;
-  color: #ffd700;
-  font-size: 0.95rem;
-  font-weight: normal;
-}
-
-.prob-control input[type="range"] {
-  flex: 1;
-  margin: 0 15px;
-  height: 8px;
-  border-radius: 5px;
-  background: rgba(255, 255, 255, 0.2);
-  outline: none;
-  -webkit-appearance: none;
-}
-
-.prob-control input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #ffd700;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-  transition: all 0.3s ease;
-}
-
-.prob-control input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
-  background: #ffed4e;
-}
-
-.prob-control input[type="range"]::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #ffd700;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-  border: none;
-  transition: all 0.3s ease;
-}
-
-.prob-control input[type="range"]::-moz-range-thumb:hover {
-  transform: scale(1.2);
-  background: #ffed4e;
-}
-
-.prob-control input[type="number"] {
-  width: 70px;
-  padding: 8px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  font-weight: bold;
-  text-align: center;
-  font-size: 1rem;
-}
-
-.prob-control input[type="number"]:focus {
-  outline: none;
-  border-color: #ffd700;
-  background: rgba(255, 255, 255, 0.2);
-}
-
-/* ✅ 스크롤바 스타일 (확률 조절 팝업용) */
-.admin-popup::-webkit-scrollbar {
-  width: 10px;
-}
-
-.admin-popup::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-}
-
-.admin-popup::-webkit-scrollbar-thumb {
-  background: rgba(255, 215, 0, 0.6);
-  border-radius: 10px;
-}
-
-.admin-popup::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 215, 0, 0.9);
-}
 
 @keyframes popInBig {
   from {

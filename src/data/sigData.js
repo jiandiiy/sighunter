@@ -1130,14 +1130,14 @@ export const sigCards = [
 // 일반 카드(1~10) 메시지 풀 (가중치 포함)
 export const normalMessages = [
   {
-    "text": "기여도 두배 🎁",
+    "text": "기여도 두배",
     "tier": "일반",
     "color": "#ffffff",
     "bgColor": "#443288",
     "weight": 60
   },
   {
-    "text": "기여도 세배 🎉",
+    "text": "기여도 세배",
     "tier": "희귀",
     "color": "#22543d",
     "bgColor": "#9ae6b4",
