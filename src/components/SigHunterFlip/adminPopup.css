@@ -3,14 +3,15 @@
   to { opacity: 1; }
 }
 @keyframes slideUp {
-  from { transform: translateY(40px); opacity: 0; }
+  from { transform: translateY(30px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
 
+/* 오버레이 */
 .admin-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -18,210 +19,189 @@
   animation: fadeIn 0.2s ease;
 }
 
+/* 모달 박스 */
 .admin-modal {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 25px;
-  border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-  width: clamp(250px, 55vw, 450px);
-  height: 75vh;
-  max-height: 75vh;
+  padding: 18px;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  width: clamp(240px, 50vw, 420px);
+  max-height: 70vh;
   overflow-y: auto;
   font-family: "Pretendard", sans-serif;
   color: #333;
   animation: slideUp 0.25s ease;
 }
 
-/* 내부 컨테이너 */
 .admin-container {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 16px;
-  padding: 30px;
-  height: 80%;
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 12px;
+  padding: 20px;
 }
 
+/* 제목 */
 h2 {
   text-align: center;
   color: #333;
-  margin-bottom: 10px;
-  font-size: 26px;
+  margin-bottom: 8px;
+  font-size: 22px;
 }
 
 .card-type {
   text-align: center;
   color: #666;
-  margin-bottom: 25px;
-  font-size: 16px;
+  margin-bottom: 18px;
+  font-size: 14px;
 }
 
 /* 확률 조절 블록 */
 .prob-control {
   background: rgba(102, 126, 234, 0.08);
-  border-radius: 12px;
-  padding: 15px;
-  margin-bottom: 15px;
-  transition: transform 0.3s, background 0.3s;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
+  transition: transform 0.25s, background 0.25s;
 }
 .prob-control:hover {
-  transform: translateX(3px);
-  background: rgba(102, 126, 234, 0.15);
+  transform: translateX(2px);
+  background: rgba(102, 126, 234, 0.13);
 }
 
 .prob-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 .prob-header label {
   font-weight: 600;
   color: #333;
-  font-size: 24px;
+  font-size: 18px;
 }
 
 .prob-percent {
   color: #667eea;
-  font-weight: bolder;
-  font-size: 22px;
+  font-weight: 700;
+  font-size: 16px;
 }
 
 .prob-inputs {
   display: flex;
-  gap: 15px;
+  gap: 10px;
   align-items: center;
 }
 
+/* 슬라이더 */
 .range-input {
   width: 100%;
-  height: 8px;
+  height: 6px;
   border-radius: 5px;
   outline: none;
   cursor: pointer;
   -webkit-appearance: none;
-  background: linear-gradient(to right, #667eea 0%, #667eea var(--range-progress, 0%), #fff var(--range-progress, 0%), #fff 100%);
+  background: linear-gradient(
+    to right,
+    #667eea 0%,
+    #667eea var(--range-progress, 0%),
+    #fff var(--range-progress, 0%),
+    #fff 100%
+  );
   transition: background 0.15s ease;
 }
-
-/* 썸(동그란 손잡이) 스타일 */
 .range-input::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   background: #667eea;
   border-radius: 50%;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
   cursor: pointer;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
 }
 .range-input::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   background: #667eea;
   border-radius: 50%;
   border: none;
   cursor: pointer;
 }
-/* 트랙 부분 (파이어폭스 호환) */
-.range-input::-moz-range-track {
-  background: transparent;
-}
+.range-input::-moz-range-track { background: transparent; }
 
+/* 숫자 입력 */
 .number-input {
-  width: 80px;
-  padding: 8px;
+  width: 60px;
+  padding: 6px;
   border: 2px solid #333;
-  border-radius: 8px;
+  border-radius: 6px;
   text-align: center;
   font-weight: 600;
-  font-size: 25px;
+  font-size: 18px;
 }
 .number-input:focus {
   border-color: #667eea;
   outline: none;
 }
 
-/* 버튼 */
+/* 버튼 그룹 */
 .button-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 25px;
+  gap: 8px;
+  margin-top: 18px;
   justify-content: center;
 }
 
 button {
   flex: 1;
-  padding: 14px;
+  padding: 10px;
   border: none;
-  border-radius: 10px;
-  font-size: 15px;
+  border-radius: 8px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
 }
-
 button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
 .reset-single-btn {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  font-size: 18px;
 }
-
 .reset-all-btn {
   background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
   color: white;
-  font-size: 18px;
 }
-
 .close-btn {
   background: #e0e0e0;
   color: #333;
-  font-size: 20px;
 }
 
-/* 🌀 스크롤바 (동적 색상 적용) */
-/* 🌀 스크롤바 (진하게 & 반응형) */
+/* 스크롤바 */
 .admin-modal::-webkit-scrollbar {
-  width: 20px;
+  width: 14px;
 }
-
-/* 트랙 (배경) */
 .admin-modal::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
 }
-
-/* thumb (슬라이드 핸들) */
 .admin-modal::-webkit-scrollbar-thumb {
   background: linear-gradient(
     to bottom,
     #667eea 0%,
-    #764ba2 var(--scroll-pos, 0%),
-    rgba(120, 120, 120, 0.3) calc(var(--scroll-pos, 0%) + 1%)
+    #764ba2 var(--scroll-pos, 0%)
   );
-  border-radius: 10px;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  transition: background 0.1s ease;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
 }
-
-/* hover 시 thumb 더 강조 */
 .admin-modal::-webkit-scrollbar-thumb:hover {
-  transform: scaleX(1.15);
-  box-shadow: 0 0 6px rgba(102, 126, 234, 0.8);
+  box-shadow: 0 0 4px rgba(102, 126, 234, 0.8);
 }
 
-/* 활성화된 상태에서 thumb 좀 더 밝게 */
-.admin-modal:active::-webkit-scrollbar-thumb {
-  background: var(
-    --scroll-gradient,
-    linear-gradient(to bottom, #7a6aff 0%, #9b5ffb 100%)
-  );
-}
+/* 스탠드얼론 */
 .admin-popup-standalone {
   background: #0e0e0e;
   color: #fff;
