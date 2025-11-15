@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useState, useEffect } from "react";
 
 function CardItem({
   card = {},
@@ -15,12 +15,35 @@ function CardItem({
 }) {
   const id = card.id;
 
+  // ✅ 이미지 변경 시 fade 효과 주기
+  const [isChanging, setIsChanging] = useState(false);
+  const [displaySrc, setDisplaySrc] = useState(
+    randomImages?.[id] || "/images/placeholder.png"
+  );
+
   const msg = revealed?.[id] || null;
   const isFlipped = flipped?.[id] || false;
   const isLocked = locked?.[id] || false;
-  const imageSrc = randomImages?.[id] || "/images/placeholder.png";
+  const newSrc = randomImages?.[id] || "/images/placeholder.png";
+
   const glow = msg?.tier && ["전설", "레전드"].includes(msg.tier);
 
+  /** 🖼 이미지 변경 감지 + 프리로드 + 부드러운 전환 */
+  useEffect(() => {
+    if (displaySrc === newSrc) return;
+    setIsChanging(true);
+
+    const img = new Image();
+    img.src = newSrc;
+    img.onload = () => {
+      requestAnimationFrame(() => {
+        setDisplaySrc(newSrc);
+        setIsChanging(false);
+      });
+    };
+  }, [newSrc, displaySrc]);
+
+  /** 🃏 카드 클릭 */
   const handleFlip = (e) => {
     if (isLocked) {
       e.stopPropagation();
@@ -40,7 +63,11 @@ function CardItem({
       <div className="card-inner">
         {/* 카드 앞면 */}
         <div className="card-front">
-          <img src={imageSrc} alt={`카드 ${id}`} />
+          <img
+            src={displaySrc}
+            alt={`카드 ${id}`}
+            className={isChanging ? "changing" : ""}
+          />
 
           <button
             type="button"
@@ -117,7 +144,7 @@ function CardItem({
   );
 }
 
-/** 🧩 핵심: 불필요한 리렌더링 방지용 커스텀 비교 */
+/** 🧩 렌더 최적화: 해당 카드의 상태가 바뀔 때만 리렌더 */
 export default memo(CardItem, (prev, next) => {
   const id = prev.card.id;
   return (
