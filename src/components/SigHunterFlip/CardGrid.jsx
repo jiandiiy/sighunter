@@ -1,7 +1,7 @@
-import React from "react";
+import React, { memo } from "react";
 import CardItem from "./CardItem";
 
-export default function CardGrid({
+function CardGrid({
   cards,
   flipped,
   locked,
@@ -24,7 +24,6 @@ export default function CardGrid({
           locked={locked}
           revealed={revealed}
           randomImages={randomImages}
-          // 여기서 card.id 전달 👍
           onAdmin={(e) => onAdmin(e, card.id)}
           onEdit={(e) => onEdit(e, card.id)}
           onFlip={onFlip}
@@ -36,3 +35,5 @@ export default function CardGrid({
     </div>
   );
 }
+
+export default memo(CardGrid);

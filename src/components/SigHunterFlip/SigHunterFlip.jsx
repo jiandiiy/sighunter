@@ -118,11 +118,16 @@ export default function SigHunterFlip() {
   };
 
   /** 🔄 전체 초기화 */
-  const resetAll = () => {
-    localStorage.clear();
-    setFlipped({});
-    setLocked({});
-    setRevealed({});
+ const resetAll = () => {
+  localStorage.clear();
+
+  // 💫 1단계: 비활성화 상태로 전환
+  setLocked({});
+  setRevealed({});
+  setFlipped({});
+
+  // 💫 2단계: requestAnimationFrame으로 프레임 분산
+  requestAnimationFrame(() => {
     const initImgs = {};
     sigCards.forEach((c) => {
       const imgs = c.frontImages;
@@ -130,6 +135,17 @@ export default function SigHunterFlip() {
         initImgs[c.id] = imgs[Math.floor(Math.random() * imgs.length)];
     });
     setRandomImages(initImgs);
+  });
+
+  requestAnimationFrame(() => {
+    const initWeights = {};
+    sigCards.forEach((card) => {
+      initWeights[card.id] = (
+        card.isSpecial ? specialMessages : normalMessages
+      ).map((m) => m.weight);
+    });
+    setCardWeights(initWeights);
+  });
 
     const initWeights = {};
     sigCards.forEach((card) => {

@@ -1,6 +1,6 @@
-import React, { useRef } from "react";
+import React, { memo } from "react";
 
-export default function CardItem({
+function CardItem({
   card = {},
   flipped = {},
   locked = {},
@@ -13,15 +13,14 @@ export default function CardItem({
   onImageChange = () => {},
   fileInputRefs = { current: {} },
 }) {
-  // 안전하게 데이터 구조 접근
-  const msg = revealed?.[card.id] || null;
-  const isFlipped = flipped?.[card.id] || false;
-  const isLocked = locked?.[card.id] || false;
-  const imageSrc = randomImages?.[card.id] || "/images/placeholder.png";
+  const id = card.id;
 
+  const msg = revealed?.[id] || null;
+  const isFlipped = flipped?.[id] || false;
+  const isLocked = locked?.[id] || false;
+  const imageSrc = randomImages?.[id] || "/images/placeholder.png";
   const glow = msg?.tier && ["전설", "레전드"].includes(msg.tier);
 
-  // 카드 클릭 (잠금 상태 시 무효)
   const handleFlip = (e) => {
     if (isLocked) {
       e.stopPropagation();
@@ -32,44 +31,43 @@ export default function CardItem({
 
   return (
     <div
-      className={`natural-card ${card.isSpecial ? "special-card" : ""} ${
-        isFlipped ? "flipped" : ""
-      } ${glow ? "glow" : ""} ${isLocked ? "locked" : ""}`}
+      className={`natural-card ${card.isSpecial ? "special-card" : ""} 
+        ${isFlipped ? "flipped" : ""} 
+        ${glow ? "glow" : ""} 
+        ${isLocked ? "locked" : ""}`}
       onClick={handleFlip}
     >
       <div className="card-inner">
-        {/* -------------------- 카드 앞면 -------------------- */}
+        {/* 카드 앞면 */}
         <div className="card-front">
-          <img src={imageSrc} alt={`카드 ${card.id ?? "?"}`} />
+          <img src={imageSrc} alt={`카드 ${id}`} />
 
-          {/* ✏️ 메시지 수정 */}
           <button
             type="button"
             className="edit-msg-btn"
-            title={`카드 ${card.id} 메시지 수정`}
+            title={`카드 ${id} 메시지 수정`}
             onClick={(e) => {
               e.stopPropagation();
-              onEdit(e, card.id);
+              onEdit(e, id);
             }}
           >
             ✏️
           </button>
 
-          {/* ⚙️ 확률 조절 (Admin) */}
           <button
             type="button"
             className="admin-btn"
-            title={`카드 ${card.id} 확률 조절`}
+            title={`카드 ${id} 확률 조절`}
             onClick={(e) => {
               e.stopPropagation();
-              onAdmin(e, card.id);
+              onAdmin(e, id);
             }}
           >
             ⚙️
           </button>
         </div>
 
-        {/* -------------------- 카드 뒷면 -------------------- */}
+        {/* 카드 뒷면 */}
         <div
           className="card-back"
           style={
@@ -81,11 +79,7 @@ export default function CardItem({
           <div className="back-content">
             {msg ? (
               <>
-                <span
-                  className={`tier ${
-                    msg.tier ? msg.tier.toLowerCase() : "unknown"
-                  }`}
-                >
+                <span className={`tier ${msg.tier?.toLowerCase() ?? "unknown"}`}>
                   {msg.tier || ""}
                 </span>
                 <h3>{msg.text || ""}</h3>
@@ -94,13 +88,12 @@ export default function CardItem({
               <h3>?</h3>
             )}
 
-            {/* 🖼️ 이미지 업로드 */}
             <button
               type="button"
               className="upload-btn"
               onClick={(e) => {
                 e.stopPropagation();
-                onUploadClick(e, card.id);
+                onUploadClick(e, id);
               }}
             >
               🖼️
@@ -108,14 +101,14 @@ export default function CardItem({
 
             <input
               ref={(el) => {
-                if (fileInputRefs && fileInputRefs.current) {
-                  fileInputRefs.current[card.id] = el;
+                if (fileInputRefs?.current) {
+                  fileInputRefs.current[id] = el;
                 }
               }}
               type="file"
               accept="image/*"
               style={{ display: "none" }}
-              onChange={(e) => onImageChange(e, card.id)}
+              onChange={(e) => onImageChange(e, id)}
             />
           </div>
         </div>
@@ -123,3 +116,14 @@ export default function CardItem({
     </div>
   );
 }
+
+/** 🧩 핵심: 불필요한 리렌더링 방지용 커스텀 비교 */
+export default memo(CardItem, (prev, next) => {
+  const id = prev.card.id;
+  return (
+    prev.flipped[id] === next.flipped[id] &&
+    prev.locked[id] === next.locked[id] &&
+    prev.randomImages[id] === next.randomImages[id] &&
+    JSON.stringify(prev.revealed[id]) === JSON.stringify(next.revealed[id])
+  );
+});
