@@ -28,20 +28,17 @@ function CardItem({
 
   const glow = msg?.tier && ["전설", "레전드"].includes(msg.tier);
 
-  /** 🖼 이미지 변경 감지 + 프리로드 + 부드러운 전환 */
-  useEffect(() => {
-    if (displaySrc === newSrc) return;
-    setIsChanging(true);
+ // 변경 후: 즉시 교체 + decode 백그라운드
+useEffect(() => {
+  if (displaySrc === newSrc) return;
+  setIsChanging(true);
+  setDisplaySrc(newSrc); // 즉시 전환
 
-    const img = new Image();
-    img.src = newSrc;
-    img.onload = () => {
-      requestAnimationFrame(() => {
-        setDisplaySrc(newSrc);
-        setIsChanging(false);
-      });
-    };
-  }, [newSrc, displaySrc]);
+  // 백그라운드에서 디코딩만 기다림
+  const img = new Image();
+  img.src = newSrc;
+  img.decode?.().finally(() => setIsChanging(false));
+}, [newSrc]);
 
   /** 🃏 카드 클릭 */
   const handleFlip = (e) => {
