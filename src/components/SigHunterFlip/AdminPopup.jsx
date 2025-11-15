@@ -54,7 +54,7 @@ export default function AdminPopup({ cardId, onClose, onUpdate }) {
     all[id] = newWeights;
     localStorage.setItem("cardWeights", JSON.stringify(all));
 
-    onUpdate?.(newWeights);
+    onUpdate?.(newWeights, id);
   };
 
   /** 이 카드만 초기화 */

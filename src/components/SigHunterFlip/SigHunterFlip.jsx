@@ -229,9 +229,7 @@ export default function SigHunterFlip() {
         <AdminPopup
           cardId={modal.id}
           onClose={() => setModal(null)}
-          onUpdate={(weights) =>
-            setCardWeights((prev) => ({ ...prev, [modal.id]: weights }))
-          }
+          onUpdate={(w, id)=>setCardWeights(prev=>({...prev,[id]:w}))}
         />
       )}
     </div>
