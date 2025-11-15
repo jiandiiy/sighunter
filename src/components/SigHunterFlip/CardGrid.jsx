@@ -24,9 +24,9 @@ function CardGrid({
           locked={locked}
           revealed={revealed}
           randomImages={randomImages}
+          onFlip={onFlip}
           onAdmin={(e) => onAdmin(e, card.id)}
           onEdit={(e) => onEdit(e, card.id)}
-          onFlip={onFlip}
           onUploadClick={onUploadClick}
           onImageChange={onImageChange}
           fileInputRefs={fileInputRefs}

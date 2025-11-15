@@ -3,8 +3,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import SigHunterFlip from "./components/SigHunterFlip/SigHunterFlip";
 import AdminPopup from "./components/SigHunterFlip/AdminPopup";
 import EditMessageModal from "./components/SigHunterFlip/EditMessageModal";
-import AdminPage from "./components/pages/AdminPage";
-import OverlayPage from "./components/pages/OverlayPage";
 
 
 export default function App() {
@@ -23,8 +21,6 @@ export default function App() {
           path="/admin-popup"
           element={<AdminPopup onClose={() => window.close()} />}
         />
-        <Route path="/admin" element={<AdminPage />} />
-        <Route path="/overlay" element={<OverlayPage />} />
 
       </Routes>
     </Router>

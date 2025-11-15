@@ -15,30 +15,58 @@ function CardItem({
 }) {
   const id = card.id;
 
-  // ✅ 이미지 변경 시 fade 효과 주기
+  // ✅ 이미지 변경 시 fade 효과
   const [isChanging, setIsChanging] = useState(false);
   const [displaySrc, setDisplaySrc] = useState(
-    randomImages?.[id] || "/images/placeholder.png"
+    randomImages?.[id] || card.frontImages?.[0] || "https://via.placeholder.com/200/CCCCCC/FFFFFF?text=No+Image"
   );
+  const [imageError, setImageError] = useState(false);
 
   const msg = revealed?.[id] || null;
   const isFlipped = flipped?.[id] || false;
   const isLocked = locked?.[id] || false;
-  const newSrc = randomImages?.[id] || "/images/placeholder.png";
+  const newSrc = randomImages?.[id] || card.frontImages?.[0] || "https://via.placeholder.com/200/CCCCCC/FFFFFF?text=No+Image";
 
   const glow = msg?.tier && ["전설", "레전드"].includes(msg.tier);
 
- // 변경 후: 즉시 교체 + decode 백그라운드
-useEffect(() => {
-  if (displaySrc === newSrc) return;
-  setIsChanging(true);
-  setDisplaySrc(newSrc); // 즉시 전환
+  // ✅ 이미지 변경 감지 + 사전 로딩
+  useEffect(() => {
+    if (displaySrc === newSrc) return;
 
-  // 백그라운드에서 디코딩만 기다림
-  const img = new Image();
-  img.src = newSrc;
-  img.decode?.().finally(() => setIsChanging(false));
-}, [newSrc]);
+    setIsChanging(true);
+    setImageError(false);
+
+    const img = new Image();
+    img.src = newSrc;
+
+    const handleLoad = () => {
+      setDisplaySrc(newSrc);
+      setIsChanging(false);
+    };
+
+    const handleError = () => {
+      console.error("❌ 이미지 로딩 실패:", newSrc);
+      setImageError(true);
+      setDisplaySrc("https://via.placeholder.com/200/FF6B6B/FFFFFF?text=Load+Failed");
+      setIsChanging(false);
+    };
+
+    // decode 지원 브라우저
+    if (img.decode) {
+      img.decode()
+        .then(handleLoad)
+        .catch(handleError);
+    } else {
+      // 구형 브라우저 fallback
+      img.onload = handleLoad;
+      img.onerror = handleError;
+    }
+
+    return () => {
+      img.onload = null;
+      img.onerror = null;
+    };
+  }, [newSrc, displaySrc]);
 
   /** 🃏 카드 클릭 */
   const handleFlip = (e) => {
@@ -48,6 +76,25 @@ useEffect(() => {
     }
     onFlip(card, e);
   };
+
+  /** 🖼️ 이미지 로딩 에러 핸들러 */
+  const handleImageError = (e) => {
+    console.error("❌ 이미지 렌더 실패:", e.target.src);
+    if (!imageError) {
+      setImageError(true);
+      e.target.src = "https://via.placeholder.com/200/FF6B6B/FFFFFF?text=Error";
+    }
+  };
+
+  /** ✅ 이미지 로딩 성공 핸들러 */
+  const handleImageLoad = () => {
+    if (imageError) {
+      console.log("✅ 이미지 복구 성공:", id);
+      setImageError(false);
+    }
+  };
+
+    console.log("🧾 [CardItem] id:", id, "msg:", msg);
 
   return (
     <div
@@ -64,7 +111,17 @@ useEffect(() => {
             src={displaySrc}
             alt={`카드 ${id}`}
             className={isChanging ? "changing" : ""}
+            onError={handleImageError}
+            onLoad={handleImageLoad}
+            loading="lazy"
+            decoding="async"
           />
+
+          {imageError && (
+            <div className="image-error-badge">
+              ⚠️ 이미지 오류
+            </div>
+          )}
 
           <button
             type="button"
@@ -141,13 +198,5 @@ useEffect(() => {
   );
 }
 
-/** 🧩 렌더 최적화: 해당 카드의 상태가 바뀔 때만 리렌더 */
-export default memo(CardItem, (prev, next) => {
-  const id = prev.card.id;
-  return (
-    prev.flipped[id] === next.flipped[id] &&
-    prev.locked[id] === next.locked[id] &&
-    prev.randomImages[id] === next.randomImages[id] &&
-    JSON.stringify(prev.revealed[id]) === JSON.stringify(next.revealed[id])
-  );
-});
+
+export default CardItem;

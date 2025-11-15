@@ -2,7 +2,12 @@ import React, { useState, useEffect } from "react";
 import { sigCards } from "../../data/sigData";
 import "./editMessage.css";
 
-export default function EditMessageModal({ cardId, onClose, onUpdate }) {
+export default function EditMessageModal({
+  cardId,
+  initialMsg, // 부모(SigHunterFlip)에서 넘겨주는 현재 메시지
+  onClose,
+  onUpdate,
+}) {
   const id = Number(cardId);
 
   const [currentMsg, setCurrentMsg] = useState({
@@ -14,11 +19,21 @@ export default function EditMessageModal({ cardId, onClose, onUpdate }) {
 
   const card = sigCards.find((c) => c.id === id);
 
-  /** 초기값 로드 (localStorage에서 해당 카드 메시지 불러오기) */
+  // 🔹 초기값 로드: initialMsg 우선, 없으면 localStorage fallback
   useEffect(() => {
+    if (initialMsg) {
+      setCurrentMsg((prev) => ({
+        ...prev,
+        ...initialMsg,
+      }));
+      return;
+    }
+
     const saved = JSON.parse(localStorage.getItem("sigRevealed") || "{}");
-    if (saved[id]) setCurrentMsg(saved[id]);
-  }, [id]);
+    if (saved[id]) {
+      setCurrentMsg(saved[id]);
+    }
+  }, [id, initialMsg]);
 
   /** 인풋 변경 핸들러 */
   const handleChange = (e) => {
@@ -45,7 +60,8 @@ export default function EditMessageModal({ cardId, onClose, onUpdate }) {
       localStorage.setItem("sigLocked", JSON.stringify(locked));
 
       // 3️⃣ 부모 SPA 상태에 즉시 반영
-      onUpdate?.(currentMsg);
+       console.log("✅ [EditMessageModal] onUpdate 호출 직전:", currentMsg);
+    onUpdate?.(currentMsg);
 
       alert(`✅ 카드 ${id}번 메시지 수정 완료!`);
       onClose();
@@ -98,10 +114,20 @@ export default function EditMessageModal({ cardId, onClose, onUpdate }) {
         />
 
         <div className="button-group">
-          <button onClick={handleSave} className="save-btn">
+          <button type="button"
+  onClick={(e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    handleSave();
+  }}>
             💾 저장
           </button>
-          <button className="close-btn" onClick={onClose}>
+          <button   type="button"
+  onClick={(e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    onClose();
+  }}>
             닫기
           </button>
         </div>

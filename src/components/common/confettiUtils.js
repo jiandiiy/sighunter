@@ -23,12 +23,30 @@ export const fireConfetti = (tier) => {
 };
 
 // 🎲 가중치 기반 선택
-export const weightedPick = (arr, weights) => {
-  const total = weights.reduce((a, b) => a + b, 0);
-  let r = Math.random() * total;
-  for (let i = 0; i < arr.length; i++) {
-    r -= weights[i];
-    if (r <= 0) return arr[i];
+export function weightedPick(messages, weights) {
+  const useWeights =
+    Array.isArray(weights) && weights.length === messages.length
+      ? weights
+      : messages.map((m) => m.weight ?? 0);
+
+  console.log(
+    "🎲 [weightedPick] length:",
+    messages.length,
+    "weights:",
+    useWeights
+  );
+
+  const total = useWeights.reduce((sum, w) => sum + (w || 0), 0) || 1;
+  const r = Math.random() * total;
+  console.log("🎲 [weightedPick] total:", total, "r:", r);
+
+  let acc = 0;
+  for (let i = 0; i < messages.length; i++) {
+    acc += useWeights[i] || 0;
+    if (r <= acc) {
+      console.log("🎯 [weightedPick] picked index:", i, "msg:", messages[i]);
+      return messages[i];
+    }
   }
-  return arr[arr.length - 1];
-};
+  return messages[messages.length - 1];
+}

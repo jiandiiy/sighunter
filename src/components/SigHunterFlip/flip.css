@@ -130,6 +130,31 @@
   overflow: hidden;
 }
 
+/* 이미지 에러 배지 */
+.image-error-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(255, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* 이미지 전환 애니메이션 */
+.card-front img.changing {
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+}
+
+.card-front img:not(.changing) {
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
 .card-front img {
   width: 100%;
   height: 100%;
@@ -137,10 +162,6 @@
   z-index: 1;
   opacity: 1;
   transition: opacity 0.25s ease;
-}
-
-.card-front img.changing {
-  opacity: 0;
 }
 
 .admin-btn,

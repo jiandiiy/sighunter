@@ -1,29 +1,38 @@
+// src/components/SigHunterFlip/AdminPopup.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { sigCards, normalMessages, specialMessages } from "../../data/sigData";
 import "./adminPopup.css";
 
 export default function AdminPopup({ cardId, onClose, onUpdate }) {
-  // 🧩 OBS 내부 모달에서는 props.cardId만 사용 (URL 파라미터 X)
-  const id = Number(cardId);
-  const card = sigCards.find((c) => c.id === id);
+  const id = String(cardId); // 문자열 ID
+  const numId = Number(cardId); // 카드 검색용 숫자
+  const card = sigCards.find((c) => c.id === numId);
 
   const [weights, setWeights] = useState([]);
   const [messages, setMessages] = useState([]);
+  const [isApplied, setIsApplied] = useState(false);
   const modalRef = useRef(null);
-
-
 
   /** 카드 데이터 로드 */
   useEffect(() => {
     if (!card) return;
+
     const base = card.isSpecial ? specialMessages : normalMessages;
     const saved = JSON.parse(localStorage.getItem("cardWeights") || "{}");
-    const initialWeights = saved[id] || base.map((m) => m.weight);
-    setWeights(initialWeights);
+    let initial = saved[id];
+
+    if (!initial || initial.length !== base.length) {
+      initial = base.map((m) => m.weight);
+      saved[id] = initial;
+      localStorage.setItem("cardWeights", JSON.stringify(saved));
+    }
+
+    setWeights(initial);
     setMessages(base);
+    setIsApplied(false);
   }, [id, card]);
 
-  /** 스크롤 색상 효과 */
+  /** 스크롤 진행 효과 (선택) */
   useEffect(() => {
     const modal = modalRef.current;
     if (!modal) return;
@@ -40,21 +49,36 @@ export default function AdminPopup({ cardId, onClose, onUpdate }) {
     return () => modal.removeEventListener("scroll", handleScroll);
   }, []);
 
-  /** 가중치 업데이트 로직 */
+  /** 가중치 업데이트 */
   const updateWeight = (index, value, e) => {
-    const newWeights = [...weights];
-    const numValue = parseInt(value, 10) || 0;
-    newWeights[index] = numValue;
-    setWeights(newWeights);
+    const numValue = parseInt(value, 10);
+    const safeValue = Number.isFinite(numValue) ? Math.max(0, numValue) : 0;
 
-    if (e?.target)
-      e.target.style.setProperty("--range-progress", `${numValue}%`);
+    setIsApplied(false);
 
-    const all = JSON.parse(localStorage.getItem("cardWeights") || "{}");
-    all[id] = newWeights;
-    localStorage.setItem("cardWeights", JSON.stringify(all));
+    setWeights((prev) => {
+      const updated = [...prev];
+      updated[index] = safeValue;
 
-    onUpdate?.(newWeights, id);
+      if (e?.target) {
+        e.target.style.setProperty("--range-progress", `${safeValue}%`);
+      }
+
+      return updated;
+    });
+  };
+
+  /** 적용 버튼 */
+ const applyWeights = () => {
+  if (!card) return;
+
+  const all = JSON.parse(localStorage.getItem("cardWeights") || "{}");
+  all[id] = weights;
+  localStorage.setItem("cardWeights", JSON.stringify(all));
+
+  onUpdate?.(weights, id); // state 동기화용
+  setIsApplied(true);
+
   };
 
   /** 이 카드만 초기화 */
@@ -68,26 +92,39 @@ export default function AdminPopup({ cardId, onClose, onUpdate }) {
       all[id] = init;
       localStorage.setItem("cardWeights", JSON.stringify(all));
       setWeights(init);
-      onUpdate?.(init);
-      alert(`✅ ${id}번 카드 확률이 초기값으로 복원되었습니다.`);
+      setIsApplied(false);
+
+      onUpdate?.(init, id);
+
+      alert(`✅ ${id}번 카드 확률이 기본값으로 복원되었습니다.`);
     }
   };
 
   /** 전체 초기화 */
   const resetAllCards = () => {
-    if (window.confirm("모든 카드 확률을 초기값으로 복원하시겠습니까?")) {
+    if (window.confirm("모든 카드 확률을 기본값으로 복원하시겠습니까?")) {
       const normal = normalMessages.map((m) => m.weight);
       const special = specialMessages.map((m) => m.weight);
       const all = {};
-      sigCards.forEach((c) => (all[c.id] = c.isSpecial ? special : normal));
+
+      sigCards.forEach((c) => {
+        const key = String(c.id);
+        all[key] = c.isSpecial ? special : normal;
+      });
+
       localStorage.setItem("cardWeights", JSON.stringify(all));
-      setWeights(card?.isSpecial ? special : normal);
-      onUpdate?.(card?.isSpecial ? special : normal);
-      alert("✅ 전체 카드 확률이 기본값으로 복원되었습니다!");
+
+      const selfInit = card?.isSpecial ? special : normal;
+      setWeights(selfInit);
+      setIsApplied(false);
+
+      onUpdate?.(selfInit, id);
+
+      alert("✅ 모든 카드 확률이 기본값으로 복원되었습니다!");
     }
   };
 
-  if (!card || isNaN(id))
+  if (!card || isNaN(id)) {
     return (
       <div className="admin-overlay" onClick={onClose}>
         <div className="admin-modal">
@@ -99,6 +136,7 @@ export default function AdminPopup({ cardId, onClose, onUpdate }) {
         </div>
       </div>
     );
+  }
 
   return (
     <div className="admin-overlay" onClick={onClose}>
@@ -156,9 +194,16 @@ export default function AdminPopup({ cardId, onClose, onUpdate }) {
             <button className="reset-all-btn" onClick={resetAllCards}>
               🔄 모든 카드 초기화
             </button>
-            <button className="close-btn" onClick={onClose}>
-              닫기
-            </button>
+
+            {!isApplied ? (
+              <button className="apply-btn" onClick={applyWeights}>
+                적용
+              </button>
+            ) : (
+              <button className="close-btn" onClick={onClose}>
+                닫기
+              </button>
+            )}
           </div>
         </div>
       </div>

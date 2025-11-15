@@ -1,11 +1,11 @@
-import { socket } from "../../socket";
-import React, { useRef, useState, useEffect } from "react";
+
+import React, { useRef, useState } from "react";
 import {
   sigCards,
   normalMessages,
   specialMessages,
 } from "../../data/sigData";
-import { useSigStorage } from "./FlipHooks";
+import { useSigStorage } from "../../hooks/useSigStorage";
 import { fireConfetti, weightedPick } from "../common/confettiUtils";
 import CardGrid from "./CardGrid";
 import EditMessageModal from "./EditMessageModal";
@@ -27,51 +27,58 @@ export default function SigHunterFlip() {
     setCardWeights,
   } = useSigStorage();
 
-  // 🧩 Socket.IO - 운영자 변경 수신
-  useEffect(() => {
-    socket.on("updateWeights", ({ id, weights }) => {
-      console.log("📩 수신된 변경:", id, weights);
-      setCardWeights((prev) => ({
-        ...prev,
-        [id]: weights,
-      }));
-    });
-    return () => socket.off("updateWeights");
-  }, [setCardWeights]);
+  const [modal, setModal] = useState(null);
 
-  // 🧩 OBS 대응 모달 (메시지 수정 / 확률 조절)
-  const [modal, setModal] = useState(null); // { type: "edit"|"admin", id: number }
 
   /** 🃏 카드 클릭 이벤트 */
   const handleFlip = (card, e) => {
-    if (
-      e.target.classList.contains("upload-btn") ||
-      e.target.classList.contains("admin-btn") ||
-      e.target.classList.contains("edit-msg-btn")
-    )
-      return;
-    if (locked[card.id]) return;
+  console.log("[handleFlip] 호출됨, card.id:", card.id);
+  const key = String(card.id);
+  const currentlyFlipped = !!flipped[card.id];
+  const next = !currentlyFlipped;
 
-    const next = !flipped[card.id];
-    setFlipped((p) => ({ ...p, [card.id]: next }));
+  // 버튼 클릭은 카드 flip 막기
+  if (
+    e.target.classList.contains("upload-btn") ||
+    e.target.classList.contains("admin-btn") ||
+    e.target.classList.contains("edit-msg-btn")
+  ) {
+    return;
+  }
 
-    if (next) {
-      const imgs = card.frontImages || [];
-      const newImg = imgs[Math.floor(Math.random() * imgs.length)];
-      const base = card.isSpecial ? specialMessages : normalMessages;
-      // ✅ socket 통해 받은 최신 가중치 적용
-      const weights = cardWeights[card.id] || base.map((m) => m.weight);
-      const msg = weightedPick(base, weights);
 
-      fireConfetti(msg.tier); // 🎉 전설 시그일 때 축포만 유지
+  // 막 뒤집혀서 "앞 → 뒤"가 되는 순간에만 메시지 뽑기
+  if (!currentlyFlipped && next) {
+    const imgs = card.frontImages || [];
+    const newImg = imgs[Math.floor(Math.random() * imgs.length)];
 
-      // 🔇 팝업 관련 코드 삭제됨
+    const base = card.isSpecial ? specialMessages : normalMessages;
 
-      setRandomImages((p) => ({ ...p, [card.id]: newImg }));
-      setRevealed((p) => ({ ...p, [card.id]: msg }));
-      setLocked((p) => ({ ...p, [card.id]: true }));
-    }
-  };
+    const all =
+      JSON.parse(localStorage.getItem("cardWeights") || "{}") || {};
+    const stored = all[key];
+    const weights =
+      Array.isArray(stored) && stored.length === base.length
+        ? stored
+        : base.map((m) => m.weight);
+
+    console.log("🧪 [handleFlip] card.id:", card.id);
+    console.log("🧪 [handleFlip] key:", key);
+    console.log("🧪 [handleFlip] stored weights:", stored);
+    console.log("🧪 [handleFlip] 최종 사용 weights:", weights);
+
+    const msg = weightedPick(base, weights);
+    console.log("🎯 [handleFlip] 실제 선택된 메시지:", msg);
+
+    fireConfetti(msg.tier);
+
+    setRandomImages((p) => ({ ...p, [card.id]: newImg }));
+    setRevealed((p) => ({ ...p, [card.id]: msg }));
+  }
+
+  // 🔹 실제 뒤집기 상태 업데이트 (앞/뒤 전환)
+  setFlipped((prev) => ({ ...prev, [card.id]: next }));
+};
 
   /** ⚙️ 어드민 확률 조절 모달 */
   const handleAdminClick = (e, cardId) => {
@@ -97,6 +104,7 @@ export default function SigHunterFlip() {
   const handleImageChange = (e, id) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     const reader = new FileReader();
     reader.onload = (ev) => {
       const url = ev.target.result;
@@ -115,34 +123,26 @@ export default function SigHunterFlip() {
     setRevealed({});
     setFlipped({});
 
-    // 프레임 분산 초기화
-    requestAnimationFrame(() => {
-      const initImgs = {};
-      sigCards.forEach((c) => {
-        const imgs = c.frontImages;
-        if (imgs?.length)
-          initImgs[c.id] = imgs[Math.floor(Math.random() * imgs.length)];
-      });
-      setRandomImages(initImgs);
+    // 이미지 초기화
+    const initImgs = {};
+    sigCards.forEach((c) => {
+      const imgs = c.frontImages;
+      if (imgs?.length) {
+        initImgs[c.id] = imgs[Math.floor(Math.random() * imgs.length)];
+      }
     });
+    setRandomImages(initImgs);
 
-    requestAnimationFrame(() => {
-      const initWeights = {};
-      sigCards.forEach((card) => {
-        initWeights[card.id] = (
-          card.isSpecial ? specialMessages : normalMessages
-        ).map((m) => m.weight);
-      });
-      setCardWeights(initWeights);
-    });
-
+    // 가중치 초기화
     const initWeights = {};
     sigCards.forEach((card) => {
-      initWeights[card.id] = (
+      const key = String(card.id);
+      initWeights[key] = (
         card.isSpecial ? specialMessages : normalMessages
       ).map((m) => m.weight);
     });
     setCardWeights(initWeights);
+    localStorage.setItem("cardWeights", JSON.stringify(initWeights));
   };
 
   const normalCards = sigCards.filter((c) => !c.isSpecial);
@@ -192,22 +192,38 @@ export default function SigHunterFlip() {
       </div>
 
       {/* ✏️ 메시지 수정 모달 */}
-      {modal?.type === "edit" && (
-        <EditMessageModal
-          cardId={modal.id}
-          onClose={() => setModal(null)}
-          onUpdate={(newMsg) =>
-            setRevealed((prev) => ({ ...prev, [modal.id]: newMsg }))
-          }
-        />
-      )}
+    {modal?.type === "edit" && (
+  <EditMessageModal
+    cardId={modal.id}
+    initialMsg={revealed[modal.id]}   // 여기!
+    onClose={() => setModal(null)}
+    onUpdate={(newMsg) => {
+      console.log("✅ [SigHunterFlip] onUpdate 수신:", modal.id, newMsg);
+      setRevealed((prev) => ({ ...prev, [modal.id]: newMsg }));
+      setLocked((prev) => ({ ...prev, [modal.id]: false }));
+    }}
+  />
+)}
 
       {/* ⚙️ 확률 조절 모달 */}
       {modal?.type === "admin" && modal?.id != null && (
         <AdminPopup
           cardId={modal.id}
           onClose={() => setModal(null)}
-          onUpdate={(w, id) => setCardWeights((prev) => ({ ...prev, [id]: w }))}
+          onUpdate={(weights, id) => {
+            const key = String(id);
+            console.log("🎯 [SigHunterFlip] onUpdate, key:", key, "weights:", weights);
+
+            setCardWeights((prev) => {
+              const updated = { ...prev, [key]: weights };
+              console.log("🔄 [SigHunterFlip] updated cardWeights:", updated);
+              localStorage.setItem(
+                "cardWeights",
+                JSON.stringify(updated)
+              );
+              return updated;
+            });
+          }}
         />
       )}
     </div>
