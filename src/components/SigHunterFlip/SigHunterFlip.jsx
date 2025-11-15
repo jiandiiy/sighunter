@@ -46,9 +46,10 @@ export default function SigHunterFlip() {
     return;
   }
 
+  const currentMsg = revealed[card.id];
 
-  // 막 뒤집혀서 "앞 → 뒤"가 되는 순간에만 메시지 뽑기
-  if (!currentlyFlipped && next) {
+ // 앞→뒤로 넘어가는 순간이면서, 아직 수정(edited)되지 않은 카드만 랜덤 뽑기
+if (!currentlyFlipped && next && !currentMsg?.edited) {
     const imgs = card.frontImages || [];
     const newImg = imgs[Math.floor(Math.random() * imgs.length)];
 

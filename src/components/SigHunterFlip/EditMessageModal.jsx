@@ -50,8 +50,9 @@ export default function EditMessageModal({
 
     try {
       // 1️⃣ localStorage에 메시지 저장
-      const revealed = JSON.parse(localStorage.getItem("sigRevealed") || "{}");
-      revealed[id] = currentMsg;
+       const revealed = JSON.parse(localStorage.getItem("sigRevealed") || "{}");
+   const editedMsg = { ...currentMsg, edited: true };
+   revealed[id] = editedMsg;
       localStorage.setItem("sigRevealed", JSON.stringify(revealed));
 
       // 2️⃣ 잠금 해제
@@ -60,8 +61,8 @@ export default function EditMessageModal({
       localStorage.setItem("sigLocked", JSON.stringify(locked));
 
       // 3️⃣ 부모 SPA 상태에 즉시 반영
-       console.log("✅ [EditMessageModal] onUpdate 호출 직전:", currentMsg);
-    onUpdate?.(currentMsg);
+        console.log("✅ [EditMessageModal] onUpdate 호출 직전:", editedMsg);
+   onUpdate?.(editedMsg);
 
       alert(`✅ 카드 ${id}번 메시지 수정 완료!`);
       onClose();
@@ -71,7 +72,10 @@ export default function EditMessageModal({
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay" onClick={(e) => {
+    e.stopPropagation(); // 오버레이 클릭도 카드까지 전달 안 되게
+    onClose();
+  }}>
       <div className="edit-modal" onClick={(e) => e.stopPropagation()}>
         <h2>📝 카드 {id}번 메시지 수정</h2>
 

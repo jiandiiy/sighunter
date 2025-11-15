@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 function CardItem({
   card = {},
@@ -94,6 +94,7 @@ function CardItem({
     }
   };
 
+
     console.log("🧾 [CardItem] id:", id, "msg:", msg);
 
   return (
@@ -105,7 +106,7 @@ function CardItem({
       onClick={handleFlip}
     >
       <div className="card-inner">
-        {/* 카드 앞면 */}
+        {/*      카드 앞면 */}
         <div className="card-front">
           <img
             src={displaySrc}
