@@ -1191,5 +1191,6 @@ export const specialMessages = [
   }
 ];
 
+
 // 하위 호환성을 위한 통합 배열
 export const messages = [...normalMessages, ...specialMessages];
