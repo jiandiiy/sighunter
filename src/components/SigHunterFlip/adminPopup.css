@@ -3,10 +3,11 @@
   to { opacity: 1; }
 }
 @keyframes slideUp {
-  from { transform: translateY(30px); opacity: 0; }
+  from { transform: translateY(25px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
 
+/* 배경 오버레이 */
 .admin-overlay {
   position: fixed;
   inset: 0;
@@ -18,13 +19,14 @@
   animation: fadeIn 0.15s ease;
 }
 
+/* 메인 모달 */
 .admin-modal {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 18px;
-  border-radius: 14px;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
-  width: clamp(220px, 45vw, 400px);
-  max-height: 70vh;
+  padding: 14px;
+  border-radius: 12px;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.35);
+  width: clamp(220px, 42vw, 380px);
+  max-height: 60vh; /* ✅ 세로 길이 줄이기 */
   overflow-y: auto;
   font-family: "Pretendard", sans-serif;
   color: #333;
@@ -34,59 +36,59 @@
 /* 내부 컨테이너 */
 .admin-container {
   background: rgba(255, 255, 255, 0.94);
-  border-radius: 12px;
-  padding: 22px;
+  border-radius: 10px;
+  padding: 16px;
 }
 
 h2 {
   text-align: center;
   color: #333;
-  margin-bottom: 8px;
-  font-size: 22px;
+  margin-bottom: 6px;
+  font-size: 20px;
 }
 
 .card-type {
   text-align: center;
   color: #666;
-  margin-bottom: 18px;
-  font-size: 14px;
+  margin-bottom: 14px;
+  font-size: 13px;
 }
 
 /* 확률 조절 블록 */
 .prob-control {
   background: rgba(102, 126, 234, 0.07);
-  border-radius: 10px;
-  padding: 12px;
-  margin-bottom: 12px;
-  transition: transform 0.25s, background 0.25s;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+  transition: transform 0.2s, background 0.2s;
 }
 .prob-control:hover {
   transform: translateX(2px);
-  background: rgba(102, 126, 234, 0.13);
+  background: rgba(102, 126, 234, 0.12);
 }
 
 .prob-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .prob-header label {
   font-weight: 600;
   color: #333;
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .prob-percent {
   color: #667eea;
   font-weight: 700;
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .prob-inputs {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
 }
 
@@ -107,19 +109,18 @@ h2 {
   transition: background 0.15s ease;
 }
 
-/* thumb */
+/* 슬라이더 손잡이 */
 .range-input::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   background: #667eea;
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
 }
 .range-input::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   background: #667eea;
   border-radius: 50%;
   border: none;
@@ -128,87 +129,70 @@ h2 {
 
 /* number input */
 .number-input {
-  width: 65px;
-  padding: 6px;
+  width: 60px;
+  padding: 4px;
   border: 2px solid #333;
   border-radius: 6px;
   text-align: center;
   font-weight: 600;
-  font-size: 20px;
+  font-size: 18px;
 }
 .number-input:focus {
   border-color: #667eea;
   outline: none;
 }
 
-/* 버튼 */
+/* 버튼 그룹 */
 .button-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 18px;
+  gap: 6px;
+  margin-top: 14px;
   justify-content: center;
 }
 
 button {
   flex: 1;
-  padding: 10px 12px;
+  padding: 8px 10px;
   border: none;
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: 6px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
 button:hover {
-  transform: translateY(-1.5px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
 }
 
 .reset-single-btn {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  font-size: 16px;
 }
 
 .reset-all-btn {
   background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
   color: white;
-  font-size: 16px;
 }
 
 .close-btn {
   background: #e0e0e0;
   color: #333;
-  font-size: 16px;
 }
 
-/* 스크롤바 */
+/* 스크롤바 (얇게) */
 .admin-modal::-webkit-scrollbar {
-  width: 14px;
-}
-.admin-modal::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.1);
+  width: 10px;
 }
 .admin-modal::-webkit-scrollbar-thumb {
-  background: linear-gradient(
-    to bottom,
-    #667eea 0%,
-    #764ba2 var(--scroll-pos, 0%),
-    rgba(120, 120, 120, 0.3) calc(var(--scroll-pos, 0%) + 1%)
-  );
-  border-radius: 8px;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-}
-.admin-modal::-webkit-scrollbar-thumb:hover {
-  transform: scaleX(1.1);
-  box-shadow: 0 0 5px rgba(102, 126, 234, 0.8);
+  background: linear-gradient(to bottom, #667eea, #764ba2);
+  border-radius: 6px;
 }
 
-/*.admin-popup-standalone {
+/*단독 팝업
+.admin-popup-standalone {
   background: #0e0e0e;
   color: #fff;
   width: 100vw;
