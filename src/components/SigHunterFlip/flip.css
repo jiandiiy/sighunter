@@ -25,7 +25,6 @@
   cursor: pointer;
   transition: transform 0.2s ease, background 0.3s;
   margin: 0 0 2rem;
-  
 }
 
 .reset-btn:hover {
@@ -96,7 +95,7 @@
   width: clamp(250px, 16vw, 350px);
   aspect-ratio: 10 / 9;
   perspective: 1000px;
-   transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.2s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.2s ease;
   will-change: transform, opacity;
   cursor: pointer;
 }
@@ -136,13 +135,14 @@
   height: 100%;
   object-fit: cover;
   z-index: 1;
-   opacity: 1;
+  opacity: 1;
   transition: opacity 0.25s ease;
 }
 
 .card-front img.changing {
   opacity: 0;
 }
+
 .admin-btn,
 .edit-msg-btn {
   z-index: 5;
@@ -157,8 +157,8 @@
   align-items: center;
   justify-content: center;
   font-size: 18px; /* 이모지 크기 */
-  width: 28px;     /* ✅ 기존 36px → 28px 줄임 */
-  height: 28px;    /* ✅ 크기를 이모지 맞춰 */
+  width: 28px;
+  height: 28px;
   background: transparent;
   border: none;
   border-radius: 8px;
@@ -174,9 +174,8 @@
   right: 8px;
 }
 .admin-btn {
-  right: 40px; /* ⚙️을 조금만 왼쪽으로 */
+  right: 40px;
 }
-
 
 /* 카드 hover 시 표시 */
 .natural-card:hover .admin-btn,
@@ -185,8 +184,6 @@
   pointer-events: auto;
 }
 
-
-
 /* hover 효과 */
 .admin-btn:hover,
 .edit-msg-btn:hover {
@@ -194,14 +191,13 @@
   background: rgba(255, 255, 255, 0.4);
 }
 
-
 .card-back {
   background: linear-gradient(135deg, #443288, #7a60d1);
   transform: rotateY(180deg);
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; /* ✅ 세로 중심 정렬 추가 */
+  justify-content: center;
 }
 
 .glow .card-back {
@@ -266,7 +262,7 @@
   align-items: center;
   justify-content: center;
   align-self: center;
-  width: 16px;          /* ✅ 크기 고정 */
+  width: 16px;
   height: 16px;
   background: transparent;
   border: none;
@@ -291,96 +287,13 @@
   pointer-events: auto;
 }
 
-/* ✅ 팝업 오버레이 */
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 9999;
-  backdrop-filter: blur(3px);
-}
-
-/* ✅ 기본 팝업 박스 */
-.popup-box {
-  background: #fff;
-  color: #333;
-  padding: 2rem 3rem;
-  width: 90%;
-  max-width: 400px;
-  border-radius: 16px;
-  text-align: center;
-  animation: popInBig 0.6s ease;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-}
-
-.popup-box h2 {
-  font-size: 32px;
-  margin-bottom: 1rem;
-}
-
-.popup-box p {
-  margin: 0.5rem 0;
-  line-height: 1.6;
-  font-size: 18px;
-}
-
-.popup-box label {
-  display: block;
-  margin-top: 1rem;
-  font-weight: 600;
-  text-align: left;
-}
-
-.popup-box input,
-.popup-box select {
-  width: 100%;
-  padding: 0.5rem;
-  margin-top: 0.3rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-}
-
-.popup-box button {
-  background: linear-gradient(135deg, #ff7eb3, #ffb6c1);
-  color: white;
-  border: none;
-  border-radius: 25px;
-  font-size: 16px;
-  padding: 0.75rem 2rem;
-  margin-top: 1.5rem;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.popup-box button:hover {
-  transform: scale(1.08);
-}
-
-
-@keyframes popInBig {
-  from {
-    transform: scale(0.7);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
 /* ✅ 반응형 */
 @media (max-width: 1400px) {
   .cards-wrapper {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .special-card-container {
     margin-top: 2rem;
   }
@@ -421,7 +334,7 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
   }
-  
+
   .special-card {
     width: 90% !important;
   }

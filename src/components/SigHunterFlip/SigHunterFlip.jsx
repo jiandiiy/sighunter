@@ -28,25 +28,21 @@ export default function SigHunterFlip() {
   } = useSigStorage();
 
   // 🧩 Socket.IO - 운영자 변경 수신
- useEffect(() => {
-  socket.on("updateWeights", ({ id, weights }) => {
-    console.log("📩 수신된 변경:", id, weights);
-    // 서버에서 받은 확률을 해당 cardId에 반영
-    setCardWeights((prev) => ({
-      ...prev,
-      [id]: weights,
-    }));
-  });
+  useEffect(() => {
+    socket.on("updateWeights", ({ id, weights }) => {
+      console.log("📩 수신된 변경:", id, weights);
+      setCardWeights((prev) => ({
+        ...prev,
+        [id]: weights,
+      }));
+    });
+    return () => socket.off("updateWeights");
+  }, [setCardWeights]);
 
-  return () => socket.off("updateWeights");
-}, [setCardWeights]);
-
-  // 💬 일반 전설 시그 팝업 (카드 연출용)
-  const [popup, setPopup] = useState(null);
   // 🧩 OBS 대응 모달 (메시지 수정 / 확률 조절)
-  const [modal, setModal] = useState(null); // ex) { type: "edit"|"admin", id: number }
+  const [modal, setModal] = useState(null); // { type: "edit"|"admin", id: number }
 
-  /** 🧩 카드 클릭 이벤트 */
+  /** 🃏 카드 클릭 이벤트 */
   const handleFlip = (card, e) => {
     if (
       e.target.classList.contains("upload-btn") ||
@@ -67,15 +63,9 @@ export default function SigHunterFlip() {
       const weights = cardWeights[card.id] || base.map((m) => m.weight);
       const msg = weightedPick(base, weights);
 
-      fireConfetti(msg.tier);
+      fireConfetti(msg.tier); // 🎉 전설 시그일 때 축포만 유지
 
-      if (["전설", "레전드"].includes(msg.tier)) {
-        setPopup({
-          title: "🎶 전설 시그!",
-          message: msg.text,
-          amount: card.amount,
-        });
-      }
+      // 🔇 팝업 관련 코드 삭제됨
 
       setRandomImages((p) => ({ ...p, [card.id]: newImg }));
       setRevealed((p) => ({ ...p, [card.id]: msg }));
@@ -118,34 +108,33 @@ export default function SigHunterFlip() {
   };
 
   /** 🔄 전체 초기화 */
- const resetAll = () => {
-  localStorage.clear();
+  const resetAll = () => {
+    localStorage.clear();
 
-  // 💫 1단계: 비활성화 상태로 전환
-  setLocked({});
-  setRevealed({});
-  setFlipped({});
+    setLocked({});
+    setRevealed({});
+    setFlipped({});
 
-  // 💫 2단계: requestAnimationFrame으로 프레임 분산
-  requestAnimationFrame(() => {
-    const initImgs = {};
-    sigCards.forEach((c) => {
-      const imgs = c.frontImages;
-      if (imgs?.length)
-        initImgs[c.id] = imgs[Math.floor(Math.random() * imgs.length)];
+    // 프레임 분산 초기화
+    requestAnimationFrame(() => {
+      const initImgs = {};
+      sigCards.forEach((c) => {
+        const imgs = c.frontImages;
+        if (imgs?.length)
+          initImgs[c.id] = imgs[Math.floor(Math.random() * imgs.length)];
+      });
+      setRandomImages(initImgs);
     });
-    setRandomImages(initImgs);
-  });
 
-  requestAnimationFrame(() => {
-    const initWeights = {};
-    sigCards.forEach((card) => {
-      initWeights[card.id] = (
-        card.isSpecial ? specialMessages : normalMessages
-      ).map((m) => m.weight);
+    requestAnimationFrame(() => {
+      const initWeights = {};
+      sigCards.forEach((card) => {
+        initWeights[card.id] = (
+          card.isSpecial ? specialMessages : normalMessages
+        ).map((m) => m.weight);
+      });
+      setCardWeights(initWeights);
     });
-    setCardWeights(initWeights);
-  });
 
     const initWeights = {};
     sigCards.forEach((card) => {
@@ -202,19 +191,7 @@ export default function SigHunterFlip() {
         )}
       </div>
 
-      {/* 🎵 전설 시그 팝업 */}
-      {popup && (
-        <div className="popup-overlay" onClick={() => setPopup(null)}>
-          <div className="popup-box" onClick={(e) => e.stopPropagation()}>
-            <h2>{popup.title}</h2>
-            <p>🪙 {popup.amount} 하트</p>
-            <p>{popup.message}</p>
-            <button onClick={() => setPopup(null)}>닫기 ✨</button>
-          </div>
-        </div>
-      )}
-
-      {/* OBS 대응형 내부 모달 */}
+      {/* ✏️ 메시지 수정 모달 */}
       {modal?.type === "edit" && (
         <EditMessageModal
           cardId={modal.id}
@@ -225,11 +202,12 @@ export default function SigHunterFlip() {
         />
       )}
 
+      {/* ⚙️ 확률 조절 모달 */}
       {modal?.type === "admin" && modal?.id != null && (
         <AdminPopup
           cardId={modal.id}
           onClose={() => setModal(null)}
-          onUpdate={(w, id)=>setCardWeights(prev=>({...prev,[id]:w}))}
+          onUpdate={(w, id) => setCardWeights((prev) => ({ ...prev, [id]: w }))}
         />
       )}
     </div>
