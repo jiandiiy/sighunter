@@ -1,0 +1,159 @@
+/* ✅ editMessage.css — 모달 전용 */
+
+/* -------------------- 애니메이션 -------------------- */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* -------------------- 모달 기초 -------------------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  animation: fadeIn 0.2s ease;
+}
+
+.edit-modal {
+  background: #ffffff;
+  color: #333;
+  padding: 2rem;
+  border-radius: 14px;
+  width: clamp(320px, 50vw, 480px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.25s ease;
+  font-family: "Pretendard", sans-serif;
+}
+
+/* -------------------- 텍스트 / 레이아웃 -------------------- */
+.edit-modal h2 {
+  text-align: center;
+  font-size: 26px;
+  margin-bottom: 0.6rem;
+  color: #322659;
+}
+
+.card-info {
+  text-align: center;
+  color: #777;
+  font-size: 14px;
+  margin-bottom: 1.2rem;
+}
+
+/* -------------------- 입력 폼 -------------------- */
+label {
+  display: block;
+  margin: 0.7rem 0 0.3rem;
+  color: #44337a;
+  font-weight: 600;
+  font-size: 20px;
+}
+
+input[type="text"],
+select {
+  width: 80%;
+  padding: 0.7rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 25px;
+  color: #333;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input[type="text"]:focus,
+select:focus {
+  border-color: #764ba2;
+  box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.2);
+  outline: none;
+}
+
+select {
+  cursor: pointer;
+  background: white;
+}
+
+input[type="color"] {
+  width: 50%;
+  height: 50px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+input[type="color"]:hover {
+  transform: scale(1.03);
+}
+
+/* -------------------- 버튼 -------------------- */
+.button-group {
+  margin-top: 1.4rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.save-btn,
+.cancel-btn {
+  padding: 0.9rem 1.1rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.save-btn {
+  background: linear-gradient(135deg, #59d390, #4db780);
+  color: white;
+}
+
+.save-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+}
+
+.cancel-btn {
+  background: #ccc;
+  color: #333;
+}
+
+.cancel-btn:hover {
+  background: #e2e8f0;
+}
+
+/* -------------------- 반응형 -------------------- */
+@media (max-width: 600px) {
+  .edit-modal {
+    width: 90%;
+    padding: 1.5rem;
+  }
+
+  .save-btn,
+  .cancel-btn {
+    font-size: 14px;
+    padding: 0.8rem 1rem;
+  }
+}
+
+.edit-popup-standalone {
+  background: #0e0e0e;
+  color: #fff;
+  width: 100vw;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
