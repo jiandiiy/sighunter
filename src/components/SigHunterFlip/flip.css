@@ -116,11 +116,11 @@
   transform: rotateY(180deg);
 }
 
+/* ✅ 앞/뒷면 공통 – 레이어와 backface 설정 */
 .card-front,
 .card-back {
   position: absolute;
-  width: 100%;
-  height: 100%;
+  inset: 0; /* top/right/bottom/left: 0 */
   backface-visibility: hidden;
   display: flex;
   flex-direction: column;
@@ -128,6 +128,18 @@
   justify-content: center;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
   overflow: hidden;
+}
+
+/* ✅ 앞면 레이어 */
+.card-front {
+  z-index: 1;
+}
+
+/* ✅ 뒷면 레이어 (앞면보다 위) */
+.card-back {
+  background: linear-gradient(135deg, #443288, #7a60d1);
+  transform: rotateY(180deg);
+  z-index: 2;
 }
 
 /* 이미지 에러 배지 */
@@ -155,6 +167,7 @@
   opacity: 1;
   transition: opacity 0.3s ease;
 }
+
 .card-front img {
   width: 100%;
   height: 100%;
@@ -212,15 +225,6 @@
   background: rgba(255, 255, 255, 0.4);
 }
 
-.card-back {
-  background: linear-gradient(135deg, #443288, #7a60d1);
-  transform: rotateY(180deg);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
 .glow .card-back {
   animation: subtleGlow 2s infinite alternate ease-in-out;
 }
@@ -235,7 +239,7 @@
 }
 
 .back-content {
-  cursor: pointer;
+  /* cursor: pointer;  ← 제거 */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -300,10 +304,13 @@
   transform: scale(1.05);
 }
 
-.natural-card.locked {
+/* 🔥 이전의 .natural-card.locked { pointer-events: none; } 삭제 */
+/* 잠긴 상태에서는 앞면만 클릭 막기 */
+.natural-card.locked .card-front {
   pointer-events: none;
 }
 
+/* 뒷면은 클릭 가능 (버튼 포함) */
 .natural-card.locked .card-back {
   pointer-events: auto;
 }

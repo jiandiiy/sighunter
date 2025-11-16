@@ -31,25 +31,34 @@ export default function SigHunterFlip() {
 
 
   /** 🃏 카드 클릭 이벤트 */
-  const handleFlip = (card, e) => {
-  console.log("[handleFlip] 호출됨, card.id:", card.id);
+ const handleFlip = (card, e) => {
+  console.log("[handleFlip] 호출됨, card.id:", card.id, "target:", e.target);
+
+  const target = e.target;
+
+  // 0️⃣ file input에서 올라온 클릭이면 무시
+  if (target.tagName === "INPUT" && target.type === "file") {
+    console.log("[handleFlip] file input 클릭 감지, flip 무시");
+    return;
+  }
+
+  // 1️⃣ 버튼 클릭이면 flip 완전히 무시
+  if (
+    target.closest(".upload-btn") ||
+    target.closest(".admin-btn") ||
+    target.closest(".edit-msg-btn")
+  ) {
+    console.log("[handleFlip] 버튼 클릭 감지, flip 무시");
+    return;
+  }
+
   const key = String(card.id);
   const currentlyFlipped = !!flipped[card.id];
   const next = !currentlyFlipped;
 
-  // 버튼 클릭은 카드 flip 막기
-  if (
-    e.target.classList.contains("upload-btn") ||
-    e.target.classList.contains("admin-btn") ||
-    e.target.classList.contains("edit-msg-btn")
-  ) {
-    return;
-  }
-
   const currentMsg = revealed[card.id];
 
- // 앞→뒤로 넘어가는 순간이면서, 아직 수정(edited)되지 않은 카드만 랜덤 뽑기
-if (!currentlyFlipped && next && !currentMsg?.edited) {
+  if (!currentlyFlipped && next && !currentMsg?.edited) {
     const imgs = card.frontImages || [];
     const newImg = imgs[Math.floor(Math.random() * imgs.length)];
 
@@ -63,13 +72,7 @@ if (!currentlyFlipped && next && !currentMsg?.edited) {
         ? stored
         : base.map((m) => m.weight);
 
-    console.log("🧪 [handleFlip] card.id:", card.id);
-    console.log("🧪 [handleFlip] key:", key);
-    console.log("🧪 [handleFlip] stored weights:", stored);
-    console.log("🧪 [handleFlip] 최종 사용 weights:", weights);
-
     const msg = weightedPick(base, weights);
-    console.log("🎯 [handleFlip] 실제 선택된 메시지:", msg);
 
     fireConfetti(msg.tier);
 
@@ -77,7 +80,6 @@ if (!currentlyFlipped && next && !currentMsg?.edited) {
     setRevealed((p) => ({ ...p, [card.id]: msg }));
   }
 
-  // 🔹 실제 뒤집기 상태 업데이트 (앞/뒤 전환)
   setFlipped((prev) => ({ ...prev, [card.id]: next }));
 };
 
@@ -96,25 +98,34 @@ if (!currentlyFlipped && next && !currentMsg?.edited) {
   };
 
   /** 🖼 이미지 업로드 버튼 */
-  const handleUploadClick = (e, id) => {
-    e.stopPropagation();
-    fileInputRefs.current[id]?.click();
-  };
+const handleUploadClick = (e, id) => {
+  e.stopPropagation();
+
+  const input = fileInputRefs.current[id];
+  console.log("📂 [handleUploadClick] id:", id, "input:", input);
+
+  if (!input) {
+    console.warn("⚠️ file input ref 없음:", id);
+    return;
+  }
+
+  input.click();
+};
 
   /** 🖼 이미지 파일 변경 */
-  const handleImageChange = (e, id) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+ const handleImageChange = (e, id) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const url = ev.target.result;
-      setRandomImages((p) => ({ ...p, [id]: url }));
-      setFlipped((p) => ({ ...p, [id]: false }));
-      setLocked((p) => ({ ...p, [id]: false }));
-    };
-    reader.readAsDataURL(file);
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const url = ev.target.result;
+    setRandomImages((p) => ({ ...p, [id]: url }));
+    setFlipped((p) => ({ ...p, [id]: false }));  // 🔹 여기서만 flip 상태 변경
+    setLocked((p) => ({ ...p, [id]: false }));
   };
+  reader.readAsDataURL(file);
+};
 
   /** 🔄 전체 초기화 */
   const resetAll = () => {
