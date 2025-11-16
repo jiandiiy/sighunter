@@ -25,10 +25,20 @@ export default function SigHunterFlip() {
     setRevealed,
     setRandomImages,
     setCardWeights,
+    loaded,
   } = useSigStorage();
 
   const [modal, setModal] = useState(null);
 
+ // 🔹 Firestore에서 상태를 다 불러오기 전이면 로딩 화면만
+  if (!loaded) {
+    return (
+      <div className="natural-container">
+        <h2>💖 시그헌터 💖</h2>
+        <p>상태 불러오는 중...</p>
+      </div>
+    );
+  }
 
   /** 🃏 카드 클릭 이벤트 */
  const handleFlip = (card, e) => {
