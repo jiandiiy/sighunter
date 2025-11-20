@@ -1,11 +1,24 @@
 // src/components/SigHunterFlip/AdminPopup.jsx
 import React, { useState, useEffect, useRef } from "react";
-import { sigCards, normalMessages, specialMessages } from "../../data/sigData";
+import {
+  queendomSigCards,
+  museSigCards,
+  normalMessages,
+  specialMessages,
+} from "../../data/sigData";
 import "./adminPopup.css";
 
-export default function AdminPopup({ cardId, onClose, onUpdate }) {
+export default function AdminPopup({ project, cardId, onClose, onUpdate }) {
   const id = String(cardId); // 문자열 ID
   const numId = Number(cardId); // 카드 검색용 숫자
+
+  // 🔹 프로젝트별 카드 세트 선택
+  const projectCardSets = {
+    queendom: queendomSigCards,
+    muse: museSigCards,
+  };
+  const sigCards = projectCardSets[project] ?? queendomSigCards;
+
   const card = sigCards.find((c) => c.id === numId);
 
   const [weights, setWeights] = useState([]);
@@ -69,16 +82,15 @@ export default function AdminPopup({ cardId, onClose, onUpdate }) {
   };
 
   /** 적용 버튼 */
- const applyWeights = () => {
-  if (!card) return;
+  const applyWeights = () => {
+    if (!card) return;
 
-  const all = JSON.parse(localStorage.getItem("cardWeights") || "{}");
-  all[id] = weights;
-  localStorage.setItem("cardWeights", JSON.stringify(all));
+    const all = JSON.parse(localStorage.getItem("cardWeights") || "{}");
+    all[id] = weights;
+    localStorage.setItem("cardWeights", JSON.stringify(all));
 
-  onUpdate?.(weights, id); // state 동기화용
-  setIsApplied(true);
-
+    onUpdate?.(weights, id); // state 동기화용
+    setIsApplied(true);
   };
 
   /** 이 카드만 초기화 */

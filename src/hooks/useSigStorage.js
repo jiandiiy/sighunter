@@ -1,6 +1,11 @@
 // src/hooks/useSigStorage.js
 import { useState, useEffect, useRef } from "react";
-import { sigCards, normalMessages, specialMessages } from "../data/sigData";
+import {
+  queendomSigCards,
+  museSigCards,
+  normalMessages,
+  specialMessages,
+} from "../data/sigData";
 import { loadSigState, saveSigState } from "../api/sigRemoteStorage";
 
 export function useSigStorage() {
@@ -11,11 +16,14 @@ export function useSigStorage() {
   const [cardWeights, setCardWeights] = useState({});
   const [loaded, setLoaded] = useState(false); // 서버에서 로드 완료 여부
 
+  // 🔹 두 프로젝트 카드 전부 포함 (상태는 공통 사용)
+  const allSigCards = [...queendomSigCards, ...museSigCards];
+
   // 🔹 초기값 세팅 (기존 cardWeights 초기화 + 랜덤 이미지 같이 처리)
   const initDefaults = () => {
     // 카드 앞면 랜덤 이미지
     const initImgs = {};
-    sigCards.forEach((c) => {
+    allSigCards.forEach((c) => {
       const imgs = c.frontImages;
       if (imgs?.length) {
         initImgs[c.id] = imgs[Math.floor(Math.random() * imgs.length)];
@@ -25,7 +33,7 @@ export function useSigStorage() {
 
     // 가중치 초기화 (문자열 키)
     const initWeights = {};
-    sigCards.forEach((card) => {
+    allSigCards.forEach((card) => {
       const base = card.isSpecial ? specialMessages : normalMessages;
       const key = String(card.id);
       initWeights[key] = base.map((m) => m.weight);
@@ -39,7 +47,7 @@ export function useSigStorage() {
   useEffect(() => {
     (async () => {
       try {
-        const remote = await loadSigState();
+        const remote = await loadSigState(); // ✅ project 인자 제거
 
         if (remote) {
           // 서버에 저장된 값이 있으면 그걸 우선 사용
@@ -59,7 +67,7 @@ export function useSigStorage() {
 
             // randomImages는 예전엔 안 저장했을 수 있으니 만들어 줌
             const initImgs = {};
-            sigCards.forEach((c) => {
+            allSigCards.forEach((c) => {
               const imgs = c.frontImages;
               if (imgs?.length) {
                 initImgs[c.id] = imgs[Math.floor(Math.random() * imgs.length)];
@@ -81,6 +89,7 @@ export function useSigStorage() {
         setLoaded(true);
       }
     })();
+    // ✅ 앱 최초 1회만 동작, project에 반응하지 않게
   }, []);
 
   // 🔹 2) 상태 변경 시 Firestore에 자동 저장 (0.5초 디바운스)
@@ -113,7 +122,7 @@ export function useSigStorage() {
     }, 500);
 
     return () => clearTimeout(timeout);
-  }, [flipped, locked, revealed, randomImages, cardWeights, loaded]);
+  }, [flipped, locked, revealed, randomImages, cardWeights, loaded]); // ✅ project 제거
 
   // 🔹 디버그용 setRevealed (원래 쓰던 거 유지)
   const debugSetRevealed = (updater) => {
@@ -137,7 +146,7 @@ export function useSigStorage() {
     cardWeights,
     setFlipped,
     setLocked,
-    setRevealed: debugSetRevealed, // 디버그 버전 유지하고 싶으면 이렇게
+    setRevealed: debugSetRevealed,
     setRandomImages,
     setCardWeights,
     loaded,

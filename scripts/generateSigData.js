@@ -1,9 +1,11 @@
 /**
- * 🎲 SIG 카드 데이터 자동 생성 스크립트
- * 
- * - public/images/group1~8 : 일반 카드용 이미지
- * - public/images/group9~10 : 특별 카드용 이미지
- * 
+ * 🎲 SIG 카드 데이터 자동 생성 스크립트 (퀸덤 + 뮤즈)
+ *
+ * - public/images/queendom/group1~8 : 퀸덤 일반 카드용 이미지
+ * - public/images/queendom/group9~10 : 퀸덤 특별 카드용 이미지
+ * - public/images/muse/group1~8 : 뮤즈 일반 카드용 이미지
+ * - public/images/muse/group9~10 : 뮤즈 특별 카드용 이미지
+ *
  * 실행: node scripts/generateSigData.js
  * 결과: src/data/sigData.js 자동 생성
  */
@@ -16,7 +18,7 @@ const baseDir = path.resolve(rootDir, "public/images");
 const outputFile = path.resolve(rootDir, "src/data/sigData.js");
 
 console.log("📂 프로젝트 루트:", rootDir);
-console.log("📂 이미지 경로:", baseDir);
+console.log("📂 이미지 루트 경로:", baseDir);
 
 if (!fs.existsSync(baseDir)) {
   console.error("❌ public/images 폴더를 찾을 수 없습니다!");
@@ -24,14 +26,14 @@ if (!fs.existsSync(baseDir)) {
 }
 
 /* -------------------------------------------------------------------------- */
-/* 🧩 이미지 그룹 로드 함수                                                   */
+/* 🧩 특정 프로젝트(queendom/muse)의 이미지 그룹 로드 함수                  */
 /* -------------------------------------------------------------------------- */
-function readImages(groupNames) {
+function readImagesForProject(projectDir, groupNames) {
   const result = [];
   for (const group of groupNames) {
-    const groupPath = path.join(baseDir, group);
+    const groupPath = path.join(baseDir, projectDir, group);
     if (!fs.existsSync(groupPath)) {
-      console.warn(`⚠️ ${group} 폴더가 존재하지 않습니다.`);
+      console.warn(`⚠️ ${projectDir}/${group} 폴더가 존재하지 않습니다.`);
       continue;
     }
 
@@ -43,34 +45,17 @@ function readImages(groupNames) {
         const nb = parseInt(b.match(/\d+/)?.[0] || 0, 10);
         return na - nb;
       })
-      .map((f) => `/images/${group}/${f}`);
+      // 🔹 public 경로 기준으로 사용 (React에서 그대로 쓸 수 있게)
+      .map((f) => `/images/${projectDir}/${group}/${f}`);
 
-    console.log(`   ✅ ${group}: ${files.length}장`);
+    console.log(`   ✅ ${projectDir}/${group}: ${files.length}장`);
     result.push(...files);
   }
   return result;
 }
 
 /* -------------------------------------------------------------------------- */
-/* 📸 일반 / 특별 이미지 로드                                                */
-/* -------------------------------------------------------------------------- */
-
-const normalGroups = ["group1","group2","group3","group4","group5","group6","group7","group8"];
-const specialGroups = ["group9","group10"];
-
-const normalImages = readImages(normalGroups);
-let specialImages = readImages(specialGroups);
-
-console.log(`\n📦 일반 카드 이미지 총 ${normalImages.length}장`);
-console.log(`🌟 특별 카드 이미지 총 ${specialImages.length}장`);
-
-if (normalImages.length === 0) {
-  console.error("❌ 일반 카드 이미지가 없습니다. group1~8 폴더를 확인하세요.");
-  process.exit(1);
-}
-
-/* -------------------------------------------------------------------------- */
-/* 🎴 이미지 셔플 및 분배 로직                                               */
+/* 🎴 공통: 이미지 셔플 & 분배 로직 / 메시지 풀                              */
 /* -------------------------------------------------------------------------- */
 
 function shuffle(arr) {
@@ -110,38 +95,7 @@ function distributeImages(images, numCards, perCard) {
   return cards;
 }
 
-/* -------------------------------------------------------------------------- */
-/* 🃏 카드 데이터 구성                                                       */
-/* -------------------------------------------------------------------------- */
-
-const distributedCards = distributeImages(normalImages, TOTAL_NORMAL_CARDS, IMAGES_PER_CARD);
-const sigCards = [];
-
-for (let i = 0; i < TOTAL_NORMAL_CARDS; i++) {
-  sigCards.push({
-    id: i + 1,
-    amount: 1000 * (i + 1),
-    frontImages: distributedCards[i],
-    isSpecial: false,
-  });
-}
-
-if (specialImages.length === 0) {
-  console.warn("⚠️ 특별 이미지가 없으므로 일반 이미지 일부를 사용합니다.");
-  specialImages = shuffle(normalImages).slice(0, 50);
-}
-
-sigCards.push({
-  id: 11,
-  amount: 50000,
-  frontImages: shuffle(specialImages),
-  isSpecial: true,
-});
-
-/* -------------------------------------------------------------------------- */
-/* 🎯 메시지(보상) 가중치 설정                                               */
-/* -------------------------------------------------------------------------- */
-
+/* 메시지 풀은 프로젝트 공통으로 사용 (필요하면 프로젝트별로도 분리 가능) */
 const normalMessagePool = [
   { text: "기여도 두배 🎁",  tier: "일반", color: "#ffffff", bgColor: "#443288", weight: 60 },
   { text: "기여도 세배 🎉",  tier: "희귀", color: "#22543d", bgColor: "#9ae6b4", weight: 15 },
@@ -160,11 +114,64 @@ const specialMessagePool = [
 ];
 
 /* -------------------------------------------------------------------------- */
+/* 🧮 한 프로젝트(퀸덤 or 뮤즈)의 sigCards 생성 함수                         */
+/* -------------------------------------------------------------------------- */
+
+function generateProjectSigCards(projectDir) {
+  console.log(`\n📂 [${projectDir}] 이미지 로드 시작`);
+
+  const normalGroups = ["group1","group2","group3","group4","group5","group6","group7","group8"];
+  const specialGroups = ["group9","group10"];
+
+  const normalImages = readImagesForProject(projectDir, normalGroups);
+  let specialImages = readImagesForProject(projectDir, specialGroups);
+
+  console.log(`\n📦 [${projectDir}] 일반 카드 이미지 총 ${normalImages.length}장`);
+  console.log(`🌟 [${projectDir}] 특별 카드 이미지 총 ${specialImages.length}장`);
+
+  if (normalImages.length === 0) {
+    console.error(`❌ [${projectDir}] 일반 카드 이미지가 없습니다. ${projectDir}/group1~8 폴더를 확인하세요.`);
+    process.exit(1);
+  }
+
+  const distributedCards = distributeImages(normalImages, TOTAL_NORMAL_CARDS, IMAGES_PER_CARD);
+  const sigCards = [];
+
+  for (let i = 0; i < TOTAL_NORMAL_CARDS; i++) {
+    sigCards.push({
+      id: i + 1,
+      amount: 1000 * (i + 1),
+      frontImages: distributedCards[i],
+      isSpecial: false,
+    });
+  }
+
+  if (specialImages.length === 0) {
+    console.warn(`⚠️ [${projectDir}] 특별 이미지가 없으므로 일반 이미지 일부를 사용합니다.`);
+    specialImages = shuffle(normalImages).slice(0, 50);
+  }
+
+  sigCards.push({
+    id: 11,
+    amount: 50000,
+    frontImages: shuffle(specialImages),
+    isSpecial: true,
+  });
+
+  return sigCards;
+}
+
+/* -------------------------------------------------------------------------- */
 /* 📄 sigData.js 파일 생성                                                   */
 /* -------------------------------------------------------------------------- */
 
-const output = `// ⚙️ 자동 생성된 파일
-export const sigCards = ${JSON.stringify(sigCards, null, 2)};
+const queendomSigCards = generateProjectSigCards("queendom");
+const museSigCards = generateProjectSigCards("muse");
+
+const output = `// ⚙️ 자동 생성된 파일 (퀸덤 + 뮤즈)
+export const queendomSigCards = ${JSON.stringify(queendomSigCards, null, 2)};
+export const museSigCards = ${JSON.stringify(museSigCards, null, 2)};
+
 export const normalMessages = ${JSON.stringify(normalMessagePool, null, 2)};
 export const specialMessages = ${JSON.stringify(specialMessagePool, null, 2)};
 export const messages = [...normalMessages, ...specialMessages];
