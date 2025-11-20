@@ -103,7 +103,7 @@ export default function SigHunterFlip() {
 
       setRandomImages((p) => ({ ...p, [card.id]: newImg }));
       setRevealed((p) => ({ ...p, [card.id]: msg }));
-    }
+    } 
 
     setFlipped((prev) => ({ ...prev, [card.id]: next }));
   };
