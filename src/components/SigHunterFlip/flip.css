@@ -45,8 +45,8 @@
 /* 일반 카드 그리드 (10장, 5x2) */
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 2rem;
+  grid-template-columns: repeat(5,minmax(0, 1fr));
+  gap: 1.5rem;
   flex: 1;
 }
 
@@ -92,12 +92,32 @@
 
 /* 일반 카드 */
 .natural-card {
-  width: clamp(250px, 16vw, 350px);
+   width: calc(20vw - 12px);
+  max-width: 230px;
+  min-width: 170px;
   aspect-ratio: 10 / 9;
   perspective: 1000px;
   transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.2s ease;
   will-change: transform, opacity;
   cursor: pointer;
+}
+/* 기본: 꽤 큰 화면 */
+.natural-card {
+  width: clamp(190px, 12vw, 260px);
+}
+
+/* 1400px 이하에서는 카드 조금 줄이기 */
+@media (max-width: 1400px) {
+  .natural-card {
+    width: clamp(170px, 14vw, 230px);
+  }
+}
+
+/* 900px 이하: 이미 3열이니까 폭 더 키워도 괜찮음 */
+@media (max-width: 900px) {
+  .natural-card {
+    width: clamp(150px, 26vw, 220px);
+  }
 }
 
 .natural-card:hover {

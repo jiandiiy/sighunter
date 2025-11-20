@@ -187,7 +187,7 @@ export default function SigHunterFlip() {
     <div className="natural-container">
       <h2>💖 시그헌터 💖</h2>
 
-      {/* 🔹 퀸덤 / 뮤즈 선택 드롭다운 */}
+      {/* 🔹 퀸덤 / 뮤즈 선택 드롭다운 */} 
      <div
   style={{
     width: "200px",
