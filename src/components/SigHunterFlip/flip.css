@@ -35,10 +35,10 @@
 /* ✅ 카드 전체 래퍼 (일반 카드 + 특별 카드) */
 .cards-wrapper {
   display: flex;
-  gap: 3rem;
+  gap: 2.5rem;
   justify-content: center;
   align-items: flex-start;
-  max-width: 1800px;
+  max-width: 1500px;
   margin: 0 auto;
 }
 
@@ -46,7 +46,7 @@
 .card-grid {
   display: grid;
   grid-template-columns: repeat(5,minmax(0, 1fr));
-  gap: 1.5rem;
+  gap: 1.2rem;
   flex: 1;
 }
 
@@ -59,7 +59,7 @@
 
 /* ✅ 특별 카드 스타일 (크고 화려하게) */
 .special-card {
-  width: clamp(380px, 40vw, 450px) !important;
+  width: clamp(360px, 30vw, 420px) !important;
   aspect-ratio: 10 / 9;
   box-shadow: 0 15px 40px rgba(255, 215, 0, 0.8) !important;
   animation: specialGlow 3s infinite alternate ease-in-out;
@@ -100,20 +100,20 @@
 }
 /* 기본: 꽤 큰 화면 */
 .natural-card {
-  width: clamp(190px, 12vw, 260px);
+  width: clamp(210px, 13vw, 270px);
 }
 
 /* 1400px 이하에서는 카드 조금 줄이기 */
 @media (max-width: 1400px) {
   .natural-card {
-    width: clamp(170px, 14vw, 230px);
+    width: clamp(190px, 14vw, 240px);
   }
 }
 
 /* 900px 이하: 이미 3열이니까 폭 더 키워도 괜찮음 */
 @media (max-width: 900px) {
   .natural-card {
-    width: clamp(150px, 26vw, 220px);
+    width: clamp(160px, 26vw, 220px);
   }
 }
 
