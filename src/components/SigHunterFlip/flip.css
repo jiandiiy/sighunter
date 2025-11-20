@@ -92,9 +92,6 @@
 
 /* 일반 카드 */
 .natural-card {
-   width: calc(20vw - 12px);
-  max-width: 230px;
-  min-width: 170px;
   aspect-ratio: 10 / 9;
   perspective: 1000px;
   transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.2s ease;
