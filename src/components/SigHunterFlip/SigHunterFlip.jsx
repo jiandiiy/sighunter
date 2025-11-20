@@ -14,7 +14,7 @@ import "./flip.css";
 
 export default function SigHunterFlip() {
   // 🔹 프로젝트 선택 (퀸덤 / 뮤즈)
-  const [project, setProject] = useState<"queendom" | "muse">("queendom");
+  const [project, setProject] = useState("queendom");
 
   // 🔹 프로젝트별 카드 세트 매핑
   const projectCardSets = {
@@ -25,9 +25,8 @@ export default function SigHunterFlip() {
   // 🔹 현재 선택된 프로젝트의 카드 세트
   const sigCards = projectCardSets[project];
 
-  const fileInputRefs = useRef<Record<string | number, HTMLInputElement | null>>(
-    {}
-  );
+  // 🔹 file input refs (JS 버전 – 타입 없음)
+  const fileInputRefs = useRef({});
 
   const {
     flipped,
@@ -43,9 +42,7 @@ export default function SigHunterFlip() {
     loaded,
   } = useSigStorage();
 
-  const [modal, setModal] = useState<null | { type: "edit" | "admin"; id: number | string }>(
-    null
-  );
+  const [modal, setModal] = useState(null);
 
   // 🔹 Firestore에서 상태를 다 불러오기 전이면 로딩 화면만
   if (!loaded) {
@@ -61,10 +58,10 @@ export default function SigHunterFlip() {
   const handleFlip = (card, e) => {
     console.log("[handleFlip] 호출됨, card.id:", card.id, "target:", e.target);
 
-    const target = e.target as HTMLElement;
+    const target = e.target;
 
     // 0️⃣ file input에서 올라온 클릭이면 무시
-    if (target.tagName === "INPUT" && (target as HTMLInputElement).type === "file") {
+    if (target.tagName === "INPUT" && target.type === "file") {
       console.log("[handleFlip] file input 클릭 감지, flip 무시");
       return;
     }
@@ -86,7 +83,7 @@ export default function SigHunterFlip() {
     const currentMsg = revealed[card.id];
 
     // 처음 뒤집는 시점 && 이미 편집된 메시지가 아니면
-    if (!currentlyFlipped && next && !currentMsg?.edited) {
+    if (!currentlyFlipped && next && !(currentMsg && currentMsg.edited)) {
       const imgs = card.frontImages || [];
       const newImg = imgs[Math.floor(Math.random() * imgs.length)];
 
@@ -142,12 +139,12 @@ export default function SigHunterFlip() {
 
   /** 🖼 이미지 파일 변경 */
   const handleImageChange = (e, id) => {
-    const file = e.target.files?.[0];
+    const file = e.target.files && e.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = (ev) => {
-      const url = ev.target?.result as string;
+      const url = ev && ev.target && ev.target.result;
       setRandomImages((p) => ({ ...p, [id]: url }));
       setFlipped((p) => ({ ...p, [id]: false })); // 🔹 여기서만 flip 상태 변경
       setLocked((p) => ({ ...p, [id]: false }));
@@ -164,17 +161,17 @@ export default function SigHunterFlip() {
     setFlipped({});
 
     // 🔹 현재 선택된 프로젝트의 카드 세트 기준으로 이미지 초기화
-    const initImgs: Record<string | number, string> = {};
+    const initImgs = {};
     sigCards.forEach((c) => {
       const imgs = c.frontImages;
-      if (imgs?.length) {
+      if (imgs && imgs.length) {
         initImgs[c.id] = imgs[Math.floor(Math.random() * imgs.length)];
       }
     });
     setRandomImages(initImgs);
 
     // 가중치 초기화
-    const initWeights: Record<string, number[]> = {};
+    const initWeights = {};
     sigCards.forEach((card) => {
       const key = String(card.id);
       initWeights[key] = (
@@ -201,7 +198,7 @@ export default function SigHunterFlip() {
           margin: "0 auto 12px auto",
         }}
       >
-        {(["queendom", "muse"] as const).map((key) => {
+        {["queendom", "muse"].map((key) => {
           const label = key === "queendom" ? "퀸덤" : "뮤즈";
           const isActive = project === key;
 
@@ -213,13 +210,13 @@ export default function SigHunterFlip() {
                 const next = key;
 
                 // 🔹 next 프로젝트 카드 세트 선택
-                const nextSigCards = projectCardSets[next] ?? queendomSigCards;
+                const nextSigCards = projectCardSets[next] || queendomSigCards;
 
                 // 1) 랜덤 이미지 재생성
-                const initImgs: Record<string | number, string> = {};
+                const initImgs = {};
                 nextSigCards.forEach((c) => {
                   const imgs = c.frontImages;
-                  if (imgs?.length) {
+                  if (imgs && imgs.length) {
                     initImgs[c.id] =
                       imgs[Math.floor(Math.random() * imgs.length)];
                   }
@@ -227,7 +224,7 @@ export default function SigHunterFlip() {
                 setRandomImages(initImgs);
 
                 // 2) 가중치도 그 프로젝트 카드 기준으로 맞추기
-                const initWeights: Record<string, number[]> = {};
+                const initWeights = {};
                 nextSigCards.forEach((card) => {
                   const keyStr = String(card.id);
                   initWeights[keyStr] = (
@@ -249,15 +246,22 @@ export default function SigHunterFlip() {
                 setProject(next);
               }}
               style={{
-                padding: "4px 10px",
-                borderRadius: "6px",
-                border: isActive ? "2px solid #fff" : "1px solid #aaa",
-                background: isActive ? "#ffffff33" : "#00000066",
-                color: "#fff",
-                cursor: "pointer",
-                fontSize: "14px",
-                minWidth: "70px",
-              }}
+  padding: "6px 14px",
+  borderRadius: "999px",
+  border: isActive ? "2px solid #ffe4f0" : "1px solid #888",
+  background: isActive
+    ? "linear-gradient(135deg, #ff7eb3, #ffb6c1)" // 선택된 상태: 핑크 그라디언트
+    : "linear-gradient(135deg, #444, #222)",      // 비활성 상태: 어두운 그라디언트
+  color: "#ffffff",
+  cursor: "pointer",
+  fontSize: "14px",
+  minWidth: "70px",
+  fontWeight: 600,
+  boxShadow: isActive
+    ? "0 0 8px rgba(255, 126, 179, 0.7)"
+    : "0 0 4px rgba(0, 0, 0, 0.4)",
+  transition: "all 0.15s ease-in-out",
+}}
             >
               {label}
             </button>
@@ -306,7 +310,7 @@ export default function SigHunterFlip() {
       </div>
 
       {/* ✏️ 메시지 수정 모달 */}
-      {modal?.type === "edit" && (
+      {modal && modal.type === "edit" && (
         <EditMessageModal
           project={project}
           cardId={modal.id}
@@ -321,7 +325,7 @@ export default function SigHunterFlip() {
       )}
 
       {/* ⚙️ 확률 조절 모달 */}
-      {modal?.type === "admin" && modal?.id != null && (
+      {modal && modal.type === "admin" && modal.id != null && (
         <AdminPopup
           project={project}
           cardId={modal.id}
