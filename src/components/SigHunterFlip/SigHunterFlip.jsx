@@ -14,7 +14,7 @@ import "./flip.css";
 
 export default function SigHunterFlip() {
   // 🔹 프로젝트 선택 (퀸덤 / 뮤즈)
-  const [project, setProject] = useState("queendom"); // "queendom" | "muse"
+  const [project, setProject] = useState<"queendom" | "muse">("queendom");
 
   // 🔹 프로젝트별 카드 세트 매핑
   const projectCardSets = {
@@ -25,7 +25,10 @@ export default function SigHunterFlip() {
   // 🔹 현재 선택된 프로젝트의 카드 세트
   const sigCards = projectCardSets[project];
 
-  const fileInputRefs = useRef({});
+  const fileInputRefs = useRef<Record<string | number, HTMLInputElement | null>>(
+    {}
+  );
+
   const {
     flipped,
     locked,
@@ -40,7 +43,9 @@ export default function SigHunterFlip() {
     loaded,
   } = useSigStorage();
 
-  const [modal, setModal] = useState(null);
+  const [modal, setModal] = useState<null | { type: "edit" | "admin"; id: number | string }>(
+    null
+  );
 
   // 🔹 Firestore에서 상태를 다 불러오기 전이면 로딩 화면만
   if (!loaded) {
@@ -56,10 +61,10 @@ export default function SigHunterFlip() {
   const handleFlip = (card, e) => {
     console.log("[handleFlip] 호출됨, card.id:", card.id, "target:", e.target);
 
-    const target = e.target;
+    const target = e.target as HTMLElement;
 
     // 0️⃣ file input에서 올라온 클릭이면 무시
-    if (target.tagName === "INPUT" && target.type === "file") {
+    if (target.tagName === "INPUT" && (target as HTMLInputElement).type === "file") {
       console.log("[handleFlip] file input 클릭 감지, flip 무시");
       return;
     }
@@ -142,7 +147,7 @@ export default function SigHunterFlip() {
 
     const reader = new FileReader();
     reader.onload = (ev) => {
-      const url = ev.target.result;
+      const url = ev.target?.result as string;
       setRandomImages((p) => ({ ...p, [id]: url }));
       setFlipped((p) => ({ ...p, [id]: false })); // 🔹 여기서만 flip 상태 변경
       setLocked((p) => ({ ...p, [id]: false }));
@@ -159,7 +164,7 @@ export default function SigHunterFlip() {
     setFlipped({});
 
     // 🔹 현재 선택된 프로젝트의 카드 세트 기준으로 이미지 초기화
-    const initImgs = {};
+    const initImgs: Record<string | number, string> = {};
     sigCards.forEach((c) => {
       const imgs = c.frontImages;
       if (imgs?.length) {
@@ -169,7 +174,7 @@ export default function SigHunterFlip() {
     setRandomImages(initImgs);
 
     // 가중치 초기화
-    const initWeights = {};
+    const initWeights: Record<string, number[]> = {};
     sigCards.forEach((card) => {
       const key = String(card.id);
       initWeights[key] = (
@@ -187,55 +192,77 @@ export default function SigHunterFlip() {
     <div className="natural-container">
       <h2>💖 시그헌터 💖</h2>
 
-      {/* 🔹 퀸덤 / 뮤즈 선택 드롭다운 */} 
-     <div
-  style={{
-    width: "200px",
-    margin: "0 auto 12px auto",     // ✅ 가로 중앙 정렬
-    textAlign: "center",  // (선택) 안의 내용도 가운데 정렬
-  }}
->
-        <select
-          value={project}
-          onChange={(e) => {
-            const next = e.target.value;
+      {/* 🔹 퀸덤 / 뮤즈 선택 버튼 그룹 (OBS 상호작용 대응) */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: "8px",
+          margin: "0 auto 12px auto",
+        }}
+      >
+        {(["queendom", "muse"] as const).map((key) => {
+          const label = key === "queendom" ? "퀸덤" : "뮤즈";
+          const isActive = project === key;
 
-            // 🔹 next 프로젝트 카드 세트 선택
-            const nextSigCards = projectCardSets[next] ?? queendomSigCards;
+          return (
+            <button
+              key={key}
+              type="button"
+              onClick={() => {
+                const next = key;
 
-            // 1) 랜덤 이미지 재생성
-            const initImgs = {};
-            nextSigCards.forEach((c) => {
-              const imgs = c.frontImages;
-              if (imgs?.length) {
-                initImgs[c.id] = imgs[Math.floor(Math.random() * imgs.length)];
-              }
-            });
-            setRandomImages(initImgs);
+                // 🔹 next 프로젝트 카드 세트 선택
+                const nextSigCards = projectCardSets[next] ?? queendomSigCards;
 
-            // 2) 가중치도 그 프로젝트 카드 기준으로 맞추기
-            const initWeights = {};
-            nextSigCards.forEach((card) => {
-              const key = String(card.id);
-              initWeights[key] = (
-                card.isSpecial ? specialMessages : normalMessages
-              ).map((m) => m.weight);
-            });
-            setCardWeights(initWeights);
-            localStorage.setItem("cardWeights", JSON.stringify(initWeights));
+                // 1) 랜덤 이미지 재생성
+                const initImgs: Record<string | number, string> = {};
+                nextSigCards.forEach((c) => {
+                  const imgs = c.frontImages;
+                  if (imgs?.length) {
+                    initImgs[c.id] =
+                      imgs[Math.floor(Math.random() * imgs.length)];
+                  }
+                });
+                setRandomImages(initImgs);
 
-            // 3) 뒤집힘/잠금/메시지 상태도 프로젝트 바뀔 때 초기화
-            setFlipped({});
-            setLocked({});
-            setRevealed({});
+                // 2) 가중치도 그 프로젝트 카드 기준으로 맞추기
+                const initWeights: Record<string, number[]> = {};
+                nextSigCards.forEach((card) => {
+                  const keyStr = String(card.id);
+                  initWeights[keyStr] = (
+                    card.isSpecial ? specialMessages : normalMessages
+                  ).map((m) => m.weight);
+                });
+                setCardWeights(initWeights);
+                localStorage.setItem(
+                  "cardWeights",
+                  JSON.stringify(initWeights)
+                );
 
-            // 마지막에 프로젝트 변경
-            setProject(next);
-          }}
-        >
-          <option value="queendom">퀸덤</option>
-          <option value="muse">뮤즈</option>
-        </select>
+                // 3) 뒤집힘/잠금/메시지 상태도 프로젝트 바뀔 때 초기화
+                setFlipped({});
+                setLocked({});
+                setRevealed({});
+
+                // 마지막에 프로젝트 변경
+                setProject(next);
+              }}
+              style={{
+                padding: "4px 10px",
+                borderRadius: "6px",
+                border: isActive ? "2px solid #fff" : "1px solid #aaa",
+                background: isActive ? "#ffffff33" : "#00000066",
+                color: "#fff",
+                cursor: "pointer",
+                fontSize: "14px",
+                minWidth: "70px",
+              }}
+            >
+              {label}
+            </button>
+          );
+        })}
       </div>
 
       <button className="reset-btn" onClick={resetAll}>
