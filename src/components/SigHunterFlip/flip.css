@@ -45,7 +45,7 @@
 /* 일반 카드 그리드 (10장, 5x2) */
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(5 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 1.2rem;
   flex: 1;
 }
