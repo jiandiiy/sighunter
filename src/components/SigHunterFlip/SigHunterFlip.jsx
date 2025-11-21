@@ -25,7 +25,7 @@ export default function SigHunterFlip() {
   // 🔹 현재 선택된 프로젝트의 카드 세트
   const sigCards = projectCardSets[project];
 
-  // 🔹 file input refs (JS 버전 – 타입 없음)
+  // 🔹 file input refs
   const fileInputRefs = useRef({});
 
   const {
@@ -99,11 +99,12 @@ export default function SigHunterFlip() {
 
       const msg = weightedPick(base, weights);
 
-      fireConfetti(msg.tier);
+      // 🔥 티어 제거: confetti는 메시지 텍스트 기준으로만 (또는 아예 고정)
+      fireConfetti(msg.text);
 
       setRandomImages((p) => ({ ...p, [card.id]: newImg }));
       setRevealed((p) => ({ ...p, [card.id]: msg }));
-    } 
+    }
 
     setFlipped((prev) => ({ ...prev, [card.id]: next }));
   };
@@ -146,7 +147,7 @@ export default function SigHunterFlip() {
     reader.onload = (ev) => {
       const url = ev && ev.target && ev.target.result;
       setRandomImages((p) => ({ ...p, [id]: url }));
-      setFlipped((p) => ({ ...p, [id]: false })); // 🔹 여기서만 flip 상태 변경
+      setFlipped((p) => ({ ...p, [id]: false }));
       setLocked((p) => ({ ...p, [id]: false }));
     };
     reader.readAsDataURL(file);
@@ -189,7 +190,7 @@ export default function SigHunterFlip() {
     <div className="natural-container">
       <h2>💖 시그헌터 💖</h2>
 
-      {/* 🔹 퀸덤 / 뮤즈 선택 버튼 그룹 (OBS 상호작용 대응) */}
+      {/* 🔹 퀸덤 / 뮤즈 선택 버튼 그룹 */}
       <div
         style={{
           display: "flex",
@@ -246,22 +247,22 @@ export default function SigHunterFlip() {
                 setProject(next);
               }}
               style={{
-  padding: "6px 14px",
-  borderRadius: "999px",
-  border: isActive ? "2px solid #ffe4f0" : "1px solid #888",
-  background: isActive
-    ? "linear-gradient(135deg, #ff7eb3, #ffb6c1)" // 선택된 상태: 핑크 그라디언트
-    : "linear-gradient(135deg, #444, #222)",      // 비활성 상태: 어두운 그라디언트
-  color: "#ffffff",
-  cursor: "pointer",
-  fontSize: "14px",
-  minWidth: "70px",
-  fontWeight: 600,
-  boxShadow: isActive
-    ? "0 0 8px rgba(255, 126, 179, 0.7)"
-    : "0 0 4px rgba(0, 0, 0, 0.4)",
-  transition: "all 0.15s ease-in-out",
-}}
+                padding: "6px 14px",
+                borderRadius: "999px",
+                border: isActive ? "2px solid #ffe4f0" : "1px solid #888",
+                background: isActive
+                  ? "linear-gradient(135deg, #ff7eb3, #ffb6c1)"
+                  : "linear-gradient(135deg, #444, #222)",
+                color: "#ffffff",
+                cursor: "pointer",
+                fontSize: "14px",
+                minWidth: "70px",
+                fontWeight: 600,
+                boxShadow: isActive
+                  ? "0 0 8px rgba(255, 126, 179, 0.7)"
+                  : "0 0 4px rgba(0, 0, 0, 0.4)",
+                transition: "all 0.15s ease-in-out",
+              }}
             >
               {label}
             </button>
@@ -314,7 +315,7 @@ export default function SigHunterFlip() {
         <EditMessageModal
           project={project}
           cardId={modal.id}
-          initialMsg={revealed[modal.id]} // 현재 카드의 메시지
+          initialMsg={revealed[modal.id]}
           onClose={() => setModal(null)}
           onUpdate={(newMsg) => {
             console.log("✅ [SigHunterFlip] onUpdate 수신:", modal.id, newMsg);

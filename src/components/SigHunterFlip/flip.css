@@ -98,6 +98,7 @@
   will-change: transform, opacity;
   cursor: pointer;
 }
+
 /* 기본: 꽤 큰 화면 */
 .natural-card {
   width: clamp(210px, 13vw, 270px);
@@ -242,18 +243,7 @@
   background: rgba(255, 255, 255, 0.4);
 }
 
-.glow .card-back {
-  animation: subtleGlow 2s infinite alternate ease-in-out;
-}
-
-@keyframes subtleGlow {
-  from {
-    box-shadow: 0 0 4px 4px rgba(255, 255, 180, 0.6);
-  }
-  to {
-    box-shadow: 0 0 10px 10px rgba(255, 255, 200, 0.8);
-  }
-}
+/* 🔥 glow / tier 관련 스타일 제거됨 */
 
 .back-content {
   /* cursor: pointer;  ← 제거 */
@@ -263,37 +253,9 @@
   gap: 10px;
 }
 
-.tier {
-  padding: 6px 14px;
-  border-radius: 16px;
-  font-size: 14px;
-  font-weight: 600;
-  margin: 0;
-}
+/* 🔥 .tier 관련 전체 삭제 */
 
-.tier.일반 {
-  color: #fff;
-}
-
-.tier.희귀 {
-  background: #9ae6b4;
-  color: #22543d;
-}
-
-.tier.레어 {
-  background: #68d391;
-  color: #1d4438;
-  border: 1px solid #eee;
-  font-weight: bold;
-}
-
-.tier.전설,
-.tier.레전드 {
-  background: linear-gradient(90deg, #face6d, #f97393);
-  color: #2f1410;
-  font-weight: bold;
-}
-
+/* 메시지 텍스트 */
 .back-content h3 {
   font-size: 75px;
   margin: 0;

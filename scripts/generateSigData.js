@@ -97,44 +97,139 @@ function distributeImages(images, numCards, perCard) {
 
 /* 메시지 풀은 프로젝트 공통으로 사용 (필요하면 프로젝트별로도 분리 가능) */
 const normalMessagePool = [
-  { text: "화장실 1개 🚻",       tier: "일반", color: "#ffffff", bgColor: "#443288", weight: 5 },
-  { text: "화장실 무제한 ♾️",   tier: "일반", color: "#ffffff", bgColor: "#443288", weight: 0 },
-  { text: "기여도 두배 🎁",      tier: "일반", color: "#ffffff", bgColor: "#443288", weight: 40 },
-  { text: "기여도 세배 🎉",      tier: "희귀", color: "#22543d", bgColor: "#9ae6b4", weight: 25 },
-  { text: "기여도 네배 🔥",      tier: "희귀", color: "#22543d", bgColor: "#9ae6b4", weight: 0 },
-  { text: "1,000원 당첨!",       tier: "희귀", color: "#22543d", bgColor: "#9ae6b4", weight: 10 },
-  { text: "5,000원 당첨!",       tier: "레어", color: "#1d4438", bgColor: "#68d391", weight: 7 },
-  { text: "10,000원 당첨!",      tier: "레어", color: "#1d4438", bgColor: "#68d391", weight: 3 },
-  { text: "개똥손 🤡",           tier: "일반", color: "#ffffff", bgColor: "#443288", weight: 10 },
+  // 5%
+  { 
+    text: "화장실 1개 🚻",
+    color: "#ffffff",
+    bgColor: "#4a5568",   // 어두운 그레이블루
+    weight: 5,
+  },
+
+  // 1%
+  { 
+    text: "레전드 ✨",
+    color: "#2d3748",
+    bgColor: "#fbd38d",   // 밝은 금색 계열
+    weight: 1,
+  },
+
+  // 40%
+  { 
+    text: "기여도 두배 🎁",
+    color: "#1a202c",
+    bgColor: "#9ae6b4",   // 연한 그린
+    weight: 40,
+  },
+
+  // 25%
+  { 
+    text: "기여도 세배 🎉",
+    color: "#1a202c",
+    bgColor: "#68d391",   // 조금 더 진한 그린
+    weight: 25,
+  },
+
+  // 0%
+  { 
+    text: "기여도 네배 🔥",
+    color: "#1a202c",
+    bgColor: "#48bb78",   // 진한 그린 (지금은 weight 0이라 안 나옴)
+    weight: 0,
+  },
+
+  // 10%
+  { 
+    text: "1,000원 당첨!",
+    color: "#1a202c",
+    bgColor: "#f6e05e",   // 노랑
+    weight: 10,
+  },
+
+  // 3%
+  { 
+    text: "전설 🏆",
+    color: "#2d3748",
+    bgColor: "#ed8936",   // 오렌지
+    weight: 3,
+  },
+
+  // 3%
+  { 
+    text: "10,000원 당첨!",
+    color: "#1a202c",
+    bgColor: "#f56565",   // 레드
+    weight: 3,
+  },
+
+  // 10%
+  { 
+    text: "개똥손 🤡",
+    color: "#ffffff",
+    bgColor: "#2d3748",   // 짙은 네이비
+    weight: 10,
+  },
 ];
 
 const specialMessagePool = [
-  { text: "기여도 두배 🎁",       tier: "전설",  color: "#2f1410",
-    bgColor: "linear-gradient(90deg, #face6d, #f97393)", weight: 20 },
+  // 기여도
+  {
+    text: "기여도 두배 🎁",
+    color: "#2f1410",
+    bgColor: "linear-gradient(90deg, #ffd1a1, #ff9f7b)", // 오렌지 계열
+    weight: 20, // 20%
+  },
+  {
+    text: "기여도 세배 🌟",
+    color: "#231942",
+    bgColor: "linear-gradient(90deg, #c4b5fd, #7c3aed)", // 보라 계열
+    weight: 40, // 40%
+  },
+  {
+    text: "기여도 네배 🔥",
+    color: "#1f2933",
+    bgColor: "linear-gradient(90deg, #f97373, #fb923c)", // 레드/오렌지
+    weight: 5, // 5%
+  },
 
-  { text: "기여도 세배 🌟",       tier: "전설",  color: "#2f1410",
-    bgColor: "linear-gradient(90deg, #face6d, #f97393)", weight: 35 },
+  // 금액 보상
+  {
+    text: "💰 30,000원 당첨!",
+    color: "#14532d",
+    bgColor: "linear-gradient(90deg, #bbf7d0, #4ade80)", // 연녹색
+    weight: 2, // 2%
+  },
+  {
+    text: "💎 50,000원 당첨!",
+    color: "#1d2833",
+    bgColor: "linear-gradient(90deg, #a5f3fc, #38bdf8)", // 시안/블루
+    weight: 1, // 1%
+  },
+  {
+    text: "🎊 100,000원 당첨!",
+    color: "#3f1f0f",
+    bgColor: "linear-gradient(90deg, #fde68a, #facc15)", // 골드 계열
+    weight: 1, // 1%
+  },
 
-  { text: "기여도 네배 🔥",       tier: "전설",  color: "#2f1410",
-    bgColor: "linear-gradient(90deg, #face6d, #f97393)", weight: 0 },
-
-  { text: "💰 10,000원 당첨!",    tier: "레전드", color: "#2f1410",
-    bgColor: "linear-gradient(90deg, #face6d, #f97393)", weight: 10 },
-
-  { text: "💰 20,000원 당첨!",    tier: "레전드", color: "#2f1410",
-    bgColor: "linear-gradient(90deg, #face6d, #f97393)", weight: 10 },
-
-  { text: "💰 30,000원 당첨!",    tier: "레전드", color: "#2f1410",
-    bgColor: "linear-gradient(90deg, #face6d, #f97393)", weight: 5 },
-
-  { text: "💎 50,000원 당첨!",    tier: "레전드", color: "#2f1410",
-    bgColor: "linear-gradient(90deg, #face6d, #f97393)", weight: 10 },
-
-  { text: "🎊 100,000원 당첨!",   tier: "레전드", color: "#2f1410",
-    bgColor: "linear-gradient(90deg, #face6d, #f97393)", weight: 5 },
-
-  { text: "화장실 무제한 ♾️",    tier: "전설",  color: "#2f1410",
-    bgColor: "linear-gradient(90deg, #face6d, #f97393)", weight: 5 },
+  // 기타 효과
+  {
+    text: "화장실 무제한 ♾️",
+    color: "#064e3b",
+    bgColor: "linear-gradient(90deg, #6ee7b7, #34d399)", // 민트 계열
+    weight: 1, // 1%
+  },
+  {
+    text: "레전드 💠",
+    color: "#0f172a",
+    bgColor: "linear-gradient(90deg, #e0f2fe, #60a5fa)", // 파랑 계열
+    weight: 10, // 10%
+  },
+  {
+    text: "전설 🔱",
+    color: "#1a1033",
+    bgColor: "linear-gradient(90deg, #f5d0fe, #e879f9)", // 핑크/보라
+    weight: 20, // 20%
+  },
 ];
 
 /* -------------------------------------------------------------------------- */

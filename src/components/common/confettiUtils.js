@@ -1,15 +1,17 @@
 import confetti from "canvas-confetti";
 
 // 🎇 불꽃놀이 효과
-export const fireConfetti = (tier) => {
+export const fireConfetti = (text) => {
   try {
-    const isLegend = ["전설", "레전드"].includes(tier);
-    const isRare = ["희귀", "레어"].includes(tier);
-    if (!isLegend && !isRare) return;
+    if (!text) return;
 
-    const colors = isLegend
-      ? ["#FFD700", "#FFA500", "#FF69B4", "#FA709A", "#FFF4B3"]
-      : ["#93F9B9", "#77A1D3", "#B2FEFA", "#1D976C"];
+    // 뒷면 텍스트 안에 '전설' 또는 '레전드'가 포함되면 레전드급 폭죽
+    const hasLegend =
+      text.includes("전설") || text.includes("레전드");
+
+    if (!hasLegend) return;
+
+    const colors = ["#FFD700", "#FFA500", "#FF69B4", "#FA709A", "#FFF4B3"];
 
     confetti({
       particleCount: 120,

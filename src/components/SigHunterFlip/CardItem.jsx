@@ -32,7 +32,8 @@ function CardItem({
     card.frontImages?.[0] ||
     "https://via.placeholder.com/200/CCCCCC/FFFFFF?text=No+Image";
 
-  const glow = msg?.tier && ["전설", "레전드"].includes(msg.tier);
+  // 🔥 티어 제거: glow 효과도 메시지 텍스트 기준 등으로 쓰고 싶으면 여기서 바꿔도 됨
+  const glow = false;
 
   // ✅ 이미지 변경 감지 + 사전 로딩
   useEffect(() => {
@@ -76,22 +77,22 @@ function CardItem({
 
   /** 🃏 카드 클릭 */
   const handleFlip = (e) => {
-  console.log("💥 [CardItem] handleFlip 호출, id:", id, "target:", e.target);
+    console.log("💥 [CardItem] handleFlip 호출, id:", id, "target:", e.target);
 
-  // file input이면 카드까지 올라가지 않게 여기서 바로 막기
-  if (e.target.tagName === "INPUT" && e.target.type === "file") {
-    console.log("💥 [CardItem] file input 클릭, flip 전달 막음");
-    e.stopPropagation();
-    return;
-  }
+    // file input이면 카드까지 올라가지 않게 여기서 바로 막기
+    if (e.target.tagName === "INPUT" && e.target.type === "file") {
+      console.log("💥 [CardItem] file input 클릭, flip 전달 막음");
+      e.stopPropagation();
+      return;
+    }
 
-  if (isLocked) {
-    e.stopPropagation();
-    return;
-  }
+    if (isLocked) {
+      e.stopPropagation();
+      return;
+    }
 
-  onFlip(card, e);
-};
+    onFlip(card, e);
+  };
 
   /** 🖼️ 이미지 로딩 에러 핸들러 */
   const handleImageError = (e) => {
@@ -174,28 +175,22 @@ function CardItem({
         >
           <div className="back-content">
             {msg ? (
-              <>
-                <span
-                  className={`tier ${msg.tier?.toLowerCase() ?? "unknown"}`}
-                >
-                  {msg.tier || ""}
-                </span>
-                <h3>{msg.text || ""}</h3>
-              </>
+              // 🔥 티어 제거: 텍스트만 표시
+              <h3>{msg.text || ""}</h3>
             ) : (
               <h3>?</h3>
             )}
 
             <button
-  type="button"
-  className="upload-btn"
-  onClick={(e) => {
-    e.stopPropagation();
-    onUploadClick(e, id);   // 여기서는 input.click()만
-  }}
->
-  🖼️
-</button>
+              type="button"
+              className="upload-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                onUploadClick(e, id); // 여기서는 input.click()만
+              }}
+            >
+              🖼️
+            </button>
 
             <input
               ref={(el) => {
