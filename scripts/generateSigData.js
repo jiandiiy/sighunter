@@ -99,7 +99,7 @@ function distributeImages(images, numCards, perCard) {
 const normalMessagePool = [
   // 5%
   {
-    text: "화장실 1개 🚻",
+    text: "화장실\n1개",
     color: "#ffffff",
     bgColor: "#4a5568", // 어두운 그레이블루
     weight: 5,
@@ -115,7 +115,7 @@ const normalMessagePool = [
 
   // 40%
   {
-    text: "기여도 두배 🎁",
+    text: "기여도\n두배",
     color: "#1a202c",
     bgColor: "#9ae6b4", // 연한 그린
     weight: 40,
@@ -123,7 +123,7 @@ const normalMessagePool = [
 
   // 25%
   {
-    text: "기여도 세배 🎉",
+    text: "기여도\n세배",
     color: "#1a202c",
     bgColor: "#68d391", // 조금 더 진한 그린
     weight: 25,
@@ -131,7 +131,7 @@ const normalMessagePool = [
 
   // 0%
   {
-    text: "기여도 네배 🔥",
+    text: "기여도\n네배",
     color: "#1a202c",
     bgColor: "#48bb78", // 진한 그린 (지금은 weight 0이라 안 나옴)
     weight: 0,
@@ -139,7 +139,7 @@ const normalMessagePool = [
 
   // 10%
   {
-    text: "1,000원 당첨!",
+    text: "1,000원\n당첨!",
     color: "#1a202c",
     bgColor: "#f6e05e", // 노랑
     weight: 10,
@@ -155,7 +155,7 @@ const normalMessagePool = [
 
   // 3%
   {
-    text: "10,000원 당첨!",
+    text: "10,000원\n당첨!",
     color: "#1a202c",
     bgColor: "#f56565", // 레드
     weight: 3,
@@ -193,19 +193,19 @@ const specialMessagePool = [
 
   // 금액 보상
   {
-    text: "💰 30,000원 당첨!",
+    text: "💰 30,000원\n당첨!",
     color: "#14532d",
     bgColor: "linear-gradient(90deg, #bbf7d0, #4ade80)", // 연녹색
     weight: 2, // 2%
   },
   {
-    text: "💎 50,000원 당첨!",
+    text: "💎 50,000원\n당첨!",
     color: "#1d2833",
     bgColor: "linear-gradient(90deg, #a5f3fc, #38bdf8)", // 시안/블루
     weight: 1, // 1%
   },
   {
-    text: "🎊 100,000원 당첨!",
+    text: "🎊 100,000원\n당첨!",
     color: "#3f1f0f",
     bgColor: "linear-gradient(90deg, #fde68a, #facc15)", // 골드 계열
     weight: 1, // 1%

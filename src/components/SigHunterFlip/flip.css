@@ -250,15 +250,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 5px;
 }
 
 /* 🔥 .tier 관련 전체 삭제 */
 
 /* 메시지 텍스트 */
 .back-content h3 {
-  font-size: 75px;
-  margin: 0;
+  font-size: 65px;
+  margin: 10px 0 0;
+  white-space: pre-line;
 }
 
 .upload-btn {
@@ -271,7 +272,7 @@
   background: transparent;
   border: none;
   font-size: 20px;
-  margin-top: 10px;
+  margin-top: 5px;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.2s ease;
   z-index: 5;
