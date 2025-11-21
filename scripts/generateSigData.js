@@ -98,74 +98,74 @@ function distributeImages(images, numCards, perCard) {
 /* 메시지 풀은 프로젝트 공통으로 사용 (필요하면 프로젝트별로도 분리 가능) */
 const normalMessagePool = [
   // 5%
-  { 
+  {
     text: "화장실 1개 🚻",
     color: "#ffffff",
-    bgColor: "#4a5568",   // 어두운 그레이블루
+    bgColor: "#4a5568", // 어두운 그레이블루
     weight: 5,
   },
 
   // 1%
-  { 
+  {
     text: "레전드 ✨",
     color: "#2d3748",
-    bgColor: "#fbd38d",   // 밝은 금색 계열
+    bgColor: "#fbd38d", // 밝은 금색 계열
     weight: 1,
   },
 
   // 40%
-  { 
+  {
     text: "기여도 두배 🎁",
     color: "#1a202c",
-    bgColor: "#9ae6b4",   // 연한 그린
+    bgColor: "#9ae6b4", // 연한 그린
     weight: 40,
   },
 
   // 25%
-  { 
+  {
     text: "기여도 세배 🎉",
     color: "#1a202c",
-    bgColor: "#68d391",   // 조금 더 진한 그린
+    bgColor: "#68d391", // 조금 더 진한 그린
     weight: 25,
   },
 
   // 0%
-  { 
+  {
     text: "기여도 네배 🔥",
     color: "#1a202c",
-    bgColor: "#48bb78",   // 진한 그린 (지금은 weight 0이라 안 나옴)
+    bgColor: "#48bb78", // 진한 그린 (지금은 weight 0이라 안 나옴)
     weight: 0,
   },
 
   // 10%
-  { 
+  {
     text: "1,000원 당첨!",
     color: "#1a202c",
-    bgColor: "#f6e05e",   // 노랑
+    bgColor: "#f6e05e", // 노랑
     weight: 10,
   },
 
   // 3%
-  { 
+  {
     text: "전설 🏆",
     color: "#2d3748",
-    bgColor: "#ed8936",   // 오렌지
+    bgColor: "#ed8936", // 오렌지
     weight: 3,
   },
 
   // 3%
-  { 
+  {
     text: "10,000원 당첨!",
     color: "#1a202c",
-    bgColor: "#f56565",   // 레드
+    bgColor: "#f56565", // 레드
     weight: 3,
   },
 
   // 10%
-  { 
+  {
     text: "개똥손 🤡",
     color: "#ffffff",
-    bgColor: "#2d3748",   // 짙은 네이비
+    bgColor: "#2d3748", // 짙은 네이비
     weight: 10,
   },
 ];
@@ -239,8 +239,17 @@ const specialMessagePool = [
 function generateProjectSigCards(projectDir) {
   console.log(`\n📂 [${projectDir}] 이미지 로드 시작`);
 
-  const normalGroups = ["group1","group2","group3","group4","group5","group6","group7","group8"];
-  const specialGroups = ["group9","group10"];
+  const normalGroups = [
+    "group1",
+    "group2",
+    "group3",
+    "group4",
+    "group5",
+    "group6",
+    "group7",
+    "group8",
+  ];
+  const specialGroups = ["group9", "group10"];
 
   const normalImages = readImagesForProject(projectDir, normalGroups);
   let specialImages = readImagesForProject(projectDir, specialGroups);
@@ -249,11 +258,17 @@ function generateProjectSigCards(projectDir) {
   console.log(`🌟 [${projectDir}] 특별 카드 이미지 총 ${specialImages.length}장`);
 
   if (normalImages.length === 0) {
-    console.error(`❌ [${projectDir}] 일반 카드 이미지가 없습니다. ${projectDir}/group1~8 폴더를 확인하세요.`);
+    console.error(
+      `❌ [${projectDir}] 일반 카드 이미지가 없습니다. ${projectDir}/group1~8 폴더를 확인하세요.`
+    );
     process.exit(1);
   }
 
-  const distributedCards = distributeImages(normalImages, TOTAL_NORMAL_CARDS, IMAGES_PER_CARD);
+  const distributedCards = distributeImages(
+    normalImages,
+    TOTAL_NORMAL_CARDS,
+    IMAGES_PER_CARD
+  );
   const sigCards = [];
 
   for (let i = 0; i < TOTAL_NORMAL_CARDS; i++) {
@@ -266,7 +281,9 @@ function generateProjectSigCards(projectDir) {
   }
 
   if (specialImages.length === 0) {
-    console.warn(`⚠️ [${projectDir}] 특별 이미지가 없으므로 일반 이미지 일부를 사용합니다.`);
+    console.warn(
+      `⚠️ [${projectDir}] 특별 이미지가 없으므로 일반 이미지 일부를 사용합니다.`
+    );
     specialImages = shuffle(normalImages).slice(0, 50);
   }
 
@@ -308,16 +325,26 @@ console.log("\n🎉 sigData.js 생성 완료!");
 console.log(`📄 위치: ${outputFile}`);
 console.log("\n✅ 확률 설정:");
 console.log("📇 일반 카드(1~10):");
-console.log("   • 기여도 두배: 60%");
-console.log("   • 기여도 세배: 15%");
-console.log("   • 10,000원: 1%");
-console.log("   • 5,000원: 5%");
-console.log("   • 1,000원: 19%");
+console.log("   • 화장실 1개: 5");
+console.log("   • 레전드: 1");
+console.log("   • 기여도 두배: 40");
+console.log("   • 기여도 세배: 25");
+console.log("   • 기여도 네배: 0");
+console.log("   • 1,000원: 10");
+console.log("   • 전설: 3");
+console.log("   • 10,000원: 3");
+console.log("   • 개똥손: 10");
 console.log("\n🌟 특별 카드(11):");
-console.log("   • 100,000원: 10%");
-console.log("   • 기여도 세배: 70%");
-console.log("   • 50,000원: 20%");
+console.log("   • 기여도 두배: 20");
+console.log("   • 기여도 세배: 40");
+console.log("   • 기여도 네배: 5");
+console.log("   • 30,000원: 2");
+console.log("   • 50,000원: 1");
+console.log("   • 100,000원: 1");
+console.log("   • 화장실 무제한: 1");
+console.log("   • 레전드: 10");
+console.log("   • 전설: 20");
 console.log("\n💡 작동 방식:");
 console.log("   • 카드를 뒤집을 때마다 가중치 기반으로 랜덤 선택");
 console.log("   • 같은 결과가 여러 번 나올 수 있음");
-console.log("   • 확률에 따라 높은 % 항목이 자주 나옴\n");
+console.log("   • weight 값이 높을수록 더 자주 나옴\n");
