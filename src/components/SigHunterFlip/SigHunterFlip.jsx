@@ -257,6 +257,7 @@ export default function SigHunterFlip() {
                 cursor: "pointer",
                 fontSize: "14px",
                 minWidth: "70px",
+                fontFamily: "Cafe24ClassicType",
                 fontWeight: 600,
                 boxShadow: isActive
                   ? "0 0 8px rgba(255, 126, 179, 0.7)"

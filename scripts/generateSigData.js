@@ -139,7 +139,7 @@ const normalMessagePool = [
 
   // 10%
   {
-    text: "1,000원\n당첨!",
+    text: "1000원\n당첨!",
     color: "#1a202c",
     bgColor: "#f6e05e", // 노랑
     weight: 10,
@@ -155,7 +155,7 @@ const normalMessagePool = [
 
   // 3%
   {
-    text: "10,000\n원당첨!",
+    text: "10000\n원당첨!",
     color: "#1a202c",
     bgColor: "#f56565", // 레드
     weight: 3,

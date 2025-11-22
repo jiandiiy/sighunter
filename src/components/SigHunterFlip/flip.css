@@ -1,3 +1,9 @@
+@font-face {
+    font-family: 'Cafe24ClassicType';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2210-2@1.0/Cafe24ClassicType-Regular.woff2') format('woff2');
+    font-weight: normal;
+    font-display: swap;
+}
 .natural-container {
   position: relative;
   background: transparent;
@@ -6,7 +12,7 @@
   color: #fff;
   padding: 2rem;
   z-index: 1;
-  font-family: "Pretendard", sans-serif;
+  font-family: "Cafe24ClassicType", sans-serif;
 }
 
 .natural-container h2 {
@@ -21,6 +27,7 @@
   border: none;
   border-radius: 8px;
   font-size: 16px;
+  font-family: "Cafe24ClassicType", sans-serif;
   padding: 0.45rem 0.9rem;
   cursor: pointer;
   transition: transform 0.2s ease, background 0.3s;
@@ -260,6 +267,7 @@
   font-size: 65px;
   margin: 10px 0 0;
   white-space: pre-line;
+  font-weight: 200;
 }
 
 .upload-btn {
