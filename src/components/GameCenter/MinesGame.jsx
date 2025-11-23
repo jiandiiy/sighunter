@@ -125,12 +125,13 @@ export default function MinesGame() {
             style={{
               margin: 0,
               fontSize: 22,
-              fontWeight: 700,
+              fontWeight: 800,
               color: "#fff",
               letterSpacing: "0.04em",
               display: "flex",
               alignItems: "center",
               gap: 6,
+              fontFamily: "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
             }}
           >
             💣 지뢰게임

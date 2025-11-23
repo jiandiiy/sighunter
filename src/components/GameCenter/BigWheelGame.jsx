@@ -89,9 +89,8 @@ export default function BigWheelGame() {
         alignItems: "center",
         justifyContent: "center",
         padding: 16,
-        fontFamily:
-          "-apple-system,BlinkMacSystemFont,system-ui,Segoe UI,sans-serif",
         color: "#e5e7eb",
+        fontFamily: "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
       }}
     > 
       <div
@@ -122,9 +121,9 @@ export default function BigWheelGame() {
           <h2
             style={{
               margin: 0,
-              fontSize: 24,
+              fontSize: 26,
               fontWeight: 800,
-              color: "#f9fafb",
+              color: "#fff",
               textShadow: "0 0 18px rgba(168,85,247,0.9)",
               letterSpacing: 1,
             }}
@@ -134,12 +133,12 @@ export default function BigWheelGame() {
           <p
             style={{
               margin: 0,
-              fontSize: 12,
+              fontSize: 14,
               opacity: 0.9,
-              color: "#c7d2fe",
+              color: "#fff",
             }}
           >
-            버튼을 눌러 휠을 돌리고, 어디에 멈출지 방송에서 같이 맞춰보세요.
+            버튼을 눌러 휠을 돌리세요.
           </p>
 
           {/* 휠 + 포인터 영역 */}
@@ -218,10 +217,11 @@ export default function BigWheelGame() {
                 <div>
                   <div
                     style={{
-                      fontSize: 11,
+                      fontSize: 14,
                       opacity: 0.8,
                       marginBottom: 4,
-                      color: "#9ca3af",
+                      color: "#fff",
+                      fontWeight: 500,
                     }}
                   >
                     {isSpinning
@@ -232,9 +232,9 @@ export default function BigWheelGame() {
                   </div>
                   <div
                     style={{
-                      fontSize: 14,
+                      fontSize: 25,
                       fontWeight: 800,
-                      color: "#f9fafb",
+                      color: "#fff",
                     }}
                   >
                     {isSpinning
@@ -251,7 +251,7 @@ export default function BigWheelGame() {
           {/* 버튼 + 결과 텍스트 */}
           <div
             style={{
-              marginTop: 8,
+              marginTop: 5,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -271,7 +271,7 @@ export default function BigWheelGame() {
                   "linear-gradient(135deg,rgba(59,130,246,0.98),rgba(129,140,248,0.98))",
                 color: "#eff6ff",
                 fontWeight: 800,
-                fontSize: 14,
+                fontSize: 16,
                 cursor:
                   isSpinning || segments.length === 0
                     ? "not-allowed"
@@ -291,9 +291,9 @@ export default function BigWheelGame() {
 
             <div
               style={{
-                fontSize: 12,
+                fontSize: 14,
                 opacity: 0.95,
-                color: "#e5e7eb",
+                color: "#fff",
               }}
             >
               {result
@@ -313,13 +313,13 @@ export default function BigWheelGame() {
             padding: 10,
             boxShadow:
               "0 0 18px rgba(129,140,248,0.7)",
-            fontSize: 12,
+            fontSize: 14,
           }}
         >
           <h3
             style={{
               margin: "0 0 8px",
-              fontSize: 14,
+              fontSize: 16,
               fontWeight: 800,
               color: "#f9fafb",
             }}
@@ -331,11 +331,10 @@ export default function BigWheelGame() {
               margin: "0 0 8px",
               fontSize: 11,
               opacity: 0.9,
-              color: "#c7d2fe",
+              color: "#fff",
             }}
           >
             각 칸에 들어갈 내용을 수정할 수 있습니다.  
-            (색은 코드에서 바꾸거나, 나중에 컬러 피커를 붙여도 됩니다.)
           </p>
 
           <div
@@ -386,7 +385,8 @@ export default function BigWheelGame() {
                   <span
                     style={{
                       fontSize: 10,
-                      color: "#9ca3af",
+fontWeight: 600,
+                      color: "#fff",
                     }}
                   >
                     {idx + 1}번
@@ -407,8 +407,10 @@ export default function BigWheelGame() {
                       "1px solid rgba(129,140,248,0.85)",
                     borderRadius: 8,
                     color: "#e5e7eb",
-                    fontSize: 11,
+                    fontSize: 14,
                     padding: "3px 6px",
+                    fontFamily: "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                    fontWeight: 800,
                   }}
                 />
               </div>
@@ -422,13 +424,13 @@ export default function BigWheelGame() {
               color: "#e5e7eb",
             }}
           >
-            · 섹터 개수/색까지 방송 중에 바꾸고 싶다면,
-            이 컴포넌트에 버튼을 더 붙여서 동적으로
-            추가/삭제도 만들 수 있습니다.  
-            필요하면 그 버전도 만들어 줄게요.
           </div>
         </div>
       </div>
     </div>
   );
 }
+            //· 섹터 개수/색까지 방송 중에 바꾸고 싶다면,
+            //이 컴포넌트에 버튼을 더 붙여서 동적으로
+            //추가/삭제도 만들 수 있습니다.  
+            //

@@ -5,7 +5,7 @@ import AdminPopup from "./components/SigHunterFlip/AdminPopup";
 import EditMessageModal from "./components/SigHunterFlip/EditMessageModal";
 import GameHub from "./components/GameCenter/GameHub";
 import MinesGame from "./components/GameCenter/MinesGame";
-import BoardGame from "./components/GameCenter/BoardGame";
+import BoardGame from "./components/GameCenter/BoardGame/BoardGame";
 import BigWheelGame from "./components/GameCenter/BigWheelGame";
 
 

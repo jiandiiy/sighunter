@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import SigHunterFlip from "../SigHunterFlip/SigHunterFlip";
 import MinesGame from "./MinesGame";
-import BoardGame from "./BoardGame";
+import BoardGame from "./BoardGame/BoardGame";
 import BigWheelGame from "./BigWheelGame"; // 🎡 빅휠 게임 추가
 
 export default function GameHub() {
@@ -19,6 +19,7 @@ export default function GameHub() {
         alignItems: "center",
         padding: "16px 8px",
         boxSizing: "border-box",
+        fontFamily: "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
       }}
     >
       {/* 상단 헤더 */}
@@ -28,10 +29,10 @@ export default function GameHub() {
             margin: 0,
             fontSize: 28,
             letterSpacing: "0.05em",
-            fontWeight: 700,
+            fontWeight: 900,
           }}
         >
-          🎮 GAME CENTER
+          🎮 GAME CENTER 🎮
         </h1>
         <p
           style={{
@@ -40,8 +41,6 @@ export default function GameHub() {
             opacity: 0.7,
           }}
         >
-          시그헌터 / 지뢰게임 / 보드게임 / 빅휠게임을 방송 중에 바로 전환해서
-          사용할 수 있어요.
         </p>
       </div>
 
@@ -67,11 +66,12 @@ export default function GameHub() {
               game === "sig"
                 ? "linear-gradient(135deg, #ff7eb3, #ffb6c1)"
                 : "linear-gradient(135deg, #111827, #020617)",
-            color: "#0f172a",
-            fontWeight: 700,
             cursor: "pointer",
-            fontSize: 14,
-          }}
+            fontFamily: "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          fontSize: 15,
+          color: "#fff",
+          fontWeight: 800,
+          }} 
         >
           🔍 시그헌터
         </button>
@@ -89,16 +89,17 @@ export default function GameHub() {
               game === "mines"
                 ? "linear-gradient(135deg, #4c1d95, #6366f1)"
                 : "linear-gradient(135deg, #111827, #020617)",
-            color: "#e5e7eb",
-            fontWeight: 700,
+          fontFamily: "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          color: "#fff",
+          fontWeight: 800,
             cursor: "pointer",
-            fontSize: 14,
+            fontSize: 15,
           }}
         >
           💣 지뢰게임
         </button>
 
-        {/* 보드게임 버튼 */}
+        {/* 브루마블 버튼 */}
         <button
           type="button"
           onClick={() => setGame("board")}
@@ -111,13 +112,14 @@ export default function GameHub() {
               game === "board"
                 ? "linear-gradient(135deg, #10b981, #6ee7b7)"
                 : "linear-gradient(135deg, #111827, #020617)",
-            color: game === "board" ? "#022c22" : "#e5e7eb",
-            fontWeight: 700,
+            fontWeight: 800,
             cursor: "pointer",
-            fontSize: 14,
+            fontSize: 15,
+            fontFamily: "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+            color: "#fff",
           }}
         >  
-          🎲 브루마블
+          🎲 부루마블
         </button>
 
         {/* 빅휠 게임 버튼 */}
@@ -134,9 +136,10 @@ export default function GameHub() {
                 ? "linear-gradient(135deg, #ec4899, #a855f7)"
                 : "linear-gradient(135deg, #111827, #020617)",
             color: "#fdf2f8",
-            fontWeight: 700,
+            fontWeight: 800,
             cursor: "pointer",
-            fontSize: 14,
+            fontSize: 15,
+            fontFamily: "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
           }}
         >
           🎡 빅휠게임
