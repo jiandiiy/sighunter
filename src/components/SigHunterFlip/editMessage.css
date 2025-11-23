@@ -50,7 +50,7 @@
 }
 
 /* -------------------- 입력 폼 -------------------- */
-label {
+.edit-modal label {
   display: block;
   margin: 0.7rem 0 0.3rem;
   color: #44337a;
@@ -58,7 +58,7 @@ label {
   font-size: 20px;
 }
 
-input[type="text"],
+.edit-modal input[type="text"],
 select {
   width: 80%;
   padding: 0.7rem 1rem;
@@ -69,19 +69,19 @@ select {
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-input[type="text"]:focus,
+.edit-modal input[type="text"]:focus,
 select:focus {
   border-color: #764ba2;
   box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.2);
   outline: none;
 }
 
-select {
+.edit-modal select {
   cursor: pointer;
   background: white;
 }
 
-input[type="color"] {
+.edit-modal input[type="color"] {
   width: 50%;
   height: 50px;
   border: 2px solid #e2e8f0;
@@ -91,7 +91,7 @@ input[type="color"] {
   transition: transform 0.2s ease;
 }
 
-input[type="color"]:hover {
+.edit-modal input[type="color"]:hover {
   transform: scale(1.03);
 }
 

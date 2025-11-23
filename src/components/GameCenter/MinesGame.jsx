@@ -98,15 +98,15 @@ export default function MinesGame() {
     <div
       style={{
         width: "100%",
-        maxWidth: 800,
+        maxWidth: 530,
         margin: "0 auto",
         padding: 16,
         boxSizing: "border-box",
         background:
-          "radial-gradient(circle at top, rgba(15,23,42,0.96), rgba(3,7,18,0.96))",
-        borderRadius: 16,
-        border: "1px solid rgba(148,163,184,0.35)",
-        boxShadow: "0 18px 60px rgba(0,0,0,0.6)",
+         "radial-gradient(circle at top, #120824, #050014)", // 시그헌터 계열 남보라
+        borderRadius: 18,
+        border: "1px solid rgba(129,140,248,0.65)", // 인디고 라인
+        boxShadow: "0 22px 70px rgba(15,23,42,0.95)",
       }}
     >
       {/* 헤더 */}
@@ -140,8 +140,9 @@ export default function MinesGame() {
                 color: "#fff",
                 padding: "2px 8px",
                 borderRadius: 9999,
-                border: "1px solid rgba(248,250,252,0.2)",
-                background: "rgba(15,23,42,0.9)",
+              border: "1px solid rgba(191,219,254,0.5)",
+                background:
+                  "linear-gradient(135deg, rgba(15,23,42,0.9), rgba(30,64,175,0.9))",
               }}
             >
               ROUND {round}
@@ -167,115 +168,166 @@ export default function MinesGame() {
             lineHeight: 1.4,
           }}
         >
-          <div>
-            칸 수:{" "}
-            <b>
-              {totalCells} (지뢰 {mines.length}개)
-            </b>
-          </div>
-          <div>
-            안전 칸:{" "}
-            <b>
-              {safeInfo.clickedSafe}/{safeInfo.totalSafe}
-            </b>
-          </div>
-        </div>
+       {/* 칸 수 */}
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "flex-end", // 오른쪽 정렬
+      gap: 4,
+    }}
+  >
+    <span>칸 수:</span>
+    <b>{totalCells}</b>
+    <span>(지뢰 {mines.length}개)</span>
+  </div>
+
+
+          {/* 안전 칸 */}
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "flex-start", // 위 줄과 같은 위치
+      gap: 4,
+    }}
+  >
+    <span>안전 칸:</span>
+    <b>
+      {safeInfo.clickedSafe}/{safeInfo.totalSafe}
+    </b>
+  </div>
+</div>
       </div>
 
       {/* 설정 영역 */}
-      <div
-        style={{
-          display: "flex",
-          gap: 10,
-          alignItems: "center",
-          marginBottom: 10,
-          flexWrap: "wrap",
-          fontSize: 12,
-          color: "#fff",
-        }}
-      >
-        <div
-          style={{
-            padding: "4px 8px",
-            borderRadius: 8,
-            border: "1px solid rgba(148,163,184,0.45)",
+    {/* 설정 전체 래퍼 */}
+<div
+  style={{
+    display: "flex",
+    flexDirection: "column",
+    gap: 8,
+    marginBottom: 10,
+    fontSize: 12,
+    color: "#fff",
+  }}
+>
+  {/* 첫 줄: 총 칸 수 / 지뢰 개수 */}
+  <div
+    style={{
+      display: "flex",
+      gap: 10,
+      flexWrap: "wrap",
+    }}
+  >
+    <div
+      style={{
+        flex: 1,
+        minWidth: 180,
+        padding: "6px 8px",
+        borderRadius: 8,
+         border: "1px solid rgba(129,140,248,0.55)",
+              background:
+                "linear-gradient(135deg, rgba(15,23,42,0.98), rgba(30,64,175,0.75))",
+            }}
+    >
+      <label style={{ color: "#fff",   
+      display: "flex",
+        alignItems: "center",          // 세로 가운데 정렬
+        justifyContent: "center",
+        fontSize: "18px",
+        fontWeight: 600, 
+        }}>
+       <span>총 칸 수 (10~50)</span>
+        <input
+          type="number"
+          min={10}
+          max={50}
+          value={totalCells}
+          onChange={(e) => {
+            const v = Number(e.target.value) || 10;
+            setTotalCells(Math.max(10, Math.min(50, v)));
           }}
-        >
-          <label style={{
-            color: "#fff",
-          }}>
-            총 칸 수 (10~50)&nbsp;
-            <input
-              type="number"
-              min={10}
-              max={50}
-              value={totalCells}
-              onChange={(e) => {
-                const v = Number(e.target.value) || 10;
-                setTotalCells(Math.max(10, Math.min(50, v)));
-              }}
-              style={{
-                width: 50,
-                background: "transparent",
-                border: "1px solid rgba(148,163,184,0.6)",
-                color: "#f9fafb",
-                fontSize: 12,
-                borderRadius: 4,
-                padding: "1px 4px",
-              }}
-            />
-          </label>
-        </div>
+          style={{
+            width: 40,
+            height:22,
+              background: "rgba(15,23,42,0.85)",
+                  border: "1px solid rgba(165,180,252,0.9)",
+            color: "#f9fafb",
+            fontSize: 16,
+            borderRadius: 4,
+            padding: "1px 4px",
+            marginLeft: 20,
+          }}
+        />
+      </label>
+    </div>
 
-        <div
-          style={{
-            padding: "4px 8px",
-            borderRadius: 8,
-            border: "1px solid rgba(148,163,184,0.45)",
+    <div
+      style={{
+        flex: 1,
+        minWidth: 180,
+        padding: "6px 8px",
+        borderRadius: 8,
+       border: "1px solid rgba(129,140,248,0.55)",
+              background:
+                "linear-gradient(135deg, rgba(15,23,42,0.98), rgba(30,64,175,0.75))",
+            }}
+    >
+      <label style={{ color: "#fff",
+        display: "flex",
+        alignItems: "center",          // 세로 가운데 정렬
+        justifyContent: "center",
+        fontSize: "18px",
+        fontWeight: 600, 
+       }}>
+        <span>지뢰 개수 (1~5)&nbsp;</span>
+        <input
+          type="number"
+          min={1}
+          max={5}
+          value={mineCount}
+          onChange={(e) => {
+            const v = Number(e.target.value) || 1;
+            setMineCount(Math.max(1, Math.min(5, v)));
           }}
-        >
-          <label style={{color: "#fff",}}>
-            지뢰 개수 (1~5)&nbsp;
-            <input
-              type="number"
-              min={1}
-              max={5}
-              value={mineCount}
-              onChange={(e) => {
-                const v = Number(e.target.value) || 1;
-                setMineCount(Math.max(1, Math.min(5, v)));
-              }}
-              style={{
-                width: 40,
-                background: "transparent",
-                border: "1px solid rgba(148,163,184,0.6)",
-                color: "#f9fafb",
-                fontSize: 12,
-                borderRadius: 4,
-                padding: "1px 4px",
-              }}
-            />
-          </label>
-        </div>
+          style={{
+            width: 40,
+            height:22,
+           background: "rgba(15,23,42,0.85)",
+                  border: "1px solid rgba(165,180,252,0.9)",
+            color: "#f9fafb",
+            fontSize: 16,
+            borderRadius: 4,
+            padding: "1px 4px",
+            marginLeft: 22,
+          }}
+        />
+      </label>
+    </div>
+  </div>
 
-        <button
-          type="button"
-          onClick={handleReset}
-          style={{
-            padding: "4px 10px",
-            borderRadius: 9999,
-            border: "1px solid rgba(248,250,252,0.7)",
-            background:
-              "linear-gradient(135deg, rgba(248,250,252,0.9), rgba(226,232,240,0.9))",
-            color: "#111827",
-            fontSize: 12,
-            fontWeight: 700,
-            cursor: "pointer",
-          }}
-        >
-          🔁 새 판 시작
-        </button>
-      </div>
+  {/* 두 번째 줄: 새 판 시작 버튼 (전체 폭) */}
+  <button
+    type="button"
+    onClick={handleReset}
+    style={{
+      width: "100%",
+      padding: "5px",
+      border: "1px solid rgba(248,250,252,0.8)",
+      background:
+        "linear-gradient(135deg, rgba(248,250,252,0.95), rgba(226,232,240,0.95))",
+      color: "#111827",
+      fontSize: 18,
+      fontWeight: 700,
+      cursor: "pointer",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 6,
+    }}
+  >
+    🔁 새 판 시작
+  </button>
+</div>
 
       {/* 상태 메시지 */}
       <div style={{ marginBottom: 10, minHeight: 22 }}>
@@ -318,91 +370,78 @@ export default function MinesGame() {
       </div>
 
       {/* 번호 버튼들 */}
-      <div
+     <div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(10, minmax(32px, 1fr))",
+    gap: 3,
+  }}
+>
+  {Array.from({ length: totalCells }, (_, i) => {
+    const num = i + 1;
+    const state = clicked[num]; // "mine" | "safe" | undefined
+
+    let bg = "rgba(31,41,55,0.9)";
+    let border = "1px solid rgba(55,65,81,1)";
+    let color = "#e5e7eb";
+
+    if (state === "safe") {
+      bg = "linear-gradient(135deg, #22c55e, #4ade80)";
+      border = "1px solid rgba(22,163,74,0.9)";
+      color = "#052e16";
+    } else if (state === "mine") {
+      bg = "linear-gradient(135deg, #ef4444, #f97316)";
+      border = "1px solid rgba(248,113,113,0.9)";
+      color = "#fef2f2";
+    } else if (gameOver || cleared) {
+      bg = "rgba(15,23,42,0.8)";
+      border = "1px solid rgba(30,64,175,0.4)";
+      color = "#6b7280";
+    }
+
+    const disabled = !!state || gameOver || cleared;
+
+    return (
+      <button
+        key={num}
+        type="button"
+        disabled={disabled}
+        onClick={() => handleCellClick(num)}
         style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(10, minmax(32px, 1fr))",
-          gap: 6,
+          padding: "10px 5px",
+          border,
+          background: bg,
+          color,
+          fontSize: 20,
+          fontWeight: 700,
+          cursor: disabled ? "default" : "pointer",
+          transition:
+            "transform 0.08s ease-out, box-shadow 0.08s ease-out, background 0.1s",
+          boxShadow:
+            state === "mine"
+              ? "0 0 12px rgba(248,113,113,0.8)"
+              : state === "safe"
+              ? "0 0 10px rgba(52,211,153,0.7)"
+              : "0 0 4px rgba(15,23,42,0.6)",
         }}
       >
-        {Array.from({ length: totalCells }, (_, i) => {
-          const num = i + 1;
-          const state = clicked[num]; // "mine" | "safe" | undefined
+        {state === "mine" ? "💣" : num}
+      </button>
+    );
+  })}
+</div>
 
-          let bg = "rgba(31,41,55,0.9)";
-          let border = "1px solid rgba(55,65,81,1)";
-          let color = "#e5e7eb";
-          let icon = num;
-
-          if (state === "safe") {
-            bg = "linear-gradient(135deg, #22c55e, #4ade80)";
-            border = "1px solid rgba(22,163,74,0.9)";
-            color = "#052e16";
-          } else if (state === "mine") {
-            bg = "linear-gradient(135deg, #ef4444, #f97316)";
-            border = "1px solid rgba(248,113,113,0.9)";
-            color = "#fef2f2";
-            icon = "💣";
-          } else if (gameOver || cleared) {
-            bg = "rgba(15,23,42,0.8)";
-            border = "1px solid rgba(30,64,175,0.4)";
-            color = "#6b7280";
-          }
-
-          const disabled = !!state || gameOver || cleared;
-
-          return (
-            <button
-              key={num}
-              type="button"
-              disabled={disabled}
-              onClick={() => handleCellClick(num)}
-              style={{
-                padding: "6px 0 2px",
-                borderRadius: 8,
-                border,
-                background: bg,
-                color,
-                fontSize: 14,
-                fontWeight: 700,
-                cursor: disabled ? "default" : "pointer",
-                transition:
-                  "transform 0.08s ease-out, box-shadow 0.08s ease-out, background 0.1s",
-                boxShadow:
-                  state === "mine"
-                    ? "0 0 12px rgba(248,113,113,0.8)"
-                    : state === "safe"
-                    ? "0 0 10px rgba(52,211,153,0.7)"
-                    : "0 0 4px rgba(15,23,42,0.6)",
-              }}
-            >
-              {icon}
-              <span
-                style={{
-                  display: "block",
-                  fontSize: 9,
-                  opacity: 0.8,
-                  marginTop: -2,
-                }}
-              >
-                {num}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      <p
-        style={{
-          marginTop: 10,
-          fontSize: 11,
-          color: "#fff",
-          opacity: 0.55,
-          textAlign: "right",
-        }}
-      >
-        💡 지뢰 위치는 매 판마다 랜덤으로 바뀝니다.
-      </p>
+<p
+  style={{
+    marginTop: 10,
+    fontSize: 11,
+    color: "#fff",
+    opacity: 0.55,
+    textAlign: "right",
+  }}
+>
+  💡 지뢰 위치는 매 판마다 랜덤으로 바뀝니다.
+</p>
     </div>
   );
 }
