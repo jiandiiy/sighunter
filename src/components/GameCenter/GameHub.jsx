@@ -62,10 +62,10 @@ export default function GameHub() {
           style={{
             padding: "6px 14px",
             borderRadius: 999,
-            border: game === "sig" ? "2px solid #fde68a" : "1px solid #4b5563",
+            border: game === "sig" ? "2px solid #ffb6c1" : "1px solid #4b5563",
             background:
               game === "sig"
-                ? "linear-gradient(135deg, #f97316, #facc15)"
+                ? "linear-gradient(135deg, #ff7eb3, #ffb6c1)"
                 : "linear-gradient(135deg, #111827, #020617)",
             color: "#0f172a",
             fontWeight: 700,
