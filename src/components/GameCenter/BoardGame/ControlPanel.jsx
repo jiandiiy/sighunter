@@ -30,6 +30,8 @@ export default function ControlPanel({
   onRollDice,
   onApplyCellChange,
   onResetGame, // 🔁 전체 초기화 핸들러
+  diceTarget,      // "turn" | "selected"
+  setDiceTarget,   // setter
 }) {
   return (
     <div
@@ -398,6 +400,40 @@ export default function ControlPanel({
             </button>
           </div>
 
+{/* 주사위 대상 선택 */}
+<div
+  style={{
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: 8,
+    alignItems: "center",
+    marginBottom: 4,
+    color: "#e5e7eb",
+    fontSize: 11,
+  }}
+>
+  <span style={{ opacity: 0.9 }}>주사위 대상:</span>
+  <label style={{ display: "flex", alignItems: "center", gap: 3 }}>
+    <input
+      type="radio"
+      name="diceTarget"
+      value="turn"
+      checked={diceTarget === "turn"}
+      onChange={() => setDiceTarget("turn")}
+    />
+    <span>현재 턴 말</span>
+  </label>
+  <label style={{ display: "flex", alignItems: "center", gap: 3 }}>
+    <input
+      type="radio"
+      name="diceTarget"
+      value="selected"
+      checked={diceTarget === "selected"}
+      onChange={() => setDiceTarget("selected")}
+    />
+    <span>선택된 말</span>
+  </label>
+</div>
           {/* 주사위 영역 */}
           <div style={{ marginTop: 4 }}>
             {/* 결과 텍스트 */}

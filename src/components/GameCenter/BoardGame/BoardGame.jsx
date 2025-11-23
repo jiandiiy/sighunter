@@ -32,6 +32,7 @@ export default function BoardGame() {
   const [selectedTokenId, setSelectedTokenId] = useState(
     initialTokens[0]?.id ?? null
   );
+  const [diceTarget, setDiceTarget] = useState("turn");
 
   // 턴 시스템
   const [currentTurnIndex, setCurrentTurnIndex] = useState(0);
@@ -55,21 +56,25 @@ export default function BoardGame() {
   });
 
   // 주사위 훅: rollDice 호출 시 최종 눈금이 onRollEnd로 전달됨
-  const {
-    diceValue,
-    isRolling,
-    diceRotation,
-    rollDice,
-    attachDiceAudioRef,
-  } = useDice({
-    onRollEnd: (final) => {
-      setMoveSteps(final);
-      const token = currentTurnToken;
-      if (token && !isMoving) {
-        moveTokenWithAnimation(token, final);
-      }
-    },
-  });
+ const {
+  diceValue,
+  isRolling,
+  diceRotation,
+  rollDice,
+  attachDiceAudioRef,
+} = useDice({
+  onRollEnd: (final) => {
+    setMoveSteps(final);
+
+    // 🔁 주사위로 움직일 대상 토큰 결정
+    const token =
+      diceTarget === "selected" ? selectedToken : currentTurnToken;
+
+    if (token && !isMoving) {
+      moveTokenWithAnimation(token, final);
+    }
+  },
+});
 
   // 보드 효과 훅: 칸 효과, 점수 이펙트, 토스트, 로그
   const {
@@ -263,7 +268,6 @@ export default function BoardGame() {
   }, stepMs);
 };
 
-  /** 이동 버튼(직접 입력) */
  /** 이동 버튼(직접 입력) */
 const moveSelectedToken = (steps) => {
   const token = selectedToken; // 🔁 현재 턴 말이 아니라, 선택된 말 기준
@@ -272,12 +276,14 @@ const moveSelectedToken = (steps) => {
 };
 
   /** 주사위 굴리기 + 말 이동 (rollDice 내부 애니메이션 사용) */
-  const rollDiceAndMove = () => {
-    const token = currentTurnToken;
-    if (!token) return;
-    if (isRolling || isMoving) return;
-    rollDice();
-  };
+const rollDiceAndMove = () => {
+  const token =
+    diceTarget === "selected" ? selectedToken : currentTurnToken;
+
+  if (!token) return;
+  if (isRolling || isMoving) return;
+  rollDice();
+};
 
   return (
     <>
@@ -355,6 +361,8 @@ const moveSelectedToken = (steps) => {
           onRollDice={rollDiceAndMove}
           onApplyCellChange={applyPanelCellChange}
           onResetGame={handleResetGame}
+            diceTarget={diceTarget}
+  setDiceTarget={setDiceTarget}
         />
       </div>
 

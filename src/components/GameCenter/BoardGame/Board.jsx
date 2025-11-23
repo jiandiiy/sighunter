@@ -32,7 +32,7 @@ export default function Board({
           letterSpacing: 0.5,
         }}
       >
-        🎰 브루마블 🎰
+        🎰 부루마블 🎰
       </h2>
       <p
         style={{
