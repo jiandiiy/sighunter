@@ -13,15 +13,18 @@ import { useDice } from "../../../hooks/useDice";
 import { useBoardEffects } from "../../../hooks/useBoardEffects";
 
 export default function BoardGame() {
-  // 보드 크기
-  const [rows, setRows] = useState(7);
-  const [cols, setCols] = useState(7);
+  // 🔹 보드 크기 (13x13 고정, 실제 게임 칸은 40개)
+  const [rows, setRows] = useState(10);
+  const [cols, setCols] = useState(10);
   const totalCells = rows * cols;
+  const perimeter = 34; // 부루마불 40칸
 
-  // 칸 텍스트 + 스타일
-  const [cells, setCells] = useState(() => makeDefaultCellTexts(totalCells));
+  // 칸 텍스트 + 스타일 (40칸 기준)
+  const [cells, setCells] = useState(() =>
+    makeDefaultCellTexts(perimeter)
+  );
   const [cellStyles, setCellStyles] = useState(() =>
-    makeDefaultCellStyles(totalCells)
+    makeDefaultCellStyles(perimeter)
   );
 
   // 말 목록
@@ -55,28 +58,27 @@ export default function BoardGame() {
     color: "#f9fafb",
   });
 
-  // 주사위 훅: rollDice 호출 시 최종 눈금이 onRollEnd로 전달됨
- const {
-  diceValue,
-  isRolling,
-  diceRotation,
-  rollDice,
-  attachDiceAudioRef,
-} = useDice({
-  onRollEnd: (final) => {
-    setMoveSteps(final);
+  // 주사위 훅
+  const {
+    diceValue,
+    isRolling,
+    diceRotation,
+    rollDice,
+    attachDiceAudioRef,
+  } = useDice({
+    onRollEnd: (final) => {
+      setMoveSteps(final);
 
-    // 🔁 주사위로 움직일 대상 토큰 결정
-    const token =
-      diceTarget === "selected" ? selectedToken : currentTurnToken;
+      const token =
+        diceTarget === "selected" ? selectedToken : currentTurnToken;
 
-    if (token && !isMoving) {
-      moveTokenWithAnimation(token, final);
-    }
-  },
-});
+      if (token && !isMoving) {
+        moveTokenWithAnimation(token, final);
+      }
+    },
+  });
 
-  // 보드 효과 훅: 칸 효과, 점수 이펙트, 토스트, 로그
+  // 보드 효과 훅
   const {
     toast,
     scoreChange,
@@ -91,7 +93,7 @@ export default function BoardGame() {
   const selectedToken = tokens.find((t) => t.id === selectedTokenId);
   const currentTurnToken = tokens[currentTurnIndex] || null;
 
-  /** 보드 칸 클릭 시: 우측 패널용 선택 칸만 설정 */
+  /** 보드 칸 클릭 시: 우측 패널용 선택 칸만 설정 (index는 0~39) */
   const handleClickCell = (index) => {
     setSelectedCellIndex(index);
     setPanelCellText(cells[index] || "");
@@ -100,16 +102,17 @@ export default function BoardGame() {
     );
   };
 
-  /** 보드 크기 변경 */
+  /** 보드 크기 변경 (여기서는 13x13 고정) */
   const handleResizeBoard = (newRows, newCols) => {
-    const r = Math.max(3, Math.min(10, newRows));
-    const c = Math.max(3, Math.min(10, newCols));
-    const total = r * c;
+    const r = 10;
+    const c = 10;
 
     setRows(r);
     setCols(c);
-    setCells(makeDefaultCellTexts(total));
-    setCellStyles(makeDefaultCellStyles(total));
+
+    // 게임 칸은 항상 40칸으로 재초기화
+    setCells(makeDefaultCellTexts(perimeter));
+    setCellStyles(makeDefaultCellStyles(perimeter));
 
     // 말 위치 초기화
     setTokens((prev) => prev.map((t) => ({ ...t, pos: 0 })));
@@ -150,15 +153,15 @@ export default function BoardGame() {
       color: "#f9fafb",
     });
 
-    // 보드 내용도 완전히 초기화 (원하면 유지할 수도 있음)
-    setCells(makeDefaultCellTexts(totalCells));
-    setCellStyles(makeDefaultCellStyles(totalCells));
+    // 보드 내용도 완전히 초기화 (40칸)
+    setCells(makeDefaultCellTexts(perimeter));
+    setCellStyles(makeDefaultCellStyles(perimeter));
 
     // 효과/로그 초기화
     resetBoardEffects();
   };
 
-  /** 말 선택 (턴제: 선택은 허용하되, 이동은 currentTurnToken 기준) */
+  /** 말 선택 */
   const handleSelectToken = (id) => {
     if (isMoving || isRolling) return;
     setSelectedTokenId(id);
@@ -182,7 +185,9 @@ export default function BoardGame() {
   /** 말 추가 (최대 18개) */
   const handleAddToken = () => {
     if (tokens.length >= 18) return;
-    const nextId = tokens.length ? Math.max(...tokens.map((t) => t.id)) + 1 : 1;
+    const nextId = tokens.length
+      ? Math.max(...tokens.map((t) => t.id)) + 1
+      : 1;
     const color = TOKEN_COLORS[(nextId - 1) % TOKEN_COLORS.length];
     const newToken = makeToken(nextId, `BJ${nextId}`, color);
 
@@ -221,69 +226,68 @@ export default function BoardGame() {
     setCellStyles(nextStyles);
   };
 
-  /** 토큰 이동 (애니메이션: 한 칸씩 이동) */
+  /** 토큰 이동 (애니메이션: 둘레 40칸 기준) */
   const moveTokenWithAnimation = (token, steps) => {
-  if (!token || totalCells <= 0) return;
-  if (isMoving) return;
+    if (!token || perimeter <= 0) return;
+    if (isMoving) return;
 
-  const intSteps = steps | 0;
-  if (intSteps === 0) return; // 0칸이면 아무 것도 안 함
+    const intSteps = steps | 0;
+    if (intSteps === 0) return;
 
-  const direction = intSteps > 0 ? 1 : -1;
-  const totalSteps = Math.abs(intSteps);
+    const direction = intSteps > 0 ? 1 : -1;
+    const totalSteps = Math.abs(intSteps);
 
-  setIsMoving(true);
+    setIsMoving(true);
 
-  let currentPos = token.pos;
-  let moved = 0;
-  const stepMs = 180;
+    let currentPos = token.pos; // 0 ~ 39
+    let moved = 0;
+    const stepMs = 180;
 
-  const timer = setInterval(() => {
-    moved += 1;
+    const timer = setInterval(() => {
+      moved += 1;
 
-    // 앞으로 or 뒤로 한 칸
-    currentPos = (currentPos + direction + totalCells) % totalCells;
+      currentPos = (currentPos + direction + perimeter) % perimeter;
 
-    setTokens((prev) =>
-      prev.map((t) =>
-        t.id === token.id ? { ...t, pos: currentPos } : t
-      )
-    );
-
-    if (moved >= totalSteps) {
-      clearInterval(timer);
-      setIsMoving(false);
-
-      applyCellEffect({
-        cellIndex: currentPos,
-        token,
-        diceValue,
-        updateTokens: setTokens,
-      });
-
-      setCurrentTurnIndex((prev) =>
-        tokens.length === 0 ? 0 : (prev + 1) % tokens.length
+      setTokens((prev) =>
+        prev.map((t) =>
+          t.id === token.id ? { ...t, pos: currentPos } : t
+        )
       );
-    }
-  }, stepMs);
-};
 
- /** 이동 버튼(직접 입력) */
-const moveSelectedToken = (steps) => {
-  const token = selectedToken; // 🔁 현재 턴 말이 아니라, 선택된 말 기준
-  if (!token) return;
-  moveTokenWithAnimation(token, steps);
-};
+      if (moved >= totalSteps) {
+        clearInterval(timer);
+        setIsMoving(false);
 
-  /** 주사위 굴리기 + 말 이동 (rollDice 내부 애니메이션 사용) */
-const rollDiceAndMove = () => {
-  const token =
-    diceTarget === "selected" ? selectedToken : currentTurnToken;
+        applyCellEffect({
+          cellIndex: currentPos, // 0~39
+          token,
+          diceValue,
+          updateTokens: setTokens,
+        });
 
-  if (!token) return;
-  if (isRolling || isMoving) return;
-  rollDice();
-};
+        setCurrentTurnIndex((prev) =>
+          tokens.length === 0 ? 0 : (prev + 1) % tokens.length
+        );
+      }
+    }, stepMs);
+  };
+
+  /** 이동 버튼(직접 입력) */
+  const moveSelectedToken = (steps) => {
+    const token = selectedToken;
+    if (!token) return;
+    moveTokenWithAnimation(token, steps);
+  };
+
+  /** 주사위 굴리기 + 말 이동 */
+  const rollDiceAndMove = () => {
+    const token =
+      diceTarget === "selected" ? selectedToken : currentTurnToken;
+
+    if (!token) return;
+    if (isRolling || isMoving) return;
+    rollDice();
+  };
 
   return (
     <>
@@ -298,8 +302,10 @@ const rollDiceAndMove = () => {
 
       <div
         style={{
-          width: "100%",
-          maxWidth: 1100,
+         width: "100%",  
+height: "100%",
+          maxWidth: "2000px",
+          maxHeight: "2000px",
           margin: "0 auto",
           padding: 16,
           boxSizing: "border-box",
@@ -361,8 +367,8 @@ const rollDiceAndMove = () => {
           onRollDice={rollDiceAndMove}
           onApplyCellChange={applyPanelCellChange}
           onResetGame={handleResetGame}
-            diceTarget={diceTarget}
-  setDiceTarget={setDiceTarget}
+          diceTarget={diceTarget}
+          setDiceTarget={setDiceTarget}
         />
       </div>
 

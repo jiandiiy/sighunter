@@ -11,7 +11,7 @@ export default function GameHub() {
   return (
     <div
       style={{
-        minHeight: "100vh",
+        minHeight: "100%",
         background: "transparent",
         color: "#000",
         display: "flex",
@@ -119,7 +119,7 @@ export default function GameHub() {
             color: "#fff",
           }}
         >  
-          🎲 부루마블
+          🎲 부루마불
         </button>
 
         {/* 빅휠 게임 버튼 */}
@@ -150,7 +150,7 @@ export default function GameHub() {
       <div
         style={{
           width: "100%",
-          maxWidth: 1024,
+          height: "100vh",
           flexGrow: 1,
           display: "flex",
           justifyContent: "center",
