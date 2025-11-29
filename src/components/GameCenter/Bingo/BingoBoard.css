@@ -1,0 +1,272 @@
+.bingo-root {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  color: #f9fafb;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+.bingo-header {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.bingo-header h2 {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.bingo-subtitle {
+  margin: 0 0 8px;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* 탭 + 초기화 버튼 한 줄 */
+.bingo-header-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.bingo-mode-tabs {
+  display: inline-flex;
+  gap: 4px;
+  background: rgba(15, 23, 42, 0.9);
+  padding: 3px;
+  border-radius: 999px;
+  box-shadow: 0 0 10px rgba(15, 23, 42, 0.9);
+}
+
+.bingo-tab {
+  border: none;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  background: transparent;
+  color: #e5e7eb;
+}
+
+.bingo-tab--active {
+  background: linear-gradient(135deg, #6366f1, #ec4899);
+  color: #0f172a;
+  font-weight: 700;
+}
+
+/* 초기화 버튼 */
+.bingo-reset-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  background: rgba(239, 68, 68, 0.15);
+  color: #fecaca;
+  border: 1px solid rgba(248, 113, 113, 0.7);
+  transition: background 0.15s ease, transform 0.1s ease,
+    box-shadow 0.15s ease;
+}
+
+.bingo-reset-btn:hover {
+  background: rgba(239, 68, 68, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.7);
+}
+
+.bingo-reset-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* 3×3 빙고 그리드 */
+.bingo-grid {
+  position: relative;
+  width: 100%;
+  padding-bottom: 100%; /* 정사각형 */
+  border: 3px solid #e5e7eb;
+  box-shadow: 0 0 18px rgba(15, 23, 42, 0.95);
+  background: radial-gradient(circle at center, #020617, #111827);
+  overflow: hidden;
+}
+
+/* 각 칸은 1/3씩 */
+.bingo-cell {
+  position: absolute;
+  width: 33.3333%;
+  height: 33.3333%;
+  padding: 2px;
+  box-sizing: border-box;
+  cursor: pointer;
+
+  /* 플립을 위한 원근감은 부모에 둔다 */
+  perspective: 800px;
+}
+
+/* 3×3 위치 */
+.bingo-cell:nth-child(1) { top: 0; left: 0; }
+.bingo-cell:nth-child(2) { top: 0; left: 33.3333%; }
+.bingo-cell:nth-child(3) { top: 0; left: 66.6666%; }
+.bingo-cell:nth-child(4) { top: 33.3333%; left: 0; }
+.bingo-cell:nth-child(5) { top: 33.3333%; left: 33.3333%; }
+.bingo-cell:nth-child(6) { top: 33.3333%; left: 66.6666%; }
+.bingo-cell:nth-child(7) { top: 66.6666%; left: 0; }
+.bingo-cell:nth-child(8) { top: 66.6666%; left: 33.3333%; }
+.bingo-cell:nth-child(9) { top: 66.6666%; left: 66.6666%; }
+
+/* 안쪽 박스 전체를 회전 */
+.bingo-cell-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.4s ease; /* 애니메이션 */
+}
+
+/* 앞/뒤 공통 */
+.bingo-cell-front,
+.bingo-cell-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+}
+
+/* 앞면: 시그 이미지 */
+.bingo-cell-front {
+  background: #020617;
+  overflow: hidden;
+  border: 2px solid rgba(148, 163, 184, 0.9);
+}
+
+.bingo-cell-front img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bingo-cell-number {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #e5e7eb;
+  text-shadow: 0 0 4px #0f172a;
+}
+
+/* 뒷면: 빨간 O */
+.bingo-cell-back {
+  background: radial-gradient(circle at center, #fff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotateY(180deg);
+}
+
+.bingo-check-icon {
+  font-size: 250px;
+  font-weight: 800;
+  color: #ef4444; /* 진한 빨강 O */
+  text-shadow: 0 0 8px rgba(127, 29, 29, 0.9);
+}
+
+/* 체크되면 안쪽 박스를 통째로 회전시킴 */
+.bingo-cell.bingo-cell--checked .bingo-cell-inner {
+  transform: rotateY(180deg);
+}
+
+/* 필요하면: 빙고 줄에 포함된 카드에만 살짝 강조 효과
+.bingo-cell--line-completed .bingo-cell-inner {
+  box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.9);
+}
+*/
+
+/* ✅ 한 줄 전체를 가로지르는 빙고 라인 오버레이 */
+.bingo-line-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* 실제 선: 굵고, 배경 가려도 됨 */
+.bingo-line-overlay::before {
+  content: "";
+  position: absolute;
+  height: 20px; /* 굵기 ↑ 더 굵게 */
+  background: linear-gradient(90deg, #000);
+}
+
+/* 0: 맨 위 가로줄 */
+.bingo-line-0::before {
+  left: 5%;
+  right: 5%;
+  top: calc(100% / 6 - 5px);
+}
+
+/* 1: 가운데 가로줄 */
+.bingo-line-1::before {
+  left: 5%;
+  right: 5%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* 2: 맨 아래 가로줄 */
+.bingo-line-2::before {
+  left: 5%;
+  right: 5%;
+  bottom: calc(100% / 6 - 5px);
+}
+
+/* 세로줄: width 사용, height 자동 */
+.bingo-line-3::before,
+.bingo-line-4::before,
+.bingo-line-5::before {
+  top: 5%;
+  bottom: 5%;
+  width: 20px;  /* 굵기 ↑ */
+  height: auto;
+}
+
+/* 3: 왼쪽 세로줄 */
+.bingo-line-3::before {
+  left: calc(100% / 6 - 5px);
+}
+
+/* 4: 가운데 세로줄 */
+.bingo-line-4::before {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* 5: 오른쪽 세로줄 */
+.bingo-line-5::before {
+  left: auto;
+  right: calc(100% / 6 - 5px);
+}
+
+/* 대각선 둘: 가운데서 회전 */
+.bingo-line-6::before,
+.bingo-line-7::before {
+  top: 5%;
+  left: 5%;
+  right: 5%;
+  bottom: 5%;
+  margin: auto;
+  width: 20px;
+  height: auto;
+  transform-origin: center;
+}
+
+/* 6: [0,4,8] */
+.bingo-line-6::before {
+  transform: rotate(-45deg);
+}
+
+/* 7: [2,4,6] */
+.bingo-line-7::before {
+  transform: rotate(45deg);
+}

@@ -7,9 +7,7 @@ import GameHub from "./components/GameCenter/GameHub";
 import MinesGame from "./components/GameCenter/MinesGame";
 import BoardGame from "./components/GameCenter/BoardGame/BoardGame";
 import BigWheelGame from "./components/GameCenter/BigWheelGame";
-
-
-
+import BingoBoard from "./components/GameCenter/Bingo/BingoBoard";
 
 export default function App() {
   return (
@@ -17,29 +15,28 @@ export default function App() {
       <Routes>
         {/* 메인 게임 허브 */}
         <Route element={<GameHub />}>
-          {/* 기본: 시그헌터 */}
           <Route path="/" element={<SigHunterFlip />} />
           <Route path="/sig" element={<SigHunterFlip />} />
-
-          {/* 지뢰게임 */}
           <Route path="/mines" element={<MinesGame />} />
-            <Route path="/board" element={<BoardGame />} />  
-            <Route path="/bigwheel" element={<BigWheelGame />} />  
+          <Route path="/board" element={<BoardGame />} />
+          <Route path="/bigwheel" element={<BigWheelGame />} />
+
+          {/* ✅ 식대전 빙고 1 / 2 */}
+          <Route path="/bingo/1" element={<BingoBoard key="bingo1" />} />
+          <Route path="/bingo/2" element={<BingoBoard key="bingo2" />} />
         </Route>
 
+        {/* 루트 호환용 */}
         <Route path="/" element={<SigHunterFlip />} />
-         {/* ✏️ 메시지 수정 모달을 팝업 창용 라우트로 */}
+
         <Route
           path="/edit-message"
           element={<EditMessageModal onClose={() => window.close()} />}
         />
-
-        {/* ⚙️ 어드민 확률 조절 팝업 창용 라우트 */}
         <Route
           path="/admin-popup"
           element={<AdminPopup onClose={() => window.close()} />}
         />
-
       </Routes>
     </Router>
   );
