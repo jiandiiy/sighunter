@@ -65,7 +65,7 @@
   font-size: 12px;
   cursor: pointer;
   background: rgba(239, 68, 68, 0.15);
-  color: #fecaca;
+  color: rgba(239, 68, 68, 0.7);
   border: 1px solid rgba(248, 113, 113, 0.7);
   transition: background 0.15s ease, transform 0.1s ease,
     box-shadow 0.15s ease;
