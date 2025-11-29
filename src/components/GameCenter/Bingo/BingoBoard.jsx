@@ -179,7 +179,6 @@ export default function BingoBoard({ boardId = "default" }) {
     <div className="bingo-root">
       <header className="bingo-header">
         <h2>식사대전 빙고</h2>
-        <p className="bingo-subtitle">group1~group6에서 랜덤 시그 9개</p>
 
         <div className="bingo-header-row">
           <div className="bingo-mode-tabs">
