@@ -178,8 +178,7 @@ export default function BingoBoard({ boardId = "default" }) {
   return (
     <div className="bingo-root">
       <header className="bingo-header">
-        <h2>식사대전 빙고</h2>
-
+        {/* 1) 맨 위: 탭 + 초기화 버튼 */}
         <div className="bingo-header-row">
           <div className="bingo-mode-tabs">
             {MODES.map((m) => (
@@ -203,6 +202,9 @@ export default function BingoBoard({ boardId = "default" }) {
             초기화
           </button>
         </div>
+
+        {/* 2) 그 아래: 식사대전 빙고 제목 */}
+        <h2 className="bingo-title-text">🍽️ 식사대전 빙고 🍽️</h2>
       </header>
 
       <div className="bingo-grid">
@@ -212,7 +214,7 @@ export default function BingoBoard({ boardId = "default" }) {
 
           return (
             <div
-              key={idx} // ★ idx만 사용해서 플립 안정화
+              key={idx}
               className={
                 "bingo-cell" +
                 (checked[idx] ? " bingo-cell--checked" : "") +
