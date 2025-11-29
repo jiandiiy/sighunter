@@ -213,7 +213,7 @@ export default function BingoBoard({ boardId = "default" }) {
           const inCompletedLine = isCellInCompletedLine(idx);
 
           return (
-            <div
+            <div 
               key={idx}
               className={
                 "bingo-cell" +
