@@ -1,5 +1,5 @@
 // src/components/GameCenter/GameHub.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import SigHunterFlip from "../SigHunterFlip/SigHunterFlip";
 import MinesGame from "./MinesGame";
 import BoardGame from "./BoardGame/BoardGame";
@@ -8,9 +8,31 @@ import BingoBoard from "./Bingo/BingoBoard";
 
 export default function GameHub() {
   // "sig" | "mines" | "board" | "wheel" | "bingo"
-  const [game, setGame] = useState("sig");
+  // 마지막에 보던 게임을 localStorage에서 불러와 초기값으로 사용
+  const [game, setGame] = useState(() => {
+    if (typeof window === "undefined") return "sig";
+    const saved = window.localStorage.getItem("gameHub.lastGame");
+    return saved || "sig";
+  });
+
   // 식대전 빙고 안에서 1 / 2 선택
-  const [bingoTab, setBingoTab] = useState("1"); // "1" | "2"
+  const [bingoTab, setBingoTab] = useState(() => {
+    if (typeof window === "undefined") return "1";
+    const saved = window.localStorage.getItem("gameHub.lastBingoTab");
+    return saved || "1";
+  });
+
+  // game 변경 시 저장
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem("gameHub.lastGame", game);
+  }, [game]);
+
+  // bingoTab 변경 시 저장
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem("gameHub.lastBingoTab", bingoTab);
+  }, [bingoTab]);
 
   return (
     <div
@@ -80,6 +102,30 @@ export default function GameHub() {
           }}
         >
           🔍 시그헌터
+        </button>
+
+        {/* 식대전 빙고 버튼 (시그헌터 바로 옆) */}
+        <button
+          type="button"
+          onClick={() => setGame("bingo")}
+          style={{
+            padding: "6px 14px",
+            borderRadius: 999,
+            border:
+              game === "bingo" ? "2px solid #f97316" : "1px solid #4b5563",
+            background:
+              game === "bingo"
+                ? "linear-gradient(135deg, #f97316, #facc15)"
+                : "linear-gradient(135deg, #111827, #020617)",
+            color: "#fffbeb",
+            fontWeight: 800,
+            cursor: "pointer",
+            fontSize: 15,
+            fontFamily:
+              "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          }}
+        >
+          🍽️ 식대전 빙고
         </button>
 
         {/* 지뢰게임 버튼 */}
@@ -152,30 +198,6 @@ export default function GameHub() {
           }}
         >
           🎡 빅휠게임
-        </button>
-
-        {/* ✅ 식대전 빙고 버튼 (하나만) */}
-        <button
-          type="button"
-          onClick={() => setGame("bingo")}
-          style={{
-            padding: "6px 14px",
-            borderRadius: 999,
-            border:
-              game === "bingo" ? "2px solid #f97316" : "1px solid #4b5563",
-            background:
-              game === "bingo"
-                ? "linear-gradient(135deg, #f97316, #facc15)"
-                : "linear-gradient(135deg, #111827, #020617)",
-            color: "#fffbeb",
-            fontWeight: 800,
-            cursor: "pointer",
-            fontSize: 15,
-            fontFamily:
-              "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-          }}
-        >
-          🍽️ 식대전 빙고
         </button>
       </div>
 
@@ -263,7 +285,7 @@ export default function GameHub() {
 
             {/* 빙고판: 1,2 각각 독립 상태를 위해 key 분리 */}
             {bingoTab === "1" && <BingoBoard key="bingo1" boardId="bingo1" />}
-{bingoTab === "2" && <BingoBoard key="bingo2" boardId="bingo2" />}
+            {bingoTab === "2" && <BingoBoard key="bingo2" boardId="bingo2" />}
           </div>
         )}
       </div>
