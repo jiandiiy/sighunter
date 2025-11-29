@@ -11,13 +11,13 @@
 }
 
 .bingo-header h2 {
- margin-top: 6px;
+  margin-top: 6px;
   font-size: 70px;
   font-weight: 900;
   letter-spacing: 2px;
   color: #ffffff;
   text-align: center;
- text-shadow:
+  text-shadow:
     -2.5px -2.5px 0 #000,
      2.5px -2.5px 0 #000,
     -2.5px  2.5px 0 #000,
@@ -99,7 +99,8 @@
   padding-bottom: 100%; /* 정사각형 */
   border: 3px solid #e5e7eb;
   box-shadow: 0 0 18px rgba(15, 23, 42, 0.95);
-  background: radial-gradient(circle at center, #020617, #111827);
+  background-color: #020617;
+  background-image: radial-gradient(circle at center, #020617, #111827);
   overflow: hidden;
 }
 
@@ -111,9 +112,7 @@
   padding: 2px;
   box-sizing: border-box;
   cursor: pointer;
-
-  /* 플립을 위한 원근감은 부모에 둔다 */
-  perspective: 800px;
+  perspective: 800px; /* 플립을 위한 원근감 */
 }
 
 /* 3×3 위치 */
@@ -133,7 +132,7 @@
   height: 100%;
   position: relative;
   transform-style: preserve-3d;
-  transition: transform 0.4s ease; /* 애니메이션 */
+  transition: transform 0.4s ease;
 }
 
 /* 앞/뒤 공통 */
@@ -146,7 +145,7 @@
 
 /* 앞면: 시그 이미지 */
 .bingo-cell-front {
-  background: #020617;
+  background: #fff;
   overflow: hidden;
   border: 2px solid rgba(148, 163, 184, 0.9);
 }
@@ -167,9 +166,12 @@
   text-shadow: 0 0 4px #0f172a;
 }
 
-/* 뒷면: 빨간 O */
+/* 뒷면: 빨간 O — 항상 흰색 배경 고정 */
 .bingo-cell-back {
-  background: radial-gradient(circle at center, #fff);
+  background-color: #ffffff; /* OBS에서도 무조건 흰색 */
+  /* 원하면 살짝 입체감 주고 싶으면 아래 한 줄 추가
+   * background-image: radial-gradient(circle at center, #ffffff, #ffffff);
+   */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -188,12 +190,6 @@
   transform: rotateY(180deg);
 }
 
-/* 필요하면: 빙고 줄에 포함된 카드에만 살짝 강조 효과
-.bingo-cell--line-completed .bingo-cell-inner {
-  box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.9);
-}
-*/
-
 /* ✅ 한 줄 전체를 가로지르는 빙고 라인 오버레이 */
 .bingo-line-overlay {
   position: absolute;
@@ -201,12 +197,12 @@
   pointer-events: none;
 }
 
-/* 실제 선: 굵고, 배경 가려도 됨 */
+/* 실제 선: 단색 검정 + 굵게 */
 .bingo-line-overlay::before {
   content: "";
   position: absolute;
-  height: 20px; /* 굵기 ↑ 더 굵게 */
-  background: linear-gradient(90deg, #000);
+  background-color: #000000; /* 단색 검정 */
+  height: 22px;              /* 굵기 (축소해도 잘 보이게) */
 }
 
 /* 0: 맨 위 가로줄 */
@@ -231,13 +227,13 @@
   bottom: calc(100% / 6 - 5px);
 }
 
-/* 세로줄: width 사용, height 자동 */
+/* 세로줄 */
 .bingo-line-3::before,
 .bingo-line-4::before,
 .bingo-line-5::before {
   top: 5%;
   bottom: 5%;
-  width: 20px;  /* 굵기 ↑ */
+  width: 24px;  /* 세로줄 굵기 */
   height: auto;
 }
 
@@ -254,7 +250,6 @@
 
 /* 5: 오른쪽 세로줄 */
 .bingo-line-5::before {
-  left: auto;
   right: calc(100% / 6 - 5px);
 }
 
@@ -266,7 +261,7 @@
   right: 5%;
   bottom: 5%;
   margin: auto;
-  width: 20px;
+  width: 24px;
   height: auto;
   transform-origin: center;
 }
