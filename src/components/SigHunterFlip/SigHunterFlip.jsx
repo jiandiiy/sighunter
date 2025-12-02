@@ -153,7 +153,64 @@ export default function SigHunterFlip() {
     reader.readAsDataURL(file);
   };
 
-  /** 🔄 전체 초기화 (현재 프로젝트 기준) */
+  /** 🔹 일반 / 스페셜 등 특정 카드 배열만 초기화하는 유틸 */
+  const resetCards = (cards) => {
+    // 이미지 초기화
+    setRandomImages((prevImgs) => {
+      const nextImgs = { ...prevImgs };
+      cards.forEach((c) => {
+        const imgs = c.frontImages;
+        if (imgs && imgs.length) {
+          nextImgs[c.id] = imgs[Math.floor(Math.random() * imgs.length)];
+        } else {
+          delete nextImgs[c.id];
+        }
+      });
+      return nextImgs;
+    });
+
+    // 메시지 초기화
+    setRevealed((prev) => {
+      const next = { ...prev };
+      cards.forEach((c) => {
+        delete next[c.id];
+      });
+      return next;
+    });
+
+    // 뒤집힘 상태 초기화
+    setFlipped((prev) => {
+      const next = { ...prev };
+      cards.forEach((c) => {
+        delete next[c.id];
+      });
+      return next;
+    });
+
+    // 잠금 상태 초기화
+    setLocked((prev) => {
+      const next = { ...prev };
+      cards.forEach((c) => {
+        delete next[c.id];
+      });
+      return next;
+    });
+
+    // 가중치 초기화 + localStorage 싱크
+    setCardWeights((prev) => {
+      const next = { ...prev };
+      cards.forEach((card) => {
+        const key = String(card.id);
+        next[key] = (card.isSpecial ? specialMessages : normalMessages).map(
+          (m) => m.weight
+        );
+      });
+      localStorage.setItem("cardWeights", JSON.stringify(next));
+      return next;
+    });
+  };
+
+  /** 🔄 전체 초기화 (현재 프로젝트 기준, 일반+스페셜 전부) */
   const resetAll = () => {
     localStorage.clear();
 
@@ -183,8 +240,20 @@ export default function SigHunterFlip() {
     localStorage.setItem("cardWeights", JSON.stringify(initWeights));
   };
 
+  // 🔹 일반 / 스페셜 카드 구분
   const normalCards = sigCards.filter((c) => !c.isSpecial);
   const specialCard = sigCards.find((c) => c.isSpecial);
+
+  /** 🔄 일반 카드만 초기화 */
+  const resetNormal = () => {
+    resetCards(normalCards);
+  };
+
+  /** 🔄 스페셜 카드만 초기화 */
+  const resetSpecial = () => {
+    if (!specialCard) return;
+    resetCards([specialCard]);
+  };
 
   return (
     <div className="natural-container">
@@ -271,9 +340,29 @@ export default function SigHunterFlip() {
         })}
       </div>
 
-      <button className="reset-btn" onClick={resetAll}>
-        🔄 전체 초기화
-      </button>
+      {/* 🔄 초기화 버튼들 */}
+      <div
+        style={{
+          display: "flex",
+          gap: "8px",
+          justifyContent: "center",
+          marginBottom: "8px",
+        }}
+      >
+        <button className="reset-btn" onClick={resetAll}>
+          🔄 전체 초기화
+        </button>
+
+        <button className="reset-btn" onClick={resetNormal}>
+          🔄 일반 카드만 초기화
+        </button>
+
+        {specialCard && (
+          <button className="reset-btn" onClick={resetSpecial}>
+            🔄 스페셜 카드만 초기화
+          </button>
+        )}
+      </div>
 
       <div className="cards-wrapper">
         {/* 일반 카드 10장 */}
