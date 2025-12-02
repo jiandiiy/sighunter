@@ -31,9 +31,6 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-  "dependencies": {
-    "tesseract.js": "^5.0.0" 
-  },
   "eslintConfig": {
     "extends": [
       "react-app",
@@ -53,7 +50,10 @@
     ]
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "^5.1.1",
+    "@vitejs/plugin-react-swc": "^4.2.2",
     "concurrently": "^9.2.1",
-    "nodemon": "^3.1.11"
+    "nodemon": "^3.1.11",
+    "vite": "^7.2.6"
   }
 }
