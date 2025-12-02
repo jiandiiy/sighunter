@@ -8,6 +8,7 @@ import MinesGame from "./components/GameCenter/MinesGame";
 import BoardGame from "./components/GameCenter/BoardGame/BoardGame";
 import BigWheelGame from "./components/GameCenter/BigWheelGame";
 import BingoBoard from "./components/GameCenter/Bingo/BingoBoard";
+import SigHunterBingoBoard from "./components/GameCenter/SigHunterBingo/SigHunterBingoBoard"; // ✅ 추가
 
 export default function App() {
   return (
@@ -24,6 +25,12 @@ export default function App() {
           {/* ✅ 식대전 빙고 1 / 2 */}
           <Route path="/bingo/1" element={<BingoBoard key="bingo1" />} />
           <Route path="/bingo/2" element={<BingoBoard key="bingo2" />} />
+
+          {/* ✅ 시그헌터 빙고 라우트 (필요하면 여러 개로 나눌 수도 있음) */}
+          <Route
+            path="/hunter-bingo"
+            element={<SigHunterBingoBoard boardId="hunter-main" />}
+          />
         </Route>
 
         {/* 루트 호환용 */}

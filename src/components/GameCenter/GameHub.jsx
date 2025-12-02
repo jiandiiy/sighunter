@@ -5,9 +5,10 @@ import MinesGame from "./MinesGame";
 import BoardGame from "./BoardGame/BoardGame";
 import BigWheelGame from "./BigWheelGame";
 import BingoBoard from "./Bingo/BingoBoard";
+import SigHunterBingoBoard from "./SigHunterBingo/SigHunterBingoBoard";
 
 export default function GameHub() {
-  // "sig" | "mines" | "board" | "wheel" | "bingo"
+  // "sig" | "mines" | "board" | "wheel" | "bingo" | "hunterBingo"
   // 마지막에 보던 게임을 localStorage에서 불러와 초기값으로 사용
   const [game, setGame] = useState(() => {
     if (typeof window === "undefined") return "sig";
@@ -128,6 +129,32 @@ export default function GameHub() {
           🍽️ 식대전 빙고
         </button>
 
+        {/* ✅ 시그헌터 빙고 버튼 */}
+        <button
+          type="button"
+          onClick={() => setGame("hunterBingo")}
+          style={{
+            padding: "6px 14px",
+            borderRadius: 999,
+            border:
+              game === "hunterBingo"
+                ? "2px solid #22c55e"
+                : "1px solid #4b5563",
+            background:
+              game === "hunterBingo"
+                ? "linear-gradient(135deg, #22c55e, #a7f3d0)"
+                : "linear-gradient(135deg, #111827, #020617)",
+            color: "#ecfdf5",
+            fontWeight: 800,
+            cursor: "pointer",
+            fontSize: 15,
+            fontFamily:
+              "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          }}
+        >
+          🎯 시그헌터 빙고
+        </button>
+
         {/* 지뢰게임 버튼 */}
         <button
           type="button"
@@ -217,6 +244,7 @@ export default function GameHub() {
         {game === "board" && <BoardGame />}
         {game === "wheel" && <BigWheelGame />}
 
+        {/* 식대전 빙고 */}
         {game === "bingo" && (
           <div
             style={{
@@ -286,6 +314,19 @@ export default function GameHub() {
             {/* 빙고판: 1,2 각각 독립 상태를 위해 key 분리 */}
             {bingoTab === "1" && <BingoBoard key="bingo1" boardId="bingo1" />}
             {bingoTab === "2" && <BingoBoard key="bingo2" boardId="bingo2" />}
+          </div>
+        )}
+
+        {/* 시그헌터 빙고 */}
+        {game === "hunterBingo" && (
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            <SigHunterBingoBoard boardId="hunter-main" />
           </div>
         )}
       </div>
