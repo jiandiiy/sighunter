@@ -24,13 +24,12 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "gen:sigHunter": "node scripts/generateSigHunterImagePoolWithOCR.js",
-    "dev": "npm run gen:sigHunter && vite",
-    "build": "npm run gen:sigHunter && vite build",
-    "start": "react-scripts start",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
+  "gen:sigHunter": "node scripts/generateSigHunterImagePoolWithOCR.js",
+  "start": "react-scripts start",
+  "build": "react-scripts build",
+  "test": "react-scripts test",
+  "eject": "react-scripts eject"
+},
   "eslintConfig": {
     "extends": [
       "react-app",
