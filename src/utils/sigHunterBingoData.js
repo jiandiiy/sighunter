@@ -1,83 +1,85 @@
 // src/utils/sigHunterBingoData.js
 
-// 모드 목록 (식사대전 빙고와 맞추기 위해 동일 이름 사용)
+import { sigHunterImagePool } from "../data/sigHunterImagePool";
+
 export const HUNTER_MODES = ["muse", "queendom"];
 
-/**
- * 각 모드별 시그헌터 빙고용 기본 데이터
- * 실제 프로젝트에서는 generateSigData.js 결과를 여기로 옮기거나
- * import 해서 구성하면 됨.
- */
-const HUNTER_SIG_CELLS = {
-  muse: [
-    { sigName: "뮤즈 시그 1", sigCount: 101 },
-    { sigName: "뮤즈 시그 2", sigCount: 102 },
-    { sigName: "뮤즈 시그 3", sigCount: 103 },
-    { sigName: "뮤즈 시그 4", sigCount: 104 },
-    { sigName: "뮤즈 시그 5", sigCount: 105 },
-    { sigName: "뮤즈 시그 6", sigCount: 106 },
-    { sigName: "뮤즈 시그 7", sigCount: 107 },
-    { sigName: "뮤즈 시그 8", sigCount: 108 },
-    { sigName: "뮤즈 시그 9", sigCount: 109 },
-    { sigName: "뮤즈 시그 10", sigCount: 110 },
-    { sigName: "뮤즈 시그 11", sigCount: 111 },
-    { sigName: "뮤즈 시그 12", sigCount: 112 },
-    { sigName: "뮤즈 시그 13", sigCount: 113 },
-    { sigName: "뮤즈 시그 14", sigCount: 114 },
-    { sigName: "뮤즈 시그 15", sigCount: 115 },
-    { sigName: "뮤즈 시그 16", sigCount: 116 },
-    { sigName: "뮤즈 시그 17", sigCount: 117 },
-    { sigName: "뮤즈 시그 18", sigCount: 118 },
-    { sigName: "뮤즈 시그 19", sigCount: 119 },
-    { sigName: "뮤즈 시그 20", sigCount: 120 },
-    { sigName: "뮤즈 시그 21", sigCount: 121 },
-    { sigName: "뮤즈 시그 22", sigCount: 122 },
-    { sigName: "뮤즈 시그 23", sigCount: 123 },
-    { sigName: "뮤즈 시그 24", sigCount: 124 },
-    { sigName: "뮤즈 시그 25", sigCount: 125 },
-  ],
+const IMAGES_PER_CELL = 10;
+
+// 배열에서 랜덤 하나
+function pickOne(list) {
+  if (!list || list.length === 0) return null;
+  const idx = Math.floor(Math.random() * list.length);
+  return list[idx];
+}
+
+// 모드 + 그룹 목록에서 N장 랜덤 뽑기 (중복 허용)
+// 반환값: { path, rawText, count } 의 배열
+function getRandomImagesFromGroups(mode, groups, countPerCell) {
+  const poolForMode = sigHunterImagePool[mode] || {};
+  const result = [];
+
+  for (let i = 0; i < countPerCell; i++) {
+    // 사용할 그룹 중 하나 고르기
+    const gIdx = Math.floor(Math.random() * groups.length);
+    const group = groups[gIdx];
+    const list = poolForMode[group];
+
+    const img = pickOne(list);
+    if (img) result.push(img);
+  }
+
+  return result;
+}
+
+// 중앙 제외 그룹 (1~7)
+const RANDOM_GROUPS_BY_MODE = {
+  muse: ["group1", "group2", "group3", "group4", "group5", "group6", "group7"],
   queendom: [
-    { sigName: "퀸덤 시그 1", sigCount: 201 },
-    { sigName: "퀸덤 시그 2", sigCount: 202 },
-    { sigName: "퀸덤 시그 3", sigCount: 203 },
-    { sigName: "퀸덤 시그 4", sigCount: 204 },
-    { sigName: "퀸덤 시그 5", sigCount: 205 },
-    { sigName: "퀸덤 시그 6", sigCount: 206 },
-    { sigName: "퀸덤 시그 7", sigCount: 207 },
-    { sigName: "퀸덤 시그 8", sigCount: 208 },
-    { sigName: "퀸덤 시그 9", sigCount: 209 },
-    { sigName: "퀸덤 시그 10", sigCount: 210 },
-    { sigName: "퀸덤 시그 11", sigCount: 211 },
-    { sigName: "퀸덤 시그 12", sigCount: 212 },
-    { sigName: "퀸덤 시그 13", sigCount: 213 },
-    { sigName: "퀸덤 시그 14", sigCount: 214 },
-    { sigName: "퀸덤 시그 15", sigCount: 215 },
-    { sigName: "퀸덤 시그 16", sigCount: 216 },
-    { sigName: "퀸덤 시그 17", sigCount: 217 },
-    { sigName: "퀸덤 시그 18", sigCount: 218 },
-    { sigName: "퀸덤 시그 19", sigCount: 219 },
-    { sigName: "퀸덤 시그 20", sigCount: 220 },
-    { sigName: "퀸덤 시그 21", sigCount: 221 },
-    { sigName: "퀸덤 시그 22", sigCount: 222 },
-    { sigName: "퀸덤 시그 23", sigCount: 223 },
-    { sigName: "퀸덤 시그 24", sigCount: 224 },
-    { sigName: "퀸덤 시그 25", sigCount: 225 },
+    "group1",
+    "group2",
+    "group3",
+    "group4",
+    "group5",
+    "group6",
+    "group7",
   ],
 };
 
 /**
  * 주어진 모드에 맞는 25칸 시그헌터 빙고 셀 초기값을 반환
- * @param {"muse" | "queendom"} mode
- * @param {number} count 보드 크기 (기본 25)
+ *
+ * - 중앙(인덱스 12): group9, group10 에서만 이미지 뽑기
+ * - 나머지: group1~7 에서만 이미지 뽑기
+ * - 시그 이름(sigName): "뮤즈 시그 N", "퀸덤 시그 N" 형태로 자동 생성
+ * - 시그 개수(sigCount): 첫 번째 이미지의 OCR count 사용
  */
 export function getInitialHunterCells(mode = "muse", count = 25) {
-  const base = HUNTER_SIG_CELLS[mode] || [];
-  const slice = base.slice(0, count);
+  const randomGroups = RANDOM_GROUPS_BY_MODE[mode] || [];
 
-  return slice.map((c, idx) => ({
-    id: idx,
-    sigName: c.sigName,
-    sigCount: c.sigCount,
-    owner: null, // 아직 점령자 없음
-  }));
+  return Array.from({ length: count }, (_, idx) => {
+    const isCenter = idx === 12;
+
+    // 중앙은 group9 / group10, 나머지는 group1~7 에서 뽑기
+    const images = isCenter
+      ? getRandomImagesFromGroups(mode, ["group9", "group10"], IMAGES_PER_CELL)
+      : getRandomImagesFromGroups(mode, randomGroups, IMAGES_PER_CELL);
+
+    // 첫 번째 이미지의 OCR 숫자를 이 칸의 시그 갯수로 사용
+    const first = images[0] || {};
+    const sigCount = first.count ?? 0;
+
+    // 모드별 기본 이름 (원하면 여기만 바꿔도 됨)
+    const prefix = mode === "queendom" ? "퀸덤 시그" : "뮤즈 시그";
+
+    return {
+      id: idx,
+      sigName: `${prefix} ${idx + 1}`, // 앞면에서 쓸 수 있는 이름 (지금은 숨김 상태)
+      sigCount,                        // 뒷면 하단에 보여줄 시그 갯수 (OCR 숫자)
+      owner: null,                     // 뒷면 상단에 보여줄 플레이어 닉네임
+      images: images.map((img) => img.path),   // <img src> 용 경로만 저장
+      counts: images.map((img) => img.count),  // 필요하면 이미지별 숫자도 보관
+      imageIndex: 0,
+    };
+  });
 }

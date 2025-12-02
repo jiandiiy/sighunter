@@ -34,12 +34,11 @@ const LINES_5X5 = [
   [4, 8, 12, 16, 20],
 ];
 
-// 로그 타입 설명용
 // action: "capture" (빈칸 점령) | "steal" (다른 사람에게서 뺏음)
 export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState("muse"); // 뮤즈 / 퀸덤
-  const [cells, setCells] = useState([]); // {id, sigName, sigCount, owner}
+  const [cells, setCells] = useState([]); // {id, sigName, sigCount, owner, images, counts, imageIndex}
   const [currentPlayer, setCurrentPlayer] = useState(""); // 현재 행동하는 사람 닉네임
   const [logs, setLogs] = useState([]); // 액션 로그
   const [lineOwners, setLineOwners] = useState(
@@ -71,12 +70,31 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
       const stored = await loadSigHunterBingoState(boardId);
 
       if (stored) {
-        setMode(stored.mode || "muse");
-        setCells(
-          Array.isArray(stored.cells) && stored.cells.length === CELL_COUNT
-            ? stored.cells
-            : getInitialHunterCells(stored.mode || "muse", CELL_COUNT)
-        );
+        const storedMode = stored.mode || "muse";
+        setMode(storedMode);
+
+        let nextCells;
+        if (Array.isArray(stored.cells) && stored.cells.length === CELL_COUNT) {
+          // 예전 저장분에 images / counts / imageIndex 없을 수 있으니 보정
+          const fresh = getInitialHunterCells(storedMode, CELL_COUNT);
+          nextCells = stored.cells.map((c, idx) => ({
+            ...fresh[idx], // 기본 구조(이미지/카운트) 우선
+            ...c, // 저장된 owner, imageIndex, sigCount 덮어씀
+            images:
+              c.images && Array.isArray(c.images)
+                ? c.images
+                : fresh[idx].images,
+            counts:
+              c.counts && Array.isArray(c.counts)
+                ? c.counts
+                : fresh[idx].counts,
+            imageIndex: typeof c.imageIndex === "number" ? c.imageIndex : 0,
+          }));
+        } else {
+          nextCells = getInitialHunterCells(storedMode, CELL_COUNT);
+        }
+
+        setCells(nextCells);
         setLogs(stored.logs || []);
         setLineOwners(
           Array.isArray(stored.lineOwners) &&
@@ -131,6 +149,7 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
     });
   };
 
+  // 초기화 버튼: 보드 전체를 새로운 랜덤 이미지 세트로 재생성
   const handleResetBoard = () => {
     const initCells = getInitialHunterCells(mode, CELL_COUNT);
     const initLineOwners = LINES_5X5.map(() => ({ owner: null }));
@@ -147,58 +166,110 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
     });
   };
 
+  // 현재 셀에서 보여줄 이미지
+  const getCurrentImage = (cell) => {
+    if (!cell.images || cell.images.length === 0) return null;
+    const idx =
+      typeof cell.imageIndex === "number"
+        ? cell.imageIndex % cell.images.length
+        : 0;
+    return cell.images[idx];
+  };
+
+  // 현재 셀에서 보여줄 숫자 (안전하게 계산용 헬퍼)
+  const getCurrentCount = (cell) => {
+    if (!cell.counts || cell.counts.length === 0) return cell.sigCount ?? 0;
+    const idx =
+      typeof cell.imageIndex === "number"
+        ? cell.imageIndex % cell.counts.length
+        : 0;
+    const value = cell.counts[idx];
+    return value != null ? value : cell.sigCount ?? 0;
+  };
+
+  // 셀 클릭: 처음 점령 시 숫자 확정, 이후에는 닉네임만 변경
   const handleClickCell = (cellId) => {
+      console.log("handleClickCell CALLED", cellId, Date.now());  // 🔥 이 줄 추가
+
     if (!currentPlayer.trim()) {
       alert("닉네임을 먼저 입력해 주세요.");
       return;
     }
+
+    const actor = currentPlayer.trim();
 
     setCells((prevCells) => {
       const nextCells = prevCells.map((c) => ({ ...c }));
       const cell = nextCells[cellId];
       const prevOwner = cell.owner;
 
-      if (prevOwner === currentPlayer.trim()) {
-        // 같은 사람이 다시 누르면 아무 변화 없도록 (원하면 해제 로직 추가 가능)
-        return prevCells;
+      // 1) 아직 아무도 안 가진 칸이면, 현재 imageIndex 기준으로 숫자 한 번만 설정
+      if (!prevOwner) {
+        // 현재 인덱스 (앞면 이미지 인덱스)
+        let currentIndex =
+          typeof cell.imageIndex === "number" ? cell.imageIndex : 0;
+
+        if (cell.images && cell.images.length > 0) {
+          currentIndex =
+            ((currentIndex % cell.images.length) + cell.images.length) %
+            cell.images.length;
+        } else {
+          currentIndex = 0;
+        }
+
+        // 해당 인덱스 기준으로 숫자 계산
+        let currentCount = cell.sigCount ?? 0;
+        if (cell.counts && cell.counts.length > 0) {
+          const idx =
+            cell.counts.length > 0 ? currentIndex % cell.counts.length : 0;
+          const fromCounts = cell.counts[idx];
+          if (fromCounts != null) currentCount = fromCounts;
+        }
+
+        // 이 칸의 숫자를 고정
+        cell.sigCount = currentCount;
+        // imageIndex 는 그대로 유지 → 앞면 이미지는 처음 상태로 고정
       }
 
-      cell.owner = currentPlayer.trim();
+      // 2) 닉네임(소유자)만 갱신
+      cell.owner = actor;
 
-      // 로그 추가
-      setLogs((prevLogs) => [
-        ...prevLogs,
-        {
-          time: Date.now(),
-          actor: currentPlayer.trim(),
-          cellId,
-          action: prevOwner ? "steal" : "capture",
-          prevOwner,
-          sigName: cell.sigName,
-          sigCount: cell.sigCount,
-        },
-      ]);
+      // 3) 로그 기록 (숫자는 항상 cell.sigCount 사용)
+      const newLog = {
+        time: Date.now(),
+        actor,
+        cellId,
+        action: prevOwner ? "steal" : "capture",
+        prevOwner,
+        sigName: cell.sigName,
+        sigCount: cell.sigCount,
+      };
 
-      // 줄 소유권 재계산
+      // 4) 줄 소유권 재계산
       recalcLineOwners(nextCells);
 
-      sync({
-        mode,
-        cells: nextCells,
-        logs: [
-          ...logs,
-          {
-            time: Date.now(),
-            actor: currentPlayer.trim(),
-            cellId,
-            action: prevOwner ? "steal" : "capture",
-            prevOwner,
-            sigName: cell.sigName,
-            sigCount: cell.sigCount,
-          },
-        ],
-        lineOwners, // setState 비동기라 엄밀히 맞추려면 useEffect로 따로 관리해도 됨
-      });
+      // 5) logs 상태와 저장을 한 번에 처리 (중복 방지)
+     setLogs((prevLogs) => {
+  const exists = prevLogs.some(
+    (l) =>
+      l.time === newLog.time &&
+      l.cellId === newLog.cellId &&
+      l.actor === newLog.actor &&
+      l.action === newLog.action
+  );
+  if (exists) return prevLogs;
+
+  const updatedLogs = [...prevLogs, newLog];
+
+  sync({
+    mode,
+    cells: nextCells,
+    logs: updatedLogs,
+    lineOwners,
+  });
+
+  return updatedLogs;
+});
 
       return nextCells;
     });
@@ -212,7 +283,7 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
 
   return (
     <div className="hunter-root">
-      {/* 헤더: 모드 탭 + 초기화 */}
+      {/* 헤더: 모드 탭 + 초기화 + 제목 */}
       <header className="hunter-header">
         <div className="hunter-header-row">
           <div className="hunter-mode-tabs">
@@ -239,94 +310,119 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
         </div>
 
         <h2 className="hunter-title-text">🎯 시그헌터 빙고 🎯</h2>
-
-        {/* 현재 플레이어 닉네임 입력 */}
-        <div className="hunter-player-input-row">
-          <label className="hunter-player-label">
-            플레이어 닉네임:
-            <input
-              type="text"
-              className="hunter-player-input"
-              value={currentPlayer}
-              onChange={(e) => setCurrentPlayer(e.target.value)}
-              placeholder="닉네임 입력"
-            />
-          </label>
-          <div className="hunter-line-count">
-            현재 <span>{completedLineCount}</span> 줄 점령 중
-          </div>
-        </div>
       </header>
 
-      {/* 빙고판 */}
-      <div className="hunter-grid">
-        {cells.slice(0, CELL_COUNT).map((cell) => {
-          const isOwned = !!cell.owner;
-          return (
-            <div
-              key={cell.id}
-              className={
-                "hunter-cell" + (isOwned ? " hunter-cell--owned" : "")
-              }
-              onClick={() => handleClickCell(cell.id)}
-            >
-              <div className="hunter-cell-inner">
-                {/* 앞면: 시그 이름 + 갯수 */}
-                <div className="hunter-cell-front">
-                  <div className="hunter-sig-name">{cell.sigName}</div>
-                  <div className="hunter-sig-count-front">
-                    x{cell.sigCount}
-                  </div>
-                </div>
+      {/* 메인 영역: 왼쪽(빙고판) / 오른쪽(닉네임 + 로그) */}
+      <div className="hunter-main">
+        {/* 왼쪽: 빙고판 */}
+        <div className="hunter-main-left">
+          {/* 빙고판 위 줄 카운트 */}
+          <div className="hunter-line-count-under-board">
+            현재 점령된 줄: <span>{completedLineCount}</span> 줄
+          </div>
 
-                {/* 뒷면: 닉네임 + 갯수 */}
-                <div className="hunter-cell-back">
-                  <div className="hunter-cell-owner">
-                    {cell.owner || "미점령"}
-                  </div>
-                  <div className="hunter-sig-count-back">
-                    x{cell.sigCount}
+          <div className="hunter-grid">
+            {cells.slice(0, CELL_COUNT).map((cell) => {
+              const isOwned = !!cell.owner;
+              const currentImage = getCurrentImage(cell);
+              const currentCount = getCurrentCount(cell); // imageIndex 기준 숫자
+
+              return (
+                <div
+                  key={cell.id}
+                  className={
+                    "hunter-cell" + (isOwned ? " hunter-cell--owned" : "")
+                  }
+                  onClick={() => handleClickCell(cell.id)}
+                >
+                  <div className="hunter-cell-inner">
+                    {/* 앞면: 이미지만 */}
+                    <div className="hunter-cell-front">
+                      {currentImage && (
+                        <div className="hunter-sig-image-wrap">
+                          <img
+                            src={currentImage}
+                            alt={cell.sigName}
+                            className="hunter-sig-image"
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 뒷면: 상단 닉네임 / 하단 시그 갯수 (위아래 반반) */}
+                    <div className="hunter-cell-back">
+                      {/* 위 1/2: 플레이어 닉네임 */}
+                      <div className="hunter-cell-owner-area">
+                        <div className="hunter-cell-owner-text">
+                          {cell.owner || "미점령"}
+                        </div>
+                      </div>
+
+                      {/* 아래 1/2: 시그 갯수 */}
+                      <div className="hunter-cell-count-area">
+                        <div className="hunter-sig-count-back">
+                          {currentCount != null ? currentCount : "???"}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 오른쪽: 닉네임 입력 + 줄 카운트 + 로그 */}
+        <aside className="hunter-main-right">
+          {/* 현재 플레이어 닉네임 입력 + 줄 카운트 */}
+          <div className="hunter-sidebar-top">
+            <div className="hunter-player-input-row">
+              <label className="hunter-player-label">
+                플레이어 닉네임:
+                <input
+                  type="text"
+                  className="hunter-player-input"
+                  value={currentPlayer}
+                  onChange={(e) => setCurrentPlayer(e.target.value)}
+                  placeholder="닉네임 입력"
+                />
+              </label>
+              <div className="hunter-line-count">
+                현재 <span>{completedLineCount}</span> 줄 점령 중
               </div>
             </div>
-          );
-        })}
-      </div>
+          </div>
 
-      {/* 빙고판 아래 줄 카운트 */}
-      <div className="hunter-line-count-under-board">
-        현재 점령된 줄: <span>{completedLineCount}</span> 줄
+          {/* 로그 영역 */}
+          <section className="hunter-log-section">
+            <h3 className="hunter-log-title">로그</h3>
+            <div className="hunter-log-list">
+              {logs.length === 0 && (
+                <div className="hunter-log-empty">아직 로그가 없습니다.</div>
+              )}
+              {logs
+                .slice()
+                .reverse()
+                .map((log) => (
+                  <div
+                    key={`${log.time}-${log.cellId}`}
+                    className="hunter-log-item"
+                  >
+                    <span className="hunter-log-time">
+                      {new Date(log.time).toLocaleTimeString()}
+                    </span>
+                    <span className="hunter-log-text">
+                      [{log.actor}] 님이{" "}
+                      {log.prevOwner ? `${log.prevOwner} 님에게서 ` : ""}
+                      {log.sigName} (x{log.sigCount}) 칸을
+                      {log.prevOwner ? " 뺏었습니다." : " 점령했습니다."}
+                    </span>
+                  </div>
+                ))}
+            </div>
+          </section>
+        </aside>
       </div>
-
-      {/* 간단 로그 영역 */}
-      <section className="hunter-log-section">
-        <h3 className="hunter-log-title">로그</h3>
-        <div className="hunter-log-list">
-          {logs.length === 0 && (
-            <div className="hunter-log-empty">아직 로그가 없습니다.</div>
-          )}
-          {logs
-            .slice()
-            .reverse()
-            .map((log) => (
-              <div
-                key={`${log.time}-${log.cellId}`}
-                className="hunter-log-item"
-              >
-                <span className="hunter-log-time">
-                  {new Date(log.time).toLocaleTimeString()}
-                </span>
-                <span className="hunter-log-text">
-                  [{log.actor}] 님이{" "}
-                  {log.prevOwner ? `${log.prevOwner} 님에게서 ` : ""}
-                  {log.sigName} (x{log.sigCount}) 칸을
-                  {log.prevOwner ? " 뺏었습니다." : " 점령했습니다."}
-                </span>
-              </div>
-            ))}
-        </div>
-      </section>
     </div>
   );
 }

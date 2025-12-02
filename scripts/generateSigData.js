@@ -1,10 +1,10 @@
 /**
  * 🎲 SIG 카드 데이터 자동 생성 스크립트 (퀸덤 + 뮤즈)
  *
- * - public/images/queendom/group1~8 : 퀸덤 일반 카드용 이미지
- * - public/images/queendom/group9~10 : 퀸덤 특별 카드용 이미지
- * - public/images/muse/group1~8 : 뮤즈 일반 카드용 이미지
- * - public/images/muse/group9~10 : 뮤즈 특별 카드용 이미지
+ * - public/images/queendom/group1~9 : 퀸덤 일반 카드용 이미지
+ * - public/images/queendom/group10~11 : 퀸덤 특별 카드용 이미지
+ * - public/images/muse/group1~9 : 뮤즈 일반 카드용 이미지
+ * - public/images/muse/group10 : 뮤즈 특별 카드용 이미지
  *
  * 실행: node scripts/generateSigData.js
  * 결과: src/data/sigData.js 자동 생성
@@ -101,71 +101,63 @@ const normalMessagePool = [
   {
     text: "화장실\n1개",
     color: "#ffffff",
-    bgColor: "#4a5568", // 어두운 그레이블루
+    bgColor: "#4a5568",
     weight: 5,
   },
-
   // 1%
   {
     text: "레전드 ✨",
     color: "#2d3748",
-    bgColor: "#fbd38d", // 밝은 금색 계열
+    bgColor: "#fbd38d",
     weight: 1,
   },
-
   // 40%
   {
     text: "기여도\n두배",
     color: "#1a202c",
-    bgColor: "#9ae6b4", // 연한 그린
+    bgColor: "#9ae6b4",
     weight: 40,
   },
-
   // 25%
   {
     text: "기여도\n세배",
     color: "#1a202c",
-    bgColor: "#68d391", // 조금 더 진한 그린
+    bgColor: "#68d391",
     weight: 25,
   },
-
   // 0%
   {
     text: "기여도\n네배",
     color: "#1a202c",
-    bgColor: "#48bb78", // 진한 그린 (지금은 weight 0이라 안 나옴)
+    bgColor: "#48bb78",
     weight: 0,
   },
-
   // 10%
   {
     text: "1000원\n당첨!",
     color: "#1a202c",
-    bgColor: "#f6e05e", // 노랑
+    bgColor: "#f6e05e",
     weight: 10,
   },
-
   // 3%
   {
     text: "전설 🏆",
     color: "#2d3748",
-    bgColor: "#ed8936", // 오렌지
+    bgColor: "#ed8936",
     weight: 3,
   },
-
   // 3%
   {
     text: "10000\n원당첨!",
     color: "#1a202c",
-    bgColor: "#f56565", // 레드
+    bgColor: "#f56565",
     weight: 3,
   },
-
   // 10%
   {
     text: "개똥손 🤡",
     color: "#ffffff",
-    bgColor: "#2d3748", // 짙은 네이비
+    bgColor: "#2d3748",
     weight: 10,
   },
 ];
@@ -175,60 +167,60 @@ const specialMessagePool = [
   {
     text: "기여도 두배 🎁",
     color: "#2f1410",
-    bgColor: "linear-gradient(90deg, #ffd1a1, #ff9f7b)", // 오렌지 계열
-    weight: 20, // 20%
+    bgColor: "linear-gradient(90deg, #ffd1a1, #ff9f7b)",
+    weight: 20,
   },
   {
     text: "기여도 세배 🌟",
     color: "#231942",
-    bgColor: "linear-gradient(90deg, #c4b5fd, #7c3aed)", // 보라 계열
-    weight: 40, // 40%
+    bgColor: "linear-gradient(90deg, #c4b5fd, #7c3aed)",
+    weight: 40,
   },
   {
     text: "기여도 네배 🔥",
     color: "#1f2933",
-    bgColor: "linear-gradient(90deg, #f97373, #fb923c)", // 레드/오렌지
-    weight: 5, // 5%
+    bgColor: "linear-gradient(90deg, #f97373, #fb923c)",
+    weight: 5,
   },
 
   // 금액 보상
   {
     text: "💰 30,000원\n당첨!",
     color: "#14532d",
-    bgColor: "linear-gradient(90deg, #bbf7d0, #4ade80)", // 연녹색
-    weight: 2, // 2%
+    bgColor: "linear-gradient(90deg, #bbf7d0, #4ade80)",
+    weight: 2,
   },
   {
     text: "💎 50,000원\n당첨!",
     color: "#1d2833",
-    bgColor: "linear-gradient(90deg, #a5f3fc, #38bdf8)", // 시안/블루
-    weight: 1, // 1%
+    bgColor: "linear-gradient(90deg, #a5f3fc, #38bdf8)",
+    weight: 1,
   },
   {
     text: "🎊 100,000원\n당첨!",
     color: "#3f1f0f",
-    bgColor: "linear-gradient(90deg, #fde68a, #facc15)", // 골드 계열
-    weight: 1, // 1%
+    bgColor: "linear-gradient(90deg, #fde68a, #facc15)",
+    weight: 1,
   },
 
   // 기타 효과
   {
     text: "화장실 무제한 ♾️",
     color: "#064e3b",
-    bgColor: "linear-gradient(90deg, #6ee7b7, #34d399)", // 민트 계열
-    weight: 1, // 1%
+    bgColor: "linear-gradient(90deg, #6ee7b7, #34d399)",
+    weight: 1,
   },
   {
     text: "레전드 💠",
     color: "#0f172a",
-    bgColor: "linear-gradient(90deg, #e0f2fe, #60a5fa)", // 파랑 계열
-    weight: 10, // 10%
+    bgColor: "linear-gradient(90deg, #e0f2fe, #60a5fa)",
+    weight: 10,
   },
   {
     text: "전설 🔱",
     color: "#1a1033",
-    bgColor: "linear-gradient(90deg, #f5d0fe, #e879f9)", // 핑크/보라
-    weight: 20, // 20%
+    bgColor: "linear-gradient(90deg, #f5d0fe, #e879f9)",
+    weight: 20,
   },
 ];
 
@@ -239,6 +231,7 @@ const specialMessagePool = [
 function generateProjectSigCards(projectDir) {
   console.log(`\n📂 [${projectDir}] 이미지 로드 시작`);
 
+  // ✅ 둘 다 일반카드는 group1~group9
   const normalGroups = [
     "group1",
     "group2",
@@ -248,8 +241,14 @@ function generateProjectSigCards(projectDir) {
     "group6",
     "group7",
     "group8",
+    "group9",
   ];
-  const specialGroups = ["group9", "group10"];
+
+  // ✅ 특별카드는
+  //  - queendom: group10, group11
+  //  - muse: group10
+  const specialGroups =
+    projectDir === "queendom" ? ["group10", "group11"] : ["group10"];
 
   const normalImages = readImagesForProject(projectDir, normalGroups);
   let specialImages = readImagesForProject(projectDir, specialGroups);
@@ -259,7 +258,7 @@ function generateProjectSigCards(projectDir) {
 
   if (normalImages.length === 0) {
     console.error(
-      `❌ [${projectDir}] 일반 카드 이미지가 없습니다. ${projectDir}/group1~8 폴더를 확인하세요.`
+      `❌ [${projectDir}] 일반 카드 이미지가 없습니다. ${projectDir}/group1~9 폴더를 확인하세요.`
     );
     process.exit(1);
   }
@@ -271,6 +270,7 @@ function generateProjectSigCards(projectDir) {
   );
   const sigCards = [];
 
+  // 일반 카드 1~10
   for (let i = 0; i < TOTAL_NORMAL_CARDS; i++) {
     sigCards.push({
       id: i + 1,
@@ -280,6 +280,7 @@ function generateProjectSigCards(projectDir) {
     });
   }
 
+  // 특별 카드 11
   if (specialImages.length === 0) {
     console.warn(
       `⚠️ [${projectDir}] 특별 이미지가 없으므로 일반 이미지 일부를 사용합니다.`
