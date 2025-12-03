@@ -7,8 +7,6 @@
   color: #f9fafb;
 }
 
-
-
 /* 헤더 */
 .hunter-header {
   text-align: center;
@@ -97,8 +95,8 @@
 /* 메인 레이아웃: 왼쪽(빙고판) / 오른쪽(사이드바) */
 .hunter-main {
   display: flex;
-  justify-content: center;   /* 🔥 가운데 정렬 */
-  gap: 32px;                 /* 좌우 간격 조금 넓게 */
+  justify-content: center;
+  gap: 32px;
   align-items: flex-start;
 }
 
@@ -107,7 +105,7 @@
 }
 
 .hunter-main-right {
-  flex: 0 0 300px;           /* 사이드바 너비 */
+  flex: 0 0 300px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -157,7 +155,7 @@
 /* 5×5 빙고 그리드 */
 .hunter-grid {
   position: relative;
-  width: 1300px;   /* 🔥 최대 700px, 화면보다 크면 100% */
+  width: 1300px;
   padding-bottom: 100%;      /* 정사각형 비율 유지 */
   border: 3px solid #e5e7eb;
   box-shadow: 0 0 18px rgba(15, 23, 42, 0.95);
@@ -269,27 +267,27 @@
   transform: rotateY(180deg);
 }
 
-/* 위쪽 50%: 닉네임 영역 */
+/* 위쪽 50%: 닉네임 영역 (배경색은 JS에서 ownerColor로 설정) */
 .hunter-cell-owner-area {
   flex: 1 1 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-bottom: 1px solid rgba(55, 65, 81, 0.8); /* 구분선 (옵션) */
-  background: linear-gradient(135deg, #ff7eb3, #ffb6c1);
+  border-bottom: 1px solid rgba(55, 65, 81, 0.8);
 }
 
-/* 닉네임 텍스트 */
+/* 닉네임 텍스트: 배경 없이 흰색 글자만 */
 .hunter-cell-owner-text {
   font-size: 50px;
   font-weight: 900;
   color: #fff;
-  padding: 3px 8px;
+  padding: 2px 6px;
   max-width: 90%;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
 }
 
 /* 아래쪽 50%: 시그 갯수 영역 */
@@ -330,7 +328,6 @@
 
 /* 로그 섹션 (오른쪽 사이드바 안) */
 .hunter-log-section {
-  /* 기존 margin-top 제거하고 사이드바 안에서 패널처럼 사용 */
   background: rgba(0, 0, 0, 0.4);
   border-radius: 8px;
   padding: 12px;
@@ -344,7 +341,7 @@
 }
 
 .hunter-log-list {
-  max-height: 260px;
+  max-height: 650px;
   overflow-y: auto;
   background: rgba(15, 23, 42, 0.9);
   border-radius: 8px;
@@ -365,6 +362,8 @@
   align-items: baseline;
   color: #e5e7eb;
   margin-bottom: 2px;
+  border-left: 4px solid rgba(255, 255, 255, 0.15);
+  padding-left: 8px;
 }
 
 .hunter-log-time {
@@ -375,4 +374,72 @@
 
 .hunter-log-text {
   flex: 1;
+}
+
+/* 🔹 줄 소유권 미니맵 전체 영역 */
+.hunter-lines-ownership {
+  margin-top: 16px;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 10px;
+}
+
+.hunter-lines-ownership-title {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ffe8ff;
+}
+
+/* 줄 카드 리스트 */
+.hunter-lines-ownership-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+/* 줄 카드 하나 */
+.hunter-line-mini {
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 0.78rem;
+}
+
+/* 줄 카드 헤더 (라벨 + 소유자 이름) */
+.hunter-line-mini-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.hunter-line-mini-label {
+  opacity: 0.8;
+}
+
+.hunter-line-mini-owner {
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.hunter-line-mini-owner--empty {
+  color: #ccc;
+}
+
+/* 실제 5칸짜리 막대 */
+.hunter-line-mini-strip {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 2px;
+  margin-top: 2px;
+}
+
+.hunter-line-mini-cell {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.08);
 }
