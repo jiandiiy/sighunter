@@ -321,7 +321,7 @@ const handleCellClick = (num) => {
           padding: 8,
           marginBottom: 8,
           background: "#C0C0C0",
-          fontSize: 15,
+          fontSize: 13,
         }}
       >
         <div
@@ -357,7 +357,7 @@ const handleCellClick = (num) => {
               style={{
                 width: 60,
                 padding: "2px 4px",
-                fontSize: 16,
+                fontSize: 13,
                 border: "1px solid #808080",
                 background: "#E0E0E0",
               }}
