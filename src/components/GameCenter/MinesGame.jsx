@@ -364,7 +364,7 @@ const handleCellClick = (num) => {
             />
           </label>
 
-          <div style={{ marginLeft: "auto", fontSize: 16 }}>
+          <div style={{ marginLeft: "auto", fontSize: 13 }}>
             안전 칸:{" "}
             <b>
               {safeInfo.revealedSafe}/{safeInfo.totalSafe}
