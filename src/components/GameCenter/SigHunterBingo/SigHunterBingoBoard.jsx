@@ -422,14 +422,6 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
               </button>
             ))}
           </div>
-
-          <button
-            type="button"
-            className="hunter-reset-btn"
-            onClick={handleResetBoard}
-          >
-            초기화
-          </button>
         </div>
 
         <h2 className="hunter-title-text">🎯 시그헌터 빙고 🎯</h2>
@@ -441,7 +433,14 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
         <div className="hunter-main-left">
           {/* 빙고판 위 줄 카운트 */}
           <div className="hunter-line-count-under-board">
-            현재 점령된 줄: <span>{completedLineCount}</span> 줄
+            <div>현재 점령된 줄: <span>{completedLineCount}</span> 줄</div>
+          <button
+            type="button"
+            className="hunter-reset-btn"
+            onClick={handleResetBoard}
+          >
+            초기화
+          </button>
           </div>
 
           <div className="hunter-grid">

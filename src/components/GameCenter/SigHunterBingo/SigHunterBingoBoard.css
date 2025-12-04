@@ -103,6 +103,12 @@
 .hunter-main-left {
   flex: 0 0 auto;
 }
+.hunter-line-count-under-board {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* 왼쪽: 줄 카운트, 오른쪽: 초기화 버튼 */
+  gap: 12px;                       
+}
 
 .hunter-main-right {
   flex: 0 0 300px;
@@ -151,6 +157,7 @@
   font-weight: 700;
   color: #f97316;
 }
+
 
 /* 5×5 빙고 그리드 */
 .hunter-grid {
