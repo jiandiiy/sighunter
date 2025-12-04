@@ -142,7 +142,7 @@ export default function MinesGame2D_5x10() {
     };
   }, [board]);
 
-  /** 0인 칸 주변 자동 오픈 (DFS / flood fill) */
+  /** 0인 칸 주변 자동 오픈 (지금은 안 씀) */
   const revealZeros = (b, row, col) => {
     const stack = [[row, col]];
     const dirs = [
@@ -179,44 +179,43 @@ export default function MinesGame2D_5x10() {
   };
 
   /** 셀 클릭 (번호 기반) */
-const handleCellClick = (num) => {
+  const handleCellClick = (num) => {
+    const { row, col } = numToCoord(num);
 
-  const { row, col } = numToCoord(num);
+    setBoard((prev) => {
+      const next = prev.map((r) => r.map((c) => ({ ...c })));
+      const cell = next[row][col];
 
-  setBoard((prev) => {
-    const next = prev.map((r) => r.map((c) => ({ ...c })));
-    const cell = next[row][col];
+      // 이미 연 칸이면 무시
+      if (cell.isRevealed) return prev;
 
-    // 이미 연 칸이면 무시
-    if (cell.isRevealed) return prev;
+      if (cell.isMine) {
+        // 게임은 끝내지 않고, 이펙트 + 지뢰 표시만
+        cell.isRevealed = true;
+        fireBombEffect();
+      } else {
+        // 클릭한 칸만 연다
+        cell.isRevealed = true;
+      }
 
-    if (cell.isMine) {
-      // 게임은 끝내지 않고, 이펙트 + 지뢰 표시만
-      cell.isRevealed = true;
-      fireBombEffect();
-    } else {
-      // 🔹 자동 확장 제거 — 클릭한 칸만 연다
-      cell.isRevealed = true;
-    }
-
-    // 지뢰를 전부 찾았는지 체크
-    let mines = 0;
-    let revealedMines = 0;
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
-        if (next[r][c].isMine) {
-          mines++;
-          if (next[r][c].isRevealed) revealedMines++;
+      // 지뢰를 전부 찾았는지 체크
+      let mines = 0;
+      let revealedMines = 0;
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          if (next[r][c].isMine) {
+            mines++;
+            if (next[r][c].isRevealed) revealedMines++;
+          }
         }
       }
-    }
-    if (mines > 0 && revealedMines >= mines) {
-      setCleared(true);
-    }
+      if (mines > 0 && revealedMines >= mines) {
+        setCleared(true);
+      }
 
-    return next;
-  });
-};
+      return next;
+    });
+  };
 
   /** 새 판 시작 버튼 */
   const handleReset = () => {
@@ -231,7 +230,7 @@ const handleCellClick = (num) => {
       style={{
         width: "100%",
         height: "100%",
-        maxWidth: 500,
+        maxWidth: 525,
         maxHeight: 710,
         margin: "40px auto",
         padding: 10,
@@ -251,7 +250,7 @@ const handleCellClick = (num) => {
           border: "3px solid #808080",
           boxShadow:
             "inset 3px 3px 0 #FFFFFF, inset -3px -3px 0 #808080",
-          padding:  "6px 10px",
+          padding: "6px 10px",
           marginBottom: 8,
           display: "flex",
           alignItems: "center",
@@ -324,16 +323,17 @@ const handleCellClick = (num) => {
           fontSize: 13,
         }}
       >
+        {/* 🔹 첫 줄: 보드 / 지뢰 수 / 안전 칸 / 찾은 지뢰 한 줄 정렬 */}
         <div
           style={{
             display: "flex",
-            gap: 12,
-            flexWrap: "wrap",
-            marginBottom: 6,
             alignItems: "center",
+            gap: 12,
+            marginBottom: 6,
+            flexWrap: "nowrap",
           }}
         >
-          <div>
+          <div style={{ whiteSpace: "nowrap" }}>
             보드: <b>5 × 10 (총 50칸)</b>
           </div>
 
@@ -342,6 +342,7 @@ const handleCellClick = (num) => {
               display: "flex",
               alignItems: "center",
               gap: 6,
+              whiteSpace: "nowrap",
             }}
           >
             <span>지뢰 수</span>
@@ -364,7 +365,10 @@ const handleCellClick = (num) => {
             />
           </label>
 
-          <div style={{ marginLeft: "auto", fontSize: 13 }}>
+          {/* 가운데 공간을 밀어주는 flex */}
+          <div style={{ flex: 1 }} />
+
+          <div style={{ fontSize: 13, whiteSpace: "nowrap" }}>
             안전 칸:{" "}
             <b>
               {safeInfo.revealedSafe}/{safeInfo.totalSafe}
@@ -412,83 +416,81 @@ const handleCellClick = (num) => {
             gap: 2,
           }}
         >
-        {Array.from({ length: TOTAL_CELLS }, (_, i) => {
-  const num = i + 1; // 1~50
-  const { row, col } = numToCoord(num);
-  const cell = board[row][col];
+          {Array.from({ length: TOTAL_CELLS }, (_, i) => {
+            const num = i + 1; // 1~50
+            const { row, col } = numToCoord(num);
+            const cell = board[row][col];
 
-  const isRevealed = cell.isRevealed;
+            const isRevealed = cell.isRevealed;
 
-  // 🔹 기본값은 "아직 안 누른, 볼록한 버튼" (리셋 버튼과 비슷)
-  let bg = "#C0C0C0";
-  let border = "3px solid #808080";
-  let color = "#000000";
-  let boxShadow =
-    "inset 3px 3px 0 #FFFFFF, inset -3px -3px 0 #808080"; // 바깥쪽이 어둡고, 안쪽이 밝게 → 볼록
-  let label = "";
+            // 기본값: 아직 안 누른, 볼록한 버튼
+            let bg = "#C0C0C0";
+            let border = "3px solid #808080";
+            let color = "#000000";
+            let boxShadow =
+              "inset 3px 3px 0 #FFFFFF, inset -3px -3px 0 #808080";
+            let label = "";
 
-  // 칸이 열린 경우만 "눌린(오목한)" 느낌으로 변경
-  if (isRevealed) {
-    bg = "#DCDCDC";
-    border = "3px solid #A0A0A0";
-    boxShadow =
-      "inset -3px -3px 0 #FFFFFF, inset 3px 3px 0 #808080"; // 안쪽이 어둡고, 위·왼쪽이 밝게 → 오목
-  }
+            // 칸이 열린 경우: 눌린(오목한) 스타일
+            if (isRevealed) {
+              bg = "#DCDCDC";
+              border = "3px solid #A0A0A0";
+              boxShadow =
+                "inset -3px -3px 0 #FFFFFF, inset 3px 3px 0 #808080";
+            }
 
-  if (cell.isMine && isRevealed) {
-    bg = "#FF0000";
-    border = "3px solid #800000";
-    color = "#FFFFFF";
-    boxShadow =
-      "inset 3px 3px 0 #800000, inset -3px -3px 0 #FFA0A0";
-    label = "💣";
-  } else if (isRevealed && cell.adjacentMines > 0) {
-    label = String(cell.adjacentMines);
-    const n = cell.adjacentMines;
-    const numColorMap = {
-      1: "#0000FF",
-      2: "#008000",
-      3: "#FF0000",
-      4: "#000080",
-      5: "#800000",
-      6: "#008080",
-      7: "#000000",
-      8: "#808080",
-    };
-    color = numColorMap[n] || "#000000";
-  } else if (!isRevealed) {
-    // 닫힌 칸에는 번호(1~50)를 보여주고 싶으면:
-    label = String(num);
-    // 진짜 지뢰찾기처럼 번호 숨기고 싶으면 위 줄을 ""로 바꾸면 됨
-    // label = "";
-  }
+            if (cell.isMine && isRevealed) {
+              bg = "#FF0000";
+              border = "3px solid #800000";
+              color = "#FFFFFF";
+              boxShadow =
+                "inset 3px 3px 0 #800000, inset -3px -3px 0 #FFA0A0";
+              label = "💣";
+            } else if (isRevealed && cell.adjacentMines > 0) {
+              label = String(cell.adjacentMines);
+              const n = cell.adjacentMines;
+              const numColorMap = {
+                1: "#0000FF",
+                2: "#008000",
+                3: "#FF0000",
+                4: "#000080",
+                5: "#800000",
+                6: "#008080",
+                7: "#000000",
+                8: "#808080",
+              };
+              color = numColorMap[n] || "#000000";
+            } else if (!isRevealed) {
+              // 방송용 번호
+              label = String(num);
+            }
 
-  const disabled = isRevealed;
+            const disabled = isRevealed; // 이미 연 칸만 비활성화
 
-  return (
-    <button
-      key={num}
-      type="button"
-      disabled={disabled}
-      onClick={() => handleCellClick(num)}
-      style={{
-        width: "100%",
-        padding: "10px 0",
-        border,
-        background: bg,
-        color,
-        fontSize: 18,
-        fontWeight: 700,
-        cursor: disabled ? "default" : "pointer",
-        boxShadow,
-        textAlign: "center",
-        lineHeight: 1.1,
-      }}
-    >
-      {label}
-    </button>
-  );
-})}
+            return (
+              <button
+                key={num}
+                type="button"
+                disabled={disabled}
+                onClick={() => handleCellClick(num)}
+                style={{
+                  width: "100%",
+                  padding: "10px 0",
+                  border,
+                  background: bg,
+                  color,
+                  fontSize: 18,
+                  fontWeight: 700,
+                  cursor: disabled ? "default" : "pointer",
+                  boxShadow,
+                  textAlign: "center",
+                  lineHeight: 1.1,
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
