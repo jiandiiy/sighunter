@@ -155,7 +155,7 @@
 /* 5×5 빙고 그리드 */
 .hunter-grid {
   position: relative;
-  width: 1300px;
+  width: 1200px;
   padding-bottom: 100%;      /* 정사각형 비율 유지 */
   border: 3px solid #e5e7eb;
   box-shadow: 0 0 18px rgba(15, 23, 42, 0.95);
@@ -341,7 +341,7 @@
 }
 
 .hunter-log-list {
-  max-height: 650px;
+  max-height: 560px;
   overflow-y: auto;
   background: rgba(15, 23, 42, 0.9);
   border-radius: 8px;
