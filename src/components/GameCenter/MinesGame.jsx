@@ -241,7 +241,7 @@ export default function MinesGame2D_5x10() {
         boxShadow:
           "inset 3px 3px 0 #FFFFFF, inset -3px -3px 0 #808080",
         fontFamily:
-          "Tahoma, 'Microsoft Sans Serif', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
       }}
     >
       {/* 상단 정보 영역 */}
