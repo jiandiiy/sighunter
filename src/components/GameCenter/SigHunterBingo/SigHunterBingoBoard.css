@@ -341,7 +341,7 @@
 }
 
 .hunter-log-list {
-  max-height: 560px;
+  max-height: 360px;
   overflow-y: auto;
   background: rgba(15, 23, 42, 0.9);
   border-radius: 8px;
