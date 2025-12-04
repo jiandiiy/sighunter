@@ -230,7 +230,7 @@ export default function MinesGame2D_5x10() {
       style={{
         width: "100%",
         height: "100%",
-        maxWidth: 525,
+        maxWidth: 520,
         maxHeight: 710,
         margin: "40px auto",
         padding: 10,
@@ -241,7 +241,7 @@ export default function MinesGame2D_5x10() {
         boxShadow:
           "inset 3px 3px 0 #FFFFFF, inset -3px -3px 0 #808080",
         fontFamily:
-          "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          "Tahoma, 'Microsoft Sans Serif', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
       }}
     >
       {/* 상단 정보 영역 */}
