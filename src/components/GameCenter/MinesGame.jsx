@@ -18,82 +18,210 @@ function fireBombEffect() {
   }
 }
 
-/** 🎯 1~totalCells 사이에서 랜덤으로 mineCount개 뽑기 */
-function generateMines(totalCells, mineCount) {
-  const safeTotal = Math.max(10, Math.min(50, totalCells));
-  // 지뢰는 최소 1개, 최대 (safeTotal - 1)개까지 허용
-  const maxMines = Math.max(1, safeTotal - 1);
-  const safeMines = Math.max(1, Math.min(maxMines, mineCount));
+/** 🔢 5×10 보드 (총 50칸) */
+const ROWS = 10;
+const COLS = 5;
+const TOTAL_CELLS = ROWS * COLS; // 50
 
-  const result = new Set();
-  while (result.size < Math.min(safeMines, safeTotal)) {
-    const n = Math.floor(Math.random() * safeTotal) + 1; // 1~safeTotal
-    result.add(n);
+function createEmptyBoard() {
+  const board = [];
+  for (let r = 0; r < ROWS; r++) {
+    const row = [];
+    for (let c = 0; c < COLS; c++) {
+      row.push({
+        row: r,
+        col: c,
+        isMine: false,
+        isRevealed: false,
+        adjacentMines: 0,
+      });
+    }
+    board.push(row);
   }
-  return Array.from(result);
+  return board;
 }
 
-export default function MinesGame() {
-  // 방송 전에 조절할 수 있는 설정값
-  const [totalCells, setTotalCells] = useState(20); // 10~50
-  const [mineCount, setMineCount] = useState(3); // 1~49
+/** 🎯 보드에 지뢰 배치하고, 주변 숫자 계산 */
+function generateBoard(mineCount) {
+  const board = createEmptyBoard();
 
-  // 게임 진행 상태
-  const [mines, setMines] = useState([]); // 지뢰 위치
-  const [clicked, setClicked] = useState({}); // { 1: "safe" | "mine" }
-  const [cleared, setCleared] = useState(false);
+  // 지뢰 위치 랜덤 배치
+  const positions = Array.from({ length: TOTAL_CELLS }, (_, i) => i);
+  // Fisher–Yates shuffle
+  for (let i = positions.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [positions[i], positions[j]] = [positions[j], positions[i]];
+  }
+
+  const maxMines = Math.max(1, TOTAL_CELLS - 1);
+  const safeMines = Math.max(1, Math.min(maxMines, mineCount));
+
+  for (let i = 0; i < safeMines; i++) {
+    const idx = positions[i];
+    const r = Math.floor(idx / COLS);
+    const c = idx % COLS;
+    board[r][c].isMine = true;
+  }
+
+  // 주변 8칸 방향
+  const dirs = [
+    [-1, -1],
+    [-1, 0],
+    [-1, 1],
+    [0, -1],
+    [0, 1],
+    [1, -1],
+    [1, 0],
+    [1, 1],
+  ];
+
+  // 각 칸별 주변 지뢰 수 계산
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      if (board[r][c].isMine) continue;
+      let count = 0;
+      dirs.forEach(([dr, dc]) => {
+        const nr = r + dr;
+        const nc = c + dc;
+        if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS) {
+          if (board[nr][nc].isMine) count++;
+        }
+      });
+      board[r][c].adjacentMines = count;
+    }
+  }
+
+  return board;
+}
+
+/** 1~50 번호 → (row, col) */
+function numToCoord(num) {
+  const idx = num - 1;
+  const row = Math.floor(idx / COLS);
+  const col = idx % COLS;
+  return { row, col };
+}
+
+export default function MinesGame2D_5x10() {
+  const [mineCount, setMineCount] = useState(10); // 50칸 기준 기본 10개 정도
+  const [board, setBoard] = useState(() => generateBoard(mineCount));
   const [round, setRound] = useState(1);
+  const [cleared, setCleared] = useState(false);
 
-  // 설정 변경 시 새 판 세팅
+  // 새 판 세팅 (지뢰 수 바뀔 때)
   useEffect(() => {
-    const m = generateMines(totalCells, mineCount);
-    setMines(m);
-    setClicked({});
+    const b = generateBoard(mineCount);
+    setBoard(b);
     setCleared(false);
     setRound((r) => r + 1);
-  }, [totalCells, mineCount]);
+  }, [mineCount]);
 
-  // 안전 칸 진행도 계산
-  const safeInfo = useMemo(() => {
-    const totalSafe = totalCells - mines.length;
-    const clickedSafe = Object.values(clicked).filter(
-      (v) => v === "safe"
-    ).length;
-    return { totalSafe, clickedSafe };
-  }, [totalCells, mines, clicked]);
+  // 안전 칸 / 찾은 지뢰 수 계산
+  const { safeInfo, foundMines } = useMemo(() => {
+    let totalSafe = 0;
+    let revealedSafe = 0;
+    let mines = 0;
+    let revealedMines = 0;
 
-  // 칸 클릭 처리
-  const handleCellClick = (num) => {
-    // 클리어된 뒤에는 더 이상 누르지 못하게
-    if (cleared) return;
-    if (clicked[num]) return;
-
-    const isMine = mines.includes(num);
-    const next = { ...clicked, [num]: isMine ? "mine" : "safe" };
-    setClicked(next);
-
-    if (isMine) {
-      // 게임은 끝내지 않고, 이펙트만
-      fireBombEffect();
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const cell = board[r][c];
+        if (cell.isMine) {
+          mines++;
+          if (cell.isRevealed) revealedMines++;
+        } else {
+          totalSafe++;
+          if (cell.isRevealed) revealedSafe++;
+        }
+      }
     }
 
-    // 찾은 지뢰 개수
-    const foundMines = Object.values(next).filter((v) => v === "mine").length;
+    return {
+      safeInfo: { totalSafe, revealedSafe },
+      foundMines: { mines, revealedMines },
+    };
+  }, [board]);
 
-    // 모든 지뢰를 찾으면 클리어
-    if (mines.length > 0 && foundMines >= mines.length) {
-      setCleared(true);
-      return;
+  /** 0인 칸 주변 자동 오픈 (DFS / flood fill) */
+  const revealZeros = (b, row, col) => {
+    const stack = [[row, col]];
+    const dirs = [
+      [-1, -1],
+      [-1, 0],
+      [-1, 1],
+      [0, -1],
+      [0, 1],
+      [1, -1],
+      [1, 0],
+      [1, 1],
+    ];
+
+    while (stack.length > 0) {
+      const [r, c] = stack.pop();
+      const cell = b[r][c];
+      if (cell.isRevealed || cell.isMine) continue;
+
+      cell.isRevealed = true;
+
+      if (cell.adjacentMines === 0) {
+        dirs.forEach(([dr, dc]) => {
+          const nr = r + dr;
+          const nc = c + dc;
+          if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS) {
+            const ncell = b[nr][nc];
+            if (!ncell.isRevealed && !ncell.isMine) {
+              stack.push([nr, nc]);
+            }
+          }
+        });
+      }
     }
-
-    // (원래 있던 '모든 안전 칸 클릭 시 클리어' 로직은 제거)
   };
 
-  // 새 판 시작 버튼
+  /** 셀 클릭 (번호 기반) */
+const handleCellClick = (num) => {
+
+  const { row, col } = numToCoord(num);
+
+  setBoard((prev) => {
+    const next = prev.map((r) => r.map((c) => ({ ...c })));
+    const cell = next[row][col];
+
+    // 이미 연 칸이면 무시
+    if (cell.isRevealed) return prev;
+
+    if (cell.isMine) {
+      // 게임은 끝내지 않고, 이펙트 + 지뢰 표시만
+      cell.isRevealed = true;
+      fireBombEffect();
+    } else {
+      // 🔹 자동 확장 제거 — 클릭한 칸만 연다
+      cell.isRevealed = true;
+    }
+
+    // 지뢰를 전부 찾았는지 체크
+    let mines = 0;
+    let revealedMines = 0;
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        if (next[r][c].isMine) {
+          mines++;
+          if (next[r][c].isRevealed) revealedMines++;
+        }
+      }
+    }
+    if (mines > 0 && revealedMines >= mines) {
+      setCleared(true);
+    }
+
+    return next;
+  });
+};
+
+  /** 새 판 시작 버튼 */
   const handleReset = () => {
-    const m = generateMines(totalCells, mineCount);
-    setMines(m);
-    setClicked({});
+    const b = generateBoard(mineCount);
+    setBoard(b);
     setCleared(false);
     setRound((r) => r + 1);
   };
@@ -103,344 +231,266 @@ export default function MinesGame() {
       style={{
         width: "100%",
         height: "100%",
-        maxWidth: 550,
-        maxHeight: 500,
-        margin: " 50px auto",
-        padding: 16,
+        maxWidth: 500,
+        maxHeight: 710,
+        margin: "40px auto",
+        padding: 10,
         boxSizing: "border-box",
-        background:
-          "radial-gradient(circle at top, #120824, #050014)", // 시그헌터 계열 남보라
-        border: "1px solid rgba(129,140,248,0.65)", // 인디고 라인
-        boxShadow: "0 22px 70px rgba(15,23,42,0.95)",
+        background: "#C0C0C0",
+        borderRadius: 6,
+        border: "3px solid #808080",
+        boxShadow:
+          "inset 3px 3px 0 #FFFFFF, inset -3px -3px 0 #808080",
+        fontFamily:
+          "Tahoma, 'Microsoft Sans Serif', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
       }}
     >
-      {/* 헤더 */}
+      {/* 상단 정보 영역 */}
       <div
         style={{
+          border: "3px solid #808080",
+          boxShadow:
+            "inset 3px 3px 0 #FFFFFF, inset -3px -3px 0 #808080",
+          padding:  "6px 10px",
+          marginBottom: 8,
           display: "flex",
-          justifyContent: "space-between",
           alignItems: "center",
-          gap: 8,
-          marginBottom: 10,
-          flexWrap: "wrap",
+          justifyContent: "space-between",
+          background: "#C0C0C0",
         }}
       >
-        <div>
-          <h2
-            style={{
-              margin: 0,
-              fontSize: 22,
-              fontWeight: 800,
-              color: "#fff",
-              letterSpacing: "0.04em",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              fontFamily:
-                "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-            }}
-          >
-            💣 지뢰게임
-            <span
-              style={{
-                fontSize: 12,
-                color: "#fff",
-                padding: "2px 8px",
-                borderRadius: 9999,
-                border: "1px solid rgba(191,219,254,0.5)",
-                background:
-                  "linear-gradient(135deg, rgba(15,23,42,0.9), rgba(30,64,175,0.9))",
-              }}
-            >
-              ROUND {round}
-            </span>
-          </h2>
-          <p
-            style={{
-              margin: "2px 0 0",
-              fontSize: 12,
-              color: "#fff",
-              opacity: 0.7,
-            }}
-          >
-            BJ가 말한 번호 버튼을 클릭하면 됩니다.
-          </p>
-        </div>
-
+        {/* 왼쪽: ROUND */}
         <div
           style={{
-            fontSize: 12,
-            color: "#fff",
-            textAlign: "right",
-            lineHeight: 1.4,
+            background: "black",
+            color: "red",
+            fontWeight: "bold",
+            fontSize: 22,
+            padding: "2px 8px",
+            minWidth: 60,
+            textAlign: "center",
+            fontFamily: "Digital, 'DS-Digital', monospace",
           }}
         >
-          {/* 칸 수 */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-end", // 오른쪽 정렬
-              gap: 4,
-            }}
-          >
-            <span>칸 수:</span>
-            <b>{totalCells}</b>
-            <span>(지뢰 {mines.length}개)</span>
-          </div>
-
-          {/* 안전 칸 */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-start",
-              gap: 4,
-            }}
-          >
-            <span>안전 칸:</span>
-            <b>
-              {safeInfo.clickedSafe}/{safeInfo.totalSafe}
-            </b>
-          </div>
-        </div>
-      </div>
-
-      {/* 설정 영역 */}
-      {/* 설정 전체 래퍼 */}
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 8,
-          marginBottom: 10,
-          fontSize: 12,
-          color: "#fff",
-        }}
-      >
-        {/* 첫 줄: 총 칸 수 / 지뢰 개수 */}
-        <div
-          style={{
-            display: "flex",
-            gap: 10,
-            flexWrap: "wrap",
-          }}
-        >
-          <div
-            style={{
-              flex: 1,
-              minWidth: 180,
-              padding: "6px 8px",
-              borderRadius: 8,
-              border: "1px solid rgba(129,140,248,0.55)",
-              background:
-                "linear-gradient(135deg, rgba(15,23,42,0.98), rgba(30,64,175,0.75))",
-            }}
-          >
-            <label
-              style={{
-                color: "#fff",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "18px",
-                fontWeight: 600,
-              }}
-            >
-              <span>총 칸 수 (10~50)</span>
-              <input
-                type="number"
-                min={10}
-                max={50}
-                value={totalCells}
-                onChange={(e) => {
-                  const v = Number(e.target.value) || 10;
-                  setTotalCells(Math.max(10, Math.min(50, v)));
-                }}
-                style={{
-                  width: 40,
-                  height: 22,
-                  background: "rgba(15,23,42,0.85)",
-                  border: "1px solid rgba(165,180,252,0.9)",
-                  color: "#f9fafb",
-                  fontSize: 16,
-                  borderRadius: 4,
-                  padding: "1px 4px",
-                  marginLeft: 20,
-                }}
-              />
-            </label>
-          </div>
-
-          <div
-            style={{
-              flex: 1,
-              minWidth: 180,
-              padding: "6px 8px",
-              borderRadius: 8,
-              border: "1px solid rgba(129,140,248,0.55)",
-              background:
-                "linear-gradient(135deg, rgba(15,23,42,0.98), rgba(30,64,175,0.75))",
-            }}
-          >
-            <label
-              style={{
-                color: "#fff",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "18px",
-                fontWeight: 600,
-              }}
-            >
-              <span>지뢰 개수 (1~49)&nbsp;</span>
-              <input
-                type="number"
-                min={1}
-                max={49}
-                value={mineCount}
-                onChange={(e) => {
-                  const v = Number(e.target.value) || 1;
-                  setMineCount(Math.max(1, Math.min(49, v)));
-                }}
-                style={{
-                  width: 40,
-                  height: 22,
-                  background: "rgba(15,23,42,0.85)",
-                  border: "1px solid rgba(165,180,252,0.9)",
-                  color: "#f9fafb",
-                  fontSize: 16,
-                  borderRadius: 4,
-                  padding: "1px 4px",
-                  marginLeft: 22,
-                }}
-              />
-            </label>
-          </div>
+          {String(round).padStart(3, "0")}
         </div>
 
-        {/* 두 번째 줄: 새 판 시작 버튼 (전체 폭) */}
+        {/* 가운데: 얼굴 버튼 */}
         <button
           type="button"
           onClick={handleReset}
           style={{
-            width: "100%",
-            padding: "5px",
-            border: "1px solid rgba(248,250,252,0.8)",
-            background:
-              "linear-gradient(135deg, rgba(248,250,252,0.95), rgba(226,232,240,0.95))",
-            color: "#111827",
-            fontSize: 18,
-            fontWeight: 700,
+            width: 38,
+            height: 38,
+            borderRadius: 0,
+            textAlign: "center",
+            border: "3px solid #808080",
+            background: "#C0C0C0",
+            boxShadow:
+              "inset 3px 3px 0 #FFFFFF, inset -3px -3px 0 #808080",
             cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 6,
+            fontSize: 24,
           }}
         >
-          🔁 새 판 시작
+          {cleared ? "😎" : "🙂"}
         </button>
+
+        {/* 오른쪽: 지뢰 수 디스플레이 */}
+        <div
+          style={{
+            background: "black",
+            color: "red",
+            fontWeight: "bold",
+            fontSize: 22,
+            padding: "2px 8px",
+            minWidth: 60,
+            textAlign: "center",
+            fontFamily: "Digital, 'DS-Digital', monospace",
+          }}
+        >
+          {String(mineCount).padStart(3, "0")}
+        </div>
+      </div>
+
+      {/* 설정 + 안내 */}
+      <div
+        style={{
+          border: "3px solid #808080",
+          boxShadow:
+            "inset 3px 3px 0 #FFFFFF, inset -3px -3px 0 #808080",
+          padding: 8,
+          marginBottom: 8,
+          background: "#C0C0C0",
+          fontSize: 15,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            gap: 12,
+            flexWrap: "wrap",
+            marginBottom: 6,
+            alignItems: "center",
+          }}
+        >
+          <div>
+            보드: <b>5 × 10 (총 50칸)</b>
+          </div>
+
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <span>지뢰 수</span>
+            <input
+              type="number"
+              min={1}
+              max={49}
+              value={mineCount}
+              onChange={(e) => {
+                const v = Number(e.target.value) || 1;
+                setMineCount(Math.max(1, Math.min(49, v)));
+              }}
+              style={{
+                width: 60,
+                padding: "2px 4px",
+                fontSize: 16,
+                border: "1px solid #808080",
+                background: "#E0E0E0",
+              }}
+            />
+          </label>
+
+          <div style={{ marginLeft: "auto", fontSize: 16 }}>
+            안전 칸:{" "}
+            <b>
+              {safeInfo.revealedSafe}/{safeInfo.totalSafe}
+            </b>{" "}
+            · 찾은 지뢰:{" "}
+            <b>
+              {foundMines.revealedMines}/{foundMines.mines}
+            </b>
+          </div>
+        </div>
+
+        <div style={{ fontSize: 12, color: "#202020" }}>
+          버튼 번호는 1~50입니다. BJ가 말한 번호를 눌러 칸을 여세요.
+        </div>
       </div>
 
       {/* 상태 메시지 */}
-      <div style={{ marginBottom: 10, minHeight: 22 }}>
-        {cleared ? (
-          <p
-            style={{
-              margin: 0,
-              fontSize: 14,
-              color: "#bbf7d0",
-              fontWeight: 700,
-            }}
-          >
-            🎉 모든 지뢰를 다 찾았습니다! (클리어)
-          </p>
-        ) : (
-          <p
-            style={{
-              margin: 0,
-              fontSize: 13,
-              color: "#e5e7eb",
-              opacity: 0.85,
-            }}
-          >
-            예: “5번!” → 5번 버튼을 눌러서 지뢰를 찾아보세요.
-          </p>
-        )}
-      </div>
-
-      {/* 번호 버튼들 */}
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(10, minmax(32px, 1fr))",
-          gap: 3,
+          minHeight: 20,
+          fontSize: 13,
+          marginBottom: 6,
+          color: "#202020",
         }}
       >
-        {Array.from({ length: totalCells }, (_, i) => {
-          const num = i + 1;
-          const state = clicked[num]; // "mine" | "safe" | undefined
-
-          let bg = "rgba(31,41,55,0.9)";
-          let border = "1px solid rgba(55,65,81,1)";
-          let color = "#e5e7eb";
-
-          if (state === "safe") {
-            bg = "linear-gradient(135deg, #22c55e, #4ade80)";
-            border = "1px solid rgba(22,163,74,0.9)";
-            color = "#052e16";
-          } else if (state === "mine") {
-            bg = "linear-gradient(135deg, #ef4444, #f97316)";
-            border = "1px solid rgba(248,113,113,0.9)";
-            color = "#fef2f2";
-          } else if (cleared) {
-            bg = "rgba(15,23,42,0.8)";
-            border = "1px solid rgba(30,64,175,0.4)";
-            color = "#6b7280";
-          }
-
-          const disabled = !!state || cleared;
-
-          return (
-            <button
-              key={num}
-              type="button"
-              disabled={disabled}
-              onClick={() => handleCellClick(num)}
-              style={{
-                padding: "10px 5px",
-                border,
-                background: bg,
-                color,
-                fontSize: 20,
-                fontWeight: 700,
-                cursor: disabled ? "default" : "pointer",
-                transition:
-                  "transform 0.08s ease-out, box-shadow 0.08s ease-out, background 0.1s",
-                boxShadow:
-                  state === "mine"
-                    ? "0 0 12px rgba(248,113,113,0.8)"
-                    : state === "safe"
-                    ? "0 0 10px rgba(52,211,153,0.7)"
-                    : "0 0 4px rgba(15,23,42,0.6)",
-              }}
-            >
-              {state === "mine" ? "💣" : num}
-            </button>
-          );
-        })}
+        {cleared
+          ? "🎉 모든 지뢰를 다 찾았습니다!"
+          : "지뢰를 모두 찾을 때까지 계속 눌러보세요. (지뢰를 밟아도 게임은 계속됩니다)"}
       </div>
 
-      <p
+      {/* 5×10 보드 (총 50칸) */}
+      <div
         style={{
-          marginTop: 10,
-          fontSize: 11,
-          color: "#fff",
-          opacity: 0.55,
-          textAlign: "right",
+          border: "3px solid #808080",
+          boxShadow:
+            "inset 3px 3px 0 #FFFFFF, inset -3px -3px 0 #808080",
+          padding: 5,
+          background: "#C0C0C0",
         }}
       >
-        💡 지뢰 위치는 매 판마다 랜덤으로 바뀝니다.
-      </p>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: `repeat(${COLS}, 1fr)`,
+            gap: 2,
+          }}
+        >
+        {Array.from({ length: TOTAL_CELLS }, (_, i) => {
+  const num = i + 1; // 1~50
+  const { row, col } = numToCoord(num);
+  const cell = board[row][col];
+
+  const isRevealed = cell.isRevealed;
+
+  // 🔹 기본값은 "아직 안 누른, 볼록한 버튼" (리셋 버튼과 비슷)
+  let bg = "#C0C0C0";
+  let border = "3px solid #808080";
+  let color = "#000000";
+  let boxShadow =
+    "inset 3px 3px 0 #FFFFFF, inset -3px -3px 0 #808080"; // 바깥쪽이 어둡고, 안쪽이 밝게 → 볼록
+  let label = "";
+
+  // 칸이 열린 경우만 "눌린(오목한)" 느낌으로 변경
+  if (isRevealed) {
+    bg = "#DCDCDC";
+    border = "3px solid #A0A0A0";
+    boxShadow =
+      "inset -3px -3px 0 #FFFFFF, inset 3px 3px 0 #808080"; // 안쪽이 어둡고, 위·왼쪽이 밝게 → 오목
+  }
+
+  if (cell.isMine && isRevealed) {
+    bg = "#FF0000";
+    border = "3px solid #800000";
+    color = "#FFFFFF";
+    boxShadow =
+      "inset 3px 3px 0 #800000, inset -3px -3px 0 #FFA0A0";
+    label = "💣";
+  } else if (isRevealed && cell.adjacentMines > 0) {
+    label = String(cell.adjacentMines);
+    const n = cell.adjacentMines;
+    const numColorMap = {
+      1: "#0000FF",
+      2: "#008000",
+      3: "#FF0000",
+      4: "#000080",
+      5: "#800000",
+      6: "#008080",
+      7: "#000000",
+      8: "#808080",
+    };
+    color = numColorMap[n] || "#000000";
+  } else if (!isRevealed) {
+    // 닫힌 칸에는 번호(1~50)를 보여주고 싶으면:
+    label = String(num);
+    // 진짜 지뢰찾기처럼 번호 숨기고 싶으면 위 줄을 ""로 바꾸면 됨
+    // label = "";
+  }
+
+  const disabled = isRevealed;
+
+  return (
+    <button
+      key={num}
+      type="button"
+      disabled={disabled}
+      onClick={() => handleCellClick(num)}
+      style={{
+        width: "100%",
+        padding: "10px 0",
+        border,
+        background: bg,
+        color,
+        fontSize: 18,
+        fontWeight: 700,
+        cursor: disabled ? "default" : "pointer",
+        boxShadow,
+        textAlign: "center",
+        lineHeight: 1.1,
+      }}
+    >
+      {label}
+    </button>
+  );
+})}
+        </div>
+      </div>
     </div>
   );
 }
