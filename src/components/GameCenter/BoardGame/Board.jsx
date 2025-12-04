@@ -1,5 +1,5 @@
 // src/components/GameCenter/BoardGame/Board.jsx
-import React from "react";
+import React, { useMemo } from "react";
 
 export default function Board({
   rows,
@@ -15,59 +15,50 @@ export default function Board({
   onClickCell,
   onResizeBoard,
 }) {
- // 🔹 둘레 34칸 (아래 9, 오른쪽 8, 위 9, 왼쪽 8)
-const perimeter = 34;
+  // 🔹 현재 rows×cols 격자의 "둘레 칸 수" 계산 (테두리만 사용)
+  const perimeter = useMemo(() => {
+    if (rows < 2 || cols < 2) return 0;
+    return 2 * (rows + cols) - 4; // 예: 10×10 → 36칸
+  }, [rows, cols]);
 
-const getCellStyleFromPos = (pos) => {
-  const base = {
-    position: "absolute",
-    width: "10%",  // 가로 꽤 넉넉하게
-    height: "6%",  // 세로는 조금 작게 (카드형 텍스트용이면 6~7% 정도)
+  // 🔹 0~perimeter-1 인덱스를 실제 (r,c) 좌표로 매핑
+  const indexToCoord = (pos) => {
+    // 아래쪽: 0 ~ (cols-1)
+    if (pos < cols) {
+      return { r: rows - 1, c: pos };
+    }
+    // 오른쪽: cols ~ (cols + rows - 2)
+    if (pos < cols + rows - 1) {
+      const offset = pos - cols;
+      return { r: rows - 2 - offset, c: cols - 1 };
+    }
+    // 위쪽
+    const topStart = cols + rows - 1;
+    if (pos < topStart + cols - 1) {
+      const offset = pos - topStart;
+      return { r: 0, c: cols - 2 - offset };
+    }
+    // 왼쪽
+    const leftStart = topStart + cols - 1;
+    const offset = pos - leftStart;
+    return { r: 1 + offset, c: 0 };
   };
 
-  // 🔻 아래: 0~8 (9칸)
-  if (pos >= 0 && pos <= 8) {
-    const idx = pos; // 0~8
+  // 🔹 인덱스 → 스타일 (퍼센트 기반, 정사각형 안 테두리 배치)
+  const getCellStyleFromPos = (pos) => {
+    const { r, c } = indexToCoord(pos);
+    const base = {
+      position: "absolute",
+      width: `${100 / cols}%`,
+      height: `${(100 / rows) * 0.7}%`,
+    };
+
     return {
       ...base,
-      bottom: "0%",
-      left: `${idx * 10.5}%`, // 0 ~ 84
+      left: `${(c * 100) / cols}%`,
+      top: `${(r * 100) / rows}%`,
     };
-  }
-
-  // ➡ 오른쪽: 9~16 (8칸)
-  if (pos >= 9 && pos <= 16) {
-    const idx = pos - 9; // 0~7
-    return {
-      ...base,
-      right: "0%",
-      top: `${idx * 11.5}%`, // 0 ~ 80.5
-    };
-  }
-
-  // 🔺 위: 17~25 (9칸)
-  if (pos >= 17 && pos <= 25) {
-    const idx = pos - 17; // 0~8
-    return {
-      ...base,
-      top: "0%",
-      left: `${idx * 10.5}%`,
-    };
-  }
-
-  // ⬅ 왼쪽: 26~33 (8칸)
-  if (pos >= 26 && pos <= 33) {
-    const idx = pos - 26; // 0~7
-    return {
-      ...base,
-      left: "0%",
-      bottom: `${idx * 11.5}%`,
-    };
-  }
-
-  return base;
-};
-
+  };
 
   const tokensOnCell = (pos) =>
     tokens.filter((t) => t.pos === pos);
@@ -95,10 +86,10 @@ const getCellStyleFromPos = (pos) => {
           color: "#fff",
         }}
       >
-        정사각형 보드 둘레 40칸을 따라 이동합니다.
+        {rows} × {cols} 보드의 둘레 {perimeter}칸을 따라 이동합니다.
       </p>
 
-      {/* 크기 컨트롤 – 논리상 rows/cols 유지하지만 실제 레이아웃에는 사용 안 함 */}
+      {/* 행/열 크기 설정 */}
       <div
         style={{
           display: "flex",
@@ -109,37 +100,41 @@ const getCellStyleFromPos = (pos) => {
           color: "#fff",
         }}
       >
-        <span style={{ opacity: 0.85 }}>보드 크기(논리):</span>
+        <span style={{ opacity: 0.85 }}>보드 크기:</span>
         <label>
           행&nbsp;
           <input
             type="number"
-            min={13}
-            max={13}
+            min={4}
+            max={20}
             value={rows}
             onChange={(e) =>
-              onResizeBoard(Number(e.target.value) || 13, cols)
+              onResizeBoard(
+                Math.max(4, Math.min(20, Number(e.target.value) || rows)),
+                cols
+              )
             }
-            style={{ width: 40 }}
-            readOnly
+            style={{ width: 48 }}
           />
         </label>
         <label>
           열&nbsp;
           <input
             type="number"
-            min={13}
-            max={13}
+            min={4}
+            max={20}
             value={cols}
             onChange={(e) =>
-              onResizeBoard(rows, Number(e.target.value) || 13)
+              onResizeBoard(
+                rows,
+                Math.max(4, Math.min(20, Number(e.target.value) || cols))
+              )
             }
-            style={{ width: 40 }}
-            readOnly
+            style={{ width: 48 }}
           />
         </label>
         <span style={{ opacity: 0.8 }}>
-          (실제 게임 칸은 40칸)
+          (실제 사용 칸: 둘레 {perimeter}칸)
         </span>
       </div>
 
@@ -148,10 +143,9 @@ const getCellStyleFromPos = (pos) => {
         style={{
           position: "relative",
           paddingBottom: "100%",
-            width: "100%",     // 뷰포트 가로 전체
-   maxWidth: "none",  
-   maxHeight: "none", 
-
+          width: "100%",
+          maxWidth: "none",
+          maxHeight: "none",
           margin: "0 auto",
           background:
             "radial-gradient(circle at center, #22c55e, #065f46)",
@@ -161,7 +155,7 @@ const getCellStyleFromPos = (pos) => {
           border: "3px solid rgba(8,47,73,0.9)",
         }}
       >
-        {/* 중앙 '부루마불' 한 칸 */}
+        {/* 중앙 '부루마불' 칸 */}
         <div
           style={{
             position: "absolute",
@@ -172,8 +166,7 @@ const getCellStyleFromPos = (pos) => {
             background:
               "radial-gradient(circle at center,#22c55e,#16a34a)",
             borderRadius: 24,
-            boxShadow:
-              "inset 0 0 30px rgba(0,0,0,0.7)",
+            boxShadow: "inset 0 0 30px rgba(0,0,0,0.7)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -187,7 +180,7 @@ const getCellStyleFromPos = (pos) => {
           부루마불
         </div>
 
-        {/* 둘레 40칸 렌더링 */}
+        {/* 둘레 칸 렌더링 */}
         {Array.from({ length: perimeter }, (_, pos) => {
           const onThis = tokensOnCell(pos);
           const baseText = cells[pos] || "";
@@ -200,7 +193,6 @@ const getCellStyleFromPos = (pos) => {
           const isSelectedCell = selectedCellIndex === pos;
           const isLanded = lastLandedIndex === pos;
           const isStart = pos === 0;
-          const isCorner = pos === 0 || pos === 10 || pos === 20 || pos === 30;
 
           return (
             <div
@@ -221,8 +213,8 @@ const getCellStyleFromPos = (pos) => {
                   : isLanded
                   ? "0 0 16px rgba(250,204,21,0.9)"
                   : "0 0 8px rgba(15,23,42,0.9)",
-                borderRadius: isCorner ? 14 : 10,
-                padding: "4% 4% 14%",
+                borderRadius: 10,
+                padding: "2% 2% 9%",
                 boxSizing: "border-box",
                 cursor: "pointer",
                 overflow: "hidden",

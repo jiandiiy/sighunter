@@ -1,5 +1,5 @@
 // src/components/GameCenter/BoardGame/BoardGame.jsx
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Board from "./Board";
 import ControlPanel from "./ControlPanel";
 import Toast from "./Toast";
@@ -13,13 +13,17 @@ import { useDice } from "../../../hooks/useDice";
 import { useBoardEffects } from "../../../hooks/useBoardEffects";
 
 export default function BoardGame() {
-  // 🔹 보드 크기 (13x13 고정, 실제 게임 칸은 40개)
+  // 🔹 보드 크기 (기본 10x10, 변경 가능)
   const [rows, setRows] = useState(10);
   const [cols, setCols] = useState(10);
-  const totalCells = rows * cols;
-  const perimeter = 34; // 부루마불 40칸
 
-  // 칸 텍스트 + 스타일 (40칸 기준)
+  // 🔹 현재 rows/cols 기준 둘레 칸 수 (Board 와 동일한 공식)
+  const perimeter = useMemo(() => {
+    if (rows < 2 || cols < 2) return 0;
+    return 2 * (rows + cols) - 4; // 예: 10×10 → 36, 13×13 → 48
+  }, [rows, cols]);
+
+  // 칸 텍스트 + 스타일 (perimeter 기준)
   const [cells, setCells] = useState(() =>
     makeDefaultCellTexts(perimeter)
   );
@@ -93,7 +97,7 @@ export default function BoardGame() {
   const selectedToken = tokens.find((t) => t.id === selectedTokenId);
   const currentTurnToken = tokens[currentTurnIndex] || null;
 
-  /** 보드 칸 클릭 시: 우측 패널용 선택 칸만 설정 (index는 0~39) */
+  /** 보드 칸 클릭 시: 우측 패널용 선택 칸만 설정 (index는 0~perimeter-1) */
   const handleClickCell = (index) => {
     setSelectedCellIndex(index);
     setPanelCellText(cells[index] || "");
@@ -102,17 +106,19 @@ export default function BoardGame() {
     );
   };
 
-  /** 보드 크기 변경 (여기서는 13x13 고정) */
+  /** 보드 크기 변경 */
   const handleResizeBoard = (newRows, newCols) => {
-    const r = 10;
-    const c = 10;
+    const r = Math.max(4, Math.min(20, newRows || rows));
+    const c = Math.max(4, Math.min(20, newCols || cols));
 
     setRows(r);
     setCols(c);
 
-    // 게임 칸은 항상 40칸으로 재초기화
-    setCells(makeDefaultCellTexts(perimeter));
-    setCellStyles(makeDefaultCellStyles(perimeter));
+    const newPerimeter = 2 * (r + c) - 4;
+
+    // 보드 칸 재초기화
+    setCells(makeDefaultCellTexts(newPerimeter));
+    setCellStyles(makeDefaultCellStyles(newPerimeter));
 
     // 말 위치 초기화
     setTokens((prev) => prev.map((t) => ({ ...t, pos: 0 })));
@@ -153,7 +159,7 @@ export default function BoardGame() {
       color: "#f9fafb",
     });
 
-    // 보드 내용도 완전히 초기화 (40칸)
+    // 보드 내용도 완전히 초기화 (현재 perimeter 기준)
     setCells(makeDefaultCellTexts(perimeter));
     setCellStyles(makeDefaultCellStyles(perimeter));
 
@@ -226,7 +232,7 @@ export default function BoardGame() {
     setCellStyles(nextStyles);
   };
 
-  /** 토큰 이동 (애니메이션: 둘레 40칸 기준) */
+  /** 토큰 이동 (애니메이션: 둘레 perimeter 기준) */
   const moveTokenWithAnimation = (token, steps) => {
     if (!token || perimeter <= 0) return;
     if (isMoving) return;
@@ -239,7 +245,7 @@ export default function BoardGame() {
 
     setIsMoving(true);
 
-    let currentPos = token.pos; // 0 ~ 39
+    let currentPos = token.pos; // 0 ~ perimeter-1
     let moved = 0;
     const stepMs = 180;
 
@@ -259,7 +265,7 @@ export default function BoardGame() {
         setIsMoving(false);
 
         applyCellEffect({
-          cellIndex: currentPos, // 0~39
+          cellIndex: currentPos, // 0~perimeter-1
           token,
           diceValue,
           updateTokens: setTokens,
@@ -302,8 +308,8 @@ export default function BoardGame() {
 
       <div
         style={{
-         width: "100%",  
-height: "100%",
+          width: "100%",
+          height: "100%",
           maxWidth: "2000px",
           maxHeight: "2000px",
           margin: "0 auto",
