@@ -55,12 +55,19 @@ export default function BingoBoard({ boardId = "default" }) {
             ? remote.images
             : getRandomBingoImages("muse", CELL_COUNT)
         );
-        setChecked(
+        const initChecked =
           Array.isArray(remote.checked) && remote.checked.length === CELL_COUNT
             ? remote.checked
-            : Array(CELL_COUNT).fill(false)
-        );
-        setCompletedLines(remote.completedLines || []);
+            : Array(CELL_COUNT).fill(false);
+
+        setChecked(initChecked);
+
+        // 저장된 completedLines 가 있으면 사용하고, 없으면 checked 기준으로 재계산
+        if (Array.isArray(remote.completedLines)) {
+          setCompletedLines(remote.completedLines);
+        } else {
+          setCompletedLines(calcCompletedLines(initChecked));
+        }
       } else {
         const randomImages = getRandomBingoImages("muse", CELL_COUNT);
         const initChecked = Array(CELL_COUNT).fill(false);
@@ -95,20 +102,14 @@ export default function BingoBoard({ boardId = "default" }) {
       const nextChecked = [...prevChecked];
       nextChecked[idx] = !nextChecked[idx];
 
+      // ✅ 현재 체크 상태 기준으로 한 줄 빙고 다시 계산
       const newLines = calcCompletedLines(nextChecked);
+      setCompletedLines(newLines);
 
-      setCompletedLines((prevLines) => {
-        const merged = [...prevLines];
-        newLines.forEach((l) => {
-          if (!merged.includes(l)) merged.push(l);
-        });
-        return merged;
-      });
-
+      // 이 셀이 포함된 줄 중, 지금 기준으로 완성된 줄이 있는지
       const isInCompletedLine = LINES_3X3.some(
         (line, lineIndex) =>
-          (completedLines.includes(lineIndex) ||
-            newLines.includes(lineIndex)) && line.includes(idx)
+          newLines.includes(lineIndex) && line.includes(idx)
       );
 
       let nextImages = images;
@@ -213,7 +214,7 @@ export default function BingoBoard({ boardId = "default" }) {
           const inCompletedLine = isCellInCompletedLine(idx);
 
           return (
-            <div 
+            <div
               key={idx}
               className={
                 "bingo-cell" +
