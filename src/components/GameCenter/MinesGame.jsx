@@ -377,12 +377,12 @@ export default function MinesGame2D_5x10() {
           {/* 가운데 공간을 밀어주는 flex */}
           <div style={{ flex: 1 }} />
 
-          <div style={{ fontSize: 13, whiteSpace: "nowrap", margin: "0 10px 0 0" }}>
-            안전 칸:{" "}
+          <div style={{ fontSize: 13, whiteSpace: "nowrap", margin: "0 15px 0 0" }}>
+          안전 칸:{" "}
             <b>
               {safeInfo.revealedSafe}/{safeInfo.totalSafe}
             </b>{" "}
-            · 찾은 지뢰:{" "}
+            찾은 지뢰:{" "}
             <b>
               {foundMines.revealedMines}/{foundMines.mines}
             </b>
