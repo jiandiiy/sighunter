@@ -105,14 +105,29 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
   // 🔹 닉네임 → 색상 헬퍼
   const getColorForPlayer = (name) => {
     if (!name) return null;
-    if (playerColors[name]) return playerColors[name];
+   // 이미 색이 있으면 그 색 그대로
+   if (playerColors[name]) return playerColors[name];
 
-    const usedCount = Object.keys(playerColors).length;
-    const index = usedCount % shuffledPalette.length; // 0~17
-    const color = shuffledPalette[index];
+   // 1) 아직 팔레트에서 쓰지 않은 색이 있으면 그 색들 중 하나 사용
+   const usedColors = new Set(Object.values(playerColors));
+   const unused = shuffledPalette.filter((c) => !usedColors.has(c));
 
-    setPlayerColors((prev) => ({ ...prev, [name]: color }));
-    return color;
+   let color;
+   if (unused.length > 0) {
+     color = unused[0]; // 아직 안 쓰인 색 중 첫 번째
+   } else {
+     // 2) 팔레트가 모두 소진된 경우: 새 랜덤 색 생성 (겹칠 확률 낮음)
+     const randColor = () =>
+       "#" +
+       Math.floor(Math.random() * 0xffffff)
+         .toString(16)
+         .padStart(6, "0")
+         .toUpperCase();
+     color = randColor();
+   }
+
+   setPlayerColors((prev) => ({ ...prev, [name]: color }));
+   return color;
   };
 
   // 초기 로딩
