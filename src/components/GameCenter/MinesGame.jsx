@@ -230,7 +230,7 @@ export default function MinesGame2D_5x10() {
       style={{
         width: "100%",
         height: "100%",
-        maxWidth: 520,
+        maxWidth: 530,
         maxHeight: 710,
         margin: "40px auto",
         padding: 10,
@@ -289,9 +289,18 @@ export default function MinesGame2D_5x10() {
               "inset 3px 3px 0 #FFFFFF, inset -3px -3px 0 #808080",
             cursor: "pointer",
             fontSize: 24,
-          }}
-        >
-          {cleared ? "😎" : "🙂"}
+           padding: 0,           // 🔹 추가: 기본 padding 제거
+    lineHeight: 1,        // 🔹 추가: 라인 높이 고정
+  }}
+>
+  <span
+    style={{
+      display: "inline-block",
+      transform: "translateX(-1px)", // 🔹 살짝 왼쪽으로
+    }}
+  >
+    {cleared ? "😎" : "🙂"}
+  </span>
         </button>
 
         {/* 오른쪽: 지뢰 수 디스플레이 */}
