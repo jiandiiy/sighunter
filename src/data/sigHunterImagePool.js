@@ -825,19 +825,14 @@ export const sigHunterImagePool = {
         "count": 1015
       },
       {
-        "path": "/images/queendom/group1/sig_17.webp",
+        "path": "/images/queendom/group1/sig_18.webp",
         "rawText": "[MANUAL]",
         "count": 1017
       },
       {
-        "path": "/images/queendom/group1/sig_18.webp",
-        "rawText": "[MANUAL]",
-        "count": 1018
-      },
-      {
         "path": "/images/queendom/group1/sig_19.webp",
         "rawText": "[MANUAL]",
-        "count": 1019
+        "count": 1018
       },
       {
         "path": "/images/queendom/group1/sig_2.webp",
@@ -847,10 +842,15 @@ export const sigHunterImagePool = {
       {
         "path": "/images/queendom/group1/sig_20.webp",
         "rawText": "[MANUAL]",
-        "count": 1020
+        "count": 1019
       },
       {
         "path": "/images/queendom/group1/sig_21.webp",
+        "rawText": "[MANUAL]",
+        "count": 1020
+      },
+      {
+        "path": "/images/queendom/group1/sig_22.webp",
         "rawText": "[MANUAL]",
         "count": 1021
       },
@@ -892,583 +892,598 @@ export const sigHunterImagePool = {
     ],
     "group2": [
       {
-        "path": "/images/queendom/group2/sig_22.webp",
+        "path": "/images/queendom/group2/sig_23.webp",
         "rawText": "[MANUAL]",
         "count": 1022
       },
       {
-        "path": "/images/queendom/group2/sig_23.webp",
+        "path": "/images/queendom/group2/sig_24.webp",
         "rawText": "[MANUAL]",
         "count": 1023
       },
       {
-        "path": "/images/queendom/group2/sig_24.webp",
+        "path": "/images/queendom/group2/sig_25.webp",
         "rawText": "[MANUAL]",
         "count": 1024
       },
       {
-        "path": "/images/queendom/group2/sig_25.webp",
+        "path": "/images/queendom/group2/sig_26.webp",
         "rawText": "[MANUAL]",
         "count": 1025
       },
       {
-        "path": "/images/queendom/group2/sig_26.webp",
+        "path": "/images/queendom/group2/sig_27.webp",
         "rawText": "[MANUAL]",
         "count": 1026
       },
       {
-        "path": "/images/queendom/group2/sig_27.webp",
+        "path": "/images/queendom/group2/sig_28.webp",
         "rawText": "[MANUAL]",
         "count": 1027
       },
       {
-        "path": "/images/queendom/group2/sig_28.webp",
+        "path": "/images/queendom/group2/sig_29.webp",
         "rawText": "[MANUAL]",
         "count": 1028
       },
       {
-        "path": "/images/queendom/group2/sig_29.webp",
+        "path": "/images/queendom/group2/sig_30.webp",
         "rawText": "[MANUAL]",
         "count": 1029
       },
       {
-        "path": "/images/queendom/group2/sig_30.webp",
+        "path": "/images/queendom/group2/sig_31.webp",
         "rawText": "[MANUAL]",
         "count": 1030
       },
       {
-        "path": "/images/queendom/group2/sig_31.webp",
+        "path": "/images/queendom/group2/sig_32.webp",
         "rawText": "[MANUAL]",
         "count": 1031
       },
       {
-        "path": "/images/queendom/group2/sig_32.webp",
+        "path": "/images/queendom/group2/sig_33.webp",
         "rawText": "[MANUAL]",
         "count": 1032
       },
       {
-        "path": "/images/queendom/group2/sig_33.webp",
+        "path": "/images/queendom/group2/sig_34.webp",
         "rawText": "[MANUAL]",
         "count": 1033
       },
       {
-        "path": "/images/queendom/group2/sig_34.webp",
+        "path": "/images/queendom/group2/sig_36.webp",
         "rawText": "[MANUAL]",
         "count": 1035
       },
       {
-        "path": "/images/queendom/group2/sig_35.webp",
+        "path": "/images/queendom/group2/sig_37.webp",
         "rawText": "[MANUAL]",
         "count": 1036
       },
       {
-        "path": "/images/queendom/group2/sig_36.webp",
+        "path": "/images/queendom/group2/sig_38.webp",
         "rawText": "[MANUAL]",
         "count": 1037
       },
       {
-        "path": "/images/queendom/group2/sig_37.webp",
+        "path": "/images/queendom/group2/sig_39.webp",
         "rawText": "[MANUAL]",
         "count": 1038
       },
       {
-        "path": "/images/queendom/group2/sig_38.webp",
+        "path": "/images/queendom/group2/sig_40.webp",
+        "rawText": "[MANUAL]",
+        "count": 1039
+      },
+      {
+        "path": "/images/queendom/group2/sig_42.webp",
         "rawText": "[MANUAL]",
         "count": 1041
       },
       {
-        "path": "/images/queendom/group2/sig_39.webp",
+        "path": "/images/queendom/group2/sig_44.webp",
         "rawText": "[MANUAL]",
         "count": 1043
       },
       {
-        "path": "/images/queendom/group2/sig_40.webp",
+        "path": "/images/queendom/group2/sig_45.webp",
         "rawText": "[MANUAL]",
         "count": 1044
       },
       {
-        "path": "/images/queendom/group2/sig_41.webp",
+        "path": "/images/queendom/group2/sig_47.webp",
         "rawText": "[MANUAL]",
         "count": 1046
       }
     ],
     "group3": [
       {
-        "path": "/images/queendom/group3/sig_42.webp",
+        "path": "/images/queendom/group3/sig_48.webp",
         "rawText": "[MANUAL]",
         "count": 1047
       },
       {
-        "path": "/images/queendom/group3/sig_43.webp",
-        "rawText": "[MANUAL]",
-        "count": 1050
-      },
-      {
-        "path": "/images/queendom/group3/sig_44.webp",
-        "rawText": "[MANUAL]",
-        "count": 1053
-      },
-      {
-        "path": "/images/queendom/group3/sig_45.webp",
-        "rawText": "[MANUAL]",
-        "count": 1054
-      },
-      {
-        "path": "/images/queendom/group3/sig_46.webp",
-        "rawText": "[MANUAL]",
-        "count": 1055
-      },
-      {
-        "path": "/images/queendom/group3/sig_47.webp",
-        "rawText": "[MANUAL]",
-        "count": 1056
-      },
-      {
-        "path": "/images/queendom/group3/sig_48.webp",
-        "rawText": "[MANUAL]",
-        "count": 1058
-      },
-      {
         "path": "/images/queendom/group3/sig_49.webp",
         "rawText": "[MANUAL]",
-        "count": 1059
-      },
-      {
-        "path": "/images/queendom/group3/sig_50.webp",
-        "rawText": "[MANUAL]",
-        "count": 1060
+        "count": 1048
       },
       {
         "path": "/images/queendom/group3/sig_51.webp",
         "rawText": "[MANUAL]",
-        "count": 1062
-      },
-      {
-        "path": "/images/queendom/group3/sig_52.webp",
-        "rawText": "[MANUAL]",
-        "count": 1064
+        "count": 1050
       },
       {
         "path": "/images/queendom/group3/sig_53.webp",
         "rawText": "[MANUAL]",
-        "count": 1069
+        "count": 1052
       },
       {
         "path": "/images/queendom/group3/sig_54.webp",
         "rawText": "[MANUAL]",
-        "count": 1072
+        "count": 1053
       },
       {
         "path": "/images/queendom/group3/sig_55.webp",
         "rawText": "[MANUAL]",
-        "count": 1073
+        "count": 1054
       },
       {
         "path": "/images/queendom/group3/sig_56.webp",
         "rawText": "[MANUAL]",
-        "count": 1074
+        "count": 1055
       },
       {
         "path": "/images/queendom/group3/sig_57.webp",
         "rawText": "[MANUAL]",
-        "count": 1075
-      },
-      {
-        "path": "/images/queendom/group3/sig_58.webp",
-        "rawText": "[MANUAL]",
-        "count": 1076
+        "count": 1056
       },
       {
         "path": "/images/queendom/group3/sig_59.webp",
         "rawText": "[MANUAL]",
-        "count": 1077
+        "count": 1058
       },
       {
         "path": "/images/queendom/group3/sig_60.webp",
+        "rawText": "[MANUAL]",
+        "count": 1059
+      },
+      {
+        "path": "/images/queendom/group3/sig_61.webp",
+        "rawText": "[MANUAL]",
+        "count": 1060
+      },
+      {
+        "path": "/images/queendom/group3/sig_63.webp",
+        "rawText": "[MANUAL]",
+        "count": 1062
+      },
+      {
+        "path": "/images/queendom/group3/sig_65.webp",
+        "rawText": "[MANUAL]",
+        "count": 1064
+      },
+      {
+        "path": "/images/queendom/group3/sig_70.webp",
+        "rawText": "[MANUAL]",
+        "count": 1069
+      },
+      {
+        "path": "/images/queendom/group3/sig_73.webp",
+        "rawText": "[MANUAL]",
+        "count": 1072
+      },
+      {
+        "path": "/images/queendom/group3/sig_74.webp",
+        "rawText": "[MANUAL]",
+        "count": 1073
+      },
+      {
+        "path": "/images/queendom/group3/sig_75.webp",
+        "rawText": "[MANUAL]",
+        "count": 1074
+      },
+      {
+        "path": "/images/queendom/group3/sig_76.webp",
+        "rawText": "[MANUAL]",
+        "count": 1075
+      },
+      {
+        "path": "/images/queendom/group3/sig_77.webp",
+        "rawText": "[MANUAL]",
+        "count": 1076
+      },
+      {
+        "path": "/images/queendom/group3/sig_78.webp",
+        "rawText": "[MANUAL]",
+        "count": 1077
+      },
+      {
+        "path": "/images/queendom/group3/sig_79.webp",
         "rawText": "[MANUAL]",
         "count": 1078
       }
     ],
     "group4": [
       {
-        "path": "/images/queendom/group4/sig_61.webp",
-        "rawText": "[MANUAL]",
-        "count": 1079
-      },
-      {
-        "path": "/images/queendom/group4/sig_62.webp",
-        "rawText": "[MANUAL]",
-        "count": 1081
-      },
-      {
-        "path": "/images/queendom/group4/sig_63.webp",
-        "rawText": "[MANUAL]",
-        "count": 1083
-      },
-      {
-        "path": "/images/queendom/group4/sig_64.webp",
-        "rawText": "[MANUAL]",
-        "count": 1084
-      },
-      {
-        "path": "/images/queendom/group4/sig_65.webp",
-        "rawText": "[MANUAL]",
-        "count": 1087
-      },
-      {
-        "path": "/images/queendom/group4/sig_66.webp",
-        "rawText": "[MANUAL]",
-        "count": 1089
-      },
-      {
-        "path": "/images/queendom/group4/sig_67.webp",
-        "rawText": "[MANUAL]",
-        "count": 1090
-      },
-      {
-        "path": "/images/queendom/group4/sig_68.webp",
-        "rawText": "[MANUAL]",
-        "count": 1091
-      },
-      {
-        "path": "/images/queendom/group4/sig_69.webp",
-        "rawText": "[MANUAL]",
-        "count": 1092
-      },
-      {
-        "path": "/images/queendom/group4/sig_70.webp",
-        "rawText": "[MANUAL]",
-        "count": 1096
-      },
-      {
-        "path": "/images/queendom/group4/sig_71.webp",
-        "rawText": "[MANUAL]",
-        "count": 1097
-      },
-      {
-        "path": "/images/queendom/group4/sig_72.webp",
+        "path": "/images/queendom/group4/sig_100.webp",
         "rawText": "[MANUAL]",
         "count": 1099
       },
       {
-        "path": "/images/queendom/group4/sig_73.webp",
+        "path": "/images/queendom/group4/sig_101.webp",
         "rawText": "[MANUAL]",
         "count": 1100
       },
       {
-        "path": "/images/queendom/group4/sig_74.webp",
+        "path": "/images/queendom/group4/sig_102.webp",
         "rawText": "[MANUAL]",
         "count": 1101
       },
       {
-        "path": "/images/queendom/group4/sig_75.webp",
+        "path": "/images/queendom/group4/sig_105.webp",
         "rawText": "[MANUAL]",
         "count": 1104
       },
       {
-        "path": "/images/queendom/group4/sig_76.webp",
+        "path": "/images/queendom/group4/sig_106.webp",
         "rawText": "[MANUAL]",
         "count": 1105
       },
       {
-        "path": "/images/queendom/group4/sig_77.webp",
+        "path": "/images/queendom/group4/sig_108.webp",
         "rawText": "[MANUAL]",
         "count": 1107
       },
       {
-        "path": "/images/queendom/group4/sig_78.webp",
+        "path": "/images/queendom/group4/sig_110.webp",
         "rawText": "[MANUAL]",
         "count": 1109
       },
       {
-        "path": "/images/queendom/group4/sig_79.webp",
+        "path": "/images/queendom/group4/sig_111.webp",
         "rawText": "[MANUAL]",
         "count": 1110
       },
       {
-        "path": "/images/queendom/group4/sig_80.webp",
+        "path": "/images/queendom/group4/sig_112.webp",
         "rawText": "[MANUAL]",
         "count": 1111
+      },
+      {
+        "path": "/images/queendom/group4/sig_80.webp",
+        "rawText": "[MANUAL]",
+        "count": 1079
+      },
+      {
+        "path": "/images/queendom/group4/sig_82.webp",
+        "rawText": "[MANUAL]",
+        "count": 1081
+      },
+      {
+        "path": "/images/queendom/group4/sig_84.webp",
+        "rawText": "[MANUAL]",
+        "count": 1083
+      },
+      {
+        "path": "/images/queendom/group4/sig_85.webp",
+        "rawText": "[MANUAL]",
+        "count": 1084
+      },
+      {
+        "path": "/images/queendom/group4/sig_88.webp",
+        "rawText": "[MANUAL]",
+        "count": 1087
+      },
+      {
+        "path": "/images/queendom/group4/sig_90.webp",
+        "rawText": "[MANUAL]",
+        "count": 1089
+      },
+      {
+        "path": "/images/queendom/group4/sig_91.webp",
+        "rawText": "[MANUAL]",
+        "count": 1090
+      },
+      {
+        "path": "/images/queendom/group4/sig_92.webp",
+        "rawText": "[MANUAL]",
+        "count": 1091
+      },
+      {
+        "path": "/images/queendom/group4/sig_93.webp",
+        "rawText": "[MANUAL]",
+        "count": 1092
+      },
+      {
+        "path": "/images/queendom/group4/sig_97.webp",
+        "rawText": "[MANUAL]",
+        "count": 1096
+      },
+      {
+        "path": "/images/queendom/group4/sig_98.webp",
+        "rawText": "[MANUAL]",
+        "count": 1097
       }
     ],
     "group5": [
       {
-        "path": "/images/queendom/group5/sig_81.webp",
+        "path": "/images/queendom/group5/sig_113.webp",
         "rawText": "[MANUAL]",
         "count": 1112
       },
       {
-        "path": "/images/queendom/group5/sig_82.webp",
+        "path": "/images/queendom/group5/sig_115.webp",
         "rawText": "[MANUAL]",
         "count": 1114
       },
       {
-        "path": "/images/queendom/group5/sig_83.webp",
+        "path": "/images/queendom/group5/sig_118.webp",
         "rawText": "[MANUAL]",
         "count": 1117
       },
       {
-        "path": "/images/queendom/group5/sig_84.webp",
+        "path": "/images/queendom/group5/sig_121.webp",
         "rawText": "[MANUAL]",
         "count": 1120
       },
       {
-        "path": "/images/queendom/group5/sig_85.webp",
+        "path": "/images/queendom/group5/sig_123.webp",
         "rawText": "[MANUAL]",
         "count": 1122
       },
       {
-        "path": "/images/queendom/group5/sig_86.webp",
+        "path": "/images/queendom/group5/sig_125.webp",
         "rawText": "[MANUAL]",
         "count": 1124
       },
       {
-        "path": "/images/queendom/group5/sig_87.webp",
+        "path": "/images/queendom/group5/sig_126.webp",
         "rawText": "[MANUAL]",
         "count": 1125
       },
       {
-        "path": "/images/queendom/group5/sig_88.webp",
+        "path": "/images/queendom/group5/sig_127.webp",
         "rawText": "[MANUAL]",
         "count": 1126
       },
       {
-        "path": "/images/queendom/group5/sig_89.webp",
+        "path": "/images/queendom/group5/sig_129.webp",
         "rawText": "[MANUAL]",
         "count": 1128
       },
       {
-        "path": "/images/queendom/group5/sig_90.webp",
+        "path": "/images/queendom/group5/sig_132.webp",
         "rawText": "[MANUAL]",
         "count": 1132
       },
       {
-        "path": "/images/queendom/group5/sig_91.webp",
+        "path": "/images/queendom/group5/sig_133.webp",
         "rawText": "[MANUAL]",
         "count": 1133
       },
       {
-        "path": "/images/queendom/group5/sig_92.webp",
+        "path": "/images/queendom/group5/sig_134.webp",
         "rawText": "[MANUAL]",
         "count": 1134
       },
       {
-        "path": "/images/queendom/group5/sig_93.webp",
+        "path": "/images/queendom/group5/sig_135.webp",
         "rawText": "[MANUAL]",
         "count": 1135
       },
       {
-        "path": "/images/queendom/group5/sig_94.webp",
+        "path": "/images/queendom/group5/sig_140.webp",
         "rawText": "[MANUAL]",
         "count": 1140
       },
       {
-        "path": "/images/queendom/group5/sig_95.webp",
+        "path": "/images/queendom/group5/sig_158.webp",
         "rawText": "[MANUAL]",
         "count": 1158
       },
       {
-        "path": "/images/queendom/group5/sig_96.webp",
+        "path": "/images/queendom/group5/sig_170.webp",
         "rawText": "[MANUAL]",
         "count": 1170
       },
       {
-        "path": "/images/queendom/group5/sig_97.webp",
+        "path": "/images/queendom/group5/sig_180.webp",
         "rawText": "[MANUAL]",
         "count": 1180
       },
       {
-        "path": "/images/queendom/group5/sig_98.webp",
+        "path": "/images/queendom/group5/sig_200.webp",
         "rawText": "[MANUAL]",
         "count": 1200
       },
       {
-        "path": "/images/queendom/group5/sig_99.webp",
+        "path": "/images/queendom/group5/sig_220.webp",
         "rawText": "[MANUAL]",
         "count": 1220
       }
     ],
     "group6": [
       {
-        "path": "/images/queendom/group6/sig_100.webp",
+        "path": "/images/queendom/group6/sig_250.webp",
         "rawText": "[MANUAL]",
         "count": 1250
       },
       {
-        "path": "/images/queendom/group6/sig_101.webp",
+        "path": "/images/queendom/group6/sig_300.webp",
         "rawText": "[MANUAL]",
         "count": 1300
       }
     ],
     "group7": [
       {
-        "path": "/images/queendom/group7/sig_102.webp",
+        "path": "/images/queendom/group7/sig_345.webp",
         "rawText": "[MANUAL]",
         "count": 1345
       },
       {
-        "path": "/images/queendom/group7/sig_103.webp",
+        "path": "/images/queendom/group7/sig_350.webp",
         "rawText": "[MANUAL]",
         "count": 1350
       },
       {
-        "path": "/images/queendom/group7/sig_104.webp",
+        "path": "/images/queendom/group7/sig_400.webp",
         "rawText": "[MANUAL]",
         "count": 1400
       },
       {
-        "path": "/images/queendom/group7/sig_105.webp",
+        "path": "/images/queendom/group7/sig_450.webp",
         "rawText": "[MANUAL]",
         "count": 1450
       },
       {
-        "path": "/images/queendom/group7/sig_106.webp",
+        "path": "/images/queendom/group7/sig_501.webp",
         "rawText": "[MANUAL]",
         "count": 1501
       },
       {
-        "path": "/images/queendom/group7/sig_107.webp",
+        "path": "/images/queendom/group7/sig_520.webp",
         "rawText": "[MANUAL]",
         "count": 1520
       },
       {
-        "path": "/images/queendom/group7/sig_108.webp",
+        "path": "/images/queendom/group7/sig_560.webp",
         "rawText": "[MANUAL]",
         "count": 1560
       },
       {
-        "path": "/images/queendom/group7/sig_109.webp",
+        "path": "/images/queendom/group7/sig_577.webp",
         "rawText": "[MANUAL]",
         "count": 1577
       },
       {
-        "path": "/images/queendom/group7/sig_110.webp",
+        "path": "/images/queendom/group7/sig_777.webp",
         "rawText": "[MANUAL]",
         "count": 1777
       },
       {
-        "path": "/images/queendom/group7/sig_111.webp",
+        "path": "/images/queendom/group7/sig_800.webp",
         "rawText": "[MANUAL]",
         "count": 1800
       },
       {
-        "path": "/images/queendom/group7/sig_112.webp",
+        "path": "/images/queendom/group7/sig_818.webp",
         "rawText": "[MANUAL]",
         "count": 1818
       },
       {
-        "path": "/images/queendom/group7/sig_113.webp",
+        "path": "/images/queendom/group7/sig_900.webp",
         "rawText": "[MANUAL]",
         "count": 1900
       }
     ],
     "group9": [
       {
-        "path": "/images/queendom/group9/sig_151.webp",
-        "rawText": "[MANUAL]",
-        "count": 5000
-      },
-      {
-        "path": "/images/queendom/group9/sig_152.webp",
+        "path": "/images/queendom/group9/sig_5001.webp",
         "rawText": "[MANUAL]",
         "count": 5001
       },
       {
-        "path": "/images/queendom/group9/sig_153.webp",
+        "path": "/images/queendom/group9/sig_5002.webp",
+        "rawText": "[MANUAL]",
+        "count": 5002
+      },
+      {
+        "path": "/images/queendom/group9/sig_6666.webp",
         "rawText": "[MANUAL]",
         "count": 6666
       },
       {
-        "path": "/images/queendom/group9/sig_154.webp",
+        "path": "/images/queendom/group9/sig_7000.webp",
         "rawText": "[MANUAL]",
         "count": 7000
       },
       {
-        "path": "/images/queendom/group9/sig_155.webp",
+        "path": "/images/queendom/group9/sig_7700.webp",
         "rawText": "[MANUAL]",
         "count": 7700
       },
       {
-        "path": "/images/queendom/group9/sig_156.webp",
+        "path": "/images/queendom/group9/sig_7777.webp",
         "rawText": "[MANUAL]",
         "count": 7777
       },
       {
-        "path": "/images/queendom/group9/sig_157.webp",
+        "path": "/images/queendom/group9/sig_7788.webp",
         "rawText": "[MANUAL]",
         "count": 7788
       },
       {
-        "path": "/images/queendom/group9/sig_158.webp",
+        "path": "/images/queendom/group9/sig_8282.webp",
         "rawText": "[MANUAL]",
         "count": 8282
       },
       {
-        "path": "/images/queendom/group9/sig_159.webp",
+        "path": "/images/queendom/group9/sig_9000.webp",
         "rawText": "[MANUAL]",
         "count": 9000
       }
     ],
     "group10": [
       {
-        "path": "/images/queendom/group10/sig_161.webp",
+        "path": "/images/queendom/group10/sig_10000.webp",
         "rawText": "[MANUAL]",
         "count": 10000
       },
       {
-        "path": "/images/queendom/group10/sig_162.webp",
+        "path": "/images/queendom/group10/sig_10011.webp",
         "rawText": "[MANUAL]",
         "count": 10011
       },
       {
-        "path": "/images/queendom/group10/sig_163.webp",
+        "path": "/images/queendom/group10/sig_10012.webp",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "/images/queendom/group10/sig_10025.webp",
         "rawText": "[MANUAL]",
         "count": 10025
       },
       {
-        "path": "/images/queendom/group10/sig_164.webp",
+        "path": "/images/queendom/group10/sig_10026.webp",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "/images/queendom/group10/sig_10044.webp",
         "rawText": "[MANUAL]",
         "count": 10044
       },
       {
-        "path": "/images/queendom/group10/sig_165.webp",
+        "path": "/images/queendom/group10/sig_10045.webp",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "/images/queendom/group10/sig_10070.webp",
         "rawText": "[MANUAL]",
         "count": 10070
       },
       {
-        "path": "/images/queendom/group10/sig_166.webp",
+        "path": "/images/queendom/group10/sig_10071.webp",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "/images/queendom/group10/sig_10092.webp",
         "rawText": "[MANUAL]",
         "count": 10092
       },
       {
-        "path": "/images/queendom/group10/sig_167.webp",
+        "path": "/images/queendom/group10/sig_10093.webp",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "/images/queendom/group10/sig_10172.webp",
         "rawText": "[MANUAL]",
         "count": 10172
-      },
-      {
-        "path": "/images/queendom/group10/sig_168.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
-      },
-      {
-        "path": "/images/queendom/group10/sig_169.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
-      },
-      {
-        "path": "/images/queendom/group10/sig_170.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
-      },
-      {
-        "path": "/images/queendom/group10/sig_171.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
-      },
-      {
-        "path": "/images/queendom/group10/sig_172.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
       }
     ]
   }
