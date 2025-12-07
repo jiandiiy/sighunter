@@ -14,7 +14,7 @@ import { useBoardEffects } from "../../../hooks/useBoardEffects";
 
 export default function BoardGame() {
   // 🔹 보드 크기 (기본 10x10, 변경 가능)
-  const [rows, setRows] = useState(10);
+  const [rows, setRows] = useState(9);
   const [cols, setCols] = useState(10);
 
   // 🔹 현재 rows/cols 기준 둘레 칸 수 (Board 와 동일한 공식)
