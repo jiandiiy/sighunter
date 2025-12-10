@@ -1,87 +1,118 @@
 import React, { useState } from "react";
 
-const TIER_COLORS = {
-  SILVER: "#60a5fa",
-  GOLD: "#fbbf24",
-  EMERALD: "#a855f7",
-  DIAMOND: "#c7d2fe",
-  CRYSTAL: "#ec4899",
-  JOKER: "#dc2626",
-  MEGA: "#1e3a8a",
+// 티어별 배경 그라데이션
+const TIER_GRADIENTS = {
+  DIAMOND: "linear-gradient(180deg, #ffffff 0%, #f3f5ff 45%, #c7d2ff 100%)",
+  EMERALD: "linear-gradient(180deg, #bdfbe1 0%, #16c784 45%, #0f7f55 100%)",
+  SAPPHIRE: "linear-gradient(180deg, #dff3ff 0%, #8fd7ff 45%, #5ba1d8 100%)",
+  RUBY: "linear-gradient(180deg, #ffd6f0 0%, #ff5fa9 45%, #c02f74 100%)",
+  GOLD: "linear-gradient(180deg, #fff4c4 0%, #ffd556 45%, #e2a734 100%)",
+  PEARL: "linear-gradient(180deg, #e5e7eb 0%, #e5e7eb 45%, #cbd5f5 100%)",
+  BONUS: "linear-gradient(180deg, #ffc3c3 0%, #ff2f3b 45%, #b71119 100%)",
 };
 
-// 54칸 패턴
-const SEGMENTS = [
-  { id: 0,  number: "1",  tier: "SILVER" },
-  { id: 1,  number: "2",  tier: "GOLD" },
-  { id: 2,  number: "1",  tier: "SILVER" },
-  { id: 3,  number: "5",  tier: "EMERALD" },
-  { id: 4,  number: "2",  tier: "SILVER" },
-  { id: 5,  number: "1",  tier: "GOLD" },
-  { id: 6,  number: "1",  tier: "SILVER" },
-  { id: 7,  number: "2",  tier: "SILVER" },
-  { id: 8,  number: "5",  tier: "GOLD" },
-  { id: 9,  number: "1",  tier: "SILVER" },
-  { id: 10, number: "2",  tier: "SILVER" },
-  { id: 11, number: "10", tier: "DIAMOND" },
+// 티어 텍스트 스타일
+const TIER_TEXT_STYLES = {
+  DIAMOND: {
+    color: "#3b3b3b",
+    stroke: "#ffffff",
+  },
+  EMERALD: {
+    color: "#ffffff",
+    stroke: "#075a3b",
+  },
+  SAPPHIRE: {
+    color: "#ffffff",
+    stroke: "#2b4f73",
+  },
+  RUBY: {
+    color: "#ffe0f0",
+    stroke: "#9b1746",
+  },
+  GOLD: {
+    color: "#000000",
+    stroke: "#7a5013",
+  },
+  PEARL: {
+    color: "#0f172a",
+    stroke: "#e5e7eb",
+  },
+  BONUS: {
+    color: "#ffe9a6",
+    stroke: "#7f1d1d",
+  },
+};
 
-  { id: 12, number: "1",  tier: "SILVER" },
-  { id: 13, number: "2",  tier: "GOLD" },
-  { id: 14, number: "1",  tier: "SILVER" },
-  { id: 15, number: "5",  tier: "GOLD" },
-  { id: 16, number: "2",  tier: "SILVER" },
-  { id: 17, number: "1",  tier: "EMERALD" },
-  { id: 18, number: "1",  tier: "SILVER" },
-  { id: 19, number: "2",  tier: "SILVER" },
-  { id: 20, number: "5",  tier: "GOLD" },
-  { id: 21, number: "1",  tier: "SILVER" },
-  { id: 22, number: "2",  tier: "SILVER" },
-  { id: 23, number: "7",  tier: "CRYSTAL" },
-
-  { id: 24, number: "1",  tier: "SILVER" },
-  { id: 25, number: "2",  tier: "GOLD" },
-  { id: 26, number: "1",  tier: "SILVER" },
-  { id: 27, number: "5",  tier: "EMERALD" },
-  { id: 28, number: "2",  tier: "SILVER" },
-  { id: 29, number: "1",  tier: "GOLD" },
-  { id: 30, number: "1",  tier: "SILVER" },
-  { id: 31, number: "2",  tier: "SILVER" },
-  { id: 32, number: "5",  tier: "GOLD" },
-  { id: 33, number: "1",  tier: "SILVER" },
-  { id: 34, number: "2",  tier: "SILVER" },
-  { id: 35, number: "40", tier: "JOKER" },
-
-  { id: 36, number: "2",  tier: "SILVER" },
-  { id: 37, number: "5",  tier: "GOLD" },
-  { id: 38, number: "1",  tier: "SILVER" },
-  { id: 39, number: "2",  tier: "EMERALD" },
-  { id: 40, number: "1",  tier: "SILVER" },
-  { id: 41, number: "5",  tier: "GOLD" },
-  { id: 42, number: "1",  tier: "SILVER" },
-  { id: 43, number: "2",  tier: "SILVER" },
-  { id: 44, number: "10", tier: "MEGA" },
-  { id: 45, number: "1",  tier: "GOLD" },
-  { id: 46, number: "2",  tier: "SILVER" },
-  { id: 47, number: "5",  tier: "CRYSTAL" },
-
-  { id: 48, number: "1",  tier: "SILVER" },
-  { id: 49, number: "2",  tier: "GOLD" },
-  { id: 50, number: "1",  tier: "SILVER" },
-  { id: 51, number: "5",  tier: "EMERALD" },
-  { id: 52, number: "2",  tier: "SILVER" },
-  { id: 53, number: "7",  tier: "JOKER" },
+// 가중치 (칸 수 기반 / segmentCount=54 기준 비율)
+const TIER_WEIGHTS = [
+  { tier: "DIAMOND",  weight: 1 },  // 1칸 - 28배
+  { tier: "EMERALD",  weight: 1 },  // 1칸 - 18배
+  { tier: "SAPPHIRE", weight: 4 },  // 4칸 - 9배
+  { tier: "RUBY",     weight: 11 }, // 11칸 - 5배
+  { tier: "GOLD",     weight: 18 }, // 18칸 - 3배
+  { tier: "PEARL",    weight: 25 }, // 25칸 - 2배
+  { tier: "BONUS",    weight: 1 },  // 1칸 - 보너스
 ];
 
+// 티어별 배수 (고정 1개씩)
+const TIER_MULTIPLIER_POOL = {
+  DIAMOND:  [28],
+  EMERALD:  [18],
+  SAPPHIRE: [9],
+  RUBY:     [5],
+  GOLD:     [3],
+  PEARL:    [2],
+  BONUS:    [0], // 보너스는 별도 로직이 있으면 여기 값 바꾸거나 따로 처리
+};
+
+// 가중치 랜덤으로 티어 하나 뽑기
+function pickTierByWeight(weights) {
+  const total = weights.reduce((sum, w) => sum + w.weight, 0);
+  const r = Math.random() * total;
+  let acc = 0;
+  for (const w of weights) {
+    acc += w.weight;
+    if (r <= acc) return w.tier;
+  }
+  return weights[weights.length - 1].tier;
+}
+
+// 티어에 맞는 배수 하나 랜덤 선택
+function pickRandomMultiplier(tier) {
+  const pool = TIER_MULTIPLIER_POOL[tier];
+  if (!pool || pool.length === 0) return "1";
+  const idx = Math.floor(Math.random() * pool.length);
+  return String(pool[idx]);
+}
+
+// segmentCount 개수만큼 확률 기반으로 SEGMENTS 생성
+function generateSegments(segmentCount = 54) {
+  return Array.from({ length: segmentCount }, (_, i) => {
+    const tier = pickTierByWeight(TIER_WEIGHTS);
+    const number = pickRandomMultiplier(tier);
+    return { id: i, tier, number };
+  });
+}
+
 export default function CasinoWheelHuge() {
+  const wheelSize = 1000;
+  const segmentCount = 54;
+
+  const [segments, setSegments] = useState(() =>
+    generateSegments(segmentCount)
+  );
   const [rotation, setRotation] = useState(0);
   const [isSpinning, setIsSpinning] = useState(false);
   const [resultIndex, setResultIndex] = useState(null);
   const [viewerTier, setViewerTier] = useState(null);
 
-  const segmentCount = SEGMENTS.length; // 54
   const segmentAngle = 360 / segmentCount;
-  const currentSeg =
-    resultIndex != null ? SEGMENTS[resultIndex] : null;
+  const offsetAngle = segmentAngle / 2; // 반 칸 시프트
+  const startOffset = 1; // 1칸 시계 방향으로 밀기
+
+  const globalTilt = -3;
+
+  const currentSeg = resultIndex != null ? segments[resultIndex] : null;
   const viewerHit =
     currentSeg && viewerTier && currentSeg.tier === viewerTier;
 
@@ -94,7 +125,9 @@ export default function CasinoWheelHuge() {
     const targetAngle =
       extraTurns * 360 +
       (360 -
-        (targetIndex * segmentAngle + segmentAngle / 2));
+        ((targetIndex + startOffset) * segmentAngle +
+          segmentAngle / 2 +
+          offsetAngle));
 
     setRotation((prev) => prev + targetAngle);
 
@@ -104,28 +137,23 @@ export default function CasinoWheelHuge() {
     }, 5000);
   };
 
-  // 휠 지름 크게 (1000)
-  const wheelSize = 1000;
-
-  const wheelStyle = {
-    width: wheelSize,
-    height: wheelSize,
-    borderRadius: "50%",
-    position: "relative",
-    transform: `rotate(${rotation}deg)`,
-    transition: isSpinning
-      ? "transform 5s cubic-bezier(0.12, 0.8, 0.2, 1)"
-      : "none",
+  // 휠 재구성
+  const regenerateWheel = () => {
+    if (isSpinning) return;
+    setSegments(generateSegments(segmentCount));
+    setResultIndex(null);
+    setRotation(0);
   };
 
+  // 시청자 선택용 티어 목록 (새 티어로 교체)
   const selectableTiers = [
-    "SILVER",
-    "GOLD",
-    "EMERALD",
     "DIAMOND",
-    "CRYSTAL",
-    "JOKER",
-    "MEGA",
+    "EMERALD",
+    "SAPPHIRE",
+    "RUBY",
+    "GOLD",
+    "PEARL",
+    "BONUS",
   ];
 
   return (
@@ -166,17 +194,15 @@ export default function CasinoWheelHuge() {
           BIG WHEEL
         </h2>
 
-        {/* 시청자 티어 선택 (테스트용) */}
+        {/* 시청자 티어 선택 */}
         <div
           style={{
-            marginBottom: 20,
+            marginBottom: 16,
             textAlign: "center",
             fontSize: 15,
           }}
         >
-          <span style={{ marginRight: 8 }}>
-            시청자가 고른 티어(테스트):
-          </span>
+          <span style={{ marginRight: 8 }}>시청자가 고른 티어(테스트):</span>
           {selectableTiers.map((t) => (
             <button
               key={t}
@@ -201,6 +227,32 @@ export default function CasinoWheelHuge() {
           ))}
         </div>
 
+        {/* 휠 재구성 버튼 */}
+        <div
+          style={{
+            marginBottom: 20,
+            textAlign: "center",
+          }}
+        >
+          <button
+            onClick={regenerateWheel}
+            disabled={isSpinning}
+            style={{
+              padding: "8px 20px",
+              borderRadius: 999,
+              border: "2px solid #93c5fd",
+              background: "#1d283a",
+              color: "#bfdbfe",
+              fontWeight: 700,
+              fontSize: 14,
+              cursor: isSpinning ? "not-allowed" : "pointer",
+              opacity: isSpinning ? 0.6 : 1,
+            }}
+          >
+            🔄 휠 재구성
+          </button>
+        </div>
+
         {/* 포인터 + 휠 */}
         <div
           style={{
@@ -209,12 +261,12 @@ export default function CasinoWheelHuge() {
             height: wheelSize + 140,
           }}
         >
-          {/* 포인터 */}
+          {/* 포인터 (고정) */}
           <div
             style={{
               position: "absolute",
-              top: 14,
-              left: "50%",
+              top: "5%",
+              left: "52%",
               transform: "translateX(-50%)",
               width: 0,
               height: 0,
@@ -228,190 +280,245 @@ export default function CasinoWheelHuge() {
           />
 
           {/* 휠 본체 */}
-          <div style={wheelStyle}>
-            {/* 1) 맨 바깥 갈색 링 */}
+          <div
+            style={{
+              width: wheelSize,
+              height: wheelSize,
+              borderRadius: "50%",
+              position: "relative",
+              top: 70,
+              left: 40,
+            }}
+          >
+            {/* 회전하는 부분 */}
             <div
               style={{
                 position: "absolute",
-                inset: "-2%",
+                inset: 0,
                 borderRadius: "50%",
-                background:
-                  "conic-gradient(from 0deg, #92400e, #78350f, #92400e, #78350f)",
-                boxShadow:
-                  "0 0 80px rgba(0,0,0,1), inset 0 0 30px rgba(0,0,0,0.7)",
-              }}
-            />
-
-            {/* 금색 점 54개 */}
-            {SEGMENTS.map((_, i) => {
-              const angle = i * segmentAngle;
-              return (
-                <div
-                  key={`dot-${i}`}
-                  style={{
-                    position: "absolute",
-                    top: "49%",
-                    left: "49%",
-                    width: 24,
-                    height: 24,
-                    borderRadius: "50%",
-                    background:
-                      "radial-gradient(circle at 30% 30%, #fef3c7, #d97706)",
-                    boxShadow:
-                      "0 0 14px rgba(251,191,36,0.95)",
-                    transform: `rotate(${angle}deg) translateY(-490px) translateX(-12px)`,
-                  }}
-                />
-              );
-            })}
-
-            {/* 2) 숫자 원 링 */}
-            <div
-              style={{
-                position: "absolute",
-                inset: "3%",
-                borderRadius: "50%",
-                background: "#020617",
-                width: "94%",
-                height: "94%",
-                 left: "3%",
-                 top: "3%",
+                transform: `rotate(${rotation}deg)`,
+                transition: isSpinning
+                  ? "transform 5s cubic-bezier(0.12, 0.8, 0.2, 1)"
+                  : "none",
               }}
             >
-              {SEGMENTS.map((seg, i) => {
-                const angle = i * segmentAngle;
-                const num = seg.number;
-                const isSpecial =
-                  num === "40" || num === "7";
+              {/* 1) 맨 바깥 갈색 링 */}
+              <div
+                style={{
+                  position: "absolute",
+                  inset: "-2%",
+                  borderRadius: "50%",
+                  background:
+                    "conic-gradient(from 0deg, #92400e, #78350f, #92400e, #78350f)",
+                  boxShadow:
+                    "0 0 80px rgba(0,0,0,1), inset 0 0 30px rgba(0,0,0,0.7)",
+                }}
+              />
 
+              {/* 금색 점 */}
+              {segments.map((_, i) => {
+                const angle =
+                  (i + startOffset) * segmentAngle +
+                  offsetAngle +
+                  globalTilt;
                 return (
                   <div
-                    key={`outer-${i}`}
+                    key={`dot-${i}`}
                     style={{
                       position: "absolute",
-                      top: "47%",
-                      left: "47%",
-                      width: 44,
-                      height: 44,
+                      top: "49%",
+                      left: "49%",
+                      width: 24,
+                      height: 24,
                       borderRadius: "50%",
-                      background: isSpecial
-                        ? "radial-gradient(circle at 30% 30%, #ef4444, #7f1d1d)"
-                        : "radial-gradient(circle at 30% 30%, #e5e7eb, #6b7280)",
-                      border: "3px solid #020617",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 26,
-                      fontWeight: 900,
-                      color: "#020617",
-                      textShadow:
-                        "0 0 3px rgba(255,255,255,0.7)",
-                      transform: `rotate(${angle}deg) translateY(-420px) translateX(-40px)`,
+                      background:
+                        "radial-gradient(circle at 30% 30%, #fef3c7, #d97706)",
                       boxShadow:
-                        "0 0 14px rgba(0,0,0,0.9)",
+                        "0 0 14px rgba(251,191,36,0.95)",
+                      transform: `rotate(${angle}deg) translateY(-490px) translateX(-12px)`,
                     }}
-                  >
-                    <span
-                      style={{
-                        transform: `rotate(${-angle}deg)`,
-                        display: "inline-block",
-                      }}
-                    >
-                      {num}
-                    </span>
-                  </div>
+                  />
                 );
               })}
-            </div>
 
-            {/* 3) 안쪽 티어 직사각형 링 – 훨씬 두껍게, 글씨 크게 */}
-            <div
-              style={{
-                position: "absolute",
-                inset: "12%", // 숫자 링보다 안쪽
-                borderRadius: "50%",
-                overflow: "hidden",
-                background: "#020617",
-              }}
-            >
-              {SEGMENTS.map((seg, i) => {
-                const angle = i * segmentAngle;
-                const midAngle =
-                  angle + segmentAngle / 2;
-                const color = TIER_COLORS[seg.tier];
+              {/* 2) 숫자 원 링 */}
+              <div
+                style={{
+                  position: "absolute",
+                  inset: "3.5%",
+                  borderRadius: "50%",
+                  background: "#020617",
+                  width: "93%",
+                  height: "93%",
+                  left: "3.5%",
+                  top: "3.5%",
+                }}
+              >
+            {segments.map((seg, i) => {
+  const angle =
+    (i + startOffset) * segmentAngle +
+    offsetAngle +
+    globalTilt;
+  const midAngle = angle + segmentAngle / 2;
 
-                return (
-                  <React.Fragment key={`inner-${i}`}>
-                    {/* 색 칸 */}
+  const num = seg.number;
+  const isSpecial =
+    num === "28" || num === "18" || num === "9";
+
+  const size = 40;
+
+  // 🔥 티어 링보다 바깥쪽에 위치시키기 위해 반지름을 더 크게 잡기
+  // 티어 baseRadius = wheelSize * 0.19
+  const numberRadius = wheelSize * 0.43; // 0.22~0.25 사이에서 조정해보면 됨
+
+  return (
+    <div
+      key={`outer-${i}`}
+      style={{
+        position: "absolute",
+        top: "52%",
+        left: "50%",
+        width: size,
+        height: size,
+        marginLeft: -size / 2,
+        marginTop: -size / 2,
+        borderRadius: "50%",
+        background: isSpecial
+          ? "radial-gradient(circle at 30% 30%, #ef4444, #7f1d1d)"
+          : "radial-gradient(circle at 30% 30%, #e5e7eb, #6b7280)",
+        border: "3px solid #020617",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: 26,
+        fontWeight: 900,
+        color: "#020617",
+        textShadow: "0 0 3px rgba(255,255,255,0.7)",
+
+        // 위치만 회전 + 바깥으로 이동
+        // 🔥 숫자 원도 휠과 똑같은 각도로 회전 + 바깥쪽으로 이동
+          transformOrigin: "50% 0%",
+          transform: `rotate(${angle}deg) translateX(${numberRadius}px)`,
+          boxShadow: "0 0 14px rgba(0,0,0,0.9)",
+          zIndex: 12,
+      }}
+    >
+      <span
+        style={{
+          display: "inline-block",
+           // angle 만큼 회전한 것을 되돌리고, 기본이 아래를 보고 있으니 +90 보정
+            transform: `rotate(${-angle}deg)`,
+        }}
+      >
+        {num}
+      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* 3) 안쪽 티어 링 */}
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  borderRadius: "50%",
+                  pointerEvents: "none",
+                }}
+              >
+                {segments.map((seg, i) => {
+                  const angle =
+                    (i + startOffset) * segmentAngle +
+                    offsetAngle +
+                    globalTilt;
+                  const midAngle = angle + segmentAngle / 2;
+                  const color = TIER_GRADIENTS[seg.tier];
+
+                  const baseLength = wheelSize * 0.29;
+                  const baseThickness = wheelSize * 0.07;
+                  const baseRadius = wheelSize * 0.19;
+
+                  const radius = baseRadius;
+                  const z = 10;
+
+                  return (
                     <div
+                      key={`inner-${i}`}
                       style={{
                         position: "absolute",
-                        bottom: "1%",
-                        left: "50%",
-                        width: "10%", // 두께 넓게
-                        height: "100%",
-                        transformOrigin: "0% 51%",
-                        transform: `rotate(${midAngle}deg)`,
+                        top: "47.5%",
+                        left: "50.7%",
+                        width: baseLength,
+                        height: baseThickness,
+                        transformOrigin: "-2% 30%",
+                        transform: `rotate(${midAngle}deg) translateX(${radius}px)`,
+                        zIndex: z,
                       }}
                     >
+                      {/* 색 칸 */}
                       <div
                         style={{
-                          width: "60%",
-                          height: "60%",
+                          width: "70%",
+                          height: "70%",
                           background: color,
+                          clipPath:
+                            "polygon(0% 15%, 100% 0%, 100% 100%, 0% 80%)",
                           borderLeft:
                             "1px solid rgba(15,23,42,0.9)",
                           borderRight:
                             "1px solid rgba(15,23,42,0.9)",
                         }}
                       />
-                    </div>
 
-                    {/* 티어 텍스트 */}
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: "0%",
-                        left: "50%",
-                        width: "32%",
-                        height: "100%",
-                        transformOrigin: "0% 50%",
-                        transform: `rotate(${midAngle}deg)`,
-                        pointerEvents: "none",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
+                      {/* 티어 텍스트 */}
                       <div
                         style={{
-                          transform: "rotate(-90deg)",
-                          color:
-                            seg.tier === "MEGA" ||
-                            seg.tier === "JOKER"
-                              ? "#fff"
-                              : "#020617",
-                          fontSize: 20, // 큼
-                          fontWeight: 900,
-                          textShadow:
-                            "0 0 5px rgba(0,0,0,0.9)",
-                          whiteSpace: "nowrap",
-                          letterSpacing: 0.8,
+                          position: "absolute",
+                          top: "35%",
+                          left: "40%",
+                          transform: "translate(-50%, -60%)",
+                          pointerEvents: "none",
                         }}
                       >
-                        {seg.tier}
+                        <span
+                          style={{
+                            fontSize: 24,
+                            fontWeight: 900,
+                            whiteSpace: "nowrap",
+                            letterSpacing: 0.3,
+                            color:
+                              TIER_TEXT_STYLES[seg.tier].color,
+                            textShadow: `
+                              0 0 3px rgba(0,0,0,0.9),
+                              -1px -1px 0 ${
+                                TIER_TEXT_STYLES[seg.tier].stroke
+                              },
+                              1px -1px 0 ${
+                                TIER_TEXT_STYLES[seg.tier].stroke
+                              },
+                              -1px 1px 0 ${
+                                TIER_TEXT_STYLES[seg.tier].stroke
+                              },
+                              1px 1px 0 ${
+                                TIER_TEXT_STYLES[seg.tier].stroke
+                              }
+                            `,
+                          }}
+                        >
+                          {seg.tier}
+                        </span>
                       </div>
                     </div>
-                  </React.Fragment>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
 
-            {/* 4) 중앙 결과 원 */}
+            {/* 고정되는 중앙 결과 원 */}
             <div
               style={{
                 position: "absolute",
-                inset: "38%",
+                inset: "30%",
                 borderRadius: "50%",
                 background:
                   "radial-gradient(circle at 30% 30%, #1f2937, #020617 70%)",
@@ -444,7 +551,7 @@ export default function CasinoWheelHuge() {
                 </div>
                 <div
                   style={{
-                    fontSize: 40,
+                    fontSize: 60,
                     fontWeight: 900,
                     color: "#f9fafb",
                     textShadow:
@@ -461,7 +568,7 @@ export default function CasinoWheelHuge() {
                 {currentSeg && !isSpinning && (
                   <div
                     style={{
-                      fontSize: 26,
+                      fontSize: 50,
                       color: "#fde68a",
                       fontWeight: 800,
                     }}
@@ -469,30 +576,26 @@ export default function CasinoWheelHuge() {
                     × {currentSeg.number}
                   </div>
                 )}
-                {viewerTier &&
-                  !isSpinning &&
-                  currentSeg && (
-                    <div
-                      style={{
-                        marginTop: 12,
-                        fontSize: 18,
-                        fontWeight: 700,
-                        color: viewerHit
-                          ? "#4ade80"
-                          : "#fca5a5",
-                      }}
-                    >
-                      {viewerHit
-                        ? "적은 티어와 일치! 당첨 🎉"
-                        : "적은 티어와 불일치"}
-                    </div>
-                  )}
+                {viewerTier && !isSpinning && currentSeg && (
+                  <div
+                    style={{
+                      marginTop: 12,
+                      fontSize: 18,
+                      fontWeight: 700,
+                      color: viewerHit ? "#4ade80" : "#fca5a5",
+                    }}
+                  >
+                    {viewerHit
+                      ? "적은 티어와 일치! 당첨 🎉"
+                      : "적은 티어와 불일치"}
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
 
-        {/* 버튼 */}
+        {/* SPIN 버튼 */}
         <div
           style={{
             marginTop: 26,
