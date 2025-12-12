@@ -10,11 +10,13 @@ import {
   saveSigBingoState,
 } from "../../../api/sigBingoStorage";
 
-const MODES = ["muse", "queendom"];
+// 🔹 모드 목록: 자동 생성된 bingoImagePool 에 있는 key 와 맞추면 됨
+const MODES = ["muse", "queendom"]; // 예: ["sigdaejun"] 으로 바꿀 수도 있음
 
 const ROWS = 3;
 const COLS = 3;
 const CELL_COUNT = ROWS * COLS;
+
 const LINES_3X3 = [
   [0, 1, 2],
   [3, 4, 5],
@@ -49,25 +51,32 @@ export default function BingoBoard({ boardId = "default" }) {
       const remote = await loadSigBingoState(boardId);
 
       if (remote) {
-        setMode(remote.mode || "muse");
-        setImages(
-          Array.isArray(remote.images) && remote.images.length
-            ? remote.images
-            : getRandomBingoImages("muse", CELL_COUNT)
-        );
+        const nextMode = remote.mode || "muse";
+
+        // 🔸 저장된 images는 무시하고, 항상 최신 풀에서 새로 뽑기
+        const randomImages = getRandomBingoImages(nextMode, CELL_COUNT);
+
         const initChecked =
           Array.isArray(remote.checked) && remote.checked.length === CELL_COUNT
             ? remote.checked
             : Array(CELL_COUNT).fill(false);
 
-        setChecked(initChecked);
+        const newLines = Array.isArray(remote.completedLines)
+          ? remote.completedLines
+          : calcCompletedLines(initChecked);
 
-        // 저장된 completedLines 가 있으면 사용하고, 없으면 checked 기준으로 재계산
-        if (Array.isArray(remote.completedLines)) {
-          setCompletedLines(remote.completedLines);
-        } else {
-          setCompletedLines(calcCompletedLines(initChecked));
-        }
+        setMode(nextMode);
+        setImages(randomImages);
+        setChecked(initChecked);
+        setCompletedLines(newLines);
+
+        // Firestore에도 새 이미지로 덮어쓰기
+        await saveSigBingoState(boardId, {
+          mode: nextMode,
+          images: randomImages,
+          checked: initChecked,
+          completedLines: newLines,
+        });
       } else {
         const randomImages = getRandomBingoImages("muse", CELL_COUNT);
         const initChecked = Array(CELL_COUNT).fill(false);
