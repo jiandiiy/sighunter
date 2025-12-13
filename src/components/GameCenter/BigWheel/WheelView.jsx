@@ -2,6 +2,16 @@
 import React from "react";
 import { TIER_GRADIENTS, TIER_TEXT_STYLES } from "./wheelLogic";
 
+// ✅ 티어별 보석 이미지(경로는 프로젝트에 맞게 수정)
+const TIER_GEM_IMAGES = {
+  DIAMOND: "/images/gems/diamond.png",
+  EMERALD: "/images/gems/emerald.png",
+  SAPPHIRE: "/images/gems/sapphire.png",
+  RUBY: "/images/gems/ruby.png",
+  GOLD: "/images/gems/gold.png",
+  PEARL: "/images/gems/pearl.png",
+};
+
 export default function WheelView({
   wheelSize,
   segments,
@@ -175,6 +185,9 @@ export default function WheelView({
               const baseThickness = wheelSize * 0.07;
               const baseRadius = wheelSize * 0.18;
 
+              const gemSrc = TIER_GEM_IMAGES[seg.tier];
+              const gemSize = 28; // ✅ 보석 아이콘 크기
+
               return (
                 <div
                   key={`inner-${i}`}
@@ -199,13 +212,18 @@ export default function WheelView({
                       borderRight: "1px solid rgba(15,23,42,0.9)",
                     }}
                   />
+
+                  {/* ✅ 티어 텍스트 + 보석 이미지 */}
                   <div
                     style={{
                       position: "absolute",
                       top: "30%",
-                      left: "35%",
+                      left: "39%",
                       transform: "translate(-50%, -60%)",
                       pointerEvents: "none",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
                     }}
                   >
                     <span
@@ -226,6 +244,22 @@ export default function WheelView({
                     >
                       {seg.tier}
                     </span>
+
+                    {gemSrc && (
+                    <img
+  src={gemSrc}
+  alt=""
+  width={22}
+  height={22}
+  style={{
+    display: "block",
+    objectFit: "contain",
+    transform: "scale(1.25)",
+    transformOrigin: "center",
+    filter: "drop-shadow(0 0 3px rgba(0,0,0,0.85))",
+  }}
+/>
+                    )}
                   </div>
                 </div>
               );
