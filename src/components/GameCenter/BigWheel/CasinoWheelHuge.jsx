@@ -1,13 +1,12 @@
 // src/components/GameCenter/BigWheel/CasinoWheelHuge.jsx
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import WheelView from "./WheelView";
 import {
   TIER_GRADIENTS,
-  generateSegmentsFromCounts,
+  generateSegmentsFromCountsMixed,
   getIndexAtPointer,
 } from "./wheelLogic";
 
-// 🔹 우측 패널 하단: 총 칸수 + 적용 버튼
 function TierCountsFooter({ tierCounts, onApply }) {
   const total = Object.values(tierCounts).reduce(
     (sum, v) => sum + (Number(v) || 0),
@@ -35,7 +34,7 @@ function TierCountsFooter({ tierCounts, onApply }) {
           cursor: "pointer",
         }}
       >
-        이 칸 수로 휠 다시 생성
+        이 칸 수로 휠 다시 생성(섞기)
       </button>
     </div>
   );
@@ -54,18 +53,27 @@ export default function CasinoWheelHuge() {
     BONUS: 1,
   });
 
-  const [segments, setSegments] = useState(() =>
-    generateSegmentsFromCounts(tierCounts)
-  );
+  const totalSlots = useMemo(() => {
+    return Object.values(tierCounts).reduce(
+      (sum, v) => sum + (Number(v) || 0),
+      0
+    );
+  }, [tierCounts]);
+
+  const makeSegments = () =>
+    generateSegmentsFromCountsMixed(tierCounts, {
+      avoidAdjacent: true,
+      maxTries: 300,
+    });
+
+  const [segments, setSegments] = useState(() => makeSegments());
+
   const [rotation, setRotation] = useState(0);
   const [isSpinning, setIsSpinning] = useState(false);
   const [resultIndex, setResultIndex] = useState(null);
   const [viewerTier, setViewerTier] = useState(null);
   const [viewerSigCount, setViewerSigCount] = useState("");
   const [copyMessage, setCopyMessage] = useState("");
-
-  const segmentCount = segments.length || 1;
-  const segmentAngle = 360 / segmentCount;
 
   const currentSeg = resultIndex != null ? segments[resultIndex] : null;
   const viewerHit = currentSeg && viewerTier && currentSeg.tier === viewerTier;
@@ -90,7 +98,8 @@ export default function CasinoWheelHuge() {
       setRotation((prevFinal) => {
         const normalized = ((prevFinal % 360) + 360) % 360;
 
-        // ✅ CSS rotate 기준: 오른쪽=0, 아래=90, 왼쪽=180, 위=270
+        // CSS rotate 기준: 오른쪽=0, 아래=90, 왼쪽=180, 위=270
+        // 포인터가 위(12시)면 270
         const POINTER_ANGLE = 0;
 
         const index = getIndexAtPointer({
@@ -107,7 +116,7 @@ export default function CasinoWheelHuge() {
 
   const regenerateWheel = () => {
     if (isSpinning) return;
-    setSegments(generateSegmentsFromCounts(tierCounts));
+    setSegments(makeSegments());
     setResultIndex(null);
     setRotation(0);
   };
@@ -189,7 +198,9 @@ export default function CasinoWheelHuge() {
                   padding: "6px 14px",
                   borderRadius: 999,
                   border:
-                    viewerTier === t ? "2px solid #facc15" : "1px solid #4b5563",
+                    viewerTier === t
+                      ? "2px solid #facc15"
+                      : "1px solid #4b5563",
                   background: viewerTier === t ? "#1f2937" : "#020617",
                   color: "#e5e7eb",
                   fontSize: 14,
@@ -239,11 +250,11 @@ export default function CasinoWheelHuge() {
                 opacity: isSpinning ? 0.6 : 1,
               }}
             >
-              🔄 휠 재구성
+              🔄 휠 재구성(섞기)
             </button>
           </div>
 
-          {/* ✅ 포인터 + 휠(분리된 컴포넌트) */}
+          {/* 휠 */}
           <div style={{ position: "relative" }}>
             <WheelView
               wheelSize={wheelSize}
@@ -252,11 +263,10 @@ export default function CasinoWheelHuge() {
               isSpinning={isSpinning}
             />
 
-            {/* 중앙 결과 원(원래 코드 그대로) */}
+            {/* 중앙 결과 원 */}
             <div
               style={{
                 position: "absolute",
-                // WheelView의 휠 원이 (top:70,left:40)에 있으니 중앙도 같은 기준으로 맞춤
                 top: 87 + wheelSize * 0.29,
                 left: 55 + wheelSize * 0.3,
                 width: wheelSize * 0.31,
@@ -298,7 +308,11 @@ export default function CasinoWheelHuge() {
                     marginBottom: 8,
                   }}
                 >
-                  {isSpinning ? "??" : currentSeg ? currentSeg.tier : "버튼을 눌러주세요"}
+                  {isSpinning
+                    ? "??"
+                    : currentSeg
+                      ? currentSeg.tier
+                      : "버튼을 눌러주세요"}
                 </div>
 
                 {currentSeg && !isSpinning && (
@@ -443,7 +457,7 @@ export default function CasinoWheelHuge() {
           }}
         >
           <div style={{ fontSize: 16, fontWeight: 700, color: "#e5e7eb", marginBottom: 4 }}>
-            티어별 칸 수 설정
+            티어별 칸 수 설정(총합만 사용됨)
           </div>
 
           {Object.keys(TIER_GRADIENTS).map((tier) => (
@@ -469,7 +483,9 @@ export default function CasinoWheelHuge() {
                     border: "1px solid rgba(15,23,42,0.8)",
                   }}
                 />
-                <span style={{ fontSize: 13, fontWeight: 700, color: "#e5e7eb" }}>{tier}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: "#e5e7eb" }}>
+                  {tier}
+                </span>
               </div>
 
               <input
@@ -501,7 +517,7 @@ export default function CasinoWheelHuge() {
             tierCounts={tierCounts}
             onApply={() => {
               if (isSpinning) return;
-              setSegments(generateSegmentsFromCounts(tierCounts));
+              setSegments(makeSegments());
               setResultIndex(null);
               setRotation(0);
             }}

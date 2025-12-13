@@ -23,8 +23,8 @@ export default function WheelView({
       <div
         style={{
           position: "absolute",
-          top: "4.5%",
-          left: "51.5%",
+          top: "5.2%",
+          left: "52%",
           transform: "translateX(-50%)",
           width: 0,
           height: 0,
@@ -64,7 +64,7 @@ export default function WheelView({
           <div
             style={{
               position: "absolute",
-              inset: "-2%",
+              inset: "-1%",
               borderRadius: "50%",
               background:
                 "conic-gradient(from 0deg, #92400e, #78350f, #92400e, #78350f)",

@@ -41,29 +41,6 @@ export function pickRandomMultiplier(tier) {
   return String(pool[idx]);
 }
 
-// 🔹 티어별 칸 수를 기반으로 segments 생성 (셔플 포함)
-export function generateSegmentsFromCounts(counts) {
-  const entries = Object.entries(counts);
-  const segments = [];
-  let id = 0;
-
-  for (const [tier, count] of entries) {
-    const n = Number(count) || 0;
-    for (let i = 0; i < n; i++) {
-      const number = pickRandomMultiplier(tier);
-      segments.push({ id: id++, tier, number });
-    }
-  }
-
-  // Fisher–Yates 셔플
-  for (let i = segments.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [segments[i], segments[j]] = [segments[j], segments[i]];
-  }
-
-  return segments;
-}
-
 // ✅ 포인터 방향(각도)과 회전값으로 결과 인덱스 계산
 // CSS rotate 기준: 오른쪽=0, 아래=90, 왼쪽=180, 위=270
 export function getIndexAtPointer({
@@ -75,13 +52,72 @@ export function getIndexAtPointer({
   const segCount = segmentCount || 1;
   const segmentAngle = 360 / segCount;
 
-  const wheelAngleAtPointer =
-    (pointerAngleDeg - normalized + 360) % 360;
+  const wheelAngleAtPointer = (pointerAngleDeg - normalized + 360) % 360;
 
-  // 경계에서 한 칸 밀림 방지(중앙 보정)
   const index = Math.floor(
     ((wheelAngleAtPointer + segmentAngle / 2) % 360) / segmentAngle
   );
 
   return ((index % segCount) + segCount) % segCount;
+}
+
+/* ------------------------------------------------------------------
+   ✅ tierCounts 기반 섞기 생성 (요청 기능)
+   - tierCounts에 있는 모든 티어를 각 개수만큼 넣고 섞음
+   - avoidAdjacent=true면 원형 인접(마지막-첫번째 포함) 같은 티어를 최소화
+------------------------------------------------------------------- */
+
+export function generateSegmentsFromCountsMixed(tierCounts, options = {}) {
+  const { avoidAdjacent = true, maxTries = 200 } = options;
+
+  const tiers = Object.keys(TIER_GRADIENTS);
+
+  // 1) bag 만들기
+  const bag = [];
+  for (const t of tiers) {
+    const c = Math.max(0, Number(tierCounts?.[t]) || 0);
+    for (let i = 0; i < c; i++) bag.push(t);
+  }
+  if (bag.length === 0) return [];
+
+  const shuffleInPlace = (arr) => {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  };
+
+  const countCircularViolations = (arr) => {
+    const n = arr.length;
+    if (n <= 1) return 0;
+    let v = 0;
+    for (let i = 0; i < n; i++) {
+      if (arr[i] === arr[(i + 1) % n]) v++;
+    }
+    return v;
+  };
+
+  // 2) 여러 번 시도해서 인접 중복 최소인 후보 선택
+  let best = null;
+  let bestV = Infinity;
+  const tries = avoidAdjacent ? maxTries : 1;
+
+  for (let k = 0; k < tries; k++) {
+    const candidate = shuffleInPlace([...bag]);
+    const v = avoidAdjacent ? countCircularViolations(candidate) : 0;
+
+    if (v < bestV) {
+      bestV = v;
+      best = candidate;
+      if (bestV === 0) break;
+    }
+  }
+
+  // 3) segments로 변환
+  return best.map((tier, idx) => ({
+    id: idx,
+    tier,
+    number: pickRandomMultiplier(tier),
+  }));
 }
