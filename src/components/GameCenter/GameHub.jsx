@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import SigHunterFlip from "../SigHunterFlip/SigHunterFlip";
 import MinesGame from "./MinesGame";
 import BoardGame from "./BoardGame/BoardGame";
-import BigWheelGame from "./BigWheelGame";
+import CasinoWheelHuge from "./BigWheel/CasinoWheelHuge";
 import BingoBoard from "./Bingo/BingoBoard";
 import SigHunterBingoBoard from "./SigHunterBingo/SigHunterBingoBoard";
 
@@ -242,7 +242,7 @@ export default function GameHub() {
         {game === "sig" && <SigHunterFlip />}
         {game === "mines" && <MinesGame />}
         {game === "board" && <BoardGame />}
-        {game === "wheel" && <BigWheelGame />}
+        {game === "wheel" && <CasinoWheelHuge />}
 
         {/* 식대전 빙고 */}
         {game === "bingo" && (
