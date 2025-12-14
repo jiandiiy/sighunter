@@ -17,47 +17,38 @@ export default function WheelView({
   segments,
   rotation,
   isSpinning,
+  snapTransition,
+  children,
 }) {
   const segmentCount = segments.length || 1;
   const segmentAngle = 360 / segmentCount;
 
+  const pointerW = Math.max(18, wheelSize * 0.04);
+  const pointerH = Math.max(36, wheelSize * 0.06);
+
   return (
-    <div
-      style={{
-        position: "relative",
-        width: wheelSize + 80,
-        height: wheelSize + 140,
-      }}
-    >
+    <div style={{ position: "relative", width: wheelSize, height: wheelSize }}>
       {/* 포인터 */}
       <div
         style={{
           position: "absolute",
-          top: "5.2%",
-          left: "52%",
+          top: -pointerH * 0.15,
+          left: "50%",
           transform: "translateX(-50%)",
           width: 0,
           height: 0,
-          borderLeft: "20px solid transparent",
-          borderRight: "20px solid transparent",
-          borderTop: "50px solid #fbbf24",
+          borderLeft: `${pointerW * 0.5}px solid transparent`,
+          borderRight: `${pointerW * 0.5}px solid transparent`,
+          borderTop: `${pointerH}px solid #fbbf24`,
           filter:
             "drop-shadow(0 0 18px rgba(251,191,36,0.95)) drop-shadow(0 0 40px rgba(252,211,77,0.9))",
           zIndex: 30,
+          pointerEvents: "none",
         }}
       />
 
-      {/* 휠 본체 */}
-      <div
-        style={{
-          width: wheelSize,
-          height: wheelSize,
-          borderRadius: "50%",
-          position: "relative",
-          top: 70,
-          left: 40,
-        }}
-      >
+      {/* 휠 */}
+      <div style={{ position: "absolute", inset: 0, borderRadius: "50%" }}>
         {/* 회전하는 부분 */}
         <div
           style={{
@@ -65,16 +56,16 @@ export default function WheelView({
             inset: 0,
             borderRadius: "50%",
             transform: `rotate(${rotation}deg)`,
-            transition: isSpinning
-              ? "transform 5s cubic-bezier(0.12, 0.8, 0.2, 1)"
-              : "none",
+          transition: isSpinning ? 'transform 10s cubic-bezier(0.12, 0.8, 0.2, 1)' 
+            : snapTransition ? 'transform 0.3s cubic-bezier(0.36,1.7,0.45,0.83)' 
+            : 'none'
           }}
         >
           {/* 바깥 갈색 링 */}
           <div
             style={{
               position: "absolute",
-              inset: "-1%",
+              inset: "1%",
               borderRadius: "50%",
               background:
                 "conic-gradient(from 0deg, #92400e, #78350f, #92400e, #78350f)",
@@ -84,22 +75,30 @@ export default function WheelView({
           />
 
           {/* 금색 점 */}
-          {segments.map((_, i) => {
+          {segments.map((seg, i) => {
             const angle = i * segmentAngle - 90;
+
+            const dotSize = Math.max(14, wheelSize * 0.02);
+            const dotRadius = wheelSize * 0.48;
+            const centerNudge = dotSize / 2;
+
             return (
               <div
-                key={`dot-${i}`}
+                key={`dot-${seg.id}`}
                 style={{
                   position: "absolute",
-                  top: "49%",
-                  left: "49%",
-                  width: 24,
-                  height: 24,
+                  top: "50%",
+                  left: "50%",
+                  width: dotSize,
+                  height: dotSize,
+                  marginLeft: -centerNudge,
+                  marginTop: -centerNudge,
                   borderRadius: "50%",
                   background:
                     "radial-gradient(circle at 30% 30%, #fef3c7, #d97706)",
                   boxShadow: "0 0 14px rgba(251,191,36,0.95)",
-                  transform: `rotate(${angle}deg) translateY(-490px) translateX(-12px)`,
+                  transform: `rotate(${angle}deg) translateX(${dotRadius}px)`,
+                  transformOrigin: "center",
                 }}
               />
             );
@@ -112,14 +111,14 @@ export default function WheelView({
               inset: "3.4%",
               borderRadius: "50%",
               background: "#020617",
-              width: "93%",
-              height: "93%",
-              left: "3.5%",
-              top: "3.8%",
+              width: "91%",
+              height: "91%",
+              left: "4.5%",
+              top: "5%",
             }}
           >
             {segments.map((seg, i) => {
-              const angle = i * segmentAngle - 90; // 위쪽 기준
+              const angle = i * segmentAngle - 90;
               const num = seg.number;
               const isSpecial = num === "28" || num === "18" || num === "9";
               const size = 40;
@@ -127,7 +126,7 @@ export default function WheelView({
 
               return (
                 <div
-                  key={`outer-${i}`}
+                  key={`outer-${seg.id}`}
                   style={{
                     position: "absolute",
                     top: "52%",
@@ -157,7 +156,8 @@ export default function WheelView({
                   <span
                     style={{
                       display: "inline-block",
-                      transform: `rotate(${-angle}deg)`,
+                      transform: `rotate(${-(angle + rotation)}deg)`,
+                      transformOrigin: "center",
                     }}
                   >
                     {num}
@@ -181,19 +181,18 @@ export default function WheelView({
               const midAngle = angle + segmentAngle / 2;
               const color = TIER_GRADIENTS[seg.tier];
 
-              const baseLength = wheelSize * 0.30;
+              const baseLength = wheelSize * 0.31;
               const baseThickness = wheelSize * 0.07;
               const baseRadius = wheelSize * 0.18;
 
               const gemSrc = TIER_GEM_IMAGES[seg.tier];
-              const gemSize = 28; // ✅ 보석 아이콘 크기
 
               return (
                 <div
-                  key={`inner-${i}`}
+                  key={`inner-${seg.id}`}
                   style={{
                     position: "absolute",
-                    top: "48%",
+                    top: "48.5%",
                     left: "50.7%",
                     width: baseLength,
                     height: baseThickness,
@@ -213,12 +212,12 @@ export default function WheelView({
                     }}
                   />
 
-                  {/* ✅ 티어 텍스트 + 보석 이미지 */}
+                  {/* 티어 텍스트 + 보석 이미지 */}
                   <div
                     style={{
                       position: "absolute",
                       top: "30%",
-                      left: "39%",
+                      left: "43%",
                       transform: "translate(-50%, -60%)",
                       pointerEvents: "none",
                       display: "flex",
@@ -246,25 +245,38 @@ export default function WheelView({
                     </span>
 
                     {gemSrc && (
-                    <img
-  src={gemSrc}
-  alt=""
-  width={22}
-  height={22}
-  style={{
-    display: "block",
-    objectFit: "contain",
-    transform: "scale(1.25)",
-    transformOrigin: "center",
-    filter: "drop-shadow(0 0 3px rgba(0,0,0,0.85))",
-  }}
-/>
+                      <img
+                        src={gemSrc}
+                        alt=""
+                        width={22}
+                        height={22}
+                        style={{
+                          display: "block",
+                          objectFit: "contain",
+                          transform: "scale(1.25)",
+                          transformOrigin: "center",
+                          filter: "drop-shadow(0 0 3px rgba(0,0,0,0.85))",
+                        }}
+                      />
                     )}
                   </div>
                 </div>
               );
             })}
           </div>
+        </div>
+
+        {/* 중앙 오버레이 */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            borderRadius: "50%",
+            zIndex: 60,
+            pointerEvents: "none",
+          }}
+        >
+          {children}
         </div>
       </div>
     </div>

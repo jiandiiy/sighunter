@@ -1,11 +1,18 @@
 // src/components/GameCenter/BigWheel/CasinoWheelHuge.jsx
 import React, { useMemo, useState } from "react";
 import WheelView from "./WheelView";
-import {
-  TIER_GRADIENTS,
-  generateSegmentsFromCountsMixed,
-  getIndexAtPointer,
-} from "./wheelLogic";
+import { generateSegmentsFromCountsMixed, getIndexAtPointer } from "./wheelLogic";
+
+// ✅ 티어별 아이콘(경로는 프로젝트에 맞게 수정: public 폴더 기준)
+const TIER_ICON = {
+  DIAMOND: "/images/gems/diamond.png",
+  EMERALD: "/images/gems/emerald.png",
+  SAPPHIRE: "/images/gems/sapphire.png",
+  RUBY: "/images/gems/ruby.png",
+  GOLD: "/images/gems/gold.png",
+  PEARL: "/images/gems/pearl.png",
+  BONUS: "/images/gems/bonus.png",
+};
 
 function TierCountsFooter({ tierCounts, onApply }) {
   const total = Object.values(tierCounts).reduce(
@@ -41,7 +48,7 @@ function TierCountsFooter({ tierCounts, onApply }) {
 }
 
 export default function CasinoWheelHuge() {
-  const wheelSize = 1000;
+  const wheelSize = 1200;
 
   const [tierCounts, setTierCounts] = useState({
     DIAMOND: 1,
@@ -74,48 +81,67 @@ export default function CasinoWheelHuge() {
   const [viewerTier, setViewerTier] = useState(null);
   const [viewerSigCount, setViewerSigCount] = useState("");
   const [copyMessage, setCopyMessage] = useState("");
+  const [spinSegments, setSpinSegments] = useState(null);
+  const [snapTransition, setSnapTransition] = useState(false);
 
-  const currentSeg = resultIndex != null ? segments[resultIndex] : null;
+
+  const activeSegments = spinSegments ?? segments;
+ const currentSeg = resultIndex != null ? activeSegments[resultIndex] : null;
   const viewerHit = currentSeg && viewerTier && currentSeg.tier === viewerTier;
 
   const parsedSig = Number(viewerSigCount) || 0;
   const parsedMultiplier = currentSeg ? Number(currentSeg.number) || 0 : 0;
   const totalSig = parsedSig * parsedMultiplier;
 
-  const spin = () => {
-    if (isSpinning || segments.length === 0) return;
-    setIsSpinning(true);
+ const POINTER_ANGLE = 0; // 너 환경에서 결과가 맞는 값 유지
+const spin = () => {
+  if (isSpinning || segments.length === 0) return;
+  setSpinSegments(segments);   // 스핀 시작 시 배열 고정
+  setIsSpinning(true);
+  setSnapTransition(false);    // transition off(스핀 중엔 5s 기본 트랜지션)
 
-    const extraTurns = 4 + Math.floor(Math.random() * 3);
-    const randomOffset = Math.random() * 360;
-    const targetAngle = extraTurns * 360 + randomOffset;
+  const segCount = segments.length;
+  const segmentAngle = 360 / segCount;
 
-    setRotation((prev) => prev + targetAngle);
+  // 목표 인덱스
+  const targetIndex = Math.floor(Math.random() * segCount);
 
-    setTimeout(() => {
-      setIsSpinning(false);
+  // targetIndex 중앙이 포인터(0deg)에 오도록
+  const targetSegmentCenter = targetIndex * segmentAngle + segmentAngle / 2;
+  const extraTurns = 4 + Math.floor(Math.random() * 3); // 4~6바퀴
+  const totalTurnsAngle = extraTurns * 360;
 
-      setRotation((prevFinal) => {
-        const normalized = ((prevFinal % 360) + 360) % 360;
+  // 목표 최종 각도: 현재 회전 각도를 기준으로
+  const targetRotation =
+    rotation +
+    totalTurnsAngle +
+    (0 - targetSegmentCenter - (rotation % 360)); // 0:포인터 각도(고정), -(rotation%360)로 현재값 정렬
 
-        // CSS rotate 기준: 오른쪽=0, 아래=90, 왼쪽=180, 위=270
-        // 포인터가 위(12시)면 270
-        const POINTER_ANGLE = 0;
+  setRotation(targetRotation); // 5초 스핀
 
-        const index = getIndexAtPointer({
-          rotationDeg: normalized,
-          segmentCount: segments.length || 1,
-          pointerAngleDeg: POINTER_ANGLE,
-        });
+  setTimeout(() => {
+    setIsSpinning(false);
+    setSnapTransition(true);      // 스냅에 transition 부드럽게
 
-        setResultIndex(index);
-        return normalized;
-      });
-    }, 5000);
-  };
+    setRotation((prevFinal) => {
+      // 지금 위치(정확하지 않을 수도 있음) → 진짜 원하는 위치
+      const normalized = ((prevFinal % 360) + 360) % 360; // 0~359
+      const desired = (0 - targetIndex * segmentAngle - segmentAngle / 2 + 3600) % 360;
 
+      // 최소 회전 보정(-180~180)
+      let delta = desired - normalized;
+      delta = ((delta + 540) % 360) - 180;
+
+      setResultIndex(targetIndex);
+      return prevFinal + delta;
+    });
+
+    setTimeout(() => setSnapTransition(false), 300); // 0.3초 뒤에 트랜지션 끔
+  }, 10000);
+};
   const regenerateWheel = () => {
     if (isSpinning) return;
+     setSpinSegments(null);      // ✅ 여기서만 해제
     setSegments(makeSegments());
     setResultIndex(null);
     setRotation(0);
@@ -176,7 +202,7 @@ export default function CasinoWheelHuge() {
           <h2
             style={{
               margin: "0 0 20px",
-              fontSize: 40,
+              fontSize: 50,
               fontWeight: 900,
               color: "#fef9c3",
               textShadow: "0 0 24px rgba(250,204,21,0.9)",
@@ -203,7 +229,7 @@ export default function CasinoWheelHuge() {
                       : "1px solid #4b5563",
                   background: viewerTier === t ? "#1f2937" : "#020617",
                   color: "#e5e7eb",
-                  fontSize: 14,
+                  fontSize: 16,
                   cursor: "pointer",
                 }}
               >
@@ -213,7 +239,7 @@ export default function CasinoWheelHuge() {
           </div>
 
           {/* 시그 개수 입력 */}
-          <div style={{ marginBottom: 16, textAlign: "center", fontSize: 15 }}>
+          <div style={{ marginBottom: 16, textAlign: "center", fontSize: 18 }}>
             <span style={{ marginRight: 8 }}>시청자 시그 개수:</span>
             <input
               type="number"
@@ -228,6 +254,7 @@ export default function CasinoWheelHuge() {
                 background: "#020617",
                 color: "#e5e7eb",
                 textAlign: "right",
+                fontSize: 18,
               }}
               placeholder="예: 100"
             />
@@ -245,154 +272,165 @@ export default function CasinoWheelHuge() {
                 background: "#1d283a",
                 color: "#bfdbfe",
                 fontWeight: 700,
-                fontSize: 14,
+                fontSize: 18,
                 cursor: isSpinning ? "not-allowed" : "pointer",
                 opacity: isSpinning ? 0.6 : 1,
               }}
             >
-              🔄 휠 재구성(섞기)
+              🔄 초기화
             </button>
           </div>
 
-          {/* 휠 */}
-          <div style={{ position: "relative" }}>
+          {/* 휠 + 버튼(세로 스택) */}
+          <div
+            style={{
+              display: "inline-flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
             <WheelView
               wheelSize={wheelSize}
-              segments={segments}
+              segments={activeSegments}
               rotation={rotation}
               isSpinning={isSpinning}
-            />
-
-            {/* 중앙 결과 원 */}
-            <div
-              style={{
-                position: "absolute",
-                top: 87 + wheelSize * 0.29,
-                left: 55 + wheelSize * 0.3,
-                width: wheelSize * 0.31,
-                height: wheelSize * 0.31,
-                borderRadius: "50%",
-                background:
-                  "radial-gradient(circle at 30% 30%, #1f2937, #020617 70%)",
-                border: "5px solid #fef3c7",
-                boxShadow:
-                  "0 0 40px rgba(254,243,199,0.95), inset 0 0 26px rgba(0,0,0,0.7)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                textAlign: "center",
-                padding: 30,
-                zIndex: 50,
-                pointerEvents: "none",
-              }}
+               snapTransition={snapTransition}
             >
-              <div>
-                <div
-                  style={{
-                    fontSize: 20,
-                    letterSpacing: 2,
-                    color: "#fbbf24",
-                    fontWeight: 700,
-                    marginBottom: 10,
-                  }}
-                >
-                  {isSpinning ? "SPINNING..." : currentSeg ? "결과" : "시작"}
-                </div>
-
-                <div
-                  style={{
-                    fontSize: 60,
-                    fontWeight: 900,
-                    color: "#f9fafb",
-                    textShadow: "0 0 18px rgba(255,255,255,0.9)",
-                    marginBottom: 8,
-                  }}
-                >
-                  {isSpinning
-                    ? "??"
-                    : currentSeg
-                      ? currentSeg.tier
-                      : "버튼을 눌러주세요"}
-                </div>
-
-                {currentSeg && !isSpinning && (
-                  <div
-                    style={{
-                      fontSize: 34,
-                      color: "#fde68a",
-                      fontWeight: 800,
-                      marginBottom: 6,
-                    }}
-                  >
-                    × {currentSeg.number}
-                  </div>
-                )}
-
-                {currentSeg && !isSpinning && parsedSig > 0 && (
+              {/* 중앙 결과 원 */}
+              <div
+                style={{
+                  position: "absolute",
+                  left: "50%",
+                  top: "50.5%",
+                  transform: "translate(-50%, -50%)",
+                  width: wheelSize * 0.32,
+                  height: wheelSize * 0.32,
+                  borderRadius: "50%",
+                  background:
+                    "radial-gradient(circle at 30% 30%, #1f2937, #020617 70%)",
+                  border: "5px solid #fef3c7",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  textAlign: "center",
+                  padding: 30,
+                  zIndex: 50,
+                  pointerEvents: "none",
+                }}
+              >
+                <div>
                   <div
                     style={{
                       fontSize: 20,
-                      color: "#e5e7eb",
+                      letterSpacing: 2,
+                      color: "#fbbf24",
                       fontWeight: 700,
-                      marginTop: 4,
+                      marginBottom: 10,
                     }}
                   >
-                    {parsedSig.toLocaleString()} × {parsedMultiplier} ={" "}
-                    <span style={{ color: "#facc15" }}>
-                      {totalSig.toLocaleString()}
-                    </span>
+                    {isSpinning ? "SPINNING..." : currentSeg ? "결과" : "시작"}
                   </div>
-                )}
 
-                {viewerTier && !isSpinning && currentSeg && (
                   <div
                     style={{
-                      marginTop: 12,
-                      fontSize: 18,
-                      fontWeight: 700,
-                      color: viewerHit ? "#4ade80" : "#fca5a5",
+                      fontSize: 60,
+                      fontWeight: 900,
+                      color: "#f9fafb",
+                      marginBottom: 8,
                     }}
                   >
-                    {viewerHit ? "적은 티어와 일치! 당첨 🎉" : "적은 티어와 불일치"}
+                    {isSpinning
+                      ? "??"
+                      : currentSeg
+                        ? currentSeg.tier
+                        : "버튼을 눌러주세요"}
                   </div>
-                )}
-              </div>
-            </div>
-          </div>
 
-          {/* SPIN 버튼 */}
-          <div style={{ marginTop: 26, display: "flex", justifyContent: "center" }}>
-            <button
-              onClick={spin}
-              disabled={isSpinning}
-              style={{
-                padding: "16px 46px",
-                borderRadius: 999,
-                border: "3px solid #fef3c7",
-                background: "linear-gradient(145deg,#f97316,#fbbf24)",
-                color: "#111827",
-                fontWeight: 900,
-                fontSize: 24,
-                cursor: isSpinning ? "not-allowed" : "pointer",
-                opacity: isSpinning ? 0.6 : 1,
-                boxShadow:
-                  "0 0 38px rgba(251,191,36,0.95), 0 0 64px rgba(248,113,113,0.9)",
-                transition: "all 0.3s",
-              }}
-            >
-              {isSpinning ? "SPINNING..." : "🎰 SPIN THE WHEEL"}
-            </button>
+                  {currentSeg && !isSpinning && (
+                    <div
+                      style={{
+                        fontSize: 34,
+                        color: "#fde68a",
+                        fontWeight: 800,
+                        marginBottom: 6,
+                      }}
+                    >
+                      × {currentSeg.number}
+                    </div>
+                  )}
+
+                  {currentSeg && !isSpinning && parsedSig > 0 && (
+                    <div
+                      style={{
+                        fontSize: 20,
+                        color: "#e5e7eb",
+                        fontWeight: 700,
+                        marginTop: 4,
+                      }}
+                    >
+                      {parsedSig.toLocaleString()} × {parsedMultiplier} ={" "}
+                      <span style={{ color: "#facc15" }}>
+                        {totalSig.toLocaleString()}
+                      </span>
+                    </div>
+                  )}
+
+                  {viewerTier && !isSpinning && currentSeg && (
+                    <div
+                      style={{
+                        marginTop: 12,
+                        fontSize: 18,
+                        fontWeight: 700,
+                        color: viewerHit ? "#4ade80" : "#fca5a5",
+                      }}
+                    >
+                      {viewerHit ? "적은 티어와 일치! 당첨 🎉" : "적은 티어와 불일치"}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </WheelView>
+
+            {/* SPIN 버튼 */}
+            <div style={{ marginTop: 50 }}>
+              <button
+                onClick={spin}
+                disabled={isSpinning}
+                style={{
+                  padding: "16px 46px",
+                  borderRadius: 999,
+                  border: "3px solid #fef3c7",
+                  background: "linear-gradient(145deg,#f97316,#fbbf24)",
+                  color: "#111827",
+                  fontWeight: 900,
+                  fontSize: 24,
+                  cursor: isSpinning ? "not-allowed" : "pointer",
+                  opacity: isSpinning ? 0.6 : 1,
+                  transition: "all 0.3s",
+                }}
+              >
+                {isSpinning ? "SPINNING..." : "🎰 회전"}
+              </button>
+            </div>
           </div>
 
           {/* 하단 결과 요약 */}
           {currentSeg && !isSpinning && (
-            <div style={{ marginTop: 16, textAlign: "center", fontSize: 18, color: "#fef9c3" }}>
+            <div
+              style={{
+                marginTop: 16,
+                textAlign: "center",
+                fontSize: 18,
+                color: "#fef9c3",
+              }}
+            >
               <div>
                 결과 티어: <b>{currentSeg.tier}</b> × <b>{currentSeg.number}</b>
                 {viewerTier && (
                   <>
                     {" "}
-                    / 시청자 선택: <b>{viewerTier}</b> {viewerHit ? "→ 당첨!" : "→ 꽝"}
+                    / 시청자 선택: <b>{viewerTier}</b>{" "}
+                    {viewerHit ? "→ 당첨!" : "→ 꽝"}
                   </>
                 )}
               </div>
@@ -400,7 +438,9 @@ export default function CasinoWheelHuge() {
               {parsedSig > 0 && (
                 <div style={{ marginTop: 4, fontSize: 16 }}>
                   {parsedSig.toLocaleString()} × {parsedMultiplier} ={" "}
-                  <b style={{ color: "#facc15" }}>{totalSig.toLocaleString()}</b>
+                  <b style={{ color: "#facc15" }}>
+                    {totalSig.toLocaleString()}
+                  </b>
                 </div>
               )}
 
@@ -456,11 +496,18 @@ export default function CasinoWheelHuge() {
             gap: 12,
           }}
         >
-          <div style={{ fontSize: 16, fontWeight: 700, color: "#e5e7eb", marginBottom: 4 }}>
-            티어별 칸 수 설정(총합만 사용됨)
+          <div
+            style={{
+              fontSize: 16,
+              fontWeight: 700,
+              color: "#e5e7eb",
+              marginBottom: 4,
+            }}
+          >
+            티어별 칸 수 설정
           </div>
 
-          {Object.keys(TIER_GRADIENTS).map((tier) => (
+          {Object.keys(TIER_ICON).map((tier) => (
             <div
               key={tier}
               style={{
@@ -474,15 +521,23 @@ export default function CasinoWheelHuge() {
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div
-                  style={{
-                    width: 20,
-                    height: 20,
-                    borderRadius: 999,
-                    background: TIER_GRADIENTS[tier],
-                    border: "1px solid rgba(15,23,42,0.8)",
-                  }}
-                />
+                {TIER_ICON[tier] && (
+                  <img
+                    src={TIER_ICON[tier]}
+                    alt={`${tier} icon`}
+                    width={18}
+                    height={18}
+                    draggable={false}
+                    style={{
+                      display: "block",
+                      objectFit: "contain",
+                      background: "transparent",
+                      border: 0,
+                      boxShadow: "none",
+                      filter: "drop-shadow(0 0 2px rgba(0,0,0,0.8))",
+                    }}
+                  />
+                )}
                 <span style={{ fontSize: 13, fontWeight: 700, color: "#e5e7eb" }}>
                   {tier}
                 </span>
@@ -517,6 +572,7 @@ export default function CasinoWheelHuge() {
             tierCounts={tierCounts}
             onApply={() => {
               if (isSpinning) return;
+               setSpinSegments(null);      // ✅ 여기서만 해제
               setSegments(makeSegments());
               setResultIndex(null);
               setRotation(0);
