@@ -114,7 +114,7 @@ export default function WheelView({
               width: "91%",
               height: "91%",
               left: "4.5%",
-              top: "5%",
+              top: "4.5%",
             }}
           >
             {segments.map((seg, i) => {
