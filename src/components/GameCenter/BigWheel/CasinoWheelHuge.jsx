@@ -145,7 +145,13 @@ const spin = () => {
     setSegments(makeSegments());
     setResultIndex(null);
     setRotation(0);
+
+    // ✅ 추가: 선택/입력값도 초기화
+  setViewerTier(null);
+  setViewerSigCount("");
+  setCopyMessage("");
   };
+
 
   const handleCopyResult = async () => {
     if (!currentSeg || isSpinning) return;
