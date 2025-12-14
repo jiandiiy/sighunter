@@ -161,6 +161,27 @@ const spin = () => {
     }
   };
 
+  const tierFontSize = (tier) => {
+  switch (tier) {
+    case "DIAMOND":
+      return 114;
+    case "EMERALD":
+      return 114;
+    case "SAPPHIRE":
+      return 114;
+    case "RUBY":
+      return 190;
+    case "GOLD":
+      return 190;
+    case "PEARL":
+      return 160;
+    case "BONUS":
+      return 160;
+    default:
+      return 140;
+  }
+};
+
   const selectableTiers = [
     "DIAMOND",
     "EMERALD",
@@ -300,11 +321,11 @@ const spin = () => {
               <div
                 style={{
                   position: "absolute",
-                  left: "50%",
+                  left: "50.1%",
                   top: "50%",
                   transform: "translate(-50%, -50%)",
-                  width: wheelSize * 0.32,
-                  height: wheelSize * 0.32,
+                  width: wheelSize * 0.42,
+                  height: wheelSize * 0.42,
                   borderRadius: "50%",
                   background:
                     "radial-gradient(circle at 30% 30%, #1f2937, #020617 70%)",
@@ -332,13 +353,14 @@ const spin = () => {
                   </div>
 
                   <div
-                    style={{
-                      fontSize: 60,
-                      fontWeight: 900,
-                      color: "#f9fafb",
-                      marginBottom: 8,
-                    }}
-                  >
+  style={{
+    fontSize: isSpinning ? 80 : tierFontSize(currentSeg?.tier),
+    fontWeight: 900,
+    color: "#f9fafb",
+    marginBottom: 8,
+    lineHeight: 1,
+  }}
+>
                     {isSpinning
                       ? "??"
                       : currentSeg

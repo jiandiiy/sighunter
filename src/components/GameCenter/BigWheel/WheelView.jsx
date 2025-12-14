@@ -181,9 +181,9 @@ export default function WheelView({
               const midAngle = angle + segmentAngle / 2;
               const color = TIER_GRADIENTS[seg.tier];
 
-              const baseLength = wheelSize * 0.31;
+              const baseLength = wheelSize * 0.24;
               const baseThickness = wheelSize * 0.07;
-              const baseRadius = wheelSize * 0.18;
+              const baseRadius = wheelSize * 0.23;
 
               const gemSrc = TIER_GEM_IMAGES[seg.tier];
 
@@ -217,7 +217,7 @@ export default function WheelView({
                     style={{
                       position: "absolute",
                       top: "30%",
-                      left: "43%",
+                      left: "36%",
                       transform: "translate(-50%, -60%)",
                       pointerEvents: "none",
                       display: "flex",
