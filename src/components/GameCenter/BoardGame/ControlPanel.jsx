@@ -37,7 +37,7 @@ export default function ControlPanel({
     <div
       style={{
         flex: 1,
-        minWidth: 260,
+        minWidth: 200,
         padding: 10,
         borderRadius: 16,
         border: "1px solid rgba(168,85,247,0.9)",

@@ -15,92 +15,228 @@ export default function Board({
   onClickCell,
   onResizeBoard,
 }) {
-  // 🔹 현재 rows×cols 격자의 "둘레 칸 수" 계산 (테두리만 사용)
   const perimeter = useMemo(() => {
     if (rows < 2 || cols < 2) return 0;
-    return 2 * (rows + cols) - 4; // 예: 10×10 → 36칸
+    return 2 * (rows + cols) - 4;
   }, [rows, cols]);
 
-  // 🔹 0~perimeter-1 인덱스를 실제 (r,c) 좌표로 매핑
   const indexToCoord = (pos) => {
-    // 아래쪽: 0 ~ (cols-1)
-    if (pos < cols) {
-      return { r: rows - 1, c: pos };
-    }
-    // 오른쪽: cols ~ (cols + rows - 2)
+    if (pos < cols) return { r: rows - 1, c: pos }; // bottom row: left -> right
     if (pos < cols + rows - 1) {
       const offset = pos - cols;
-      return { r: rows - 2 - offset, c: cols - 1 };
+      return { r: rows - 2 - offset, c: cols - 1 }; // right col: bottom-1 -> top
     }
-    // 위쪽
     const topStart = cols + rows - 1;
     if (pos < topStart + cols - 1) {
       const offset = pos - topStart;
-      return { r: 0, c: cols - 2 - offset };
+      return { r: 0, c: cols - 2 - offset }; // top row: right-1 -> left
     }
-    // 왼쪽
     const leftStart = topStart + cols - 1;
     const offset = pos - leftStart;
-    return { r: 1 + offset, c: 0 };
+    return { r: 1 + offset, c: 0 }; // left col: top+1 -> bottom-1
   };
 
-  // 🔹 인덱스 → 스타일 (퍼센트 기반, 정사각형 안 테두리 배치)
-  const getCellStyleFromPos = (pos) => {
+  const boardData32 = [
+    { bg: "#d1d5cf", text: "#1f2937", name: "START", icon: "🏁", isCorner: true },
+    { bg: "#513c33", text: "#fff", name: "타이베이" },
+    { bg: "#d3bb98", text: "#422006", name: "베이징" },
+    { bg: "#d1b690", text: "#422006", name: "마닐라" },
+    { bg: "#ceb28e", text: "#422006", name: "싱가포르" },
+    { bg: "#3b4f5b", text: "#fff", name: "황금열쇠", icon: "🔑", special: true },
+    { bg: "#e0d6df", text: "#4c1d95", name: "제주" },
+    { bg: "#d2e0dd", text: "#065f46", name: "서울" },
+    { bg: "#40b578", text: "#fff", name: "무인도", icon: "🏝️", isCorner: true },
+    { bg: "#624d28", text: "#fff", name: "푸껫" },
+    { bg: "#b48c56", text: "#422006", name: "하와이" },
+    { bg: "#976e3e", text: "#fff", name: "괌" },
+    { bg: "#865d2d", text: "#fff", name: "오끼나와" },
+    { bg: "#957241", text: "#fff", name: "황금열쇠", icon: "🔑", special: true },
+    { bg: "#3a4034", text: "#fff", name: "다낭" },
+    { bg: "#b9dce6", text: "#0c4a6e", name: "시드니" },
+    { bg: "#c9dce3", text: "#0c4a6e", name: "세계여행", icon: "✈️", isCorner: true },
+    { bg: "#897a83", text: "#fff", name: "도쿄" },
+    { bg: "#d1bfa5", text: "#422006", name: "파리" },
+    { bg: "#cbb08b", text: "#422006", name: "로마" },
+    { bg: "#cbae7e", text: "#422006", name: "런던" },
+    { bg: "#caab78", text: "#422006", name: "황금열쇠", icon: "🔑", special: true },
+    { bg: "#c3a379", text: "#422006", name: "베를린" },
+    { bg: "#eb8c63", text: "#fff", name: "모스크바" },
+    { bg: "#e6c7de", text: "#831843", name: "우주여행", icon: "🚀", isCorner: true },
+    { bg: "#6c60ee", text: "#fff", name: "서울" },
+    { bg: "#796af2", text: "#fff", name: "부산" },
+    { bg: "#d5b987", text: "#422006", name: "뉴욕" },
+    { bg: "#c7a470", text: "#422006", name: "황금열쇠", icon: "🔑", special: true },
+    { bg: "#d2b581", text: "#422006", name: "프라하" },
+    { bg: "#cdac7a", text: "#422006", name: "취리히" },
+    { bg: "#bb93b6", text: "#4c1d95", name: "퀘백" },
+  ];
+
+  const getCellColor = (pos) => {
+    if (perimeter === 32 && pos < 32) return boardData32[pos];
+
     const { r, c } = indexToCoord(pos);
-    const base = {
-      position: "absolute",
-      width: `${100 / cols}%`,
-      height: `${(100 / rows) * 0.7}%`,
-    };
+    const isCorner =
+      (r === 0 && c === 0) ||
+      (r === 0 && c === cols - 1) ||
+      (r === rows - 1 && c === 0) ||
+      (r === rows - 1 && c === cols - 1);
 
-    return {
-      ...base,
-      left: `${(c * 100) / cols}%`,
-      top: `${(r * 100) / rows}%`,
-    };
+    if (isCorner) return { bg: "#60a5fa", text: "#1e3a8a", isCorner: true };
+
+    const colors = [
+      { bg: "#10b981", text: "#fff" },
+      { bg: "#3b82f6", text: "#fff" },
+      { bg: "#f59e0b", text: "#fff" },
+      { bg: "#ec4899", text: "#fff" },
+    ];
+    return colors[pos % 4];
   };
 
-  const tokensOnCell = (pos) =>
-    tokens.filter((t) => t.pos === pos);
+  /**
+   * ✅ 32칸(9x9) 전용:
+   * - 코너는 "안쪽으로만" 확대(바깥 침범/잘림 없음)
+   * - 전체 칸 링을 inset 만큼 안쪽으로 이동(보드 테두리와 간격)
+   */
+ const INNER_PAD_PCT = 1.2; // ✅ 추가(컴포넌트 상단 아무데나)
+
+const getCellStyleFromPos = (pos) => {
+  const { r, c } = indexToCoord(pos);
+  const cellData = getCellColor(pos);
+  const isCorner = !!cellData.isCorner;
+
+  const is32 = perimeter === 32;
+
+  // ✅ "칸 배치 기준"은 OUTER 100%가 아니라 INNER 기준(패딩 제외 영역)
+  const pad = INNER_PAD_PCT;
+  const boardSize = 100 - pad * 2; // INNER 유효 크기(%)
+
+  // 링을 안쪽으로 미는 여백(%): 줄이면 링이 더 넓어짐
+  const ringInset = 0.8;
+
+  const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+
+  if (!is32) {
+    const baseW = (boardSize - ringInset * 2) / cols;
+    const baseH = (boardSize - ringInset * 2) / rows;
+    return {
+      position: "absolute",
+      width: `${baseW}%`,
+      height: `${baseH}%`,
+      left: `${pad + ringInset + c * baseW}%`,
+      top: `${pad + ringInset + r * baseH}%`,
+    };
+  }
+
+  // ======= 32칸(9x9) 전용 =======
+  const baseW = (boardSize - ringInset * 2) / 9;
+  const baseH = (boardSize - ringInset * 2) / 9;
+
+  const cornerScale = 1.28;
+  const cornerW = baseW * cornerScale;
+  const cornerH = baseH * cornerScale;
+
+  const insetX = cornerW - baseW;
+  const insetY = cornerH - baseH;
+
+  let left = pad + ringInset + c * baseW;
+  let top = pad + ringInset + r * baseH;
+  let width = baseW;
+  let height = baseH;
+
+  const isTop = r === 0;
+  const isBottom = r === 8;
+  const isLeft = c === 0;
+  const isRight = c === 8;
+
+  const cornerTL = isTop && isLeft;
+  const cornerTR = isTop && isRight;
+  const cornerBR = isBottom && isRight;
+  const cornerBL = isBottom && isLeft;
+
+  if (cornerTL) {
+    width = cornerW;
+    height = cornerH;
+  } else if (cornerTR) {
+    width = cornerW;
+    height = cornerH;
+    left = pad + boardSize - ringInset - cornerW;
+  } else if (cornerBR) {
+    width = cornerW;
+    height = cornerH;
+    left = pad + boardSize - ringInset - cornerW;
+    top = pad + boardSize - ringInset - cornerH;
+  } else if (cornerBL) {
+    width = cornerW;
+    height = cornerH;
+    top = pad + boardSize - ringInset - cornerH;
+  } else {
+    if (isTop || isBottom) {
+      if (c === 1) left += insetX;
+      if (c === 7) left -= insetX;
+    }
+    if (isLeft || isRight) {
+      if (r === 1) top += insetY;
+      if (r === 7) top -= insetY;
+    }
+  }
+
+  // ✅ INNER 유효 영역 안에만 있도록 클램프
+  const minL = pad;
+  const minT = pad;
+  const maxL = pad + boardSize - width;
+  const maxT = pad + boardSize - height;
+
+  left = clamp(left, minL, maxL);
+  top = clamp(top, minT, maxT);
+
+  return {
+    position: "absolute",
+    width: `${width}%`,
+    height: `${height}%`,
+    left: `${left}%`,
+    top: `${top}%`,
+  };
+  };
+
+  const tokensOnCell = (pos) => tokens.filter((t) => t.pos === pos);
+
+  // ✅ 보드 외곽(border)과 칸 배치 영역을 분리해서 “칸이 보드보다 커지는 느낌” 방지
+  const BOARD_BORDER = 6;
+
+  // ✅ 중앙 영역 축소(값을 키울수록 중앙이 작아지고 링이 넓어짐)
+  const CENTER_PAD = 30; // (기존 24) -> 28~34 추천
 
   return (
-    <div style={{ flex: 2, minWidth: 0 }}>
+    <div style={{ width: "100%", display: "flex", flexDirection: "column" }}>
       <h2
         style={{
           margin: 0,
-          marginBottom: 4,
-          fontSize: 26,
-          fontWeight: 800,
-          color: "#fff",
-          textShadow: "0 0 12px rgba(168,85,247,0.9)",
-          letterSpacing: 0.5,
+          marginBottom: 8,
+          fontSize: 32,
+          fontWeight: 900,
+          background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          letterSpacing: 1,
         }}
       >
-        🎰 부루마불 🎰
+        🎲 모두의마불 🎲
       </h2>
-      <p
-        style={{
-          margin: "0 0 6px",
-          fontSize: 14,
-          opacity: 0.8,
-          color: "#fff",
-        }}
-      >
-        {rows} × {cols} 보드의 둘레 {perimeter}칸을 따라 이동합니다.
+
+      <p style={{ margin: "0 0 8px", fontSize: 14, opacity: 0.85, color: "#e2e8f0" }}>
+        {rows} × {cols} 보드 · 둘레 {perimeter}칸
       </p>
 
-      {/* 행/열 크기 설정 */}
       <div
         style={{
           display: "flex",
-          gap: 8,
+          gap: 10,
           alignItems: "center",
-          marginBottom: 10,
-          fontSize: 14,
-          color: "#fff",
+          marginBottom: 12,
+          fontSize: 13,
+          color: "#cbd5e1",
         }}
       >
-        <span style={{ opacity: 0.85 }}>보드 크기:</span>
         <label>
           행&nbsp;
           <input
@@ -109,12 +245,16 @@ export default function Board({
             max={20}
             value={rows}
             onChange={(e) =>
-              onResizeBoard(
-                Math.max(4, Math.min(20, Number(e.target.value) || rows)),
-                cols
-              )
+              onResizeBoard(Math.max(4, Math.min(20, Number(e.target.value) || rows)), cols)
             }
-            style={{ width: 48 }}
+            style={{
+              width: 50,
+              padding: "4px 6px",
+              borderRadius: 6,
+              border: "1px solid #475569",
+              background: "#1e293b",
+              color: "#e2e8f0",
+            }}
           />
         </label>
         <label>
@@ -125,193 +265,198 @@ export default function Board({
             max={20}
             value={cols}
             onChange={(e) =>
-              onResizeBoard(
-                rows,
-                Math.max(4, Math.min(20, Number(e.target.value) || cols))
-              )
+              onResizeBoard(rows, Math.max(4, Math.min(20, Number(e.target.value) || cols)))
             }
-            style={{ width: 48 }}
+            style={{
+              width: 50,
+              padding: "4px 6px",
+              borderRadius: 6,
+              border: "1px solid #475569",
+              background: "#1e293b",
+              color: "#e2e8f0",
+            }}
           />
         </label>
-        <span style={{ opacity: 0.8 }}>
-          (실제 사용 칸: 둘레 {perimeter}칸)
-        </span>
       </div>
 
-      {/* 실제 정사각형 보드 */}
+      {/* OUTER: 테두리/그림자 */}
       <div
         style={{
           position: "relative",
           paddingBottom: "100%",
           width: "100%",
-          maxWidth: "none",
-          maxHeight: "none",
-          margin: "0 auto",
-          background:
-            "radial-gradient(circle at center, #22c55e, #065f46)",
-          borderRadius: 32,
-          boxShadow:
-            "0 0 25px rgba(15,23,42,0.9), inset 0 0 40px rgba(0,0,0,0.8)",
-          border: "3px solid rgba(8,47,73,0.9)",
+          background: "linear-gradient(135deg, #374151, #1f2937)",
+          borderRadius: 20,
+          boxShadow: "0 0 40px rgba(0,0,0,0.8), inset 0 0 60px rgba(0,0,0,0.5)",
+          border: `${BOARD_BORDER}px solid #111827`,
+          overflow: "hidden",
         }}
       >
-        {/* 중앙 '부루마불' 칸 */}
+        {/* INNER: 실제 칸 배치 영역(항상 border 안쪽 100%) */}
         <div
           style={{
             position: "absolute",
-            left: "18%",
-            right: "18%",
-            top: "18%",
-            bottom: "18%",
-            background:
-              "radial-gradient(circle at center,#22c55e,#16a34a)",
-            borderRadius: 24,
-            boxShadow: "inset 0 0 30px rgba(0,0,0,0.7)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#052e16",
-            fontWeight: 900,
-            fontSize: 32,
-            letterSpacing: 4,
-            textShadow: "0 0 10px rgba(254,252,232,0.9)",
+            inset: BOARD_BORDER,
+            borderRadius: 20 - BOARD_BORDER,
+            overflow: "hidden",
           }}
         >
-          부루마불
-        </div>
-
-        {/* 둘레 칸 렌더링 */}
-        {Array.from({ length: perimeter }, (_, pos) => {
-          const onThis = tokensOnCell(pos);
-          const baseText = cells[pos] || "";
-          const style = cellStyles[pos] || {
-            fontSize: 12,
-            fontWeight: 600,
-            color: "#f9fafb",
-          };
-
-          const isSelectedCell = selectedCellIndex === pos;
-          const isLanded = lastLandedIndex === pos;
-          const isStart = pos === 0;
-
-          return (
+          {/* 중앙 로고(중앙을 더 줄여 링이 더 넓게) */}
+          <div
+            style={{
+              position: "absolute",
+              left: `${CENTER_PAD}%`,
+              right: `${CENTER_PAD}%`,
+              top: `${CENTER_PAD}%`,
+              bottom: `${CENTER_PAD}%`,
+              background: "linear-gradient(135deg, #475569, #334155)",
+              borderRadius: 16,
+              boxShadow: "inset 0 0 40px rgba(0,0,0,0.7)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexDirection: "column",
+            }}
+          >
             <div
-              key={pos}
-              onClick={() => onClickCell(pos)}
               style={{
-                ...getCellStyleFromPos(pos),
-                background: isStart
-                  ? "linear-gradient(135deg,#fde68a,#f97316)"
-                  : "linear-gradient(135deg,rgba(15,23,42,0.98),rgba(17,24,39,0.98))",
-                border: isSelectedCell
-                  ? "2px solid rgba(244,114,182,0.95)"
-                  : isLanded
-                  ? "2px solid rgba(250,204,21,0.95)"
-                  : "1px solid rgba(59,130,246,0.7)",
-                boxShadow: isSelectedCell
-                  ? "0 0 16px rgba(244,114,182,0.9)"
-                  : isLanded
-                  ? "0 0 16px rgba(250,204,21,0.9)"
-                  : "0 0 8px rgba(15,23,42,0.9)",
-                borderRadius: 10,
-                padding: "2% 2% 9%",
-                boxSizing: "border-box",
-                cursor: "pointer",
-                overflow: "hidden",
+                fontSize: 26,
+                fontWeight: 900,
+                color: "#fff",
+                textShadow: "0 2px 10px rgba(59,130,246,0.8)",
+                letterSpacing: 1,
               }}
             >
-              {/* 칸 번호 */}
-              <div
-                style={{
-                  position: "absolute",
-                  top: "4%",
-                  left: "6%",
-                  fontSize: 9,
-                  opacity: 0.75,
-                  color: isStart ? "#1f2937" : "#a5b4fc",
-                }}
-              >
-                #{pos + 1}
-              </div>
+              모두의마불
+            </div>
+            <div style={{ fontSize: 13, color: "#93c5fd", marginTop: 6, letterSpacing: 2 }}>
+              MONO MARBLE
+            </div>
+          </div>
 
-              {/* 칸 텍스트 */}
-              <div
-                style={{
-                  fontSize: style.fontSize,
-                  fontWeight: style.fontWeight,
-                  color: style.color,
-                  whiteSpace: "pre-line",
-                  textAlign: "center",
-                  marginTop: "10%",
-                  textShadow: "0 0 4px rgba(15,23,42,0.9)",
-                }}
-              >
-                {baseText}
-              </div>
+          {/* 칸들 */}
+          {Array.from({ length: perimeter }, (_, pos) => {
+            const onThis = tokensOnCell(pos);
+            const colorScheme = getCellColor(pos);
+            const displayName = colorScheme.name || cells[pos] || `칸${pos + 1}`;
 
-              {/* 말들 */}
+            const isSelectedCell = selectedCellIndex === pos;
+            const isLanded = lastLandedIndex === pos;
+
+            return (
               <div
+                key={pos}
+                onClick={() => onClickCell(pos)}
                 style={{
-                  position: "absolute",
-                  bottom: "4%",
-                  left: "6%",
+                  ...getCellStyleFromPos(pos),
+                  background: colorScheme.bg,
+                  border: isSelectedCell
+                    ? "3px solid #fbbf24"
+                    : isLanded
+                    ? "3px solid #34d399"
+                    : "2px solid rgba(0,0,0,0.3)",
+                  boxShadow: isSelectedCell
+                    ? "0 0 18px rgba(251,191,36,0.9)"
+                    : isLanded
+                    ? "0 0 18px rgba(52,211,153,0.9)"
+                    : "inset 0 2px 4px rgba(255,255,255,0.2), 0 2px 8px rgba(0,0,0,0.4)",
+                  borderRadius: colorScheme.isCorner ? 12 : 6,
+                  padding: colorScheme.isCorner ? "8%" : "7%",
+                  boxSizing: "border-box",
+                  cursor: "pointer",
+                  overflow: "hidden",
                   display: "flex",
-                  gap: 3,
-                  flexWrap: "wrap",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: colorScheme.isCorner ? "center" : "space-between",
                 }}
               >
-                {onThis.map((t) => {
-                  const isMovingThis =
-                    isMoving && t.id === currentTurnToken?.id;
-                  const isScoreChanging =
-                    scoreChange && scoreChange.tokenId === t.id;
+                {colorScheme.isCorner ? (
+                  <div style={{ textAlign: "center" }}>
+                    {colorScheme.icon && <div style={{ fontSize: 32, marginBottom: 4 }}>{colorScheme.icon}</div>}
+                    <div style={{ fontSize: 12, fontWeight: 900, color: colorScheme.text }}>
+                      {displayName}
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ width: "100%", textAlign: "center" }}>
+                      {colorScheme.special && colorScheme.icon && (
+                        <div style={{ fontSize: 18, marginBottom: 2 }}>{colorScheme.icon}</div>
+                      )}
+                      <div
+                        style={{
+                          fontSize: colorScheme.special ? 10 : 8,
+                          fontWeight: 700,
+                          color: colorScheme.text,
+                          opacity: colorScheme.special ? 1 : 0.7,
+                        }}
+                      >
+                        {colorScheme.special ? "" : `#${pos + 1}`}
+                      </div>
+                    </div>
 
-                  return (
                     <div
-                      key={t.id}
-                      title={`${t.name} (점수: ${t.score}점)`}
                       style={{
-                        width: 12,
-                        height: 12,
-                        borderRadius: "50%",
-                        background: t.color,
-                        border: "1px solid #020617",
-                        boxShadow: "0 0 4px rgba(248,250,252,0.8)",
-                        transform: isMovingThis
-                          ? "translateY(-1px) scale(1.08)"
-                          : "none",
-                        transition: "transform 0.15s ease-out",
-                        position: "relative",
+                        fontSize: 9,
+                        fontWeight: 700,
+                        color: colorScheme.text,
+                        textAlign: "center",
+                        lineHeight: 1.2,
                       }}
                     >
-                      {isScoreChanging && (
-                        <span
-                          style={{
-                            position: "absolute",
-                            top: -14,
-                            left: "50%",
-                            transform: "translateX(-50%)",
-                            fontSize: 9,
-                            fontWeight: 700,
-                            color:
-                              scoreChange.diff > 0
-                                ? "#bbf7d0"
-                                : "#fecaca",
-                            textShadow:
-                              "0 0 4px rgba(15,23,42,0.95)",
-                          }}
-                        >
-                          {scoreChange.diff > 0 ? "+" : ""}
-                          {scoreChange.diff}
-                        </span>
-                      )}
+                      {displayName}
                     </div>
-                  );
-                })}
+
+                    <div style={{ display: "flex", gap: 2, flexWrap: "wrap", justifyContent: "center", marginTop: "auto" }}>
+                      {onThis.map((t) => {
+                        const isMovingThis = isMoving && t.id === currentTurnToken?.id;
+                        const isScoreChanging = scoreChange && scoreChange.tokenId === t.id;
+
+                        return (
+                          <div
+                            key={t.id}
+                            title={`${t.name} (점수: ${t.score}점)`}
+                            style={{
+                              width: 11,
+                              height: 11,
+                              borderRadius: "50%",
+                              background: t.color,
+                              border: "2px solid #fff",
+                              boxShadow: "0 2px 6px rgba(0,0,0,0.6)",
+                              transform: isMovingThis ? "scale(1.2)" : "none",
+                              transition: "transform 0.2s ease-out",
+                              position: "relative",
+                            }}
+                          >
+                            {isScoreChanging && (
+                              <span
+                                style={{
+                                  position: "absolute",
+                                  top: -16,
+                                  left: "50%",
+                                  transform: "translateX(-50%)",
+                                  fontSize: 9,
+                                  fontWeight: 900,
+                                  color: scoreChange.diff > 0 ? "#4ade80" : "#f87171",
+                                  textShadow: "0 0 6px rgba(0,0,0,0.9)",
+                                  whiteSpace: "nowrap",
+                                }}
+                              >
+                                {scoreChange.diff > 0 ? "+" : ""}
+                                {scoreChange.diff}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );

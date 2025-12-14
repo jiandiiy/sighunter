@@ -13,14 +13,14 @@ import { useDice } from "../../../hooks/useDice";
 import { useBoardEffects } from "../../../hooks/useBoardEffects";
 
 export default function BoardGame() {
-  // 🔹 보드 크기 (기본 10x10, 변경 가능)
+  // 🔹 보드 크기 (32칸을 위한 10x10 설정)
   const [rows, setRows] = useState(9);
-  const [cols, setCols] = useState(10);
+  const [cols, setCols] = useState(9);
 
   // 🔹 현재 rows/cols 기준 둘레 칸 수 (Board 와 동일한 공식)
   const perimeter = useMemo(() => {
     if (rows < 2 || cols < 2) return 0;
-    return 2 * (rows + cols) - 4; // 예: 10×10 → 36, 13×13 → 48
+    return 2 * (rows + cols) - 4; // 10×10 → 36칸, 하지만 Board에서 32칸 데이터 사용
   }, [rows, cols]);
 
   // 칸 텍스트 + 스타일 (perimeter 기준)
@@ -97,7 +97,7 @@ export default function BoardGame() {
   const selectedToken = tokens.find((t) => t.id === selectedTokenId);
   const currentTurnToken = tokens[currentTurnIndex] || null;
 
-  /** 보드 칸 클릭 시: 우측 패널용 선택 칸만 설정 (index는 0~perimeter-1) */
+  /** 보드 칸 클릭 시: 우측 패널용 선택 칸만 설정 */
   const handleClickCell = (index) => {
     setSelectedCellIndex(index);
     setPanelCellText(cells[index] || "");
@@ -232,10 +232,13 @@ export default function BoardGame() {
     setCellStyles(nextStyles);
   };
 
-  /** 토큰 이동 (애니메이션: 둘레 perimeter 기준) */
+  /** 토큰 이동 (애니메이션: 둘레 32칸 기준) */
   const moveTokenWithAnimation = (token, steps) => {
-    if (!token || perimeter <= 0) return;
+    if (!token) return;
     if (isMoving) return;
+
+    // 🎯 32칸 고정
+    const totalCells = 32;
 
     const intSteps = steps | 0;
     if (intSteps === 0) return;
@@ -245,14 +248,14 @@ export default function BoardGame() {
 
     setIsMoving(true);
 
-    let currentPos = token.pos; // 0 ~ perimeter-1
+    let currentPos = token.pos; // 0 ~ 31
     let moved = 0;
     const stepMs = 180;
 
     const timer = setInterval(() => {
       moved += 1;
 
-      currentPos = (currentPos + direction + perimeter) % perimeter;
+      currentPos = (currentPos + direction + totalCells) % totalCells;
 
       setTokens((prev) =>
         prev.map((t) =>
@@ -265,7 +268,7 @@ export default function BoardGame() {
         setIsMoving(false);
 
         applyCellEffect({
-          cellIndex: currentPos, // 0~perimeter-1
+          cellIndex: currentPos, // 0~31
           token,
           diceValue,
           updateTokens: setTokens,
@@ -329,6 +332,7 @@ export default function BoardGame() {
         }}
       >
         {/* 왼쪽: 보드 */}
+          <div style={{ flex: 1, minWidth: 0 }}>
         <Board
           rows={rows}
           cols={cols}
@@ -343,8 +347,10 @@ export default function BoardGame() {
           onClickCell={handleClickCell}
           onResizeBoard={handleResizeBoard}
         />
+          </div>
 
         {/* 오른쪽: 컨트롤 패널 */}
+        <div style={{ width: 240, flexShrink: 0 }}>
         <ControlPanel
           tokens={tokens}
           selectedToken={selectedToken}
@@ -376,6 +382,7 @@ export default function BoardGame() {
           diceTarget={diceTarget}
           setDiceTarget={setDiceTarget}
         />
+        </div>
       </div>
 
       <Toast message={toast} />
