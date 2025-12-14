@@ -192,7 +192,7 @@ export default function WheelView({
                   key={`inner-${seg.id}`}
                   style={{
                     position: "absolute",
-                    top: "48.5%",
+                    top: "48%",
                     left: "50.7%",
                     width: baseLength,
                     height: baseThickness,
