@@ -56,7 +56,7 @@ export default function WheelView({
             inset: 0,
             borderRadius: "50%",
             transform: `rotate(${rotation}deg)`,
-          transition: isSpinning ? 'transform 10s cubic-bezier(0.12, 0.8, 0.2, 1)' 
+          transition: isSpinning ? 'transform 5s cubic-bezier(0.12, 0.8, 0.2, 1)' 
             : snapTransition ? 'transform 0.3s cubic-bezier(0.36,1.7,0.45,0.83)' 
             : 'none'
           }}

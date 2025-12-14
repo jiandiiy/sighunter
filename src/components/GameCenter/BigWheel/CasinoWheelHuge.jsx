@@ -137,7 +137,7 @@ const spin = () => {
     });
 
     setTimeout(() => setSnapTransition(false), 300); // 0.3초 뒤에 트랜지션 끔
-  }, 10000);
+  }, 5000);
 };
   const regenerateWheel = () => {
     if (isSpinning) return;
