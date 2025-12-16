@@ -275,3 +275,10 @@
 .bingo-line-7::before {
   transform: rotate(45deg);
 }
+.bingo-owner-name{
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,.5);
+}

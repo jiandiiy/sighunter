@@ -10,8 +10,7 @@ import {
   saveSigBingoState,
 } from "../../../api/sigBingoStorage";
 
-// 🔹 모드 목록: 자동 생성된 bingoImagePool 에 있는 key 와 맞추면 됨
-const MODES = ["muse", "queendom"]; // 예: ["sigdaejun"] 으로 바꿀 수도 있음
+const MODES = ["muse", "queendom"];
 
 const ROWS = 3;
 const COLS = 3;
@@ -28,77 +27,114 @@ const LINES_3X3 = [
   [2, 4, 6],
 ];
 
-// ⭐ 어떤 빙고인지 구분하는 boardId 추가
-export default function BingoBoard({ boardId = "default" }) {
+const DEFAULT_RULES = {
+  // 빙고1: 점령(뺏기 가능) + 뒷면에 점령자 이름 표시
+  conquest: {
+    enabled: false,
+    players: ["P1", "P2"], // 표시될 이름
+    steal: true, // 뺏기 허용
+  },
+
+  // 빙고2: 가운데 스페셜 카드 (체크 가능 + 빙고 판정 포함)
+  specialCell: {
+    enabled: false,
+    index: 4,
+    src: "/images/special.png",
+    lock: false, // true면 클릭 막힘(이번 요구사항은 체크 가능이므로 false)
+    autoChecked: false, // true면 시작부터 프리칸 체크
+  },
+};
+
+export default function BingoBoard({ boardId = "default", boardRules = {} }) {
+  const rules = {
+    conquest: { ...DEFAULT_RULES.conquest, ...(boardRules.conquest || {}) },
+    specialCell: { ...DEFAULT_RULES.specialCell, ...(boardRules.specialCell || {}) },
+  };
+
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState("muse");
   const [images, setImages] = useState([]);
   const [checked, setChecked] = useState(Array(CELL_COUNT).fill(false));
   const [completedLines, setCompletedLines] = useState([]); // [0..7]
 
+  // 점령용 상태
+  const [owners, setOwners] = useState(Array(CELL_COUNT).fill(null)); // string|null
+  const [turn, setTurn] = useState(0); // 0..players-1
+
   const calcCompletedLines = (checkedArr) => {
     const done = [];
     LINES_3X3.forEach((line, idx) => {
-      const isComplete = line.every((i) => checkedArr[i]);
-      if (isComplete) done.push(idx);
+      if (line.every((i) => checkedArr[i])) done.push(idx);
     });
     return done;
   };
 
-  // 🔹 boardId 기준으로 상태 불러오기
+  const applySpecialCellToImages = (baseImages) => {
+    if (!rules.specialCell.enabled) return baseImages;
+    const next = [...baseImages];
+    next[rules.specialCell.index] = rules.specialCell.src;
+    return next;
+  };
+
   useEffect(() => {
     async function init() {
       const remote = await loadSigBingoState(boardId);
 
-      if (remote) {
-        const nextMode = remote.mode || "muse";
+      const nextMode = remote?.mode || "muse";
 
-        // 🔸 저장된 images는 무시하고, 항상 최신 풀에서 새로 뽑기
-        const randomImages = getRandomBingoImages(nextMode, CELL_COUNT);
+      // 항상 최신 풀에서 새로 뽑기 + 스페셜 이미지 적용
+      let randomImages = getRandomBingoImages(nextMode, CELL_COUNT);
+      randomImages = applySpecialCellToImages(randomImages);
 
-        const initChecked =
-          Array.isArray(remote.checked) && remote.checked.length === CELL_COUNT
-            ? remote.checked
-            : Array(CELL_COUNT).fill(false);
+      // checked 복원(없으면 초기화)
+      let initChecked =
+        Array.isArray(remote?.checked) && remote.checked.length === CELL_COUNT
+          ? remote.checked
+          : Array(CELL_COUNT).fill(false);
 
-        const newLines = Array.isArray(remote.completedLines)
-          ? remote.completedLines
-          : calcCompletedLines(initChecked);
-
-        setMode(nextMode);
-        setImages(randomImages);
-        setChecked(initChecked);
-        setCompletedLines(newLines);
-
-        // Firestore에도 새 이미지로 덮어쓰기
-        await saveSigBingoState(boardId, {
-          mode: nextMode,
-          images: randomImages,
-          checked: initChecked,
-          completedLines: newLines,
-        });
-      } else {
-        const randomImages = getRandomBingoImages("muse", CELL_COUNT);
-        const initChecked = Array(CELL_COUNT).fill(false);
-
-        setMode("muse");
-        setImages(randomImages);
-        setChecked(initChecked);
-        setCompletedLines([]);
-
-        await saveSigBingoState(boardId, {
-          mode: "muse",
-          images: randomImages,
-          checked: initChecked,
-          completedLines: [],
-        });
+      // 스페셜 autoChecked면 true 강제
+      if (rules.specialCell.enabled && rules.specialCell.autoChecked) {
+        initChecked = [...initChecked];
+        initChecked[rules.specialCell.index] = true;
       }
+
+      // owners 복원(없으면 초기화)
+      let initOwners =
+        Array.isArray(remote?.owners) && remote.owners.length === CELL_COUNT
+          ? remote.owners
+          : Array(CELL_COUNT).fill(null);
+
+      // turn 복원(없으면 0)
+      const initTurn =
+        typeof remote?.turn === "number" ? remote.turn : 0;
+
+      const newLines = Array.isArray(remote?.completedLines)
+        ? remote.completedLines
+        : calcCompletedLines(initChecked);
+
+      setMode(nextMode);
+      setImages(randomImages);
+      setChecked(initChecked);
+      setCompletedLines(newLines);
+      setOwners(initOwners);
+      setTurn(initTurn);
+
+      // Firestore에도 새 이미지로 덮어쓰기(owners/turn 포함)
+      await saveSigBingoState(boardId, {
+        mode: nextMode,
+        images: randomImages,
+        checked: initChecked,
+        completedLines: newLines,
+        owners: initOwners,
+        turn: initTurn,
+      });
 
       setLoading(false);
     }
 
     init();
-  }, [boardId]); // ← 빙고1/2 바뀔 때마다 개별 상태 로딩
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [boardId]); // 보드 바뀔 때마다 개별 상태 로딩
 
   const sync = (next) => {
     saveSigBingoState(boardId, next).catch((e) =>
@@ -106,26 +142,79 @@ export default function BingoBoard({ boardId = "default" }) {
     );
   };
 
+  const isSpecialLockedCell = (idx) =>
+    rules.specialCell.enabled && rules.specialCell.lock && idx === rules.specialCell.index;
+
   const handleToggleCell = (idx) => {
+    if (isSpecialLockedCell(idx)) return;
+
+    // ✅ 점령 모드: 클릭하면 현재 플레이어가 점령(이미 점령되어 있어도 뺏기 가능)
+    if (rules.conquest.enabled) {
+      const players = rules.conquest.players?.length
+        ? rules.conquest.players
+        : DEFAULT_RULES.conquest.players;
+
+      const playerName = players[turn % players.length];
+
+      setOwners((prevOwners) => {
+        const nextOwners = [...prevOwners];
+        const prevOwner = nextOwners[idx];
+
+        // 뺏기 금지면 이미 점령된 칸은 무시
+        if (prevOwner && !rules.conquest.steal) return prevOwners;
+
+        nextOwners[idx] = playerName;
+
+        // 점령된 칸은 checked = true로 유지(빙고 판정 포함)
+        setChecked((prevChecked) => {
+          const nextChecked = [...prevChecked];
+          nextChecked[idx] = true;
+
+          const newLines = calcCompletedLines(nextChecked);
+          setCompletedLines(newLines);
+
+          const nextTurn = (turn + 1) % players.length;
+          setTurn(nextTurn);
+
+          sync({
+            mode,
+            images,
+            checked: nextChecked,
+            completedLines: newLines,
+            owners: nextOwners,
+            turn: nextTurn,
+          });
+
+          return nextChecked;
+        });
+
+        return nextOwners;
+      });
+
+      return;
+    }
+
+    // ✅ 일반 모드: 기존 체크 토글
     setChecked((prevChecked) => {
       const nextChecked = [...prevChecked];
       nextChecked[idx] = !nextChecked[idx];
 
-      // ✅ 현재 체크 상태 기준으로 한 줄 빙고 다시 계산
       const newLines = calcCompletedLines(nextChecked);
       setCompletedLines(newLines);
 
-      // 이 셀이 포함된 줄 중, 지금 기준으로 완성된 줄이 있는지
       const isInCompletedLine = LINES_3X3.some(
-        (line, lineIndex) =>
-          newLines.includes(lineIndex) && line.includes(idx)
+        (line, lineIndex) => newLines.includes(lineIndex) && line.includes(idx)
       );
 
       let nextImages = images;
       if (isInCompletedLine) {
-        nextImages = [...images];
-        nextImages[idx] = getRandomBingoImage(mode);
-        setImages(nextImages);
+        // 스페셜 칸은 이미지 고정(변경 금지)
+        const isSpecial = rules.specialCell.enabled && idx === rules.specialCell.index;
+        if (!isSpecial) {
+          nextImages = [...images];
+          nextImages[idx] = getRandomBingoImage(mode);
+          setImages(nextImages);
+        }
       }
 
       sync({
@@ -133,6 +222,8 @@ export default function BingoBoard({ boardId = "default" }) {
         images: nextImages,
         checked: nextChecked,
         completedLines: newLines,
+        owners,
+        turn,
       });
 
       return nextChecked;
@@ -141,62 +232,87 @@ export default function BingoBoard({ boardId = "default" }) {
 
   const handleChangeMode = (nextMode) => {
     if (mode === nextMode) return;
-    const randomImages = getRandomBingoImages(nextMode, CELL_COUNT);
+
+    let randomImages = getRandomBingoImages(nextMode, CELL_COUNT);
+    randomImages = applySpecialCellToImages(randomImages);
+
     const initChecked = Array(CELL_COUNT).fill(false);
+    if (rules.specialCell.enabled && rules.specialCell.autoChecked) {
+      initChecked[rules.specialCell.index] = true;
+    }
 
     setMode(nextMode);
     setImages(randomImages);
     setChecked(initChecked);
-    setCompletedLines([]);
+    setCompletedLines(calcCompletedLines(initChecked));
+
+    // 점령은 모드 바꾸면 초기화(원하면 유지로 바꿔드림)
+    const initOwners = Array(CELL_COUNT).fill(null);
+    const initTurn = 0;
+    setOwners(initOwners);
+    setTurn(initTurn);
 
     sync({
       mode: nextMode,
       images: randomImages,
       checked: initChecked,
-      completedLines: [],
+      completedLines: calcCompletedLines(initChecked),
+      owners: initOwners,
+      turn: initTurn,
     });
   };
 
   const handleResetBoard = () => {
-    const randomImages = getRandomBingoImages(mode, CELL_COUNT);
+    let randomImages = getRandomBingoImages(mode, CELL_COUNT);
+    randomImages = applySpecialCellToImages(randomImages);
+
     const initChecked = Array(CELL_COUNT).fill(false);
+    if (rules.specialCell.enabled && rules.specialCell.autoChecked) {
+      initChecked[rules.specialCell.index] = true;
+    }
 
     setImages(randomImages);
     setChecked(initChecked);
-    setCompletedLines([]);
+    setCompletedLines(calcCompletedLines(initChecked));
+
+    const initOwners = Array(CELL_COUNT).fill(null);
+    const initTurn = 0;
+    setOwners(initOwners);
+    setTurn(initTurn);
 
     sync({
       mode,
       images: randomImages,
       checked: initChecked,
-      completedLines: [],
+      completedLines: calcCompletedLines(initChecked),
+      owners: initOwners,
+      turn: initTurn,
     });
   };
 
-  // ✅ 어떤 셀이 빙고된 줄에 포함되는지
-  const isCellInCompletedLine = (cellIndex) => {
-    return LINES_3X3.some(
+  const isCellInCompletedLine = (cellIndex) =>
+    LINES_3X3.some(
       (line, lineIndex) =>
         completedLines.includes(lineIndex) && line.includes(cellIndex)
     );
-  };
 
   if (loading) {
     return <div style={{ color: "#fff" }}>로딩 중...</div>;
   }
 
+  const players = rules.conquest.players?.length
+    ? rules.conquest.players
+    : DEFAULT_RULES.conquest.players;
+
   return (
     <div className="bingo-root">
       <header className="bingo-header">
-        {/* 1) 맨 위: 탭 + 초기화 버튼 */}
         <div className="bingo-header-row">
           <div className="bingo-mode-tabs">
             {MODES.map((m) => (
               <button
                 key={m}
-                className={
-                  "bingo-tab" + (mode === m ? " bingo-tab--active" : "")
-                }
+                className={"bingo-tab" + (mode === m ? " bingo-tab--active" : "")}
                 onClick={() => handleChangeMode(m)}
               >
                 {m === "muse" ? "뮤즈" : "퀸덤"}
@@ -213,14 +329,19 @@ export default function BingoBoard({ boardId = "default" }) {
           </button>
         </div>
 
-        {/* 2) 그 아래: 식사대전 빙고 제목 */}
         <h2 className="bingo-title-text">🍽️ 식사대전 빙고 🍽️</h2>
+
+        {rules.conquest.enabled && (
+          <div className="bingo-turn-text" style={{ color: "#fff", marginTop: 8 }}>
+            현재 턴: {players[turn % players.length]}
+          </div>
+        )}
       </header>
 
       <div className="bingo-grid">
-        {/* 카드 */}
         {images.slice(0, CELL_COUNT).map((src, idx) => {
           const inCompletedLine = isCellInCompletedLine(idx);
+          const isSpecial = rules.specialCell.enabled && idx === rules.specialCell.index;
 
           return (
             <div
@@ -228,7 +349,8 @@ export default function BingoBoard({ boardId = "default" }) {
               className={
                 "bingo-cell" +
                 (checked[idx] ? " bingo-cell--checked" : "") +
-                (inCompletedLine ? " bingo-cell--line-completed" : "")
+                (inCompletedLine ? " bingo-cell--line-completed" : "") +
+                (isSpecial ? " bingo-cell--special" : "")
               }
               onClick={() => handleToggleCell(idx)}
             >
@@ -237,15 +359,19 @@ export default function BingoBoard({ boardId = "default" }) {
                   <img src={src} alt={`bingo-sig-${idx + 1}`} />
                   <span className="bingo-cell-number">{idx + 1}</span>
                 </div>
+
                 <div className="bingo-cell-back">
                   <span className="bingo-check-icon">O</span>
+
+                  {rules.conquest.enabled && owners[idx] && (
+                    <div className="bingo-owner-name">{owners[idx]}</div>
+                  )}
                 </div>
               </div>
             </div>
           );
         })}
 
-        {/* 한 줄 빙고 라인 오버레이 */}
         {completedLines.map((lineIndex) => (
           <div
             key={`line-${lineIndex}`}
