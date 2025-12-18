@@ -10,6 +10,16 @@ const baseDir = path.join(rootDir, "public/images");
 const outputFile = path.join(rootDir, "src/data/sigHunterImagePool.js");
 
 const MODES = ["muse", "queendom"];
+
+/**
+ * ✅ 이미지 풀에 포함할 그룹들
+ *
+ * - 1~7 : 공통 일반 칸
+ * - 8   : (예시) 3x3 중앙 전용
+ * - 9,10: 5x5 중앙 전용
+ *
+ * 실제 사용하는 그룹 키에 맞게 이 배열만 조정하면 됩니다.
+ */
 const GROUPS = [
   "group1",
   "group2",
@@ -20,6 +30,8 @@ const GROUPS = [
   "group7",
   "group9",
   "group10",
+  "group11",
+  "group12",
 ];
 
 async function main() {

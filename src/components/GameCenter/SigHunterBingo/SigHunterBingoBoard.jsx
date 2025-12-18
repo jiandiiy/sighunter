@@ -1,76 +1,84 @@
 // src/components/SigHunterBingo/SigHunterBingoBoard.jsx
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import "./SigHunterBingoBoard.css";
 
 import {
   getInitialHunterCells,
   HUNTER_MODES,
+  createRandomHunterCell, // ✅ 새로 추가된 헬퍼
 } from "../../../utils/sigHunterBingoData";
 import {
   loadSigHunterBingoState,
   saveSigHunterBingoState,
 } from "../../../api/sigHunterBingoStorage";
 
-const SIZE = 5;
-const CELL_COUNT = SIZE * SIZE;
+const AVAILABLE_SIZES = [3, 5];
 
-// 5×5 빙고 라인 정의
-const LINES_5X5 = [
-  // 가로
-  [0, 1, 2, 3, 4],
-  [5, 6, 7, 8, 9],
-  [10, 11, 12, 13, 14],
-  [15, 16, 17, 18, 19],
-  [20, 21, 22, 23, 24],
-  // 세로
-  [0, 5, 10, 15, 20],
-  [1, 6, 11, 16, 21],
-  [2, 7, 12, 17, 22],
-  [3, 8, 13, 18, 23],
-  [4, 9, 14, 19, 24],
-  // 대각
-  [0, 6, 12, 18, 24],
-  [4, 8, 12, 16, 20],
-];
+// 라인(가로/세로/대각) 동적 생성: 3x3, 5x5 공용
+const makeLines = (size) => {
+  const lines = [];
+  // rows
+  for (let r = 0; r < size; r++) {
+    lines.push(Array.from({ length: size }, (_, c) => r * size + c));
+  }
+  // cols
+  for (let c = 0; c < size; c++) {
+    lines.push(Array.from({ length: size }, (_, r) => r * size + c));
+  }
+  // diagonals
+  lines.push(Array.from({ length: size }, (_, i) => i * size + i));
+  lines.push(
+    Array.from({ length: size }, (_, i) => i * size + (size - 1 - i))
+  );
+  return lines;
+};
 
 // 🔹 플레이어 18명용 예쁜 색 팔레트
 const PLAYER_COLOR_PALETTE = [
-  "#FF6B6B", // 1 코랄 레드
-  "#FF9F43", // 2 오렌지
-  "#FFC857", // 3 옐로우
-  "#8BC34A", // 4 라임 그린
-  "#26A69A", // 5 티얼
-  "#4ECDC4", // 6 민트
-  "#3498DB", // 7 블루
-  "#5C7CFA", // 8 인디고
-  "#9B59B6", // 9 퍼플
-  "#E84393", // 10 핫핑크
-  "#FF7675", // 11 살몬
-  "#F8A5C2", // 12 연핑크
-  "#FDCB6E", // 13 골드 옐로
-  "#55EFC4", // 14 민트그린
-  "#74B9FF", // 15 라이트 블루
-  "#A29BFE", // 16 라일락
-  "#D980FA", // 17 라이트 퍼플
-  "#00CEC9", // 18 청록
+  "#FF6B6B",
+  "#FF9F43",
+  "#FFC857",
+  "#8BC34A",
+  "#26A69A",
+  "#4ECDC4",
+  "#3498DB",
+  "#5C7CFA",
+  "#9B59B6",
+  "#E84393",
+  "#FF7675",
+  "#F8A5C2",
+  "#FDCB6E",
+  "#55EFC4",
+  "#74B9FF",
+  "#A29BFE",
+  "#D980FA",
+  "#00CEC9",
 ];
 
-// action: "capture" (빈칸 점령) | "steal" (다른 사람에게서 뺏음)
 export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
   const [loading, setLoading] = useState(true);
-  const [mode, setMode] = useState("muse"); // 뮤즈 / 퀸덤
+
+  // ✅ mode + size 지원
+  const [mode, setMode] = useState("muse"); // "muse" | "queendom"
+  const [size, setSize] = useState(5); // 3 | 5
+
+  const cellCount = size * size;
+  const lines = useMemo(() => makeLines(size), [size]);
+  const stateKey = `${mode}-${size}`; // modeStates key
+  const storageKey = `${boardId}-${mode}-${size}`; // ✅ 저장도 완전 분리
+
   const [cells, setCells] = useState([]); // {id, sigName, sigCount, owner, images, counts, imageIndex}
-  const [currentPlayer, setCurrentPlayer] = useState(""); // 현재 행동하는 사람 닉네임
-  const [logs, setLogs] = useState([]); // 액션 로그
-  const [lineOwners, setLineOwners] = useState(
-    () => LINES_5X5.map(() => ({ owner: null }))
+  const [currentPlayer, setCurrentPlayer] = useState("");
+  const [logs, setLogs] = useState([]);
+  const [lineOwners, setLineOwners] = useState(() =>
+    makeLines(5).map(() => ({ owner: null }))
   );
 
   // 🔹 닉네임별 색상 매핑
   const [playerColors, setPlayerColors] = useState({});
 
-  // 🔹 모드별 상태 저장 (muse, queendom 각각의 보드/로그/색)
+  // 🔹 mode+size별 상태 저장 (탭 이동시 즉시 복원용)
   const [modeStates, setModeStates] = useState({});
 
   // 🔹 1) useState로 한 번만 랜덤 순서의 팔레트 생성
@@ -83,15 +91,14 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
     return arr;
   });
 
-  // 줄 소유권 재계산
-  const recalcLineOwners = (nextCells) => {
-    const nextLineOwners = LINES_5X5.map((line) => {
-      const ownersOnLine = line.map((idx) => nextCells[idx].owner);
-      const nonNullOwners = ownersOnLine.filter((o) => !!o);
+  // 줄 소유권 재계산 (size/lines 기반)
+  const recalcLineOwners = (nextCells, nextSize, nextLines) => {
+    const nextLineOwners = nextLines.map((line) => {
+      const ownersOnLine = line.map((idx) => nextCells[idx]?.owner);
+      const nonNullOwners = ownersOnLine.filter(Boolean);
 
-      // 5칸 모두 같은 소유자면 그 사람, 아니면 null
       if (
-        nonNullOwners.length === SIZE &&
+        nonNullOwners.length === nextSize &&
         nonNullOwners.every((o) => o === nonNullOwners[0])
       ) {
         return { owner: nonNullOwners[0] };
@@ -100,70 +107,85 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
     });
 
     setLineOwners(nextLineOwners);
+    return nextLineOwners;
   };
 
   // 🔹 닉네임 → 색상 헬퍼
   const getColorForPlayer = (name) => {
     if (!name) return null;
-   // 이미 색이 있으면 그 색 그대로
-   if (playerColors[name]) return playerColors[name];
 
-   // 1) 아직 팔레트에서 쓰지 않은 색이 있으면 그 색들 중 하나 사용
-   const usedColors = new Set(Object.values(playerColors));
-   const unused = shuffledPalette.filter((c) => !usedColors.has(c));
+    // 이미 색이 있으면 그 색 그대로
+    if (playerColors[name]) return playerColors[name];
 
-   let color;
-   if (unused.length > 0) {
-     color = unused[0]; // 아직 안 쓰인 색 중 첫 번째
-   } else {
-     // 2) 팔레트가 모두 소진된 경우: 새 랜덤 색 생성 (겹칠 확률 낮음)
-     const randColor = () =>
-       "#" +
-       Math.floor(Math.random() * 0xffffff)
-         .toString(16)
-         .padStart(6, "0")
-         .toUpperCase();
-     color = randColor();
-   }
+    // 1) 아직 팔레트에서 쓰지 않은 색이 있으면 그 색들 중 하나 사용
+    const usedColors = new Set(Object.values(playerColors));
+    const unused = shuffledPalette.filter((c) => !usedColors.has(c));
 
-   setPlayerColors((prev) => ({ ...prev, [name]: color }));
-   return color;
+    let color;
+    if (unused.length > 0) {
+      color = unused[0];
+    } else {
+      // 2) 팔레트가 모두 소진된 경우: 새 랜덤 색 생성
+      const randColor = () =>
+        "#" +
+        Math.floor(Math.random() * 0xffffff)
+          .toString(16)
+          .padStart(6, "0")
+          .toUpperCase();
+      color = randColor();
+    }
+
+    setPlayerColors((prev) => ({ ...prev, [name]: color }));
+    return color;
   };
 
-  // 초기 로딩
+  const sync = (key, nextState) => {
+    saveSigHunterBingoState(key, nextState).catch((e) =>
+      console.error("saveSigHunterBingoState failed", e)
+    );
+  };
+
+  // ✅ mode/size 변경 시 해당 저장키에서 로드 (없으면 새로 생성)
   useEffect(() => {
+    let alive = true;
+
     async function init() {
-      const stored = await loadSigHunterBingoState(boardId);
+      setLoading(true);
+
+      const stored = await loadSigHunterBingoState(storageKey);
+
+      const initCells = getInitialHunterCells(mode, size);
+      const initLineOwners = lines.map(() => ({ owner: null }));
+
+      if (!alive) return;
 
       if (stored) {
-        const storedMode = stored.mode || "muse";
-        setMode(storedMode);
-
         let nextCells;
-        if (Array.isArray(stored.cells) && stored.cells.length === CELL_COUNT) {
-          const fresh = getInitialHunterCells(storedMode, CELL_COUNT);
+        if (Array.isArray(stored.cells) && stored.cells.length === cellCount) {
+          // 데이터셋(특히 가운데 카드 등)이 바뀌었을 수 있으니 fresh 위에 stored를 덮음
           nextCells = stored.cells.map((c, idx) => ({
-            ...fresh[idx],
+            ...initCells[idx],
             ...c,
             images:
               c.images && Array.isArray(c.images)
                 ? c.images
-                : fresh[idx].images,
+                : initCells[idx].images,
             counts:
               c.counts && Array.isArray(c.counts)
                 ? c.counts
-                : fresh[idx].counts,
-            imageIndex: typeof c.imageIndex === "number" ? c.imageIndex : 0,
+                : initCells[idx].counts,
+            imageIndex:
+              typeof c.imageIndex === "number" ? c.imageIndex : 0,
           }));
         } else {
-          nextCells = getInitialHunterCells(storedMode, CELL_COUNT);
+          nextCells = initCells;
         }
 
         const restoredLineOwners =
           Array.isArray(stored.lineOwners) &&
-          stored.lineOwners.length === LINES_5X5.length
+          stored.lineOwners.length === lines.length
             ? stored.lineOwners
-            : LINES_5X5.map(() => ({ owner: null }));
+            : initLineOwners;
 
         const restoredPlayerColors = stored.playerColors || {};
 
@@ -172,34 +194,34 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
         setLineOwners(restoredLineOwners);
         setPlayerColors(restoredPlayerColors);
 
-        setModeStates({
-          [storedMode]: {
+        setModeStates((prev) => ({
+          ...prev,
+          [stateKey]: {
             cells: nextCells,
             logs: stored.logs || [],
             lineOwners: restoredLineOwners,
             playerColors: restoredPlayerColors,
           },
-        });
+        }));
       } else {
-        const initCells = getInitialHunterCells("muse", CELL_COUNT);
-        const initLineOwners = LINES_5X5.map(() => ({ owner: null }));
-
-        setMode("muse");
         setCells(initCells);
         setLogs([]);
         setLineOwners(initLineOwners);
         setPlayerColors({});
-        setModeStates({
-          muse: {
+
+        setModeStates((prev) => ({
+          ...prev,
+          [stateKey]: {
             cells: initCells,
             logs: [],
             lineOwners: initLineOwners,
             playerColors: {},
           },
-        });
+        }));
 
-        await saveSigHunterBingoState(boardId, {
-          mode: "muse",
+        await saveSigHunterBingoState(storageKey, {
+          mode,
+          size,
           cells: initCells,
           logs: [],
           lineOwners: initLineOwners,
@@ -207,48 +229,51 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
         });
       }
 
+      if (!alive) return;
       setLoading(false);
     }
 
     init();
-  }, [boardId]);
+    return () => {
+      alive = false;
+    };
+  }, [storageKey, mode, size, cellCount, lines, stateKey]);
 
-  const sync = (nextState) => {
-    saveSigHunterBingoState(boardId, nextState).catch((e) =>
-      console.error("saveSigHunterBingoState failed", e)
-    );
-  };
-
-  // 🔹 모드 변경: 각 모드별 보드/로그/색을 따로 기억하고 복원
+  // 모드 변경: modeStates에서 즉시 복원(있으면), 없으면 새로 생성 (저장은 storageKey로 분리됨)
   const handleChangeMode = (nextMode) => {
     if (mode === nextMode) return;
 
+    // 현재 상태 백업
     setModeStates((prev) => ({
       ...prev,
-      [mode]: { cells, logs, lineOwners, playerColors },
+      [`${mode}-${size}`]: { cells, logs, lineOwners, playerColors },
     }));
 
-    const saved = modeStates[nextMode];
+    const nextKey = `${nextMode}-${size}`;
+    const saved = modeStates[nextKey];
+
+    const nextLines = makeLines(size);
+    const initLineOwners = nextLines.map(() => ({ owner: null }));
+
+    setMode(nextMode);
 
     if (saved) {
-      setMode(nextMode);
       setCells(saved.cells);
       setLogs(saved.logs);
       setLineOwners(saved.lineOwners);
       setPlayerColors(saved.playerColors);
 
-      sync({
+      sync(`${boardId}-${nextMode}-${size}`, {
         mode: nextMode,
+        size,
         cells: saved.cells,
         logs: saved.logs,
         lineOwners: saved.lineOwners,
         playerColors: saved.playerColors,
       });
     } else {
-      const initCells = getInitialHunterCells(nextMode, CELL_COUNT);
-      const initLineOwners = LINES_5X5.map(() => ({ owner: null }));
+      const initCells = getInitialHunterCells(nextMode, size);
 
-      setMode(nextMode);
       setCells(initCells);
       setLogs([]);
       setLineOwners(initLineOwners);
@@ -256,7 +281,7 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
 
       setModeStates((prev) => ({
         ...prev,
-        [nextMode]: {
+        [nextKey]: {
           cells: initCells,
           logs: [],
           lineOwners: initLineOwners,
@@ -264,8 +289,9 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
         },
       }));
 
-      sync({
+      sync(`${boardId}-${nextMode}-${size}`, {
         mode: nextMode,
+        size,
         cells: initCells,
         logs: [],
         lineOwners: initLineOwners,
@@ -274,10 +300,71 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
     }
   };
 
-  // 초기화 버튼: **현재 모드만** 새로운 랜덤 이미지 세트로 재생성
+  // ✅ 사이즈 변경: modeStates에서 즉시 복원(있으면), 없으면 새로 생성
+  const handleChangeSize = (nextSize) => {
+    if (size === nextSize) return;
+
+    // 현재 상태 백업
+    setModeStates((prev) => ({
+      ...prev,
+      [`${mode}-${size}`]: { cells, logs, lineOwners, playerColors },
+    }));
+
+    const nextKey = `${mode}-${nextSize}`;
+    const saved = modeStates[nextKey];
+
+    const nextLines = makeLines(nextSize);
+    const initLineOwners = nextLines.map(() => ({ owner: null }));
+
+    setSize(nextSize);
+
+    if (saved) {
+      setCells(saved.cells);
+      setLogs(saved.logs);
+      setLineOwners(saved.lineOwners);
+      setPlayerColors(saved.playerColors);
+
+      sync(`${boardId}-${mode}-${nextSize}`, {
+        mode,
+        size: nextSize,
+        cells: saved.cells,
+        logs: saved.logs,
+        lineOwners: saved.lineOwners,
+        playerColors: saved.playerColors,
+      });
+    } else {
+      const initCells = getInitialHunterCells(mode, nextSize);
+
+      setCells(initCells);
+      setLogs([]);
+      setLineOwners(initLineOwners);
+      setPlayerColors({});
+
+      setModeStates((prev) => ({
+        ...prev,
+        [nextKey]: {
+          cells: initCells,
+          logs: [],
+          lineOwners: initLineOwners,
+          playerColors: {},
+        },
+      }));
+
+      sync(`${boardId}-${mode}-${nextSize}`, {
+        mode,
+        size: nextSize,
+        cells: initCells,
+        logs: [],
+        lineOwners: initLineOwners,
+        playerColors: {},
+      });
+    }
+  };
+
+  // 초기화 버튼: **현재 mode+size만** 재생성
   const handleResetBoard = () => {
-    const initCells = getInitialHunterCells(mode, CELL_COUNT);
-    const initLineOwners = LINES_5X5.map(() => ({ owner: null }));
+    const initCells = getInitialHunterCells(mode, size);
+    const initLineOwners = lines.map(() => ({ owner: null }));
 
     setCells(initCells);
     setLogs([]);
@@ -286,7 +373,7 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
 
     setModeStates((prev) => ({
       ...prev,
-      [mode]: {
+      [stateKey]: {
         cells: initCells,
         logs: [],
         lineOwners: initLineOwners,
@@ -294,8 +381,9 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
       },
     }));
 
-    sync({
+    sync(storageKey, {
       mode,
+      size,
       cells: initCells,
       logs: [],
       lineOwners: initLineOwners,
@@ -303,9 +391,8 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
     });
   };
 
-  // 현재 셀에서 보여줄 이미지
   const getCurrentImage = (cell) => {
-    if (!cell.images || cell.images.length === 0) return null;
+    if (!cell?.images || cell.images.length === 0) return null;
     const idx =
       typeof cell.imageIndex === "number"
         ? cell.imageIndex % cell.images.length
@@ -313,9 +400,8 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
     return cell.images[idx];
   };
 
-  // 현재 셀에서 보여줄 숫자
   const getCurrentCount = (cell) => {
-    if (!cell.counts || cell.counts.length === 0) return cell.sigCount ?? 0;
+    if (!cell?.counts || cell.counts.length === 0) return cell.sigCount ?? 0;
     const idx =
       typeof cell.imageIndex === "number"
         ? cell.imageIndex % cell.counts.length
@@ -324,44 +410,32 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
     return value != null ? value : cell.sigCount ?? 0;
   };
 
-  // 셀 클릭
   const handleClickCell = (cellId) => {
     if (!currentPlayer.trim()) {
       alert("닉네임을 먼저 입력해 주세요.");
       return;
     }
-
     const actor = currentPlayer.trim();
 
     setCells((prevCells) => {
       const nextCells = prevCells.map((c) => ({ ...c }));
-      const cell = nextCells[cellId];
+      let cell = nextCells[cellId];
+      if (!cell) return prevCells;
+
       const prevOwner = cell.owner;
 
-      if (!prevOwner) {
-        let currentIndex =
-          typeof cell.imageIndex === "number" ? cell.imageIndex : 0;
+      // ✅ 점령/쟁탈 시마다 그 칸의 카드(이미지/숫자)를 새로 뽑아서 교체
+      const newCellBase = createRandomHunterCell(mode, size, cellId);
 
-        if (cell.images && cell.images.length > 0) {
-          currentIndex =
-            ((currentIndex % cell.images.length) + cell.images.length) %
-            cell.images.length;
-        } else {
-          currentIndex = 0;
-        }
+      cell = Object.assign(cell, {
+        sigName: newCellBase.sigName,
+        sigCount: newCellBase.sigCount,
+        images: newCellBase.images,
+        counts: newCellBase.counts,
+        imageIndex: newCellBase.imageIndex,
+        owner: actor,
+      });
 
-        let currentCount = cell.sigCount ?? 0;
-        if (cell.counts && cell.counts.length > 0) {
-          const idx =
-            cell.counts.length > 0 ? currentIndex % cell.counts.length : 0;
-          const fromCounts = cell.counts[idx];
-          if (fromCounts != null) currentCount = fromCounts;
-        }
-
-        cell.sigCount = currentCount;
-      }
-
-      cell.owner = actor;
       getColorForPlayer(actor);
 
       const newLog = {
@@ -374,7 +448,7 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
         sigCount: cell.sigCount,
       };
 
-      recalcLineOwners(nextCells);
+      const nextLineOwners = recalcLineOwners(nextCells, size, lines);
 
       setLogs((prevLogs) => {
         const exists = prevLogs.some(
@@ -390,19 +464,20 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
 
         setModeStates((prev) => ({
           ...prev,
-          [mode]: {
+          [stateKey]: {
             cells: nextCells,
             logs: updatedLogs,
-            lineOwners,
+            lineOwners: nextLineOwners,
             playerColors,
           },
         }));
 
-        sync({
+        sync(storageKey, {
           mode,
+          size,
           cells: nextCells,
           logs: updatedLogs,
-          lineOwners,
+          lineOwners: nextLineOwners,
           playerColors,
         });
 
@@ -421,7 +496,6 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
 
   return (
     <div className="hunter-root">
-      {/* 헤더: 모드 탭 + 초기화 + 제목 */}
       <header className="hunter-header">
         <div className="hunter-header-row">
           <div className="hunter-mode-tabs">
@@ -437,29 +511,47 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
               </button>
             ))}
           </div>
+
+          {/* ✅ 3x3 / 5x5 탭 */}
+          <div className="hunter-mode-tabs" style={{ marginLeft: 12 }}>
+            {AVAILABLE_SIZES.map((s) => (
+              <button
+                key={s}
+                className={
+                  "hunter-tab" + (size === s ? " hunter-tab--active" : "")
+                }
+                onClick={() => handleChangeSize(s)}
+              >
+                {s}×{s}
+              </button>
+            ))}
+          </div>
         </div>
 
         <h2 className="hunter-title-text">🎯 시그헌터 빙고 🎯</h2>
       </header>
 
-      {/* 메인 영역: 왼쪽(빙고판) / 오른쪽(닉네임 + 미니맵 + 로그) */}
       <div className="hunter-main">
-        {/* 왼쪽: 빙고판 */}
         <div className="hunter-main-left">
-          {/* 빙고판 위 줄 카운트 */}
           <div className="hunter-line-count-under-board">
-            <div>현재 점령된 줄: <span>{completedLineCount}</span> 줄</div>
-          <button
-            type="button"
-            className="hunter-reset-btn"
-            onClick={handleResetBoard}
-          >
-            초기화
-          </button>
+            <div>
+              현재 점령된 줄: <span>{completedLineCount}</span> 줄
+            </div>
+            <button
+              type="button"
+              className="hunter-reset-btn"
+              onClick={handleResetBoard}
+            >
+              초기화
+            </button>
           </div>
 
-          <div className="hunter-grid">
-            {cells.slice(0, CELL_COUNT).map((cell) => {
+          {/* ✅ grid 컬럼도 size에 맞게 */}
+          <div
+            className="hunter-grid"
+            style={{ gridTemplateColumns: `repeat(${size}, 1fr)` }}
+          >
+            {cells.slice(0, cellCount).map((cell) => {
               const isOwned = !!cell.owner;
               const currentImage = getCurrentImage(cell);
               const currentCount = getCurrentCount(cell);
@@ -485,7 +577,6 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                   onClick={() => handleClickCell(cell.id)}
                 >
                   <div className="hunter-cell-inner">
-                    {/* 앞면: 이미지만 */}
                     <div className="hunter-cell-front">
                       {currentImage && (
                         <div className="hunter-sig-image-wrap">
@@ -498,14 +589,11 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                       )}
                     </div>
 
-                    {/* 뒷면: 상단 닉네임 / 하단 시그 갯수 */}
                     <div className="hunter-cell-back">
                       <div
                         className="hunter-cell-owner-area"
                         style={
-                          ownerColor
-                            ? { backgroundColor: ownerColor }
-                            : {}
+                          ownerColor ? { backgroundColor: ownerColor } : {}
                         }
                       >
                         <div className="hunter-cell-owner-text">
@@ -526,9 +614,7 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
           </div>
         </div>
 
-        {/* 오른쪽: 닉네임 입력 + 줄 카운트 + 미니맵 + 로그 */}
         <aside className="hunter-main-right">
-          {/* 현재 플레이어 닉네임 입력 + 줄 카운트 */}
           <div className="hunter-sidebar-top">
             <div className="hunter-player-input-row">
               <label className="hunter-player-label">
@@ -547,9 +633,10 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
             </div>
           </div>
 
-          {/* 🔹 줄 소유권 미니맵 (오른쪽으로 이동) */}
           <div className="hunter-lines-ownership">
-            <h4 className="hunter-lines-ownership-title">줄 소유권 미니맵</h4>
+            <h4 className="hunter-lines-ownership-title">
+              줄 소유권 미니맵
+            </h4>
             <div className="hunter-lines-ownership-list">
               {lineOwners.map((line, idx) => {
                 const ownerName = line.owner;
@@ -558,11 +645,11 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                   : null;
 
                 const lineLabel =
-                  idx < 5
+                  idx < size
                     ? `가로 ${idx + 1}`
-                    : idx < 10
-                    ? `세로 ${idx - 4}`
-                    : idx === 10
+                    : idx < size * 2
+                    ? `세로 ${idx - (size - 1)}`
+                    : idx === size * 2
                     ? "대각 ↘"
                     : "대각 ↙";
 
@@ -590,7 +677,7 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                     </div>
 
                     <div className="hunter-line-mini-strip">
-                      {Array.from({ length: 5 }).map((_, i) => (
+                      {Array.from({ length: size }).map((_, i) => (
                         <div
                           key={i}
                           className="hunter-line-mini-cell"
@@ -608,12 +695,13 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
             </div>
           </div>
 
-          {/* 로그 영역 */}
           <section className="hunter-log-section">
             <h3 className="hunter-log-title">로그</h3>
             <div className="hunter-log-list">
               {logs.length === 0 && (
-                <div className="hunter-log-empty">아직 로그가 없습니다.</div>
+                <div className="hunter-log-empty">
+                  아직 로그가 없습니다.
+                </div>
               )}
               {logs
                 .slice()
@@ -623,6 +711,7 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                     ? playerColors[log.actor] ||
                       getColorForPlayer(log.actor)
                     : null;
+
                   return (
                     <div
                       key={`${log.time}-${log.cellId}`}
@@ -642,7 +731,9 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                         [{log.actor}] 님이{" "}
                         {log.prevOwner ? `${log.prevOwner} 님에게서 ` : ""}
                         {log.sigName} (x{log.sigCount}) 칸을
-                        {log.prevOwner ? " 뺏었습니다." : " 점령했습니다."}
+                        {log.prevOwner
+                          ? " 뺏었습니다."
+                          : " 점령했습니다."}
                       </span>
                     </div>
                   );
