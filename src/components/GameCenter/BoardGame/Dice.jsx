@@ -1,3 +1,4 @@
+// src/components/GameCenter/BoardGame/Dice.jsx
 import React from "react";
 
 export function DiceBox({
@@ -13,13 +14,20 @@ export function DiceBox({
 
   const getRotationForValue = (v) => {
     switch (v) {
-      case 1: return { x: 0, y: 0 };
-      case 2: return { x: -90, y: 0 };
-      case 3: return { x: 0, y: 90 };
-      case 4: return { x: 0, y: -90 };
-      case 5: return { x: 90, y: 0 };
-      case 6: return { x: 180, y: 0 };
-      default: return { x: 0, y: 0 };
+      case 1:
+        return { x: 0, y: 0 };
+      case 2:
+        return { x: -90, y: 0 };
+      case 3:
+        return { x: 0, y: 90 };
+      case 4:
+        return { x: 0, y: -90 };
+      case 5:
+        return { x: 90, y: 0 };
+      case 6:
+        return { x: 180, y: 0 };
+      default:
+        return { x: 0, y: 0 };
     }
   };
 
@@ -61,19 +69,48 @@ export function DiceBox({
           position: "absolute",
           inset: 0,
           transform,
-
-          // ✅ 3D에서 뒷면 보이면서 “휘날림”처럼 보이는 것 방지
           backfaceVisibility: "hidden",
           WebkitBackfaceVisibility: "hidden",
-
-          borderRadius: 16,
-          background: "radial-gradient(circle at top, #ffffff, #e5e7eb)",
-          border: "2px solid rgba(15,23,42,0.55)",
-          boxShadow:
-            "0 6px 10px rgba(0,0,0,0.2), inset 0 0 6px rgba(255,255,255,0.6)",
+          borderRadius: 7,
           overflow: "hidden",
         }}
       >
+        {/* 베이스 면 */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            borderRadius: 7,
+            background: "linear-gradient(145deg, #ffffff, #d1d5db)",
+            border: "1px solid rgba(0,0,0,0.25)",
+            boxShadow:
+              "inset 0 2px 10px rgba(255,255,255,0.7), inset 0 -10px 18px rgba(0,0,0,0.18)",
+          }}
+        />
+        {/* 하이라이트 */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            borderRadius: 7,
+            background:
+              "radial-gradient(circle at 30% 25%, rgba(255,255,255,0.85), rgba(255,255,255,0) 55%)",
+            pointerEvents: "none",
+          }}
+        />
+        {/* 비네팅(가장자리 암부) */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            borderRadius: 7,
+            background:
+              "radial-gradient(circle at 50% 55%, rgba(0,0,0,0) 55%, rgba(0,0,0,0.22) 100%)",
+            pointerEvents: "none",
+          }}
+        />
+
+        {/* 점(pip) */}
         {active.map((idx) => {
           const c = coordsPct[idx];
           return (
@@ -99,33 +136,28 @@ export function DiceBox({
     );
   };
 
-  // ✅ 휘날림(평면화) 방지 포인트:
-  // - perspective는 “DiceBox 바깥”이 아니라 “여기 최상위”에 고정
-  // - cube 자체도 translateZ(0) 넣어 GPU 레이어로
-  // - transition은 rotate에만 걸리게 (transform 전체에 걸면 일부 브라우저에서 preserve-3d 깨짐)
+  // 회전 정의
   const roll =
     rotation3d &&
     typeof rotation3d.x === "number" &&
     typeof rotation3d.y === "number" &&
     typeof rotation3d.z === "number"
       ? rotation3d
-      : { x: 720, y: 720, z: 360 };
+      : { x: 900, y: 1260, z: 0 };
 
   const cubeTransform = isRolling
-  ? "translateZ(0) rotateX(900deg) rotateY(1260deg)" // 앞/옆/위가 여러 번 도는 느낌
-  : `translateZ(0) rotateX(${finalSnap.x}deg) rotateY(${finalSnap.y}deg)`;
+    ? `translateZ(0) rotateX(${roll.x}deg) rotateY(${roll.y}deg) rotateZ(${roll.z}deg)`
+    : `translateZ(0) rotateX(${finalSnap.x}deg) rotateY(${finalSnap.y}deg)`;
 
   return (
     <div
       style={{
         width: size,
         height: size,
+        position: "relative",
 
-        // ✅ 핵심: perspective는 여기(최상위)에
         perspective: 900,
         WebkitPerspective: 900,
-
-        // ✅ 이 레벨에서 3D 컨텍스트 유지
         transformStyle: "preserve-3d",
         WebkitTransformStyle: "preserve-3d",
 
@@ -137,33 +169,58 @@ export function DiceBox({
         onRoll && onRoll();
       }}
     >
+      {/* 바닥 그림자 */}
+      <div
+        style={{
+          position: "absolute",
+          left: "50%",
+          top: "74%",
+          width: "90%",
+          height: "30%",
+          transform: "translateX(-50%)",
+          background:
+            "radial-gradient(ellipse at center, rgba(0,0,0,0.45), rgba(0,0,0,0))",
+          filter: "blur(6px)",
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+
+      {/* 큐브 */}
       <div
         style={{
           position: "relative",
           width: "100%",
           height: "100%",
-
           transformStyle: "preserve-3d",
           WebkitTransformStyle: "preserve-3d",
-
           transform: cubeTransform,
-
-          // ✅ transform 전체 transition을 피하고(사파리에서 preserve 깨짐 방지)
           transitionProperty: "transform",
           transitionDuration: isRolling ? "0ms" : "450ms",
           transitionTimingFunction: "ease-out",
-
-          // ✅ 보조: 약간의 기울기/원근감 강화
           willChange: "transform",
+          zIndex: 1,
         }}
       >
-        {/* 면 배치 */}
         <Face pips={1} transform={`translateZ(${half}px)`} />
         <Face pips={6} transform={`rotateY(180deg) translateZ(${half}px)`} />
         <Face pips={2} transform={`rotateX(90deg) translateZ(${half}px)`} />
         <Face pips={5} transform={`rotateX(-90deg) translateZ(${half}px)`} />
         <Face pips={3} transform={`rotateY(90deg) translateZ(${half}px)`} />
         <Face pips={4} transform={`rotateY(-90deg) translateZ(${half}px)`} />
+
+        {/* 큐브 엣지/글로우 */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            borderRadius: 16,
+            boxShadow:
+              "0 18px 30px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.18) inset",
+            pointerEvents: "none",
+            transform: "translateZ(1px)",
+          }}
+        />
       </div>
     </div>
   );
