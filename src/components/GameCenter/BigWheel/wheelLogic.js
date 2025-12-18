@@ -1,26 +1,26 @@
 // src/components/GameCenter/BigWheel/wheelLogic.js
 
-// 티어별 배경 그라데이션
-export const TIER_GRADIENTS = {
-  DIAMOND: "linear-gradient(180deg, #ffffff 0%, #f3f5ff 45%, #c7d2ff 100%)",
-  EMERALD: "linear-gradient(180deg, #bdfbe1 0%, #16c784 45%, #0f7f55 100%)",
-  SAPPHIRE: "linear-gradient(180deg, #dff3ff 0%, #8fd7ff 45%, #5ba1d8 100%)",
-  RUBY: "linear-gradient(180deg, #ffd6f0 0%, #ff5fa9 45%, #c02f74 100%)",
-  GOLD: "linear-gradient(180deg, #fff4c4 0%, #ffd556 45%, #e2a734 100%)",
-  PEARL: "linear-gradient(180deg, #e5e7eb 0%, #e5e7eb 45%, #cbd5f5 100%)",
-  BONUS: "linear-gradient(180deg, #ffc3c3 0%, #ff2f3b 45%, #b71119 100%)",
+
+// 배경은 전부 흰색 고정
+export const SEGMENT_BG = "#ffffff";
+
+// 구분선(칸 라인)
+export const SEGMENT_STROKE = "#000";
+export const SEGMENT_STROKE_WIDTH = 2;
+
+// 텍스트 그라데이션 “정의”
+export const TIER_TEXT_GRADIENTS = {
+  DIAMOND: ["#B9F2FF", "#6B7CFF", "#1E3A8A"],
+  EMERALD: ["#BDFBE1", "#16C784", "#0F7F55"],
+  SAPPHIRE: ["#DFF3FF", "#3498DB", "#2B4F73"],
+  RUBY: ["#FF7AB6", "#FF2F8E", "#9B1746"],
+  GOLD: ["#FFF3A3", "#E2A734", "#7A5013"],
+  PEARL: ["#F8FAFC", "#94A3B8", "#334155"],
+  BONUS: ["#FFC3C3", "#FF2F3B", "#7F1D1D"],
 };
 
-// 티어 텍스트 스타일
-export const TIER_TEXT_STYLES = {
-  DIAMOND: { color: "#3b3b3b", stroke: "#ffffff" },
-  EMERALD: { color: "#ffffff", stroke: "#075a3b" },
-  SAPPHIRE: { color: "#ffffff", stroke: "#2b4f73" },
-  RUBY: { color: "#ffe0f0", stroke: "#9b1746" },
-  GOLD: { color: "#000000", stroke: "#7a5013" },
-  PEARL: { color: "#0f172a", stroke: "#e5e7eb" },
-  BONUS: { color: "#ffe9a6", stroke: "#7f1d1d" },
-};
+// ✅ 세그먼트 생성에서 사용할 티어 목록(여기서 파생)  
+export const TIERS = Object.keys(TIER_TEXT_GRADIENTS);  
 
 // 티어별 배수 (고정 1개씩)
 const TIER_MULTIPLIER_POOL = {
@@ -70,7 +70,8 @@ export function getIndexAtPointer({
 export function generateSegmentsFromCountsMixed(tierCounts, options = {}) {
   const { avoidAdjacent = true, maxTries = 200 } = options;
 
-  const tiers = Object.keys(TIER_GRADIENTS);
+  // ✅ 기존 코드의 TIER_GRADIENTS 의존 제거
+  const tiers = TIERS;
 
   // 1) bag 만들기
   const bag = [];

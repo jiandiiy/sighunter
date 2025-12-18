@@ -1,6 +1,6 @@
 // src/components/GameCenter/BigWheel/WheelView.jsx
 import React from "react";
-import { TIER_GRADIENTS, TIER_TEXT_STYLES } from "./wheelLogic";
+import { SEGMENT_BG, SEGMENT_STROKE, SEGMENT_STROKE_WIDTH, TIER_TEXT_GRADIENTS } from "./wheelLogic";
 
 // ✅ 티어별 보석 이미지(경로는 프로젝트에 맞게 수정)
 const TIER_GEM_IMAGES = {
@@ -176,17 +176,65 @@ export default function WheelView({
               pointerEvents: "none",
             }}
           >
+            {/* ✅ 칸-칸 사이 구분선(방사형 라인) */}
+  {segments.map((seg, i) => {
+    const boundaryAngle = i * segmentAngle - 90; // 세그먼트 경계
+    const lineLen = wheelSize * 0.33;            // 선 길이
+    const lineOffset = wheelSize * 0.12;         // 중심에서 시작(중앙 원 피하기)
+
+    return (
+      <div
+        key={`sep-${seg.id}`}
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          width: lineLen,
+          height: SEGMENT_STROKE_WIDTH,
+          background: SEGMENT_STROKE,
+          transformOrigin: "0 50%",
+          transform: `rotate(${boundaryAngle}deg) translateX(${lineOffset}px)`,
+          zIndex: 11, // inner(10)보다 위
+          pointerEvents: "none",
+        }}
+      />
+    );
+  })}
+ 
             {segments.map((seg, i) => {
               const angle = i * segmentAngle - 90;
               const midAngle = angle + segmentAngle / 2;
-              const color = TIER_GRADIENTS[seg.tier];
-
+  
               const baseLength = wheelSize * 0.24;
-              const baseThickness = wheelSize * 0.07;
+              const baseThickness = wheelSize * 0.06;
               const baseRadius = wheelSize * 0.23;
 
               const gemSrc = TIER_GEM_IMAGES[seg.tier];
 
+              // ✅ 세그먼트(칸) 배경은 전부 흰색 + 구분선
+              const segmentBg = SEGMENT_BG;
+              const segmentStroke = SEGMENT_STROKE;
+              const segmentStrokeWidth = SEGMENT_STROKE_WIDTH;
+
+              // ✅ 티어 텍스트 그라데이션(CSS)
+              const gradStops = TIER_TEXT_GRADIENTS[seg.tier] || [
+                "#334155",
+                "#0f172a",
+              ];
+              const tierTextStyle = {
+                fontSize: 30,
+                fontWeight: 900,
+                whiteSpace: "nowrap",
+                letterSpacing: 0.3,
+                backgroundImage: `linear-gradient(180deg, ${gradStops.join(
+                  ", "
+                )})`,
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                color: "transparent",
+                WebkitTextStroke: "1.5px rgba(15,23,42,0.55)", // ✅ 구분감
+              };
+              
               return (
                 <div
                   key={`inner-${seg.id}`}
@@ -201,11 +249,12 @@ export default function WheelView({
                     zIndex: 10,
                   }}
                 >
+                  {/* ✅ 흰색 칸 + 라인(구분선) */}
                   <div
                     style={{
                       width: "70%",
                       height: "70%",
-                      background: color,
+                      background: segmentBg,
                       clipPath: "polygon(0% 15%, 100% 0%, 100% 100%, 0% 80%)",
                       borderLeft: "1px solid rgba(15,23,42,0.9)",
                       borderRight: "1px solid rgba(15,23,42,0.9)",
@@ -225,24 +274,7 @@ export default function WheelView({
                       gap: 8,
                     }}
                   >
-                    <span
-                      style={{
-                        fontSize: 30,
-                        fontWeight: 900,
-                        whiteSpace: "nowrap",
-                        letterSpacing: 0.3,
-                        color: TIER_TEXT_STYLES[seg.tier].color,
-                        textShadow: `
-                          0 0 3px rgba(0,0,0,0.9),
-                          -1px -1px 0 ${TIER_TEXT_STYLES[seg.tier].stroke},
-                          1px -1px 0 ${TIER_TEXT_STYLES[seg.tier].stroke},
-                          -1px 1px 0 ${TIER_TEXT_STYLES[seg.tier].stroke},
-                          1px 1px 0 ${TIER_TEXT_STYLES[seg.tier].stroke}
-                        `,
-                      }}
-                    >
-                      {seg.tier}
-                    </span>
+                    <span style={tierTextStyle}>{seg.tier}</span>
 
                     {gemSrc && (
                       <img

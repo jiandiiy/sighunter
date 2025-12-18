@@ -1,7 +1,7 @@
 // src/components/GameCenter/BigWheel/CasinoWheelHuge.jsx
 import React, { useMemo, useState } from "react";
 import WheelView from "./WheelView";
-import { generateSegmentsFromCountsMixed, getIndexAtPointer } from "./wheelLogic";
+import { generateSegmentsFromCountsMixed } from "./wheelLogic";
 
 // ✅ 티어별 아이콘(경로는 프로젝트에 맞게 수정: public 폴더 기준)
 const TIER_ICON = {
@@ -78,9 +78,11 @@ export default function CasinoWheelHuge() {
   const [rotation, setRotation] = useState(0);
   const [isSpinning, setIsSpinning] = useState(false);
   const [resultIndex, setResultIndex] = useState(null);
+  
   const [viewerTier, setViewerTier] = useState(null);
   const [viewerSigCount, setViewerSigCount] = useState("");
   const [copyMessage, setCopyMessage] = useState("");
+  
   const [spinSegments, setSpinSegments] = useState(null);
   const [snapTransition, setSnapTransition] = useState(false);
 
@@ -93,7 +95,6 @@ export default function CasinoWheelHuge() {
   const parsedMultiplier = currentSeg ? Number(currentSeg.number) || 0 : 0;
   const totalSig = parsedSig * parsedMultiplier;
 
- const POINTER_ANGLE = 0; // 너 환경에서 결과가 맞는 값 유지
 const spin = () => {
   if (isSpinning || segments.length === 0) return;
   setSpinSegments(segments);   // 스핀 시작 시 배열 고정
@@ -169,22 +170,18 @@ const spin = () => {
 
   const tierFontSize = (tier) => {
   switch (tier) {
-    case "DIAMOND":
-      return 114;
-    case "EMERALD":
-      return 114;
-    case "SAPPHIRE":
-      return 114;
-    case "RUBY":
-      return 190;
-    case "GOLD":
-      return 190;
-    case "PEARL":
-      return 160;
-    case "BONUS":
-      return 160;
-    default:
-      return 140;
+   case "DIAMOND":
+      case "EMERALD":
+      case "SAPPHIRE":
+        return 114;
+      case "RUBY":
+      case "GOLD":
+        return 190;
+      case "PEARL":
+      case "BONUS":
+        return 160;
+      default:
+        return 140;
   }
 };
 
@@ -377,7 +374,7 @@ const spin = () => {
                   {currentSeg && !isSpinning && (
                     <div
                       style={{
-                        fontSize: 34,
+                        fontSize: 70,
                         color: "#fde68a",
                         fontWeight: 800,
                         marginBottom: 6,
