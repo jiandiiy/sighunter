@@ -167,18 +167,18 @@ export default function WheelView({
             })}
           </div>
 
-          {/* 안쪽 티어 링 */}
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              borderRadius: "50%",
-              pointerEvents: "none",
-            }}
-          >
-            {/* ✅ 칸-칸 사이 구분선(방사형 라인) */}
+         {/* 안쪽 티어 링 */}
+<div
+  style={{
+    position: "absolute",
+    inset: 0,
+    borderRadius: "50%",
+    pointerEvents: "none",
+  }}
+>
+  {/* ✅ 칸-칸 사이 구분선(방사형 라인) */}
   {segments.map((seg, i) => {
-    const boundaryAngle = i * segmentAngle - 90; // 세그먼트 경계
+    const boundaryAngle = i * segmentAngle - 90.7; // 세그먼트 경계
     const lineLen = wheelSize * 0.33;            // 선 길이
     const lineOffset = wheelSize * 0.12;         // 중심에서 시작(중앙 원 피하기)
 
@@ -200,81 +200,74 @@ export default function WheelView({
       />
     );
   })}
- 
-            {segments.map((seg, i) => {
-              const angle = i * segmentAngle - 90;
-              const midAngle = angle + segmentAngle / 2;
-  
-              const baseLength = wheelSize * 0.24;
-              const baseThickness = wheelSize * 0.06;
-              const baseRadius = wheelSize * 0.23;
 
-              const gemSrc = TIER_GEM_IMAGES[seg.tier];
+  {segments.map((seg, i) => {
+    const angle = i * segmentAngle - 90;
+    const midAngle = angle + segmentAngle / 2;
 
-              // ✅ 세그먼트(칸) 배경은 전부 흰색 + 구분선
-              const segmentBg = SEGMENT_BG;
-              const segmentStroke = SEGMENT_STROKE;
-              const segmentStrokeWidth = SEGMENT_STROKE_WIDTH;
+    const baseLength = wheelSize * 0.24;
+    const baseThickness = wheelSize * 0.06;
+    const baseRadius = wheelSize * 0.23;
 
-              // ✅ 티어 텍스트 그라데이션(CSS)
-              const gradStops = TIER_TEXT_GRADIENTS[seg.tier] || [
-                "#334155",
-                "#0f172a",
-              ];
-              const tierTextStyle = {
-                fontSize: 30,
-                fontWeight: 900,
-                whiteSpace: "nowrap",
-                letterSpacing: 0.3,
-                backgroundImage: `linear-gradient(180deg, ${gradStops.join(
-                  ", "
-                )})`,
-                WebkitBackgroundClip: "text",
-                backgroundClip: "text",
-                color: "transparent",
-                WebkitTextStroke: "1.5px rgba(15,23,42,0.55)", // ✅ 구분감
-              };
-              
-              return (
-                <div
-                  key={`inner-${seg.id}`}
-                  style={{
-                    position: "absolute",
-                    top: "48%",
-                    left: "50.7%",
-                    width: baseLength,
-                    height: baseThickness,
-                    transformOrigin: "-2% 30%",
-                    transform: `rotate(${midAngle}deg) translateX(${baseRadius}px)`,
-                    zIndex: 10,
-                  }}
-                >
-                  {/* ✅ 흰색 칸 + 라인(구분선) */}
-                  <div
-                    style={{
-                      width: "70%",
-                      height: "70%",
-                      background: segmentBg,
-                      clipPath: "polygon(0% 15%, 100% 0%, 100% 100%, 0% 80%)",
-                      borderLeft: "1px solid rgba(15,23,42,0.9)",
-                      borderRight: "1px solid rgba(15,23,42,0.9)",
-                    }}
-                  />
+    const gemSrc = TIER_GEM_IMAGES[seg.tier];
 
-                  {/* 티어 텍스트 + 보석 이미지 */}
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "34%",
-                      left: "36%",
-                      transform: "translate(-50%, -60%)",
-                      pointerEvents: "none",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                    }}
-                  >
-                    <span style={tierTextStyle}>{seg.tier}</span>
+    const segmentBg = SEGMENT_BG;
+    //const segmentStroke = SEGMENT_STROKE;
+    //const segmentStrokeWidth = SEGMENT_STROKE_WIDTH;
+
+    const gradStops = TIER_TEXT_GRADIENTS[seg.tier] || ["#334155", "#0f172a"];
+    const tierTextStyle = {
+      fontSize: 30,
+      fontWeight: 900,
+      whiteSpace: "nowrap",
+      letterSpacing: 0.3,
+      backgroundImage: `linear-gradient(180deg, ${gradStops.join(", ")})`,
+      WebkitBackgroundClip: "text",
+      backgroundClip: "text",
+      color: "transparent",
+      WebkitTextStroke: "1.5px rgba(15,23,42,0.55)",
+    };
+
+    return (
+      <div
+        key={`inner-${seg.id}`}
+        style={{
+          position: "absolute",
+          top: "48%",
+          left: "50.7%",
+          width: baseLength,
+          height: baseThickness,
+          transformOrigin: "-2% 30%",
+          transform: `rotate(${midAngle}deg) translateX(${baseRadius}px)`,
+          zIndex: 10,
+        }}
+      >
+        {/* ✅ 흰색 패널(기존) */}
+        <div
+          style={{
+             width: "70%",
+    height: "70%",
+    background: segmentBg,
+    clipPath: "polygon(0% 15%, 100% 0%, 100% 100%, 0% 80%)",
+    boxSizing: "border-box",
+  }}
+        />
+
+        {/* 티어 텍스트 + 보석 이미지 */}
+        <div
+          style={{
+            position: "absolute",
+            top: "30%",
+            left: "36%",
+            transform: "translate(-50%, -60%)",
+            pointerEvents: "none",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+          }}
+        >
+          <span style={tierTextStyle}>{seg.tier}</span>
+
 
                     {gemSrc && (
                       <img
