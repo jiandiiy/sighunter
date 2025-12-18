@@ -1,5 +1,6 @@
 // src/components/GameCenter/BoardGame/Board.jsx
 import React, { useMemo } from "react";
+import { DiceBox } from "./Dice";
 
 export default function Board({
   rows,
@@ -14,6 +15,13 @@ export default function Board({
   selectedCellIndex,
   onClickCell,
   onResizeBoard,
+
+  // ✅ 중앙 주사위
+  diceValue,
+  diceRotation3d,
+  diceSnapRotation, // <- BoardGame에서 내려주는 경우 포함
+  isRolling,
+  onRollDice,
 }) {
   const perimeter = useMemo(() => {
     if (rows < 2 || cols < 2) return 0;
@@ -21,19 +29,19 @@ export default function Board({
   }, [rows, cols]);
 
   const indexToCoord = (pos) => {
-    if (pos < cols) return { r: rows - 1, c: pos }; // bottom row: left -> right
+    if (pos < cols) return { r: rows - 1, c: pos };
     if (pos < cols + rows - 1) {
       const offset = pos - cols;
-      return { r: rows - 2 - offset, c: cols - 1 }; // right col: bottom-1 -> top
+      return { r: rows - 2 - offset, c: cols - 1 };
     }
     const topStart = cols + rows - 1;
     if (pos < topStart + cols - 1) {
       const offset = pos - topStart;
-      return { r: 0, c: cols - 2 - offset }; // top row: right-1 -> left
+      return { r: 0, c: cols - 2 - offset };
     }
     const leftStart = topStart + cols - 1;
     const offset = pos - leftStart;
-    return { r: 1 + offset, c: 0 }; // left col: top+1 -> bottom-1
+    return { r: 1 + offset, c: 0 };
   };
 
   const boardData32 = [
@@ -92,119 +100,106 @@ export default function Board({
     return colors[pos % 4];
   };
 
-  /**
-   * ✅ 32칸(9x9) 전용:
-   * - 코너는 "안쪽으로만" 확대(바깥 침범/잘림 없음)
-   * - 전체 칸 링을 inset 만큼 안쪽으로 이동(보드 테두리와 간격)
-   */
- const INNER_PAD_PCT = 1.2; // ✅ 추가(컴포넌트 상단 아무데나)
+  const INNER_PAD_PCT = 1.2;
+  const BOARD_BORDER = 6;
+  const CENTER_PAD = 30;
 
-const getCellStyleFromPos = (pos) => {
-  const { r, c } = indexToCoord(pos);
-  const cellData = getCellColor(pos);
-  const isCorner = !!cellData.isCorner;
+  const getCellStyleFromPos = (pos) => {
+    const { r, c } = indexToCoord(pos);
 
-  const is32 = perimeter === 32;
+    const is32 = perimeter === 32;
 
-  // ✅ "칸 배치 기준"은 OUTER 100%가 아니라 INNER 기준(패딩 제외 영역)
-  const pad = INNER_PAD_PCT;
-  const boardSize = 100 - pad * 2; // INNER 유효 크기(%)
+    const pad = INNER_PAD_PCT;
+    const boardSize = 100 - pad * 2;
+    const ringInset = 0.8;
 
-  // 링을 안쪽으로 미는 여백(%): 줄이면 링이 더 넓어짐
-  const ringInset = 0.8;
+    const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
 
-  const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+    if (!is32) {
+      const baseW = (boardSize - ringInset * 2) / cols;
+      const baseH = (boardSize - ringInset * 2) / rows;
+      return {
+        position: "absolute",
+        width: `${baseW}%`,
+        height: `${baseH}%`,
+        left: `${pad + ringInset + c * baseW}%`,
+        top: `${pad + ringInset + r * baseH}%`,
+      };
+    }
 
-  if (!is32) {
-    const baseW = (boardSize - ringInset * 2) / cols;
-    const baseH = (boardSize - ringInset * 2) / rows;
+    const baseW = (boardSize - ringInset * 2) / 9;
+    const baseH = (boardSize - ringInset * 2) / 9;
+
+    const cornerScale = 1.28;
+    const cornerW = baseW * cornerScale;
+    const cornerH = baseH * cornerScale;
+
+    const insetX = cornerW - baseW;
+    const insetY = cornerH - baseH;
+
+    let left = pad + ringInset + c * baseW;
+    let top = pad + ringInset + r * baseH;
+    let width = baseW;
+    let height = baseH;
+
+    const isTop = r === 0;
+    const isBottom = r === 8;
+    const isLeft = c === 0;
+    const isRight = c === 8;
+
+    const cornerTL = isTop && isLeft;
+    const cornerTR = isTop && isRight;
+    const cornerBR = isBottom && isRight;
+    const cornerBL = isBottom && isLeft;
+
+    if (cornerTL) {
+      width = cornerW;
+      height = cornerH;
+    } else if (cornerTR) {
+      width = cornerW;
+      height = cornerH;
+      left = pad + boardSize - ringInset - cornerW;
+    } else if (cornerBR) {
+      width = cornerW;
+      height = cornerH;
+      left = pad + boardSize - ringInset - cornerW;
+      top = pad + boardSize - ringInset - cornerH;
+    } else if (cornerBL) {
+      width = cornerW;
+      height = cornerH;
+      top = pad + boardSize - ringInset - cornerH;
+    } else {
+      if (isTop || isBottom) {
+        if (c === 1) left += insetX;
+        if (c === 7) left -= insetX;
+      }
+      if (isLeft || isRight) {
+        if (r === 1) top += insetY;
+        if (r === 7) top -= insetY;
+      }
+    }
+
+    const minL = pad;
+    const minT = pad;
+    const maxL = pad + boardSize - width;
+    const maxT = pad + boardSize - height;
+
+    left = clamp(left, minL, maxL);
+    top = clamp(top, minT, maxT);
+
     return {
       position: "absolute",
-      width: `${baseW}%`,
-      height: `${baseH}%`,
-      left: `${pad + ringInset + c * baseW}%`,
-      top: `${pad + ringInset + r * baseH}%`,
+      width: `${width}%`,
+      height: `${height}%`,
+      left: `${left}%`,
+      top: `${top}%`,
     };
-  }
-
-  // ======= 32칸(9x9) 전용 =======
-  const baseW = (boardSize - ringInset * 2) / 9;
-  const baseH = (boardSize - ringInset * 2) / 9;
-
-  const cornerScale = 1.28;
-  const cornerW = baseW * cornerScale;
-  const cornerH = baseH * cornerScale;
-
-  const insetX = cornerW - baseW;
-  const insetY = cornerH - baseH;
-
-  let left = pad + ringInset + c * baseW;
-  let top = pad + ringInset + r * baseH;
-  let width = baseW;
-  let height = baseH;
-
-  const isTop = r === 0;
-  const isBottom = r === 8;
-  const isLeft = c === 0;
-  const isRight = c === 8;
-
-  const cornerTL = isTop && isLeft;
-  const cornerTR = isTop && isRight;
-  const cornerBR = isBottom && isRight;
-  const cornerBL = isBottom && isLeft;
-
-  if (cornerTL) {
-    width = cornerW;
-    height = cornerH;
-  } else if (cornerTR) {
-    width = cornerW;
-    height = cornerH;
-    left = pad + boardSize - ringInset - cornerW;
-  } else if (cornerBR) {
-    width = cornerW;
-    height = cornerH;
-    left = pad + boardSize - ringInset - cornerW;
-    top = pad + boardSize - ringInset - cornerH;
-  } else if (cornerBL) {
-    width = cornerW;
-    height = cornerH;
-    top = pad + boardSize - ringInset - cornerH;
-  } else {
-    if (isTop || isBottom) {
-      if (c === 1) left += insetX;
-      if (c === 7) left -= insetX;
-    }
-    if (isLeft || isRight) {
-      if (r === 1) top += insetY;
-      if (r === 7) top -= insetY;
-    }
-  }
-
-  // ✅ INNER 유효 영역 안에만 있도록 클램프
-  const minL = pad;
-  const minT = pad;
-  const maxL = pad + boardSize - width;
-  const maxT = pad + boardSize - height;
-
-  left = clamp(left, minL, maxL);
-  top = clamp(top, minT, maxT);
-
-  return {
-    position: "absolute",
-    width: `${width}%`,
-    height: `${height}%`,
-    left: `${left}%`,
-    top: `${top}%`,
-  };
   };
 
   const tokensOnCell = (pos) => tokens.filter((t) => t.pos === pos);
 
-  // ✅ 보드 외곽(border)과 칸 배치 영역을 분리해서 “칸이 보드보다 커지는 느낌” 방지
-  const BOARD_BORDER = 6;
-
-  // ✅ 중앙 영역 축소(값을 키울수록 중앙이 작아지고 링이 넓어짐)
-  const CENTER_PAD = 30; // (기존 24) -> 28~34 추천
+  // 굴러가는 동안에는 흐려지지 않게: isRolling을 disabled 기준에서 분리
+  const diceDisabled = !currentTurnToken || isMoving;
 
   return (
     <div style={{ width: "100%", display: "flex", flexDirection: "column" }}>
@@ -223,7 +218,14 @@ const getCellStyleFromPos = (pos) => {
         🎲 모두의마불 🎲
       </h2>
 
-      <p style={{ margin: "0 0 8px", fontSize: 14, opacity: 0.85, color: "#e2e8f0" }}>
+      <p
+        style={{
+          margin: "0 0 8px",
+          fontSize: 14,
+          opacity: 0.85,
+          color: "#e2e8f0",
+        }}
+      >
         {rows} × {cols} 보드 · 둘레 {perimeter}칸
       </p>
 
@@ -245,7 +247,10 @@ const getCellStyleFromPos = (pos) => {
             max={20}
             value={rows}
             onChange={(e) =>
-              onResizeBoard(Math.max(4, Math.min(20, Number(e.target.value) || rows)), cols)
+              onResizeBoard(
+                Math.max(4, Math.min(20, Number(e.target.value) || rows)),
+                cols
+              )
             }
             style={{
               width: 50,
@@ -265,7 +270,10 @@ const getCellStyleFromPos = (pos) => {
             max={20}
             value={cols}
             onChange={(e) =>
-              onResizeBoard(rows, Math.max(4, Math.min(20, Number(e.target.value) || cols)))
+              onResizeBoard(
+                rows,
+                Math.max(4, Math.min(20, Number(e.target.value) || cols))
+              )
             }
             style={{
               width: 50,
@@ -279,7 +287,6 @@ const getCellStyleFromPos = (pos) => {
         </label>
       </div>
 
-      {/* OUTER: 테두리/그림자 */}
       <div
         style={{
           position: "relative",
@@ -287,12 +294,12 @@ const getCellStyleFromPos = (pos) => {
           width: "100%",
           background: "linear-gradient(135deg, #374151, #1f2937)",
           borderRadius: 20,
-          boxShadow: "0 0 40px rgba(0,0,0,0.8), inset 0 0 60px rgba(0,0,0,0.5)",
+          boxShadow:
+            "0 0 40px rgba(0,0,0,0.8), inset 0 0 60px rgba(0,0,0,0.5)",
           border: `${BOARD_BORDER}px solid #111827`,
           overflow: "hidden",
         }}
       >
-        {/* INNER: 실제 칸 배치 영역(항상 border 안쪽 100%) */}
         <div
           style={{
             position: "absolute",
@@ -301,7 +308,6 @@ const getCellStyleFromPos = (pos) => {
             overflow: "hidden",
           }}
         >
-          {/* 중앙 로고(중앙을 더 줄여 링이 더 넓게) */}
           <div
             style={{
               position: "absolute",
@@ -309,28 +315,44 @@ const getCellStyleFromPos = (pos) => {
               right: `${CENTER_PAD}%`,
               top: `${CENTER_PAD}%`,
               bottom: `${CENTER_PAD}%`,
-              background: "linear-gradient(135deg, #475569, #334155)",
               borderRadius: 16,
+              background: "linear-gradient(135deg, #475569, #334155)",
               boxShadow: "inset 0 0 40px rgba(0,0,0,0.7)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexDirection: "column",
+            }}
+          />
+
+          {/* ✅ 중앙 주사위 */}
+          <div
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+              transform: "translate(-50%, -50%) scale(2.3)",
+              transformOrigin: "center",
+              pointerEvents: "none",
             }}
           >
+            
             <div
+              onClick={() => {
+                if (diceDisabled || isRolling) return;
+                onRollDice();
+              }}
               style={{
-                fontSize: 26,
-                fontWeight: 900,
-                color: "#fff",
-                textShadow: "0 2px 10px rgba(59,130,246,0.8)",
-                letterSpacing: 1,
+                pointerEvents: "auto",
+                cursor: diceDisabled || isRolling ? "not-allowed" : "pointer",
+                // ✅ 굴러갈 때(isRolling)는 항상 1, 내 턴 아님/이동 중일 때만 살짝 흐리게
+                opacity: diceDisabled ? 1 : 1,
               }}
             >
-              모두의마불
-            </div>
-            <div style={{ fontSize: 13, color: "#93c5fd", marginTop: 6, letterSpacing: 2 }}>
-              MONO MARBLE
+              <DiceBox
+                value={diceValue}
+                isRolling={isRolling}
+                rotation3d={diceRotation3d}
+                snapRotation={diceSnapRotation}
+                onRoll={() => {}}
+                disabled={diceDisabled || isRolling}
+              />
             </div>
           </div>
 
@@ -373,8 +395,18 @@ const getCellStyleFromPos = (pos) => {
               >
                 {colorScheme.isCorner ? (
                   <div style={{ textAlign: "center" }}>
-                    {colorScheme.icon && <div style={{ fontSize: 32, marginBottom: 4 }}>{colorScheme.icon}</div>}
-                    <div style={{ fontSize: 12, fontWeight: 900, color: colorScheme.text }}>
+                    {colorScheme.icon && (
+                      <div style={{ fontSize: 32, marginBottom: 4 }}>
+                        {colorScheme.icon}
+                      </div>
+                    )}
+                    <div
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 900,
+                        color: colorScheme.text,
+                      }}
+                    >
                       {displayName}
                     </div>
                   </div>
@@ -382,7 +414,9 @@ const getCellStyleFromPos = (pos) => {
                   <>
                     <div style={{ width: "100%", textAlign: "center" }}>
                       {colorScheme.special && colorScheme.icon && (
-                        <div style={{ fontSize: 18, marginBottom: 2 }}>{colorScheme.icon}</div>
+                        <div style={{ fontSize: 18, marginBottom: 2 }}>
+                          {colorScheme.icon}
+                        </div>
                       )}
                       <div
                         style={{
@@ -408,10 +442,20 @@ const getCellStyleFromPos = (pos) => {
                       {displayName}
                     </div>
 
-                    <div style={{ display: "flex", gap: 2, flexWrap: "wrap", justifyContent: "center", marginTop: "auto" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 2,
+                        flexWrap: "wrap",
+                        justifyContent: "center",
+                        marginTop: "auto",
+                      }}
+                    >
                       {onThis.map((t) => {
-                        const isMovingThis = isMoving && t.id === currentTurnToken?.id;
-                        const isScoreChanging = scoreChange && scoreChange.tokenId === t.id;
+                        const isMovingThis =
+                          isMoving && t.id === currentTurnToken?.id;
+                        const isScoreChanging =
+                          scoreChange && scoreChange.tokenId === t.id;
 
                         return (
                           <div
@@ -438,7 +482,10 @@ const getCellStyleFromPos = (pos) => {
                                   transform: "translateX(-50%)",
                                   fontSize: 9,
                                   fontWeight: 900,
-                                  color: scoreChange.diff > 0 ? "#4ade80" : "#f87171",
+                                  color:
+                                    scoreChange.diff > 0
+                                      ? "#4ade80"
+                                      : "#f87171",
                                   textShadow: "0 0 6px rgba(0,0,0,0.9)",
                                   whiteSpace: "nowrap",
                                 }}

@@ -1,6 +1,5 @@
 // src/components/GameCenter/BoardGame/ControlPanel.jsx
 import React from "react";
-import { DiceBox } from "./Dice";
 
 export default function ControlPanel({
   tokens,
@@ -12,8 +11,7 @@ export default function ControlPanel({
   currentTurnIndex,
   moveSteps,
   setMoveSteps,
-  diceValue,
-  diceRotation,
+  diceValue,      // ✅ 마지막 결과만 표시용으로 유지
   isRolling,
   isMoving,
   logs,
@@ -27,7 +25,6 @@ export default function ControlPanel({
   onSelectToken,
   onApplyTokenName,
   onMoveSelected,
-  onRollDice,
   onApplyCellChange,
   onResetGame, // 🔁 전체 초기화 핸들러
   diceTarget,      // "turn" | "selected"
@@ -253,7 +250,7 @@ export default function ControlPanel({
         })}
       </div>
 
-      {/* 선택된 말 이름 변경 + 이동/주사위 */}
+      {/* 선택된 말 이름 변경 + 이동 */}
       <div
         style={{
           marginTop: 4,
@@ -330,7 +327,7 @@ export default function ControlPanel({
           </button>
         </div>
 
-        {/* 이동 컨트롤 + 주사위 */}
+        {/* 이동 컨트롤 + 주사위 대상/결과만 표시 */}
         <div
           style={{
             display: "flex",
@@ -351,30 +348,30 @@ export default function ControlPanel({
             <label style={{ color: "#fff", fontSize: 14 }}>
               이동 칸 수:&nbsp;
               <input
-  type="number"
-  min={-50}
-  max={50}
-  value={moveSteps}
-  onChange={(e) => {
-    const v = Number(e.target.value);
-    if (Number.isNaN(v)) {
-      setMoveSteps(0);
-    } else {
-      setMoveSteps(Math.max(-50, Math.min(50, v)));
-    }
-  }}
-  disabled={isMoving || isRolling}
-  style={{
-    width: 48,
-    background: "rgba(15,23,42,0.9)",
-    border: "1px solid rgba(129,140,248,0.85)",
-    borderRadius: 8,
-    color: "#fff",
-    fontSize: 13,
-    padding: "2px 5px",
-    boxShadow: "0 0 8px rgba(79,70,229,0.8)",
-  }}
-/>
+                type="number"
+                min={-50}
+                max={50}
+                value={moveSteps}
+                onChange={(e) => {
+                  const v = Number(e.target.value);
+                  if (Number.isNaN(v)) {
+                    setMoveSteps(0);
+                  } else {
+                    setMoveSteps(Math.max(-50, Math.min(50, v)));
+                  }
+                }}
+                disabled={isMoving || isRolling}
+                style={{
+                  width: 48,
+                  background: "rgba(15,23,42,0.9)",
+                  border: "1px solid rgba(129,140,248,0.85)",
+                  borderRadius: 8,
+                  color: "#fff",
+                  fontSize: 13,
+                  padding: "2px 5px",
+                  boxShadow: "0 0 8px rgba(79,70,229,0.8)",
+                }}
+              />
             </label>
             <button
               type="button"
@@ -389,85 +386,81 @@ export default function ControlPanel({
                 color: "#022c22",
                 fontWeight: 800,
                 fontSize: 12,
-                 cursor:
-      !selectedToken || isMoving || isRolling ? "not-allowed" : "pointer",
-    opacity:
-      !selectedToken || isMoving || isRolling ? 0.5 : 1,
-    boxShadow: "0 0 10px rgba(45,212,191,0.9)",
-  }}
+                cursor:
+                  !selectedToken || isMoving || isRolling
+                    ? "not-allowed"
+                    : "pointer",
+                opacity:
+                  !selectedToken || isMoving || isRolling ? 0.5 : 1,
+                boxShadow: "0 0 10px rgba(45,212,191,0.9)",
+              }}
             >
               ▶ 이동
             </button>
           </div>
 
-{/* 주사위 대상 선택 */}
-<div
-  style={{
-    display: "flex",
-    justifyContent: "flex-end",
-    gap: 8,
-    alignItems: "center",
-    marginBottom: 4,
-    color: "#e5e7eb",
-    fontSize: 11,
-  }}
->
-  <span style={{ opacity: 0.9 }}>주사위 대상:</span>
-  <label style={{ display: "flex", alignItems: "center", gap: 3 }}>
-    <input
-      type="radio"
-      name="diceTarget"
-      value="turn"
-      checked={diceTarget === "turn"}
-      onChange={() => setDiceTarget("turn")}
-    />
-    <span>현재 턴 말</span>
-  </label>
-  <label style={{ display: "flex", alignItems: "center", gap: 3 }}>
-    <input
-      type="radio"
-      name="diceTarget"
-      value="selected"
-      checked={diceTarget === "selected"}
-      onChange={() => setDiceTarget("selected")}
-    />
-    <span>선택된 말</span>
-  </label>
-</div>
-          {/* 주사위 영역 */}
-          <div style={{ marginTop: 4 }}>
-            {/* 결과 텍스트 */}
+          {/* 주사위 대상 선택 */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: 8,
+              alignItems: "center",
+              marginBottom: 4,
+              color: "#e5e7eb",
+              fontSize: 11,
+            }}
+          >
+            <span style={{ opacity: 0.9 }}>주사위 대상:</span>
+            <label
+              style={{ display: "flex", alignItems: "center", gap: 3 }}
+            >
+              <input
+                type="radio"
+                name="diceTarget"
+                value="turn"
+                checked={diceTarget === "turn"}
+                onChange={() => setDiceTarget("turn")}
+              />
+              <span>현재 턴 말</span>
+            </label>
+            <label
+              style={{ display: "flex", alignItems: "center", gap: 3 }}
+            >
+              <input
+                type="radio"
+                name="diceTarget"
+                value="selected"
+                checked={diceTarget === "selected"}
+                onChange={() => setDiceTarget("selected")}
+              />
+              <span>선택된 말</span>
+            </label>
+          </div>
+
+          {/* 주사위 결과 텍스트만 표시 */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginTop: 2,
+              marginBottom: 4,
+            }}
+          >
             <div
               style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                marginBottom: 4,
+                minWidth: 80,
+                fontSize: 14,
+                opacity: 0.9,
+                color: "#fff",
+                fontWeight: 700,
+                textAlign: "right",
               }}
             >
-              <div
-                style={{
-                  minWidth: 80,
-                  fontSize: 14,
-                  opacity: 0.9,
-                  color: "#fff",
-                  fontWeight: 700,
-                  textAlign: "right",
-                }}
-              >
-                {diceValue
-                  ? `마지막 결과: ${diceValue}`
-                  : "아직 굴린 기록 없음"}
-              </div>
+              {diceValue
+                ? `마지막 결과: ${diceValue}`
+                : "아직 굴린 기록 없음"}
             </div>
-
-            {/* 주사위 컴포넌트 */}
-            <DiceBox
-              value={diceValue}
-              isRolling={isRolling}
-              rotation={diceRotation}
-              onRoll={onRollDice}
-              disabled={!currentTurnToken || isMoving || isRolling}
-            />
           </div>
         </div>
 
@@ -557,7 +550,10 @@ export default function ControlPanel({
                   </b>
                 </>
               ) : (
-                <>보드에서 칸을 클릭하면, 여기에서 그 칸 내용을 수정할 수 있습니다.</>
+                <>
+                  보드에서 칸을 클릭하면, 여기에서 그 칸 내용을
+                  수정할 수 있습니다.
+                </>
               )}
             </div>
 
