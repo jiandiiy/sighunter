@@ -265,7 +265,7 @@ export default function WheelView({
                   <div
                     style={{
                       position: "absolute",
-                      top: "30%",
+                      top: "34%",
                       left: "36%",
                       transform: "translate(-50%, -60%)",
                       pointerEvents: "none",
