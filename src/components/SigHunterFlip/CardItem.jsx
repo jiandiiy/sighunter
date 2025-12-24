@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 function CardItem({
   card = {},
@@ -15,73 +15,21 @@ function CardItem({
 }) {
   const id = card.id;
 
-  // ✅ 이미지 변경 시 fade 효과
-  const [isChanging, setIsChanging] = useState(false);
-  const [displaySrc, setDisplaySrc] = useState(
-    randomImages?.[id] ||
-      card.frontImages?.[0] ||
-      "https://via.placeholder.com/200/CCCCCC/FFFFFF?text=No+Image"
-  );
   const [imageError, setImageError] = useState(false);
 
   const msg = revealed?.[id] || null;
   const isFlipped = flipped?.[id] || false;
   const isLocked = locked?.[id] || false;
+
   const newSrc =
     randomImages?.[id] ||
     card.frontImages?.[0] ||
     "https://via.placeholder.com/200/CCCCCC/FFFFFF?text=No+Image";
 
-  // 🔥 티어 제거: glow 효과도 메시지 텍스트 기준 등으로 쓰고 싶으면 여기서 바꿔도 됨
-  const glow = false;
-
-  // ✅ 이미지 변경 감지 + 사전 로딩
-  useEffect(() => {
-    if (displaySrc === newSrc) return;
-
-    setIsChanging(true);
-    setImageError(false);
-
-    const img = new Image();
-    img.src = newSrc;
-
-    const handleLoad = () => {
-      setDisplaySrc(newSrc);
-      setIsChanging(false);
-    };
-
-    const handleError = () => {
-      console.error("❌ 이미지 로딩 실패:", newSrc);
-      setImageError(true);
-      setDisplaySrc(
-        "https://via.placeholder.com/200/FF6B6B/FFFFFF?text=Load+Failed"
-      );
-      setIsChanging(false);
-    };
-
-    if (img.decode) {
-      img
-        .decode()
-        .then(handleLoad)
-        .catch(handleError);
-    } else {
-      img.onload = handleLoad;
-      img.onerror = handleError;
-    }
-
-    return () => {
-      img.onload = null;
-      img.onerror = null;
-    };
-  }, [newSrc, displaySrc]);
-
   /** 🃏 카드 클릭 */
   const handleFlip = (e) => {
-    console.log("💥 [CardItem] handleFlip 호출, id:", id, "target:", e.target);
-
     // file input이면 카드까지 올라가지 않게 여기서 바로 막기
     if (e.target.tagName === "INPUT" && e.target.type === "file") {
-      console.log("💥 [CardItem] file input 클릭, flip 전달 막음");
       e.stopPropagation();
       return;
     }
@@ -106,19 +54,13 @@ function CardItem({
 
   /** ✅ 이미지 로딩 성공 핸들러 */
   const handleImageLoad = () => {
-    if (imageError) {
-      console.log("✅ 이미지 복구 성공:", id);
-      setImageError(false);
-    }
+    if (imageError) setImageError(false);
   };
-
-  console.log("🧾 [CardItem] id:", id, "msg:", msg);
 
   return (
     <div
       className={`natural-card ${card.isSpecial ? "special-card" : ""} 
         ${isFlipped ? "flipped" : ""} 
-        ${glow ? "glow" : ""} 
         ${isLocked ? "locked" : ""}`}
       onClick={handleFlip}
     >
@@ -126,9 +68,8 @@ function CardItem({
         {/* 카드 앞면 */}
         <div className="card-front">
           <img
-            src={displaySrc}
+            src={newSrc}                 // ✅ 바로 newSrc 사용
             alt={`카드 ${id}`}
-            className={isChanging ? "changing" : ""}
             onError={handleImageError}
             onLoad={handleImageLoad}
             loading="lazy"
@@ -174,19 +115,14 @@ function CardItem({
           }
         >
           <div className="back-content">
-            {msg ? (
-              // 🔥 티어 제거: 텍스트만 표시
-              <h3>{msg.text || ""}</h3>
-            ) : (
-              <h3>?</h3>
-            )}
+            {msg ? <h3>{msg.text || ""}</h3> : <h3>?</h3>}
 
             <button
               type="button"
               className="upload-btn"
               onClick={(e) => {
                 e.stopPropagation();
-                onUploadClick(e, id); // 여기서는 input.click()만
+                onUploadClick(e, id);
               }}
             >
               🖼️
@@ -194,9 +130,7 @@ function CardItem({
 
             <input
               ref={(el) => {
-                if (fileInputRefs?.current) {
-                  fileInputRefs.current[id] = el;
-                }
+                if (fileInputRefs?.current) fileInputRefs.current[id] = el;
               }}
               type="file"
               accept="image/*"
