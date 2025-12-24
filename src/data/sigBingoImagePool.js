@@ -175,6 +175,7 @@ export const bingoImagePool = {
     "/images/queendom/group3/sig_55.webp",
     "/images/queendom/group3/sig_56.webp",
     "/images/queendom/group3/sig_57.webp",
+    "/images/queendom/group3/sig_58.webp",
     "/images/queendom/group3/sig_59.webp",
     "/images/queendom/group3/sig_60.webp",
     "/images/queendom/group3/sig_61.webp",
@@ -240,6 +241,7 @@ export const bingoImagePool = {
     "/images/queendom/group5/sig_181.webp",
     "/images/queendom/group5/sig_201.webp",
     "/images/queendom/group5/sig_221.webp",
+    "/images/queendom/group5/sig_226.webp",
     "/images/queendom/group6/sig_251.webp",
     "/images/queendom/group6/sig_271.webp",
     "/images/queendom/group6/sig_301.webp"
