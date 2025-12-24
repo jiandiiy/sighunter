@@ -95,71 +95,35 @@ function distributeImages(images, numCards, perCard) {
   return cards;
 }
 
-/* 메시지 풀은 프로젝트 공통으로 사용 (필요하면 프로젝트별로도 분리 가능) */
+/* -------------------------------------------------------------------------- */
+/* ✅ 메시지 확률(요청 반영)
+ *
+ * 일반카드:
+ * - 기여도 두배 80%
+ * - 기여도 세배 10%
+ * - 개똥손 10%
+ * - 나머지 0%
+ *
+ * 만수르(특별)카드:
+ * - 기여도 두배 79%
+ * - 기여도 세배 20%
+ * - 기여도 네배 1%
+ * - 나머지 0%
+ * -------------------------------------------------------------------------- */
+
 const normalMessagePool = [
-  // 5%
-  {
-    text: "화장실\n1개",
-    color: "#ffffff",
-    bgColor: "#4a5568",
-    weight: 5,
-  },
-  // 1%
-  {
-    text: "레전드 ✨",
-    color: "#2d3748",
-    bgColor: "#fbd38d",
-    weight: 1,
-  },
-  // 40%
-  {
-    text: "기여도\n두배",
-    color: "#1a202c",
-    bgColor: "#9ae6b4",
-    weight: 40,
-  },
-  // 25%
-  {
-    text: "기여도\n세배",
-    color: "#1a202c",
-    bgColor: "#68d391",
-    weight: 25,
-  },
-  // 0%
-  {
-    text: "기여도\n네배",
-    color: "#1a202c",
-    bgColor: "#48bb78",
-    weight: 0,
-  },
-  // 10%
-  {
-    text: "1000원\n당첨!",
-    color: "#1a202c",
-    bgColor: "#f6e05e",
-    weight: 10,
-  },
-  // 3%
-  {
-    text: "전설 🏆",
-    color: "#2d3748",
-    bgColor: "#ed8936",
-    weight: 3,
-  },
-  // 3%
-  {
-    text: "10000\n원당첨!",
-    color: "#1a202c",
-    bgColor: "#f56565",
-    weight: 3,
-  },
-  // 10%
-  {
-    text: "개똥손 🤡",
-    color: "#ffffff",
-    bgColor: "#2d3748",
-    weight: 10,
-  },
+  { text: "화장실\n1개", color: "#ffffff", bgColor: "#4a5568", weight: 0 },
+  { text: "레전드 ✨", color: "#2d3748", bgColor: "#fbd38d", weight: 0 },
+
+  { text: "기여도\n두배", color: "#1a202c", bgColor: "#9ae6b4", weight: 80 },
+  { text: "기여도\n세배", color: "#1a202c", bgColor: "#68d391", weight: 10 },
+  { text: "기여도\n네배", color: "#1a202c", bgColor: "#48bb78", weight: 0 },
+
+  { text: "1000원\n당첨!", color: "#1a202c", bgColor: "#f6e05e", weight: 0 },
+  { text: "전설 🏆", color: "#2d3748", bgColor: "#ed8936", weight: 0 },
+  { text: "10000\n원당첨!", color: "#1a202c", bgColor: "#f56565", weight: 0 },
+
+  { text: "개똥손 🤡", color: "#ffffff", bgColor: "#2d3748", weight: 10 },
 ];
 
 const specialMessagePool = [
@@ -168,59 +132,59 @@ const specialMessagePool = [
     text: "기여도 두배 🎁",
     color: "#2f1410",
     bgColor: "linear-gradient(90deg, #ffd1a1, #ff9f7b)",
-    weight: 20,
+    weight: 79,
   },
   {
     text: "기여도 세배 🌟",
     color: "#231942",
     bgColor: "linear-gradient(90deg, #c4b5fd, #7c3aed)",
-    weight: 40,
+    weight: 20,
   },
   {
     text: "기여도 네배 🔥",
     color: "#1f2933",
     bgColor: "linear-gradient(90deg, #f97373, #fb923c)",
-    weight: 5,
+    weight: 1,
   },
 
-  // 금액 보상
+  // 금액 보상 (0%)
   {
     text: "💰 30,000원\n당첨!",
     color: "#14532d",
     bgColor: "linear-gradient(90deg, #bbf7d0, #4ade80)",
-    weight: 2,
+    weight: 0,
   },
   {
     text: "💎 50,000원\n당첨!",
     color: "#1d2833",
     bgColor: "linear-gradient(90deg, #a5f3fc, #38bdf8)",
-    weight: 1,
+    weight: 0,
   },
   {
     text: "🎊 100,000원\n당첨!",
     color: "#3f1f0f",
     bgColor: "linear-gradient(90deg, #fde68a, #facc15)",
-    weight: 1,
+    weight: 0,
   },
 
-  // 기타 효과
+  // 기타 효과 (0%)
   {
     text: "화장실 무제한 ♾️",
     color: "#064e3b",
     bgColor: "linear-gradient(90deg, #6ee7b7, #34d399)",
-    weight: 1,
+    weight: 0,
   },
   {
     text: "레전드 💠",
     color: "#0f172a",
     bgColor: "linear-gradient(90deg, #e0f2fe, #60a5fa)",
-    weight: 10,
+    weight: 0,
   },
   {
     text: "전설 🔱",
     color: "#1a1033",
     bgColor: "linear-gradient(90deg, #f5d0fe, #e879f9)",
-    weight: 20,
+    weight: 0,
   },
 ];
 
@@ -324,27 +288,20 @@ fs.writeFileSync(outputFile, output, "utf8");
 /* -------------------------------------------------------------------------- */
 console.log("\n🎉 sigData.js 생성 완료!");
 console.log(`📄 위치: ${outputFile}`);
-console.log("\n✅ 확률 설정:");
+
+console.log("\n✅ 확률 설정(요청 반영):");
 console.log("📇 일반 카드(1~10):");
-console.log("   • 화장실 1개: 5");
-console.log("   • 레전드: 1");
-console.log("   • 기여도 두배: 40");
-console.log("   • 기여도 세배: 25");
-console.log("   • 기여도 네배: 0");
-console.log("   • 1,000원: 10");
-console.log("   • 전설: 3");
-console.log("   • 10,000원: 3");
+console.log("   • 기여도 두배: 80");
+console.log("   • 기여도 세배: 10");
 console.log("   • 개똥손: 10");
-console.log("\n🌟 특별 카드(11):");
-console.log("   • 기여도 두배: 20");
-console.log("   • 기여도 세배: 40");
-console.log("   • 기여도 네배: 5");
-console.log("   • 30,000원: 2");
-console.log("   • 50,000원: 1");
-console.log("   • 100,000원: 1");
-console.log("   • 화장실 무제한: 1");
-console.log("   • 레전드: 10");
-console.log("   • 전설: 20");
+console.log("   • 그 외: 0");
+
+console.log("\n🌟 만수르(특별) 카드(11):");
+console.log("   • 기여도 두배: 79");
+console.log("   • 기여도 세배: 20");
+console.log("   • 기여도 네배: 1");
+console.log("   • 그 외: 0");
+
 console.log("\n💡 작동 방식:");
 console.log("   • 카드를 뒤집을 때마다 가중치 기반으로 랜덤 선택");
 console.log("   • 같은 결과가 여러 번 나올 수 있음");
