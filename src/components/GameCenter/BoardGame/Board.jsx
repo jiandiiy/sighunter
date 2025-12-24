@@ -332,7 +332,6 @@ export default function Board({
               pointerEvents: "none",
             }}
           >
-            
             <div
               onClick={() => {
                 if (diceDisabled || isRolling) return;
@@ -341,8 +340,7 @@ export default function Board({
               style={{
                 pointerEvents: "auto",
                 cursor: diceDisabled || isRolling ? "not-allowed" : "pointer",
-                // ✅ 굴러갈 때(isRolling)는 항상 1, 내 턴 아님/이동 중일 때만 살짝 흐리게
-                opacity: diceDisabled ? 1 : 1,
+                opacity: 1,
               }}
             >
               <DiceBox
@@ -442,12 +440,13 @@ export default function Board({
                       {displayName}
                     </div>
 
+                    {/* ✅ 플레이어 토큰: 컬러볼 대신 이름 표시 */}
                     <div
                       style={{
                         display: "flex",
+                        flexDirection: "column",
                         gap: 2,
-                        flexWrap: "wrap",
-                        justifyContent: "center",
+                        alignItems: "center",
                         marginTop: "auto",
                       }}
                     >
@@ -462,22 +461,29 @@ export default function Board({
                             key={t.id}
                             title={`${t.name} (점수: ${t.score}점)`}
                             style={{
-                              width: 11,
-                              height: 11,
-                              borderRadius: "50%",
-                              background: t.color,
-                              border: "2px solid #fff",
-                              boxShadow: "0 2px 6px rgba(0,0,0,0.6)",
-                              transform: isMovingThis ? "scale(1.2)" : "none",
-                              transition: "transform 0.2s ease-out",
                               position: "relative",
+                              padding: "1px 4px",
+                              borderRadius: 6,
+                              background: t.color,
+                              color: "#ffffff",
+                              fontSize: 9,
+                              fontWeight: 700,
+                              boxShadow: "0 2px 4px rgba(0,0,0,0.5)",
+                              transform: isMovingThis ? "scale(1.05)" : "none",
+                              transition: "transform 0.2s ease-out",
+                              whiteSpace: "nowrap",
+                              maxWidth: "100%",
+                              textOverflow: "ellipsis",
+                              overflow: "hidden",
                             }}
                           >
+                            {t.name}
+
                             {isScoreChanging && (
                               <span
                                 style={{
                                   position: "absolute",
-                                  top: -16,
+                                  top: -14,
                                   left: "50%",
                                   transform: "translateX(-50%)",
                                   fontSize: 9,

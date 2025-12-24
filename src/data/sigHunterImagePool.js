@@ -1649,11 +1649,6 @@ export const sigHunterImagePool = {
         "count": 10000
       },
       {
-        "path": "/images/queendom/group10/sig_10052.webp",
-        "rawText": "[MANUAL]",
-        "count": 10052
-      },
-      {
         "path": "/images/queendom/group10/sig_10053.webp",
         "rawText": "[MANUAL]",
         "count": 10053

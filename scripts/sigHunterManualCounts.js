@@ -320,7 +320,6 @@ module.exports = {
    "queendom/group10/sig_10034.webp": 10034,
    "queendom/group10/sig_10044.webp": 10044,
    "queendom/group10/sig_10045.webp": 10000,
-   "queendom/group10/sig_10052.webp": 10052,
    "queendom/group10/sig_10053.webp": 10053,
    "queendom/group10/sig_10054.webp": 10054,
    "queendom/group10/sig_10056.webp": 10056,
