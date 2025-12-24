@@ -1766,11 +1766,6 @@ export const sigHunterImagePool = {
         "count": 0
       },
       {
-        "path": "/images/queendom/group11/sig_10078.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
         "path": "/images/queendom/group11/sig_10084.webp",
         "rawText": "[NO_MANUAL]",
         "count": 0
@@ -1787,11 +1782,6 @@ export const sigHunterImagePool = {
       },
       {
         "path": "/images/queendom/group11/sig_10101.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10111.webp",
         "rawText": "[NO_MANUAL]",
         "count": 0
       },
