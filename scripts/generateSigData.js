@@ -115,14 +115,14 @@ const normalMessagePool = [
   { text: "화장실\n1개", color: "#ffffff", bgColor: "#4a5568", weight: 0 },
   { text: "레전드 ✨", color: "#2d3748", bgColor: "#fbd38d", weight: 0 },
 
-  { text: "기여도\n두배", color: "#1a202c", bgColor: "#9ae6b4", weight: 56 },
+  { text: "기여도\n두배", color: "#1a202c", bgColor: "#9ae6b4", weight: 46 },
   { text: "기여도\n세배", color: "#1a202c", bgColor: "#68d391", weight: 30 },
-  { text: "기여도\n네배", color: "#1a202c", bgColor: "#48bb78", weight: 3 },
+  { text: "기여도\n네배", color: "#1a202c", bgColor: "#48bb78", weight: 4 },
 
   { text: "1000원\n당첨!", color: "#1a202c", bgColor: "#f6e05e", weight: 0 },
   { text: "전설 🏆", color: "#2d3748", bgColor: "#ed8936", weight: 0 },
   { text: "10000\n원당첨!", color: "#1a202c", bgColor: "#f56565", weight: 0 },
-  { text: "퇴근!🏠", color: "#1a202c", bgColor: "#f56565", weight: 1 },
+  { text: "퇴근!🏠", color: "#1a202c", bgColor: "#f56565", weight: 20 },
 
   { text: "개똥손 🤡", color: "#ffffff", bgColor: "#2d3748", weight: 0 },
 ];
@@ -133,19 +133,19 @@ const specialMessagePool = [
     text: "기여도 두배 🎁",
     color: "#2f1410",
     bgColor: "linear-gradient(90deg, #ffd1a1, #ff9f7b)",
-    weight: 74,
+    weight: 0,
   },
   {
     text: "기여도 세배 🌟",
     color: "#231942",
     bgColor: "linear-gradient(90deg, #c4b5fd, #7c3aed)",
-    weight: 20,
+    weight: 0,
   },
   {
     text: "기여도 네배 🔥",
     color: "#1f2933",
     bgColor: "linear-gradient(90deg, #f97373, #fb923c)",
-    weight: 1,
+    weight: 0,
   },
   
   // 금액 보상 (0%)
@@ -173,7 +173,7 @@ const specialMessagePool = [
     text: "퇴근 🏠",
     color: "#1f2933",
     bgColor: "linear-gradient(90deg, #f97373, #fb923c)",
-    weight: 5,
+    weight: 100,
   },
   {
     text: "화장실 무제한 ♾️",
