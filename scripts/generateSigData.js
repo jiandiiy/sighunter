@@ -115,16 +115,16 @@ const normalMessagePool = [
   { text: "화장실\n1개", color: "#ffffff", bgColor: "#4a5568", weight: 0 },
   { text: "레전드 ✨", color: "#2d3748", bgColor: "#fbd38d", weight: 0 },
 
-  { text: "기여도\n두배", color: "#1a202c", bgColor: "#9ae6b4", weight: 80 },
-  { text: "기여도\n세배", color: "#1a202c", bgColor: "#68d391", weight: 10 },
-  { text: "기여도\n네배", color: "#1a202c", bgColor: "#48bb78", weight: 0 },
+  { text: "기여도\n두배", color: "#1a202c", bgColor: "#9ae6b4", weight: 56 },
+  { text: "기여도\n세배", color: "#1a202c", bgColor: "#68d391", weight: 30 },
+  { text: "기여도\n네배", color: "#1a202c", bgColor: "#48bb78", weight: 3 },
 
   { text: "1000원\n당첨!", color: "#1a202c", bgColor: "#f6e05e", weight: 0 },
   { text: "전설 🏆", color: "#2d3748", bgColor: "#ed8936", weight: 0 },
   { text: "10000\n원당첨!", color: "#1a202c", bgColor: "#f56565", weight: 0 },
   { text: "퇴근!🏠", color: "#1a202c", bgColor: "#f56565", weight: 1 },
 
-  { text: "개똥손 🤡", color: "#ffffff", bgColor: "#2d3748", weight: 9 },
+  { text: "개똥손 🤡", color: "#ffffff", bgColor: "#2d3748", weight: 0 },
 ];
 
 const specialMessagePool = [
