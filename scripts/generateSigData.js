@@ -121,7 +121,7 @@ const normalMessagePool = [
 
   { text: "1000원\n당첨!", color: "#1a202c", bgColor: "#f6e05e", weight: 0 },
   { text: "전설 🏆", color: "#2d3748", bgColor: "#ed8936", weight: 0 },
-  { text: "10000\n원당첨!", color: "#1a202c", bgColor: "#f56565", weight: 0 },
+  { text: "10000\n원당첨!", color: "#1a202c", bgColor: "#f56565", weight: 1 },
   { text: "퇴근!🏠", color: "#1a202c", bgColor: "#f56565", weight: 0 },
 
   { text: "개똥손 🤡", color: "#ffffff", bgColor: "#2d3748", weight: 10 },
@@ -133,7 +133,7 @@ const specialMessagePool = [
     text: "기여도 두배 🎁",
     color: "#2f1410",
     bgColor: "linear-gradient(90deg, #ffd1a1, #ff9f7b)",
-    weight: 79,
+    weight: 74,
   },
   {
     text: "기여도 세배 🌟",
@@ -173,7 +173,7 @@ const specialMessagePool = [
     text: "퇴근 🏠",
     color: "#1f2933",
     bgColor: "linear-gradient(90deg, #f97373, #fb923c)",
-    weight: 0,
+    weight: 5,
   },
   {
     text: "화장실 무제한 ♾️",
