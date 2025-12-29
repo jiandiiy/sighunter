@@ -19,7 +19,7 @@ export default function Board({
   // ✅ 중앙 주사위
   diceValue,
   diceRotation3d,
-  diceSnapRotation, // <- BoardGame에서 내려주는 경우 포함
+  diceSnapRotation,
   isRolling,
   onRollDice,
 }) {
@@ -28,20 +28,21 @@ export default function Board({
     return 2 * (rows + cols) - 4;
   }, [rows, cols]);
 
-  const indexToCoord = (pos) => {
-    if (pos < cols) return { r: rows - 1, c: pos };
-    if (pos < cols + rows - 1) {
-      const offset = pos - cols;
-      return { r: rows - 2 - offset, c: cols - 1 };
-    }
-    const topStart = cols + rows - 1;
-    if (pos < topStart + cols - 1) {
-      const offset = pos - topStart;
-      return { r: 0, c: cols - 2 - offset };
-    }
-    const leftStart = topStart + cols - 1;
-    const offset = pos - leftStart;
-    return { r: 1 + offset, c: 0 };
+  // ✅ 32칸(9×9 링) 전용 좌표 매핑
+  const indexToCoord32 = (pos) => {
+    const N = 9; // 9×9 그리드
+    // bottom row: (8,0)~(8,8) : 9칸 (pos 0..8)
+    if (pos < 9) return { r: N - 1, c: pos };
+
+    // right col: (7,8)~(0,8) : 8칸 (pos 9..16)
+    if (pos < 9 + 8) return { r: N - 2 - (pos - 9), c: N - 1 };
+
+    // top row: (0,7)~(0,0) : 8칸 (pos 17..24)
+    if (pos < 9 + 8 + 8)
+      return { r: 0, c: N - 2 - (pos - (9 + 8)) };
+
+    // left col: (1,0)~(7,0) : 7칸 (pos 25..31)
+    return { r: 1 + (pos - (9 + 8 + 8)), c: 0 };
   };
 
   const boardData32 = [
@@ -82,12 +83,13 @@ export default function Board({
   const getCellColor = (pos) => {
     if (perimeter === 32 && pos < 32) return boardData32[pos];
 
-    const { r, c } = indexToCoord(pos);
+    const { r, c } = indexToCoord32(pos);
+    const N = 9;
     const isCorner =
       (r === 0 && c === 0) ||
-      (r === 0 && c === cols - 1) ||
-      (r === rows - 1 && c === 0) ||
-      (r === rows - 1 && c === cols - 1);
+      (r === 0 && c === N - 1) ||
+      (r === N - 1 && c === 0) ||
+      (r === N - 1 && c === N - 1);
 
     if (isCorner) return { bg: "#60a5fa", text: "#1e3a8a", isCorner: true };
 
@@ -102,103 +104,86 @@ export default function Board({
 
   const INNER_PAD_PCT = 1.2;
   const BOARD_BORDER = 6;
-  const CENTER_PAD = 30;
+  const CENTER_PAD = 22;
 
+  // ✅ 9×9 링 기준: 모서리=1×1, 상/하=1×2, 좌/우=2×1
   const getCellStyleFromPos = (pos) => {
-    const { r, c } = indexToCoord(pos);
+    const N = 9;
+      const RING = 2; // ✅ 링(테두리) 두께: 2칸
+    const { r, c } = indexToCoord32(pos);
 
-    const is32 = perimeter === 32;
-
-    const pad = INNER_PAD_PCT;
-    const boardSize = 100 - pad * 2;
-    const ringInset = 0.8;
-
-    const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
-
-    if (!is32) {
-      const baseW = (boardSize - ringInset * 2) / cols;
-      const baseH = (boardSize - ringInset * 2) / rows;
-      return {
-        position: "absolute",
-        width: `${baseW}%`,
-        height: `${baseH}%`,
-        left: `${pad + ringInset + c * baseW}%`,
-        top: `${pad + ringInset + r * baseH}%`,
-      };
-    }
-
-    const baseW = (boardSize - ringInset * 2) / 9;
-    const baseH = (boardSize - ringInset * 2) / 9;
-
-    const cornerScale = 1.28;
-    const cornerW = baseW * cornerScale;
-    const cornerH = baseH * cornerScale;
-
-    const insetX = cornerW - baseW;
-    const insetY = cornerH - baseH;
-
-    let left = pad + ringInset + c * baseW;
-    let top = pad + ringInset + r * baseH;
-    let width = baseW;
-    let height = baseH;
+    const USED = 96;
+    const base = USED / N;
+    const offset = (100 - USED) / 2; // 가운데 정렬
 
     const isTop = r === 0;
-    const isBottom = r === 8;
+    const isBottom = r === N - 1;
     const isLeft = c === 0;
-    const isRight = c === 8;
+    const isRight = c === N - 1;
 
-    const cornerTL = isTop && isLeft;
-    const cornerTR = isTop && isRight;
-    const cornerBR = isBottom && isRight;
-    const cornerBL = isBottom && isLeft;
+    const isCorner =
+      (isTop && isLeft) ||
+      (isTop && isRight) ||
+      (isBottom && isLeft) ||
+      (isBottom && isRight);
 
-    if (cornerTL) {
-      width = cornerW;
-      height = cornerH;
-    } else if (cornerTR) {
-      width = cornerW;
-      height = cornerH;
-      left = pad + boardSize - ringInset - cornerW;
-    } else if (cornerBR) {
-      width = cornerW;
-      height = cornerH;
-      left = pad + boardSize - ringInset - cornerW;
-      top = pad + boardSize - ringInset - cornerH;
-    } else if (cornerBL) {
-      width = cornerW;
-      height = cornerH;
-      top = pad + boardSize - ringInset - cornerH;
-    } else {
-      if (isTop || isBottom) {
-        if (c === 1) left += insetX;
-        if (c === 7) left -= insetX;
-      }
-      if (isLeft || isRight) {
-        if (r === 1) top += insetY;
-        if (r === 7) top -= insetY;
-      }
-    }
+    const left0 = offset + c * base;
+    const top0 = offset + r * base;
 
-    const minL = pad;
-    const minT = pad;
-    const maxL = pad + boardSize - width;
-    const maxT = pad + boardSize - height;
-
-    left = clamp(left, minL, maxL);
-    top = clamp(top, minT, maxT);
-
+    // 🔹 모서리: 1×1
+  if (isCorner) {
+    const left = isLeft ? left0 : left0 - (RING - 1) * base;   // 오른쪽 모서리는 안쪽으로
+    const top = isTop ? top0 : top0 - (RING - 1) * base;       // 아래 모서리는 안쪽으로
     return {
       position: "absolute",
-      width: `${width}%`,
-      height: `${height}%`,
       left: `${left}%`,
       top: `${top}%`,
+      width: `${base * RING}%`,
+      height: `${base * RING}%`,
     };
+    }
+
+     if (isTop) {
+    return {
+      position: "absolute",
+      left: `${left0}%`,
+      top: `${top0}%`,
+      width: `${base}%`,
+      height: `${base * RING}%`,
+    };
+  }
+  if (isBottom) {
+    return {
+      position: "absolute",
+      left: `${left0}%`,
+      top: `${top0 - (RING - 1) * base}%`,
+      width: `${base}%`,
+      height: `${base * RING}%`,
+    };
+  }
+
+  // 🔹 좌/우: 가로 RING칸(안쪽으로), 세로 1칸
+  if (isLeft) {
+    return {
+      position: "absolute",
+      left: `${left0}%`,
+      top: `${top0}%`,
+      width: `${base * RING}%`,
+      height: `${base}%`,
+    };
+  }
+
+  // isRight
+  return {
+    position: "absolute",
+    left: `${left0 - (RING - 1) * base}%`,
+    top: `${top0}%`,
+    width: `${base * RING}%`,
+    height: `${base}%`,
   };
+};
 
   const tokensOnCell = (pos) => tokens.filter((t) => t.pos === pos);
-
-  // 굴러가는 동안에는 흐려지지 않게: isRolling을 disabled 기준에서 분리
   const diceDisabled = !currentTurnToken || isMoving;
 
   return (
@@ -220,7 +205,7 @@ export default function Board({
 
       <p
         style={{
-          margin: "0 0 8px",
+          margin: "0 0 .5rem",
           fontSize: 14,
           opacity: 0.85,
           color: "#e2e8f0",
@@ -254,9 +239,9 @@ export default function Board({
             }
             style={{
               width: 50,
-              padding: "4px 6px",
+              padding: ".25rem .375rem",
               borderRadius: 6,
-              border: "1px solid #475569",
+              border: ".0625rem solid #475569",
               background: "#1e293b",
               color: "#e2e8f0",
             }}
@@ -277,9 +262,9 @@ export default function Board({
             }
             style={{
               width: 50,
-              padding: "4px 6px",
+              padding: ".25rem .375rem",
               borderRadius: 6,
-              border: "1px solid #475569",
+              border: ".0625rem solid #475569",
               background: "#1e293b",
               color: "#e2e8f0",
             }}
@@ -295,7 +280,7 @@ export default function Board({
           background: "linear-gradient(135deg, #374151, #1f2937)",
           borderRadius: 20,
           boxShadow:
-            "0 0 40px rgba(0,0,0,0.8), inset 0 0 60px rgba(0,0,0,0.5)",
+            "0 0 2.5rem rgba(0,0,0,0.8), inset 0 0 3.75rem rgba(0,0,0,0.5)",
           border: `${BOARD_BORDER}px solid #111827`,
           overflow: "hidden",
         }}
@@ -305,7 +290,7 @@ export default function Board({
             position: "absolute",
             inset: BOARD_BORDER,
             borderRadius: 20 - BOARD_BORDER,
-            overflow: "hidden",
+            overflow: "visible", // 칸이 안쪽으로 2칸 확장돼도 안 잘리게
           }}
         >
           <div
@@ -316,8 +301,8 @@ export default function Board({
               top: `${CENTER_PAD}%`,
               bottom: `${CENTER_PAD}%`,
               borderRadius: 16,
-              background: "linear-gradient(135deg, #475569, #334155)",
-              boxShadow: "inset 0 0 40px rgba(0,0,0,0.7)",
+              background: "transparent",
+              boxShadow: "none",
             }}
           />
 
@@ -371,15 +356,15 @@ export default function Board({
                   ...getCellStyleFromPos(pos),
                   background: colorScheme.bg,
                   border: isSelectedCell
-                    ? "3px solid #fbbf24"
+                    ? ".1875rem solid #fbbf24"
                     : isLanded
-                    ? "3px solid #34d399"
-                    : "2px solid rgba(0,0,0,0.3)",
+                    ? ".1875rem solid #34d399"
+                    : ".125rem solid rgba(0,0,0,0.3)",
                   boxShadow: isSelectedCell
-                    ? "0 0 18px rgba(251,191,36,0.9)"
+                    ? "0 0 1.125rem rgba(251,191,36,0.9)"
                     : isLanded
-                    ? "0 0 18px rgba(52,211,153,0.9)"
-                    : "inset 0 2px 4px rgba(255,255,255,0.2), 0 2px 8px rgba(0,0,0,0.4)",
+                    ? "0 0 1.125rem rgba(52,211,153,0.9)"
+                    : "inset 0 .125rem .25rem rgba(255,255,255,0.2), 0 .125rem .5rem rgba(0,0,0,0.4)",
                   borderRadius: colorScheme.isCorner ? 12 : 6,
                   padding: colorScheme.isCorner ? "8%" : "7%",
                   boxSizing: "border-box",
@@ -388,7 +373,9 @@ export default function Board({
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  justifyContent: colorScheme.isCorner ? "center" : "space-between",
+                  justifyContent: colorScheme.isCorner
+                    ? "center"
+                    : "space-between",
                 }}
               >
                 {colorScheme.isCorner ? (
@@ -440,7 +427,6 @@ export default function Board({
                       {displayName}
                     </div>
 
-                    {/* ✅ 플레이어 토큰: 컬러볼 대신 이름 표시 */}
                     <div
                       style={{
                         display: "flex",
@@ -462,13 +448,13 @@ export default function Board({
                             title={`${t.name} (점수: ${t.score}점)`}
                             style={{
                               position: "relative",
-                              padding: "1px 4px",
+                              padding: ".0625rem .25rem",
                               borderRadius: 6,
                               background: t.color,
                               color: "#ffffff",
                               fontSize: 9,
                               fontWeight: 700,
-                              boxShadow: "0 2px 4px rgba(0,0,0,0.5)",
+                              boxShadow: "0 .125rem .25rem rgba(0,0,0,0.5)",
                               transform: isMovingThis ? "scale(1.05)" : "none",
                               transition: "transform 0.2s ease-out",
                               whiteSpace: "nowrap",
@@ -492,7 +478,7 @@ export default function Board({
                                     scoreChange.diff > 0
                                       ? "#4ade80"
                                       : "#f87171",
-                                  textShadow: "0 0 6px rgba(0,0,0,0.9)",
+                                  textShadow: "0 0 .375rem rgba(0,0,0,0.9)",
                                   whiteSpace: "nowrap",
                                 }}
                               >

@@ -294,9 +294,7 @@ export default function BoardGame() {
       <div
         style={{
           width: "100%",
-          height: "100%",
           maxWidth: "2000px",
-          maxHeight: "2000px",
           margin: "0 auto",
           padding: 16,
           boxSizing: "border-box",
@@ -314,7 +312,12 @@ export default function BoardGame() {
         }}
       >
         {/* 보드 */}
-        <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ 
+    flex: 1,
+    minWidth: 0,
+    minHeight: 0,
+    maxWidth: "min(2000px, 70vw)",      // ✅ 원하는 최대 크기(px)
+    width: "90%",}}>
           <Board
             rows={rows}
             cols={cols}
@@ -337,7 +340,7 @@ export default function BoardGame() {
         </div>
 
         {/* 컨트롤 패널 */}
-        <div style={{ width: 240, flexShrink: 0 }}>
+        <div style={{ width: 300, flexShrink: 1 }}>
           <ControlPanel
             tokens={tokens}
             selectedToken={selectedToken}
