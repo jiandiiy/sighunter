@@ -6,21 +6,30 @@ import {
   normalMessages,
   specialMessages,
 } from "../data/sigData";
-import { loadSigState, saveSigState } from "../api/sigRemoteStorage";
+
+// ✅ Firestore 실시간 구독/저장
+import { doc, onSnapshot, setDoc } from "firebase/firestore";
+import { db } from "../firebase"; // ⚠️ 프로젝트에 맞게 경로 수정
 
 export function useSigStorage() {
-  const [flipped, setFlipped] = useState({});
-  const [locked, setLocked] = useState({});
-  const [revealed, setRevealed] = useState({});
-  const [randomImages, setRandomImages] = useState({});
-  const [cardWeights, setCardWeights] = useState({});
-  const [loaded, setLoaded] = useState(false); // 서버에서 로드 완료 여부
+  const [flipped, setFlippedState] = useState({});
+  const [locked, setLockedState] = useState({});
+  const [revealed, setRevealedState] = useState({});
+  const [randomImages, setRandomImagesState] = useState({});
+  const [cardWeights, setCardWeightsState] = useState({});
+  const [loaded, setLoaded] = useState(false);
 
   // 🔹 두 프로젝트 카드 전부 포함 (상태는 공통 사용)
   const allSigCards = [...queendomSigCards, ...museSigCards];
 
-  // 🔹 초기값 세팅 (기존 cardWeights 초기화 + 랜덤 이미지 같이 처리)
-  const initDefaults = () => {
+  // ✅ Firestore 문서 위치 (원하는 경로로 바꿔도 됨)
+  const docRef = doc(db, "sigHunter", "main");
+
+  // ✅ "지금 setState가 원격 스냅샷 때문에 일어난 것" 표시 (루프 방지)
+  const fromRemoteRef = useRef(false);
+
+  // 🔹 기본 상태 생성
+  const buildDefaultState = () => {
     // 카드 앞면 랜덤 이미지
     const initImgs = {};
     allSigCards.forEach((c) => {
@@ -29,7 +38,6 @@ export function useSigStorage() {
         initImgs[c.id] = imgs[Math.floor(Math.random() * imgs.length)];
       }
     });
-    setRandomImages(initImgs);
 
     // 가중치 초기화 (문자열 키)
     const initWeights = {};
@@ -40,89 +48,144 @@ export function useSigStorage() {
     });
 
     localStorage.setItem("cardWeights", JSON.stringify(initWeights));
-    setCardWeights(initWeights);
+
+    return {
+      flipped: {},
+      locked: {},
+      revealed: {},
+      randomImages: initImgs,
+      cardWeights: initWeights,
+    };
   };
 
-  // 🔹 1) 앱 시작 시: Firestore → 없으면 로컬/기본값
+  // 🔹 1) Firestore 실시간 구독
   useEffect(() => {
-    (async () => {
-      try {
-        const remote = await loadSigState(); // ✅ project 인자 제거
+    const unsub = onSnapshot(
+      docRef,
+      (snap) => {
+        if (snap.exists()) {
+          const data = snap.data();
 
-        if (remote) {
-          // 서버에 저장된 값이 있으면 그걸 우선 사용
-          setFlipped(remote.flipped || {});
-          setLocked(remote.locked || {});
-          setRevealed(remote.revealed || {});
-          setRandomImages(remote.randomImages || {});
-          setCardWeights(remote.cardWeights || {});
-        } else {
-          // 서버에 아무것도 없으면 기존 로컬 초기화 로직 사용
-          const saved = JSON.parse(localStorage.getItem("cardWeights") || "{}");
+          fromRemoteRef.current = true;
 
-          if (Object.keys(saved).length === 0) {
-            initDefaults();
-          } else {
-            setCardWeights(saved);
+          setFlippedState(data.flipped || {});
+          setLockedState(data.locked || {});
+          setRevealedState(data.revealed || {});
+          setRandomImagesState(data.randomImages || {});
+          setCardWeightsState(data.cardWeights || {});
 
-            // randomImages는 예전엔 안 저장했을 수 있으니 만들어 줌
-            const initImgs = {};
-            allSigCards.forEach((c) => {
-              const imgs = c.frontImages;
-              if (imgs?.length) {
-                initImgs[c.id] = imgs[Math.floor(Math.random() * imgs.length)];
-              }
-            });
-            setRandomImages(initImgs);
+          if (data.cardWeights) {
+            localStorage.setItem(
+              "cardWeights",
+              JSON.stringify(data.cardWeights)
+            );
           }
-        }
-      } catch (err) {
-        console.error("[useSigStorage] 원격 로드 실패:", err);
-        // 실패해도 최소한 동작은 해야 하므로 로컬/기본값으로
-        const saved = JSON.parse(localStorage.getItem("cardWeights") || "{}");
-        if (Object.keys(saved).length === 0) {
-          initDefaults();
         } else {
-          setCardWeights(saved);
+          // 문서가 없으면 기본 상태 만들고 생성
+          const def = buildDefaultState();
+
+          fromRemoteRef.current = true;
+
+          setFlippedState(def.flipped);
+          setLockedState(def.locked);
+          setRevealedState(def.revealed);
+          setRandomImagesState(def.randomImages);
+          setCardWeightsState(def.cardWeights);
+
+          setDoc(docRef, def).catch((e) =>
+            console.error("[useSigStorage] 초기 문서 생성 실패:", e)
+          );
         }
-      } finally {
+
+        setLoaded(true);
+      },
+      (err) => {
+        console.error("[useSigStorage] onSnapshot 에러:", err);
+
+        const def = buildDefaultState();
+        setFlippedState(def.flipped);
+        setLockedState(def.locked);
+        setRevealedState(def.revealed);
+        setRandomImagesState(def.randomImages);
+        setCardWeightsState(def.cardWeights);
+
         setLoaded(true);
       }
-    })();
-    // ✅ 앱 최초 1회만 동작, project에 반응하지 않게
+    );
+
+    return () => unsub();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 🔹 2) 상태 변경 시 Firestore에 자동 저장 (0.5초 디바운스)
-  const firstSyncDone = useRef(false);
+  // 🔹 2) 원격 저장 헬퍼 (merge)
+  const pushToRemote = (next) => {
+    setDoc(docRef, next, { merge: true }).catch((e) =>
+      console.error("[useSigStorage] 원격 저장 실패:", e)
+    );
+  };
 
-  useEffect(() => {
-    if (!loaded) return; // 아직 로딩 전이면 저장 X
+  // 🔹 3) setter 래핑 (로컬 + 원격 동기화)
+  const setFlipped = (updater) => {
+    setFlippedState((prev) => {
+      const next = typeof updater === "function" ? updater(prev) : updater;
 
-    // 첫 로딩 후 한 번은 건너뛴다 (로드한 걸 다시 저장하지 않도록)
-    if (!firstSyncDone.current) {
-      firstSyncDone.current = true;
-      return;
-    }
+      if (!fromRemoteRef.current) {
+        pushToRemote({ flipped: next });
+      }
+      return next;
+    });
+    fromRemoteRef.current = false;
+  };
 
-    const stateToSave = {
-      flipped,
-      locked,
-      revealed,
-      randomImages,
-      cardWeights,
-    };
+  const setLocked = (updater) => {
+    setLockedState((prev) => {
+      const next = typeof updater === "function" ? updater(prev) : updater;
 
-    const timeout = setTimeout(() => {
-      // 로컬 cardWeights도 계속 같이 저장
-      localStorage.setItem("cardWeights", JSON.stringify(cardWeights));
+      if (!fromRemoteRef.current) {
+        pushToRemote({ locked: next });
+      }
+      return next;
+    });
+    fromRemoteRef.current = false;
+  };
 
-      saveSigState(stateToSave).catch((e) => {
-        console.error("[useSigStorage] 원격 저장 실패:", e);
-      });
-    }, 500);
+  const setRevealed = (updater) => {
+    setRevealedState((prev) => {
+      const next = typeof updater === "function" ? updater(prev) : updater;
 
-    return () => clearTimeout(timeout);
-  }, [flipped, locked, revealed, randomImages, cardWeights, loaded]); // ✅ project 제거
+      if (!fromRemoteRef.current) {
+        pushToRemote({ revealed: next });
+      }
+      return next;
+    });
+    fromRemoteRef.current = false;
+  };
+
+  const setRandomImages = (updater) => {
+    setRandomImagesState((prev) => {
+      const next = typeof updater === "function" ? updater(prev) : updater;
+
+      if (!fromRemoteRef.current) {
+        pushToRemote({ randomImages: next });
+      }
+      return next;
+    });
+    fromRemoteRef.current = false;
+  };
+
+  const setCardWeights = (updater) => {
+    setCardWeightsState((prev) => {
+      const next = typeof updater === "function" ? updater(prev) : updater;
+
+      localStorage.setItem("cardWeights", JSON.stringify(next));
+
+      if (!fromRemoteRef.current) {
+        pushToRemote({ cardWeights: next });
+      }
+      return next;
+    });
+    fromRemoteRef.current = false;
+  };
 
   // 🔹 디버그용 setRevealed (원래 쓰던 거 유지)
   const debugSetRevealed = (updater) => {
