@@ -1,12 +1,12 @@
 // src/components/SigHunterBingo/SigHunterBingoBoard.jsx
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import "./SigHunterBingoBoard.css";
 
 import {
   getInitialHunterCells,
   HUNTER_MODES,
-  createRandomHunterCell, // ✅ 새로 추가된 헬퍼
+  createRandomHunterCell,
 } from "../../../utils/sigHunterBingoData";
 import {
   loadSigHunterBingoState,
@@ -80,6 +80,9 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
 
   // 🔹 mode+size별 상태 저장 (탭 이동시 즉시 복원용)
   const [modeStates, setModeStates] = useState({});
+
+  // 🔹 파일 입력 ref (칸별 이미지 변경용)
+  const fileInputRefs = useRef({});
 
   // 🔹 1) useState로 한 번만 랜덤 순서의 팔레트 생성
   const [shuffledPalette] = useState(() => {
@@ -401,13 +404,75 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
   };
 
   const getCurrentCount = (cell) => {
-    if (!cell?.counts || cell.counts.length === 0) return cell.sigCount ?? 0;
-    const idx =
-      typeof cell.imageIndex === "number"
-        ? cell.imageIndex % cell.counts.length
-        : 0;
-    const value = cell.counts[idx];
-    return value != null ? value : cell.sigCount ?? 0;
+    // counts 배열에 값이 있으면 그걸 우선
+    if (cell?.counts && cell.counts.length > 0) {
+      const idx =
+        typeof cell.imageIndex === "number"
+          ? cell.imageIndex % cell.counts.length
+          : 0;
+      const value = cell.counts[idx];
+      if (value != null) return value;
+    }
+    // 없으면 sigCount
+    return cell.sigCount ?? 0;
+  };
+
+  // ✅ 이미지 변경: 파일 선택 → 해당 칸 이미지 실시간 교체 + 개수 입력
+  const handleChangeCellImage = (e, cellId) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target?.result;
+      if (!dataUrl) return;
+
+      // 새 이미지 시그 개수 입력 받기
+      const input = window.prompt(
+        "이 이미지의 시그 개수를 입력하세요 (숫자만)",
+        ""
+      );
+      const parsed = input != null ? parseInt(input, 10) : null;
+      const sigCount = Number.isFinite(parsed) ? parsed : null;
+
+      setCells((prev) => {
+        const next = prev.map((c) => ({ ...c }));
+        const cell = next[cellId];
+        if (!cell) return prev;
+
+        // 선택한 이미지로 바로 교체
+        cell.images = [dataUrl];
+        cell.imageIndex = 0;
+
+        if (sigCount != null) {
+          cell.counts = [sigCount];
+          cell.sigCount = sigCount;
+        }
+
+        const nextState = {
+          mode,
+          size,
+          cells: next,
+          logs,
+          lineOwners,
+          playerColors,
+        };
+
+        sync(storageKey, nextState);
+
+        setModeStates((prevStates) => ({
+          ...prevStates,
+          [stateKey]: nextState,
+        }));
+
+        return next;
+      });
+
+      // 같은 파일 재선택 가능하도록 초기화
+      e.target.value = "";
+    };
+
+    reader.readAsDataURL(file);
   };
 
   const handleClickCell = (cellId) => {
@@ -587,6 +652,28 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                           />
                         </div>
                       )}
+
+                      {/* 🔹 이미지 변경 버튼 + 숨겨진 파일 input */}
+                      <button
+                        type="button"
+                        className="hunter-img-change-btn"
+                        onClick={(e) => {
+                          e.stopPropagation(); // 점령 클릭 방지
+                          const input = fileInputRefs.current[cell.id];
+                          if (input) input.click();
+                        }}
+                      >
+                        이미지 변경
+                      </button>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: "none" }}
+                        ref={(el) => {
+                          fileInputRefs.current[cell.id] = el;
+                        }}
+                        onChange={(e) => handleChangeCellImage(e, cell.id)}
+                      />
                     </div>
 
                     <div className="hunter-cell-back">

@@ -1,33 +1,69 @@
 // src/api/sigHunterBingoStorage.js
+// 🔄 Firestore 실시간 버전으로 교체
 
-const STORAGE_KEY_PREFIX = "sigHunterBingo.";
+import { doc, onSnapshot, setDoc, getDoc } from "firebase/firestore";
+import { db } from "../firebase"; // 프로젝트에 맞게 경로 조정
+
+const COLLECTION = "sigHunterBingo";
 
 /**
- * 시그헌터 빙고 상태 로드
- * boardId 기준으로 각각 다른 판을 저장할 수 있게 함.
+ * Firestore 문서 참조
+ * boardId, mode, size 조합으로 각기 다른 판을 분리 저장
  */
-export async function loadSigHunterBingoState(boardId = "hunter-default") {
-  if (typeof window === "undefined") return null;
-  const raw = window.localStorage.getItem(STORAGE_KEY_PREFIX + boardId);
-  if (!raw) return null;
+export const getBingoDocRef = (boardId, mode, size) =>
+  doc(db, COLLECTION, `${boardId}-${mode}-${size}`);
 
-  try {
-    return JSON.parse(raw);
-  } catch (e) {
-    console.error("loadSigHunterBingoState parse error", e);
-    return null;
-  }
+/**
+ * 시그헌터 빙고 상태 1회 로드 (초기 진입용)
+ */
+export async function loadSigHunterBingoState(boardId, mode, size) {
+  const ref = getBingoDocRef(boardId, mode, size);
+  const snap = await getDoc(ref);
+  return snap.exists() ? snap.data() : null;
 }
 
 /**
- * 시그헌터 빙고 상태 저장
+ * 시그헌터 빙고 상태 실시간 구독
+ * onData: (state | null) => void
+ * onError: (error) => void
+ * return: () => unsubscribe
  */
-export async function saveSigHunterBingoState(boardId, state) {
-  if (typeof window === "undefined") return;
+export function subscribeSigHunterBingoState(
+  boardId,
+  mode,
+  size,
+  onData,
+  onError
+) {
+  const ref = getBingoDocRef(boardId, mode, size);
+  return onSnapshot(
+    ref,
+    (snap) => {
+      if (snap.exists()) onData(snap.data());
+      else onData(null);
+    },
+    (err) => {
+      console.error("[Bingo] onSnapshot error:", err);
+      if (onError) onError(err);
+    }
+  );
+}
+
+/**
+ * 시그헌터 빙고 상태 저장 (merge)
+ * state: { cells, logs, lineOwners, playerColors, ... }
+ */
+export async function saveSigHunterBingoState(boardId, mode, size, state) {
+  const ref = getBingoDocRef(boardId, mode, size);
   try {
-    window.localStorage.setItem(
-      STORAGE_KEY_PREFIX + boardId,
-      JSON.stringify(state)
+    await setDoc(
+      ref,
+      {
+        mode,
+        size,
+        ...state,
+      },
+      { merge: true }
     );
   } catch (e) {
     console.error("saveSigHunterBingoState failed", e);
