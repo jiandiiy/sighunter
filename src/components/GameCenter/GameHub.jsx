@@ -9,27 +9,24 @@ import SigHunterBingoBoard from "./SigHunterBingo/SigHunterBingoBoard";
 
 export default function GameHub() {
   // "sig" | "mines" | "board" | "wheel" | "bingo" | "hunterBingo"
-  // 마지막에 보던 게임을 localStorage에서 불러와 초기값으로 사용
   const [game, setGame] = useState(() => {
     if (typeof window === "undefined") return "sig";
     const saved = window.localStorage.getItem("gameHub.lastGame");
     return saved || "sig";
   });
 
-  // 식대전 빙고 안에서 1 / 2 선택
+  // 식대전 빙고 안에서 1 / 2 / 3 선택
   const [bingoTab, setBingoTab] = useState(() => {
     if (typeof window === "undefined") return "1";
     const saved = window.localStorage.getItem("gameHub.lastBingoTab");
     return saved || "1";
   });
 
-  // game 변경 시 저장
   useEffect(() => {
     if (typeof window === "undefined") return;
     window.localStorage.setItem("gameHub.lastGame", game);
   }, [game]);
 
-  // bingoTab 변경 시 저장
   useEffect(() => {
     if (typeof window === "undefined") return;
     window.localStorage.setItem("gameHub.lastBingoTab", bingoTab);
@@ -105,7 +102,7 @@ export default function GameHub() {
           🔍 시그헌터
         </button>
 
-        {/* 식대전 빙고 버튼 (시그헌터 바로 옆) */}
+        {/* 식대전 빙고 버튼 */}
         <button
           type="button"
           onClick={() => setGame("bingo")}
@@ -129,7 +126,7 @@ export default function GameHub() {
           🍽️ 식대전 빙고
         </button>
 
-        {/* ✅ 시그헌터 빙고 버튼 */}
+        {/* 시그헌터 빙고 버튼 */}
         <button
           type="button"
           onClick={() => setGame("hunterBingo")}
@@ -255,7 +252,7 @@ export default function GameHub() {
               width: "100%",
             }}
           >
-            {/* 내부 탭: 빙고 1 / 빙고 2 */}
+            {/* 내부 탭: 빙고 1 / 빙고 2 / 빙고 3 */}
             <div
               style={{
                 display: "inline-flex",
@@ -309,11 +306,69 @@ export default function GameHub() {
               >
                 빙고 2
               </button>
+              {/* ✅ 추가: 빙고 3 탭 */}
+              <button
+                type="button"
+                onClick={() => setBingoTab("3")}
+                style={{
+                  padding: "4px 12px",
+                  borderRadius: 999,
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  fontFamily:
+                    "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                  background:
+                    bingoTab === "3"
+                      ? "linear-gradient(135deg, #fdba74, #fef9c3)"
+                      : "transparent",
+                  color: bingoTab === "3" ? "#0f172a" : "#e5e7eb",
+                }}
+              >
+                빙고 3
+              </button>
             </div>
 
-            {/* 빙고판: 1,2 각각 독립 상태를 위해 key 분리 */}
-            {bingoTab === "1" && <BingoBoard key="bingo1" boardId="bingo1" />}
-            {bingoTab === "2" && <BingoBoard key="bingo2" boardId="bingo2" />}
+            {/* 빙고판: 1,2,3 각각 독립 상태를 위해 key/boardId 분리 */}
+            {bingoTab === "1" && (
+              <BingoBoard
+                key="bingo1"
+                boardId="bingo1"
+                boardRules={{
+                  conquest: { enabled: true },     // 랜덤 점령 + 이름표시
+                  specialCell: { enabled: false },
+                }}
+              />
+            )}
+
+            {bingoTab === "2" && (
+              <BingoBoard
+                key="bingo2"
+                boardId="bingo2"
+                boardRules={{
+                  conquest: { enabled: false },
+                  specialCell: {
+                    enabled: true,
+                    index: 4,
+                    src: "/images/special.png", // 가운데 스페셜 카드
+                    lock: false,
+                    autoChecked: false,
+                  },
+                }}
+              />
+            )}
+
+            {bingoTab === "3" && (
+              <BingoBoard
+                key="bingo3"
+                boardId="bingo3"
+                boardRules={{
+                  conquest: { enabled: false },
+                  specialCell: { enabled: false }, // 필요에 따라 규칙 변경
+                }}
+              />
+            )}
           </div>
         )}
 
