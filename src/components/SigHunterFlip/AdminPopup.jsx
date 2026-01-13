@@ -3,12 +3,18 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   queendomSigCards,
   museSigCards,
-  normalMessages,
-  specialMessages,
+  normalMessages as defaultNormalMessages,
+  specialMessages as defaultSpecialMessages,
 } from "../../data/sigData";
 import "./adminPopup.css";
 
-export default function AdminPopup({ project, cardId, onClose, onUpdate }) {
+export default function AdminPopup({
+  project,
+  cardId,
+  messages,      // { normal: [...], special: [...] }
+  onClose,
+  onUpdate,      // (weightsForThisCard, cardId, updatedMessagesWholeSet)
+}) {
   const id = String(cardId); // 문자열 ID
   const numId = Number(cardId); // 카드 검색용 숫자
 
@@ -18,32 +24,41 @@ export default function AdminPopup({ project, cardId, onClose, onUpdate }) {
     muse: museSigCards,
   };
   const sigCards = projectCardSets[project] ?? queendomSigCards;
-
   const card = sigCards.find((c) => c.id === numId);
 
   const [weights, setWeights] = useState([]);
-  const [messages, setMessages] = useState([]);
+  const [localMessages, setLocalMessages] = useState([]);
   const [isApplied, setIsApplied] = useState(false);
   const modalRef = useRef(null);
+
+  const isSpecial = !!card?.isSpecial;
 
   /** 카드 데이터 로드 */
   useEffect(() => {
     if (!card) return;
 
-    const base = card.isSpecial ? specialMessages : normalMessages;
+    // Firestore에서 온 전체 메시지 세트 또는 기본값
+    const baseAll =
+      messages && messages.normal && messages.special
+        ? messages
+        : { normal: defaultNormalMessages, special: defaultSpecialMessages };
+
+    const base = isSpecial ? baseAll.special : baseAll.normal;
+
+    // 기존 가중치 로드
     const saved = JSON.parse(localStorage.getItem("cardWeights") || "{}");
     let initial = saved[id];
 
     if (!initial || initial.length !== base.length) {
-      initial = base.map((m) => m.weight);
+      initial = base.map((m) => m.weight ?? 1);
       saved[id] = initial;
       localStorage.setItem("cardWeights", JSON.stringify(saved));
     }
 
     setWeights(initial);
-    setMessages(base);
+    setLocalMessages(base.map((m) => ({ ...m })));
     setIsApplied(false);
-  }, [id, card]);
+  }, [id, card, messages, isSpecial]);
 
   /** 스크롤 진행 효과 (선택) */
   useEffect(() => {
@@ -81,58 +96,136 @@ export default function AdminPopup({ project, cardId, onClose, onUpdate }) {
     });
   };
 
+  /** 메시지 텍스트 수정 */
+  const updateMessageText = (index, text) => {
+    setIsApplied(false);
+    setLocalMessages((prev) => {
+      const next = [...prev];
+      next[index] = { ...next[index], text };
+      return next;
+    });
+  };
+
+  /** 항목 추가 */
+  const addMessageRow = () => {
+    setIsApplied(false);
+    setLocalMessages((prev) => [
+      ...prev,
+      { text: "", weight: 1 }, // 최소 필드
+    ]);
+    setWeights((prev) => [...prev, 1]);
+  };
+
+  /** 항목 삭제 */
+  const removeMessageRow = (index) => {
+    setIsApplied(false);
+    setLocalMessages((prev) => prev.filter((_, i) => i !== index));
+    setWeights((prev) => prev.filter((_, i) => i !== index));
+  };
+
   /** 적용 버튼 */
   const applyWeights = () => {
     if (!card) return;
 
+    // 1) 로컬 메시지 + 가중치 합쳐서 새로운 메시지 배열 생성
+    const mergedMessages = localMessages.map((m, i) => ({
+      ...m,
+      weight: weights[i] ?? 0,
+    }));
+
+    // 2) 이 카드 타입에 맞는 전체 메시지 세트로 다시 구성
+    const currentAll =
+      messages && messages.normal && messages.special
+        ? messages
+        : { normal: defaultNormalMessages, special: defaultSpecialMessages };
+
+    const updatedAll = {
+      normal: isSpecial ? currentAll.normal : mergedMessages,
+      special: isSpecial ? mergedMessages : currentAll.special,
+    };
+
+    // 3) cardWeights도 이 카드에 한해서 업데이트
     const all = JSON.parse(localStorage.getItem("cardWeights") || "{}");
-    all[id] = weights;
+    all[id] = mergedMessages.map((m) => m.weight ?? 0);
     localStorage.setItem("cardWeights", JSON.stringify(all));
 
-    onUpdate?.(weights, id); // state 동기화용
+    // 4) 상위로 전달 → useSigStorage / Firestore까지 동기화
+    onUpdate?.(all[id], id, updatedAll);
     setIsApplied(true);
   };
 
-  /** 이 카드만 초기화 */
+  /** 이 타입(일반/스페셜) 메시지만 기본값으로 */
   const resetSingleCard = () => {
     if (!card) return;
-    if (window.confirm(`카드 ${id}번 확률을 초기화하시겠습니까?`)) {
-      const base = card.isSpecial ? specialMessages : normalMessages;
-      const init = base.map((m) => m.weight);
+    if (
+      window.confirm(
+        `이 카드가 사용하는 ${
+          isSpecial ? "스페셜" : "일반"
+        } 메시지 세트를 기본값으로 복원할까요?`
+      )
+    ) {
+      const base = isSpecial
+        ? defaultSpecialMessages
+        : defaultNormalMessages;
+
+      const init = base.map((m) => m.weight ?? 1);
+
+      const currentAll =
+        messages && messages.normal && messages.special
+          ? messages
+          : { normal: defaultNormalMessages, special: defaultSpecialMessages };
+
+      const updatedAll = {
+        normal: isSpecial ? currentAll.normal : base,
+        special: isSpecial ? base : currentAll.special,
+      };
 
       const all = JSON.parse(localStorage.getItem("cardWeights") || "{}");
       all[id] = init;
       localStorage.setItem("cardWeights", JSON.stringify(all));
+
+      setLocalMessages(base.map((m) => ({ ...m })));
       setWeights(init);
       setIsApplied(false);
 
-      onUpdate?.(init, id);
+      onUpdate?.(init, id, updatedAll);
 
-      alert(`✅ ${id}번 카드 확률이 기본값으로 복원되었습니다.`);
+      alert("✅ 메시지와 확률이 기본값으로 복원되었습니다.");
     }
   };
 
-  /** 전체 초기화 */
+  /** 전체(일반+스페셜) 전부 기본값으로 */
   const resetAllCards = () => {
-    if (window.confirm("모든 카드 확률을 기본값으로 복원하시겠습니까?")) {
-      const normal = normalMessages.map((m) => m.weight);
-      const special = specialMessages.map((m) => m.weight);
+    if (
+      window.confirm("모든 메시지와 확률을 기본값으로 복원하시겠습니까?")
+    ) {
+      const updatedAll = {
+        normal: defaultNormalMessages,
+        special: defaultSpecialMessages,
+      };
+
+      const normalW = defaultNormalMessages.map((m) => m.weight ?? 1);
+      const specialW = defaultSpecialMessages.map((m) => m.weight ?? 1);
       const all = {};
 
       sigCards.forEach((c) => {
         const key = String(c.id);
-        all[key] = c.isSpecial ? special : normal;
+        all[key] = c.isSpecial ? specialW : normalW;
       });
 
       localStorage.setItem("cardWeights", JSON.stringify(all));
 
-      const selfInit = card?.isSpecial ? special : normal;
-      setWeights(selfInit);
+      const selfInit = isSpecial
+        ? defaultSpecialMessages
+        : defaultNormalMessages;
+      const selfWeights = selfInit.map((m) => m.weight ?? 1);
+      setLocalMessages(selfInit.map((m) => ({ ...m })));
+      setWeights(selfWeights);
       setIsApplied(false);
 
-      onUpdate?.(selfInit, id);
+      onUpdate?.(selfWeights, id, updatedAll);
 
-      alert("✅ 모든 카드 확률이 기본값으로 복원되었습니다!");
+      alert("✅ 모든 메시지와 확률이 기본값으로 복원되었습니다!");
     }
   };
 
@@ -158,20 +251,36 @@ export default function AdminPopup({ project, cardId, onClose, onUpdate }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="admin-container">
-          <h2>🎰 {id}번 카드 확률 조절</h2>
+          <h2>🎰 {id}번 카드 메시지 / 확률 조절</h2>
           <p className="card-type">
-            {card.isSpecial ? "🌟 특별 카드" : "📇 일반 카드"}
+            {isSpecial ? "🌟 특별 카드" : "📇 일반 카드"}
           </p>
 
           <div className="prob-list">
-            {messages.map((msg, i) => {
+            {localMessages.map((msg, i) => {
               const total = weights.reduce((a, b) => a + b, 0) || 1;
               const percent = ((weights[i] / total) * 100).toFixed(1);
+
               return (
                 <div className="prob-control" key={i}>
                   <div className="prob-header">
-                    <label>{msg.text}</label>
+                    <input
+                      type="text"
+                      className="msg-text-input"
+                      value={msg.text || ""}
+                      onChange={(e) =>
+                        updateMessageText(i, e.target.value)
+                      }
+                      placeholder="메시지 내용"
+                    />
                     <span className="prob-percent">({percent}%)</span>
+                    <button
+                      type="button"
+                      className="remove-row-btn"
+                      onClick={() => removeMessageRow(i)}
+                    >
+                      ✖
+                    </button>
                   </div>
                   <div className="prob-inputs">
                     <input
@@ -179,7 +288,9 @@ export default function AdminPopup({ project, cardId, onClose, onUpdate }) {
                       min="0"
                       max="100"
                       value={weights[i] || 0}
-                      onChange={(e) => updateWeight(i, e.target.value, e)}
+                      onChange={(e) =>
+                        updateWeight(i, e.target.value, e)
+                      }
                       className="range-input"
                       style={{
                         "--range-progress": `${weights[i] || 0}%`,
@@ -190,33 +301,40 @@ export default function AdminPopup({ project, cardId, onClose, onUpdate }) {
                       min="0"
                       max="100"
                       value={weights[i] || 0}
-                      onChange={(e) => updateWeight(i, e.target.value)}
+                      onChange={(e) =>
+                        updateWeight(i, e.target.value)
+                      }
                       className="number-input"
                     />
                   </div>
                 </div>
               );
             })}
+
+            <button
+              type="button"
+              className="add-row-btn"
+              onClick={addMessageRow}
+            >
+              ➕ 메시지 항목 추가
+            </button>
           </div>
 
-          <div className="button-group">
-            <button className="reset-single-btn" onClick={resetSingleCard}>
-              🔄 이 카드만 초기화
-            </button>
-            <button className="reset-all-btn" onClick={resetAllCards}>
-              🔄 모든 카드 초기화
-            </button>
+         <div className="button-group">
+  <button className="reset-single-btn" onClick={resetSingleCard}>
+    🔄 이 타입 메시지만 기본값
+  </button>
+  <button className="reset-all-btn" onClick={resetAllCards}>
+    🔄 전체 메시지/확률 초기화
+  </button>
 
-            {!isApplied ? (
-              <button className="apply-btn" onClick={applyWeights}>
-                적용
-              </button>
-            ) : (
-              <button className="close-btn" onClick={onClose}>
-                닫기
-              </button>
-            )}
-          </div>
+  <button className="apply-btn" onClick={applyWeights}>
+    적용
+  </button>
+  <button className="close-btn" onClick={onClose}>
+    닫기
+  </button>
+</div>
         </div>
       </div>
     </div>

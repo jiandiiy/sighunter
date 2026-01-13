@@ -3,8 +3,8 @@ import { useState, useEffect, useRef } from "react";
 import {
   queendomSigCards,
   museSigCards,
-  normalMessages,
-  specialMessages,
+  normalMessages as defaultNormalMessages,
+  specialMessages as defaultSpecialMessages,
 } from "../data/sigData";
 
 // ✅ Firestore 실시간 구독/저장
@@ -17,12 +17,16 @@ export function useSigStorage() {
   const [revealed, setRevealedState] = useState({});
   const [randomImages, setRandomImagesState] = useState({});
   const [cardWeights, setCardWeightsState] = useState({});
+  const [messages, setMessagesState] = useState({
+    normal: defaultNormalMessages,
+    special: defaultSpecialMessages,
+  });
   const [loaded, setLoaded] = useState(false);
 
   // 🔹 두 프로젝트 카드 전부 포함 (상태는 공통 사용)
   const allSigCards = [...queendomSigCards, ...museSigCards];
 
-  // ✅ Firestore 문서 위치 (원하는 경로로 바꿔도 됨)
+  // ✅ Firestore 문서 위치
   const docRef = doc(db, "sigHunter", "main");
 
   // ✅ "지금 setState가 원격 스냅샷 때문에 일어난 것" 표시 (루프 방지)
@@ -42,9 +46,11 @@ export function useSigStorage() {
     // 가중치 초기화 (문자열 키)
     const initWeights = {};
     allSigCards.forEach((card) => {
-      const base = card.isSpecial ? specialMessages : normalMessages;
+      const base = card.isSpecial
+        ? defaultSpecialMessages
+        : defaultNormalMessages;
       const key = String(card.id);
-      initWeights[key] = base.map((m) => m.weight);
+      initWeights[key] = base.map((m) => m.weight ?? 1);
     });
 
     localStorage.setItem("cardWeights", JSON.stringify(initWeights));
@@ -55,6 +61,10 @@ export function useSigStorage() {
       revealed: {},
       randomImages: initImgs,
       cardWeights: initWeights,
+      messages: {
+        normal: defaultNormalMessages,
+        special: defaultSpecialMessages,
+      },
     };
   };
 
@@ -73,6 +83,10 @@ export function useSigStorage() {
           setRevealedState(data.revealed || {});
           setRandomImagesState(data.randomImages || {});
           setCardWeightsState(data.cardWeights || {});
+          setMessagesState({
+            normal: data.messages?.normal || defaultNormalMessages,
+            special: data.messages?.special || defaultSpecialMessages,
+          });
 
           if (data.cardWeights) {
             localStorage.setItem(
@@ -91,6 +105,7 @@ export function useSigStorage() {
           setRevealedState(def.revealed);
           setRandomImagesState(def.randomImages);
           setCardWeightsState(def.cardWeights);
+          setMessagesState(def.messages);
 
           setDoc(docRef, def).catch((e) =>
             console.error("[useSigStorage] 초기 문서 생성 실패:", e)
@@ -108,6 +123,7 @@ export function useSigStorage() {
         setRevealedState(def.revealed);
         setRandomImagesState(def.randomImages);
         setCardWeightsState(def.cardWeights);
+        setMessagesState(def.messages);
 
         setLoaded(true);
       }
@@ -124,58 +140,30 @@ export function useSigStorage() {
     );
   };
 
+  // 🔹 공통 setter 래퍼
+  const wrapSetter = (setState, key) => (updater) => {
+    setState((prev) => {
+      const next =
+        typeof updater === "function" ? updater(prev) : updater;
+
+      if (!fromRemoteRef.current) {
+        pushToRemote({ [key]: next });
+      }
+      return next;
+    });
+    fromRemoteRef.current = false;
+  };
+
   // 🔹 3) setter 래핑 (로컬 + 원격 동기화)
-  const setFlipped = (updater) => {
-    setFlippedState((prev) => {
-      const next = typeof updater === "function" ? updater(prev) : updater;
-
-      if (!fromRemoteRef.current) {
-        pushToRemote({ flipped: next });
-      }
-      return next;
-    });
-    fromRemoteRef.current = false;
-  };
-
-  const setLocked = (updater) => {
-    setLockedState((prev) => {
-      const next = typeof updater === "function" ? updater(prev) : updater;
-
-      if (!fromRemoteRef.current) {
-        pushToRemote({ locked: next });
-      }
-      return next;
-    });
-    fromRemoteRef.current = false;
-  };
-
-  const setRevealed = (updater) => {
-    setRevealedState((prev) => {
-      const next = typeof updater === "function" ? updater(prev) : updater;
-
-      if (!fromRemoteRef.current) {
-        pushToRemote({ revealed: next });
-      }
-      return next;
-    });
-    fromRemoteRef.current = false;
-  };
-
-  const setRandomImages = (updater) => {
-    setRandomImagesState((prev) => {
-      const next = typeof updater === "function" ? updater(prev) : updater;
-
-      if (!fromRemoteRef.current) {
-        pushToRemote({ randomImages: next });
-      }
-      return next;
-    });
-    fromRemoteRef.current = false;
-  };
+  const setFlipped = wrapSetter(setFlippedState, "flipped");
+  const setLocked = wrapSetter(setLockedState, "locked");
+  const setRandomImages = wrapSetter(setRandomImagesState, "randomImages");
+  const setMessages = wrapSetter(setMessagesState, "messages");
 
   const setCardWeights = (updater) => {
     setCardWeightsState((prev) => {
-      const next = typeof updater === "function" ? updater(prev) : updater;
+      const next =
+        typeof updater === "function" ? updater(prev) : updater;
 
       localStorage.setItem("cardWeights", JSON.stringify(next));
 
@@ -187,17 +175,19 @@ export function useSigStorage() {
     fromRemoteRef.current = false;
   };
 
+  const setRevealedBase = wrapSetter(setRevealedState, "revealed");
+
   // 🔹 디버그용 setRevealed (원래 쓰던 거 유지)
   const debugSetRevealed = (updater) => {
     if (typeof updater === "function") {
-      setRevealed((prev) => {
+      setRevealedBase((prev) => {
         const next = updater(prev);
         console.log("🧩 [useSigStorage] setRevealed 호출:", { prev, next });
         return next;
       });
     } else {
       console.log("🧩 [useSigStorage] setRevealed 직접 대입:", updater);
-      setRevealed(updater);
+      setRevealedBase(updater);
     }
   };
 
@@ -207,11 +197,13 @@ export function useSigStorage() {
     revealed,
     randomImages,
     cardWeights,
+    messages,       // 🔹 추가
     setFlipped,
     setLocked,
     setRevealed: debugSetRevealed,
     setRandomImages,
     setCardWeights,
+    setMessages,    // 🔹 추가
     loaded,
   };
 }
