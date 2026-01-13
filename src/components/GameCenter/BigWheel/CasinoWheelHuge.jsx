@@ -52,7 +52,7 @@ export default function CasinoWheelHuge() {
 
   const [tierCounts, setTierCounts] = useState({
     DIAMOND: 1,
-    EMERALD: 1,
+    EMERALD: 2,
     SAPPHIRE: 4,
     RUBY: 11,
     GOLD: 18,
