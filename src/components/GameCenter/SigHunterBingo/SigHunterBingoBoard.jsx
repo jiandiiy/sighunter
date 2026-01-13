@@ -417,7 +417,7 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
     return cell.sigCount ?? 0;
   };
 
-  // ✅ 이미지 변경: 파일 선택 → 해당 칸 이미지 실시간 교체 + 개수 입력
+  // ✅ 이미지 변경: 파일 선택 → 해당 칸 이미지 "추가" + 개수 입력
   const handleChangeCellImage = (e, cellId) => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
@@ -440,14 +440,22 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
         const cell = next[cellId];
         if (!cell) return prev;
 
-        // 선택한 이미지로 바로 교체
-        cell.images = [dataUrl];
-        cell.imageIndex = 0;
+        // 배열 초기화
+        if (!Array.isArray(cell.images)) cell.images = [];
+        if (!Array.isArray(cell.counts)) cell.counts = [];
+
+        // ✅ 새 이미지를 기존 배열에 추가
+        cell.images = [...cell.images, dataUrl];
 
         if (sigCount != null) {
-          cell.counts = [sigCount];
+          cell.counts = [...cell.counts, sigCount];
           cell.sigCount = sigCount;
+        } else {
+          cell.counts = [...cell.counts, cell.sigCount ?? 0];
         }
+
+        // 방금 추가한 이미지를 바로 보이게
+        cell.imageIndex = cell.images.length - 1;
 
         const nextState = {
           mode,
@@ -497,6 +505,7 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
         sigCount: newCellBase.sigCount,
         images: newCellBase.images,
         counts: newCellBase.counts,
+        // 원래 로직 유지 (필요하면 여기서 random index 써도 됨)
         imageIndex: newCellBase.imageIndex,
         owner: actor,
       });
@@ -654,18 +663,18 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                       )}
 
                       {/* 🔹 이미지 변경 버튼 + 숨겨진 파일 input */}
-                     <button
-  type="button"
-  className="hunter-img-change-btn"
-  onClick={(e) => {
-    e.stopPropagation(); // 점령 클릭 방지
-    const input = fileInputRefs.current[cell.id];
-    if (input) input.click();
-  }}
-  title="이미지 변경"
->
-  📷
-</button>
+                      <button
+                        type="button"
+                        className="hunter-img-change-btn"
+                        onClick={(e) => {
+                          e.stopPropagation(); // 점령 클릭 방지
+                          const input = fileInputRefs.current[cell.id];
+                          if (input) input.click();
+                        }}
+                        title="이미지 변경"
+                      >
+                        📷
+                      </button>
                       <input
                         type="file"
                         accept="image/*"
