@@ -654,17 +654,18 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                       )}
 
                       {/* 🔹 이미지 변경 버튼 + 숨겨진 파일 input */}
-                      <button
-                        type="button"
-                        className="hunter-img-change-btn"
-                        onClick={(e) => {
-                          e.stopPropagation(); // 점령 클릭 방지
-                          const input = fileInputRefs.current[cell.id];
-                          if (input) input.click();
-                        }}
-                      >
-                        이미지 변경
-                      </button>
+                     <button
+  type="button"
+  className="hunter-img-change-btn"
+  onClick={(e) => {
+    e.stopPropagation(); // 점령 클릭 방지
+    const input = fileInputRefs.current[cell.id];
+    if (input) input.click();
+  }}
+  title="이미지 변경"
+>
+  📷
+</button>
                       <input
                         type="file"
                         accept="image/*"

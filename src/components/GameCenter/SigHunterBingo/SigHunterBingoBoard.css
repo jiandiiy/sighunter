@@ -415,27 +415,46 @@
   background: rgba(255, 255, 255, 0.08);
 }
 
-/* 빙고 칸 안 이미지 변경 버튼 */
+/* 빙고 칸 안 이미지 변경 버튼: 기본은 숨김, hover 시만 사진 아이콘 */
 .hunter-img-change-btn {
-  margin-top: 6px;
-  padding: 3px 8px;
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  z-index: 5;
+
+  width: 26px;
+  height: 26px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: rgba(15, 23, 42, 0.85);
   color: #f9fafb;
-  font-size: 10px;
+  font-size: 14px; /* 이모지 크기 */
   cursor: pointer;
-  display: inline-flex;
+  display: flex;             /* 기본적으로는 숨길 거라 의미는 없지만 hover용 구조로 */
   align-items: center;
   justify-content: center;
-  gap: 4px;
   backdrop-filter: blur(4px);
-  transition: background 0.15s ease, border-color 0.15s ease,
-    transform 0.1s ease, box-shadow 0.15s ease;
+  opacity: 0;
+  transform: scale(0.8);
+  pointer-events: none;      /* 기본 상태 클릭 불가 */
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
+
+/* 셀에 마우스 올렸을 때만 버튼 보이게 */
+.hunter-cell:hover .hunter-img-change-btn {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;      /* hover 시에만 클릭 가능 */
+}
+
+/* hover 시 살짝 강조 */
 .hunter-img-change-btn:hover {
-  background: rgba(59, 130, 246, 0.85);
-  border-color: rgba(191, 219, 254, 0.9);
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.45);
-  transform: translateY(-1px);
+  background: rgba(59, 130, 246, 0.9);
+  border-color: rgba(191, 219, 254, 0.95);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.6);
 }
