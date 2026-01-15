@@ -1,0 +1,309 @@
+
+
+.hpbar-root {
+  width: 100%;
+  margin: 4px 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #f9fafb;
+}
+
+.hpbar-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.hpbar-bar {
+  position: relative;
+  width: 100%;
+  height: 26px;
+  border-radius: 999px;
+  background: #111827;
+  overflow: hidden;
+  box-shadow: 0 0 8px rgba(15, 23, 42, 0.8);
+}
+
+.hpbar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e, #eab308, #ef4444);
+  transition: width 0.3s ease;
+}
+
+.hpbar-shield {
+  position: absolute;
+  right: 10px;
+  top: 2px;
+  font-size: 12px;
+  color: #e5f3ff;
+  text-shadow: 0 0 4px rgba(15, 23, 42, 0.9);
+}
+
+.hpbar-tags {
+  position: absolute;
+  left: 8px;
+  bottom: 2px;
+  display: flex;
+  gap: 4px;
+  font-size: 10px;
+}
+
+.hpbar-tag {
+  padding: 1px 4px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.8);
+}
+
+.hpbar-tag--buff {
+  border: 1px solid #4ade80;
+  color: #bbf7d0;
+}
+
+.hpbar-tag--debuff {
+  border: 1px solid #f97316;
+  color: #fed7aa;
+}
+
+/* attack 이펙트 */
+.hpbar-bar.hpbar-attack::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  background: url("/public/images/overlay/slash.png") center/contain no-repeat;
+  animation: hp-attack 0.4s ease-out;
+  pointer-events: none;
+}
+
+@keyframes hp-attack {
+  0% {
+    opacity: 0;
+    transform: scale(0.7) translateY(-8px);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.2) translateY(8px);
+  }
+}
+
+/* heal 이펙트 */
+.hpbar-bar.hpbar-heal::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(34, 197, 94, 0.5), transparent);
+  animation: hp-heal 0.6s ease-out;
+}
+
+@keyframes hp-heal {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* defend 이펙트 */
+.hpbar-bar.hpbar-defend::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 999px;
+  border: 2px solid rgba(59, 130, 246, 0.9);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.8);
+  animation: hp-defend 0.4s ease-out;
+}
+
+@keyframes hp-defend {
+  0% {
+    opacity: 0;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* item 이펙트 */
+.hpbar-bar.hpbar-item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(234, 179, 8, 0.5), transparent);
+  animation: hp-item 0.6s ease-out;
+}
+
+@keyframes hp-item {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+
+.hp-overlay-root {
+  width: 100%;
+  height: 100%;
+  padding: 16px 24px;
+  box-sizing: border-box;
+  background: transparent; /* OBS 투명 오버레이 */
+  color: #f9fafb;
+}
+
+.hp-overlay-title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
+}
+
+.hp-overlay-mode-team-vs-one .hp-overlay-boss-wrap {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.hp-overlay-mode-1v1 .hp-overlay-1v1-bars {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+.hp-overlay-1v1-left,
+.hp-overlay-1v1-right {
+  width: 40%;
+}
+
+.hp-overlay-1v1-vs {
+  font-size: 32px;
+  font-weight: 900;
+}
+
+.hp-overlay-mode-ffa3 .hp-overlay-ffa3-bars {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.hp-overlay-ffa3-item + .hp-overlay-ffa3-item {
+  margin-top: 8px;
+}
+
+
+.hpctrl-root {
+  min-height: 100vh;
+  padding: 16px 24px;
+  box-sizing: border-box;
+  background: #020617;
+  color: #e5e7eb;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.hpctrl-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.hpctrl-mode-tabs {
+  display: inline-flex;
+  gap: 4px;
+  background: rgba(15, 23, 42, 0.9);
+  padding: 4px;
+  border-radius: 999px;
+}
+
+.hpctrl-tab {
+  border: none;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  background: transparent;
+  color: #e5e7eb;
+}
+
+.hpctrl-tab--active {
+  background: linear-gradient(135deg, #6366f1, #ec4899);
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.hpctrl-main {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.hpctrl-fighters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  max-width: 600px;
+}
+
+.hpctrl-fighter-card {
+  background: rgba(15, 23, 42, 0.95);
+  border-radius: 8px;
+  padding: 8px 10px;
+  min-width: 180px;
+  box-shadow: 0 0 10px rgba(15, 23, 42, 0.9);
+}
+
+.hpctrl-fighter-header {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.hpctrl-row {
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.hpctrl-row input,
+.hpctrl-row select {
+  background: #020617;
+  color: #e5e7eb;
+  border: 1px solid #374151;
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 13px;
+  margin-left: 4px;
+}
+
+.hpctrl-actions {
+  flex: 1;
+  background: rgba(15, 23, 42, 0.95);
+  border-radius: 8px;
+  padding: 10px 12px;
+  box-shadow: 0 0 10px rgba(15, 23, 42, 0.9);
+}
+
+.hpctrl-buttons button {
+  margin-right: 8px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  background: #1d4ed8;
+  color: #e5e7eb;
+  font-size: 13px;
+}
+
+.hpctrl-buttons button:hover {
+  background: #2563eb;
+}

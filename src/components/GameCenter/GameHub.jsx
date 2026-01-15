@@ -6,9 +6,10 @@ import BoardGame from "./BoardGame/BoardGame";
 import CasinoWheelHuge from "./BigWheel/CasinoWheelHuge";
 import BingoBoard from "./Bingo/BingoBoard";
 import SigHunterBingoBoard from "./SigHunterBingo/SigHunterBingoBoard";
+import HpBattle from "./HPBattle/HpBattle"; // ✅ HP 배틀 전체
 
 export default function GameHub() {
-  // "sig" | "mines" | "board" | "wheel" | "bingo" | "hunterBingo"
+  // "sig" | "mines" | "board" | "wheel" | "bingo" | "hunterBingo" | "hp"
   const [game, setGame] = useState(() => {
     if (typeof window === "undefined") return "sig";
     const saved = window.localStorage.getItem("gameHub.lastGame");
@@ -223,6 +224,30 @@ export default function GameHub() {
         >
           🎡 빅휠게임
         </button>
+
+        {/* ✅ HP 배틀 게이지 버튼 */}
+        <button
+          type="button"
+          onClick={() => setGame("hp")}
+          style={{
+            padding: "6px 14px",
+            borderRadius: 999,
+            border:
+              game === "hp" ? "2px solid #22c55e" : "1px solid #4b5563",
+            background:
+              game === "hp"
+                ? "linear-gradient(135deg, #22c55e, #a7f3d0)"
+                : "linear-gradient(135deg, #111827, #020617)",
+            color: "#ecfdf5",
+            fontWeight: 800,
+            cursor: "pointer",
+            fontSize: 15,
+            fontFamily:
+              "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          }}
+        >
+          💚 HP 배틀 게이지
+        </button>
       </div>
 
       {/* 게임 컨테이너 */}
@@ -306,7 +331,7 @@ export default function GameHub() {
               >
                 빙고 2
               </button>
-              {/* ✅ 추가: 빙고 3 탭 */}
+              {/* 빙고 3 탭 */}
               <button
                 type="button"
                 onClick={() => setBingoTab("3")}
@@ -336,7 +361,7 @@ export default function GameHub() {
                 key="bingo1"
                 boardId="bingo1"
                 boardRules={{
-                  conquest: { enabled: true },     // 랜덤 점령 + 이름표시
+                  conquest: { enabled: true }, // 랜덤 점령 + 이름표시
                   specialCell: { enabled: false },
                 }}
               />
@@ -382,6 +407,19 @@ export default function GameHub() {
             }}
           >
             <SigHunterBingoBoard boardId="hunter-main" />
+          </div>
+        )}
+
+        {/* ✅ HP 배틀 (게이지 + 컨트롤 + 오버레이 한 번에) */}
+        {game === "hp" && (
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            <HpBattle />
           </div>
         )}
       </div>
