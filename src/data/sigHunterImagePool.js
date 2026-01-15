@@ -433,399 +433,434 @@ export const sigHunterImagePool = {
         "count": 1083
       },
       {
-        "path": "/images/muse/group5/sig_284.webp",
+        "path": "/images/muse/group5/sig_285.webp",
         "rawText": "[MANUAL]",
         "count": 1085
       },
       {
-        "path": "/images/muse/group5/sig_285.webp",
-        "rawText": "[MANUAL]",
-        "count": 1090
-      },
-      {
-        "path": "/images/muse/group5/sig_286.webp",
-        "rawText": "[MANUAL]",
-        "count": 1092
-      },
-      {
-        "path": "/images/muse/group5/sig_287.webp",
-        "rawText": "[MANUAL]",
-        "count": 1093
-      },
-      {
         "path": "/images/muse/group5/sig_288.webp",
         "rawText": "[MANUAL]",
-        "count": 1094
-      },
-      {
-        "path": "/images/muse/group5/sig_289.webp",
-        "rawText": "[MANUAL]",
-        "count": 1095
+        "count": 1088
       },
       {
         "path": "/images/muse/group5/sig_290.webp",
         "rawText": "[MANUAL]",
-        "count": 1096
-      },
-      {
-        "path": "/images/muse/group5/sig_291.webp",
-        "rawText": "[MANUAL]",
-        "count": 1097
+        "count": 1090
       },
       {
         "path": "/images/muse/group5/sig_292.webp",
         "rawText": "[MANUAL]",
-        "count": 1098
+        "count": 1092
       },
       {
         "path": "/images/muse/group5/sig_293.webp",
         "rawText": "[MANUAL]",
-        "count": 1099
+        "count": 1093
       },
       {
         "path": "/images/muse/group5/sig_294.webp",
         "rawText": "[MANUAL]",
-        "count": 1100
+        "count": 1094
       },
       {
         "path": "/images/muse/group5/sig_295.webp",
         "rawText": "[MANUAL]",
-        "count": 1102
+        "count": 1095
       },
       {
         "path": "/images/muse/group5/sig_296.webp",
+        "rawText": "[MANUAL]",
+        "count": 1096
+      },
+      {
+        "path": "/images/muse/group5/sig_297.webp",
+        "rawText": "[MANUAL]",
+        "count": 1097
+      },
+      {
+        "path": "/images/muse/group5/sig_298.webp",
+        "rawText": "[MANUAL]",
+        "count": 1098
+      },
+      {
+        "path": "/images/muse/group5/sig_299.webp",
+        "rawText": "[MANUAL]",
+        "count": 1099
+      },
+      {
+        "path": "/images/muse/group5/sig_300.webp",
+        "rawText": "[MANUAL]",
+        "count": 1100
+      },
+      {
+        "path": "/images/muse/group5/sig_302.webp",
+        "rawText": "[MANUAL]",
+        "count": 1102
+      },
+      {
+        "path": "/images/muse/group5/sig_303.webp",
+        "rawText": "[MANUAL]",
+        "count": 1103
+      },
+      {
+        "path": "/images/muse/group5/sig_304.webp",
         "rawText": "[MANUAL]",
         "count": 1104
       }
     ],
     "group6": [
       {
-        "path": "/images/muse/group6/sig_301.webp",
+        "path": "/images/muse/group6/sig_307.webp",
         "rawText": "[MANUAL]",
         "count": 1107
       },
       {
-        "path": "/images/muse/group6/sig_302.webp",
-        "rawText": "[MANUAL]",
-        "count": 1114
-      },
-      {
-        "path": "/images/muse/group6/sig_303.webp",
-        "rawText": "[MANUAL]",
-        "count": 1117
-      },
-      {
-        "path": "/images/muse/group6/sig_304.webp",
-        "rawText": "[MANUAL]",
-        "count": 1118
-      },
-      {
-        "path": "/images/muse/group6/sig_305.webp",
-        "rawText": "[MANUAL]",
-        "count": 1125
-      },
-      {
-        "path": "/images/muse/group6/sig_306.webp",
-        "rawText": "[MANUAL]",
-        "count": 1126
-      },
-      {
-        "path": "/images/muse/group6/sig_307.webp",
-        "rawText": "[MANUAL]",
-        "count": 1127
-      },
-      {
         "path": "/images/muse/group6/sig_308.webp",
         "rawText": "[MANUAL]",
-        "count": 1133
+        "count": 1108
       },
       {
         "path": "/images/muse/group6/sig_309.webp",
         "rawText": "[MANUAL]",
-        "count": 1135
-      },
-      {
-        "path": "/images/muse/group6/sig_310.webp",
-        "rawText": "[MANUAL]",
-        "count": 1140
-      },
-      {
-        "path": "/images/muse/group6/sig_311.webp",
-        "rawText": "[MANUAL]",
-        "count": 1141
-      },
-      {
-        "path": "/images/muse/group6/sig_312.webp",
-        "rawText": "[MANUAL]",
-        "count": 1142
-      },
-      {
-        "path": "/images/muse/group6/sig_313.webp",
-        "rawText": "[MANUAL]",
-        "count": 1143
+        "count": 1109
       },
       {
         "path": "/images/muse/group6/sig_314.webp",
         "rawText": "[MANUAL]",
-        "count": 1233
+        "count": 1114
       },
       {
         "path": "/images/muse/group6/sig_315.webp",
         "rawText": "[MANUAL]",
+        "count": 1115
+      },
+      {
+        "path": "/images/muse/group6/sig_317.webp",
+        "rawText": "[MANUAL]",
+        "count": 1117
+      },
+      {
+        "path": "/images/muse/group6/sig_318.webp",
+        "rawText": "[MANUAL]",
+        "count": 1118
+      },
+      {
+        "path": "/images/muse/group6/sig_319.webp",
+        "rawText": "[MANUAL]",
+        "count": 1119
+      },
+      {
+        "path": "/images/muse/group6/sig_320.webp",
+        "rawText": "[MANUAL]",
+        "count": 1120
+      },
+      {
+        "path": "/images/muse/group6/sig_325.webp",
+        "rawText": "[MANUAL]",
+        "count": 1125
+      },
+      {
+        "path": "/images/muse/group6/sig_326.webp",
+        "rawText": "[MANUAL]",
+        "count": 1126
+      },
+      {
+        "path": "/images/muse/group6/sig_327.webp",
+        "rawText": "[MANUAL]",
+        "count": 1127
+      },
+      {
+        "path": "/images/muse/group6/sig_333.webp",
+        "rawText": "[MANUAL]",
+        "count": 1133
+      },
+      {
+        "path": "/images/muse/group6/sig_335.webp",
+        "rawText": "[MANUAL]",
+        "count": 1135
+      },
+      {
+        "path": "/images/muse/group6/sig_340.webp",
+        "rawText": "[MANUAL]",
+        "count": 1140
+      },
+      {
+        "path": "/images/muse/group6/sig_341.webp",
+        "rawText": "[MANUAL]",
+        "count": 1141
+      },
+      {
+        "path": "/images/muse/group6/sig_342.webp",
+        "rawText": "[MANUAL]",
+        "count": 1142
+      },
+      {
+        "path": "/images/muse/group6/sig_343.webp",
+        "rawText": "[MANUAL]",
+        "count": 1143
+      },
+      {
+        "path": "/images/muse/group6/sig_433.webp",
+        "rawText": "[MANUAL]",
+        "count": 1233
+      },
+      {
+        "path": "/images/muse/group6/sig_434.webp",
+        "rawText": "[MANUAL]",
         "count": 1234
       },
       {
-        "path": "/images/muse/group6/sig_316.webp",
+        "path": "/images/muse/group6/sig_450.webp",
         "rawText": "[MANUAL]",
         "count": 1250
       },
       {
-        "path": "/images/muse/group6/sig_317.webp",
+        "path": "/images/muse/group6/sig_473.webp",
         "rawText": "[MANUAL]",
         "count": 1273
       }
     ],
     "group7": [
       {
-        "path": "/images/muse/group7/sig_318.webp",
-        "rawText": "[MANUAL]",
-        "count": 1301
-      },
-      {
-        "path": "/images/muse/group7/sig_319.webp",
-        "rawText": "[MANUAL]",
-        "count": 1400
-      },
-      {
-        "path": "/images/muse/group7/sig_320.webp",
-        "rawText": "[MANUAL]",
-        "count": 1414
-      },
-      {
-        "path": "/images/muse/group7/sig_321.webp",
-        "rawText": "[MANUAL]",
-        "count": 1456
-      },
-      {
-        "path": "/images/muse/group7/sig_322.webp",
-        "rawText": "[MANUAL]",
-        "count": 1500
-      },
-      {
-        "path": "/images/muse/group7/sig_323.webp",
-        "rawText": "[MANUAL]",
-        "count": 1515
-      },
-      {
-        "path": "/images/muse/group7/sig_324.webp",
-        "rawText": "[MANUAL]",
-        "count": 1520
-      },
-      {
-        "path": "/images/muse/group7/sig_325.webp",
-        "rawText": "[MANUAL]",
-        "count": 1600
-      },
-      {
-        "path": "/images/muse/group7/sig_326.webp",
-        "rawText": "[MANUAL]",
-        "count": 1605
-      },
-      {
-        "path": "/images/muse/group7/sig_327.webp",
-        "rawText": "[MANUAL]",
-        "count": 1656
-      },
-      {
-        "path": "/images/muse/group7/sig_328.webp",
+        "path": "/images/muse/group7/sig_1018.webp",
         "rawText": "[MANUAL]",
         "count": 1818
       },
       {
-        "path": "/images/muse/group7/sig_329.webp",
+        "path": "/images/muse/group7/sig_1121.webp",
         "rawText": "[MANUAL]",
         "count": 1921
+      },
+      {
+        "path": "/images/muse/group7/sig_501.webp",
+        "rawText": "[MANUAL]",
+        "count": 1301
+      },
+      {
+        "path": "/images/muse/group7/sig_600.webp",
+        "rawText": "[MANUAL]",
+        "count": 1400
+      },
+      {
+        "path": "/images/muse/group7/sig_614.webp",
+        "rawText": "[MANUAL]",
+        "count": 1414
+      },
+      {
+        "path": "/images/muse/group7/sig_656.webp",
+        "rawText": "[MANUAL]",
+        "count": 1456
+      },
+      {
+        "path": "/images/muse/group7/sig_700.webp",
+        "rawText": "[MANUAL]",
+        "count": 1500
+      },
+      {
+        "path": "/images/muse/group7/sig_715.webp",
+        "rawText": "[MANUAL]",
+        "count": 1515
+      },
+      {
+        "path": "/images/muse/group7/sig_720.webp",
+        "rawText": "[MANUAL]",
+        "count": 1520
+      },
+      {
+        "path": "/images/muse/group7/sig_800.webp",
+        "rawText": "[MANUAL]",
+        "count": 1600
+      },
+      {
+        "path": "/images/muse/group7/sig_805.webp",
+        "rawText": "[MANUAL]",
+        "count": 1605
+      },
+      {
+        "path": "/images/muse/group7/sig_856.webp",
+        "rawText": "[MANUAL]",
+        "count": 1656
       }
     ],
     "group9": [
       {
-        "path": "/images/muse/group9/sig_356.webp",
+        "path": "/images/muse/group9/sig_4000.webp",
         "rawText": "[MANUAL]",
         "count": 5000
       },
       {
-        "path": "/images/muse/group9/sig_357.webp",
+        "path": "/images/muse/group9/sig_6777.webp",
         "rawText": "[MANUAL]",
         "count": 7777
       },
       {
-        "path": "/images/muse/group9/sig_358.webp",
+        "path": "/images/muse/group9/sig_6788.webp",
         "rawText": "[MANUAL]",
         "count": 7788
       },
       {
-        "path": "/images/muse/group9/sig_359.webp",
+        "path": "/images/muse/group9/sig_7888.webp",
         "rawText": "[MANUAL]",
         "count": 8888
       }
     ],
     "group10": [
       {
-        "path": "/images/muse/group10/sig_360.webp",
+        "path": "/images/muse/group10/sig_10000.webp",
         "rawText": "[MANUAL]",
         "count": 10000
       },
       {
-        "path": "/images/muse/group10/sig_361.webp",
+        "path": "/images/muse/group10/sig_10027.webp",
         "rawText": "[MANUAL]",
-        "count": 10057
+        "count": 10027
       },
       {
-        "path": "/images/muse/group10/sig_362.webp",
+        "path": "/images/muse/group10/sig_10035.webp",
+        "rawText": "[MANUAL]",
+        "count": 10035
+      },
+      {
+        "path": "/images/muse/group10/sig_10038.webp",
+        "rawText": "[MANUAL]",
+        "count": 10038
+      },
+      {
+        "path": "/images/muse/group10/sig_10042.webp",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "/images/muse/group10/sig_10043.webp",
+        "rawText": "[MANUAL]",
+        "count": 10043
+      },
+      {
+        "path": "/images/muse/group10/sig_10044.webp",
+        "rawText": "[MANUAL]",
+        "count": 10044
+      },
+      {
+        "path": "/images/muse/group10/sig_10054.webp",
+        "rawText": "[MANUAL]",
+        "count": 10054
+      },
+      {
+        "path": "/images/muse/group10/sig_10055.webp",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "/images/muse/group10/sig_10060.webp",
         "rawText": "[MANUAL]",
         "count": 10060
       },
       {
-        "path": "/images/muse/group10/sig_363.webp",
+        "path": "/images/muse/group10/sig_10061.webp",
         "rawText": "[MANUAL]",
-        "count": 10072
+        "count": 10061
       },
       {
-        "path": "/images/muse/group10/sig_364.webp",
-        "rawText": "[MANUAL]",
-        "count": 10073
-      },
-      {
-        "path": "/images/muse/group10/sig_365.webp",
+        "path": "/images/muse/group10/sig_10062.webp",
         "rawText": "[MANUAL]",
         "count": 10000
       },
       {
-        "path": "/images/muse/group10/sig_366.webp",
+        "path": "/images/muse/group10/sig_10070.webp",
+        "rawText": "[MANUAL]",
+        "count": 10070
+      },
+      {
+        "path": "/images/muse/group10/sig_10074.webp",
+        "rawText": "[MANUAL]",
+        "count": 10074
+      },
+      {
+        "path": "/images/muse/group10/sig_10077.webp",
         "rawText": "[MANUAL]",
         "count": 10077
       },
       {
-        "path": "/images/muse/group10/sig_367.webp",
-        "rawText": "[MANUAL]",
-        "count": 10081
-      },
-      {
-        "path": "/images/muse/group10/sig_368.webp",
+        "path": "/images/muse/group10/sig_10078.webp",
         "rawText": "[MANUAL]",
         "count": 10000
       },
       {
-        "path": "/images/muse/group10/sig_369.webp",
+        "path": "/images/muse/group10/sig_10079.webp",
         "rawText": "[MANUAL]",
-        "count": 10085
+        "count": 10079
       },
       {
-        "path": "/images/muse/group10/sig_370.webp",
-        "rawText": "[MANUAL]",
-        "count": 10086
-      },
-      {
-        "path": "/images/muse/group10/sig_371.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
-      },
-      {
-        "path": "/images/muse/group10/sig_372.webp",
+        "path": "/images/muse/group10/sig_10087.webp",
         "rawText": "[MANUAL]",
         "count": 10087
       },
       {
-        "path": "/images/muse/group10/sig_373.webp",
+        "path": "/images/muse/group10/sig_10088.webp",
         "rawText": "[MANUAL]",
         "count": 10088
       },
       {
-        "path": "/images/muse/group10/sig_374.webp",
-        "rawText": "[MANUAL]",
-        "count": 10089
-      },
-      {
-        "path": "/images/muse/group10/sig_375.webp",
+        "path": "/images/muse/group10/sig_10089.webp",
         "rawText": "[MANUAL]",
         "count": 10000
       },
       {
-        "path": "/images/muse/group10/sig_376.webp",
-        "rawText": "[MANUAL]",
-        "count": 10090
-      },
-      {
-        "path": "/images/muse/group10/sig_377.webp",
+        "path": "/images/muse/group10/sig_10092.webp",
         "rawText": "[MANUAL]",
         "count": 10092
-      },
-      {
-        "path": "/images/muse/group10/sig_378.webp",
-        "rawText": "[MANUAL]",
-        "count": 10096
-      },
-      {
-        "path": "/images/muse/group10/sig_379.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
-      },
-      {
-        "path": "/images/muse/group10/sig_380.webp",
-        "rawText": "[MANUAL]",
-        "count": 10188
-      },
-      {
-        "path": "/images/muse/group10/sig_381.webp",
-        "rawText": "[MANUAL]",
-        "count": 10511
       }
     ],
     "group11": [
       {
-        "path": "/images/muse/group11/sig_356.webp",
+        "path": "/images/muse/group11/sig_10000.webp",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "/images/muse/group11/sig_10042.webp",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "/images/muse/group11/sig_10055.webp",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "/images/muse/group11/sig_10062.webp",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "/images/muse/group11/sig_10078.webp",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "/images/muse/group11/sig_10089.webp",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "/images/muse/group11/sig_4000.webp",
         "rawText": "[MANUAL]",
         "count": 5000
       },
       {
-        "path": "/images/muse/group11/sig_357.webp",
+        "path": "/images/muse/group11/sig_6777.webp",
         "rawText": "[MANUAL]",
         "count": 7777
       },
       {
-        "path": "/images/muse/group11/sig_358.webp",
+        "path": "/images/muse/group11/sig_6788.webp",
         "rawText": "[MANUAL]",
         "count": 7788
       },
       {
-        "path": "/images/muse/group11/sig_359.webp",
+        "path": "/images/muse/group11/sig_7888.webp",
         "rawText": "[MANUAL]",
         "count": 8888
-      },
-      {
-        "path": "/images/muse/group11/sig_360.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
-      },
-      {
-        "path": "/images/muse/group11/sig_368.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
-      },
-      {
-        "path": "/images/muse/group11/sig_371.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
-      },
-      {
-        "path": "/images/muse/group11/sig_375.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
-      },
-      {
-        "path": "/images/muse/group11/sig_379.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
       }
     ],
     "group12": []
