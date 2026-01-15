@@ -1,309 +1,370 @@
+/* src/components/HPBattle/HpBattle.css */
 
+/* =============================
+   전체 오버레이 배경
+============================= */
+.hp-overlay-root {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at top, #1f2937, #020617);
+  color: #f9fafb;
+  font-family: YUniverse, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+}
 
+/* =============================
+   공통 헤더
+============================= */
+.hp-overlay-header {
+  text-align: center;
+}
+.hp-overlay-title {
+  display: inline-block;
+  padding: 4px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(248, 250, 252, 0.2);
+  background: linear-gradient(
+    135deg,
+    rgba(148, 163, 184, 0.3),
+    rgba(15, 23, 42, 0.9)
+  );
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+/* =============================
+   1 vs 1 모드
+============================= */
+.hp-overlay-mode-1v1 {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 32px;
+}
+
+/* 메인 아레나 영역 (기본형: 1v1/팀/FFA 모두 공통으로 사용) */
+.hp-overlay-arena {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 좌/우 영역 */
+.hp-overlay-side {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.hp-overlay-side--left {
+  align-items: flex-start;
+}
+.hp-overlay-side--right {
+  align-items: flex-end;
+}
+
+/* 아바타 자리 */
+.hp-overlay-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 20%, #facc15, #b91c1c);
+  box-shadow: 0 0 25px rgba(248, 250, 252, 0.25);
+  opacity: 0.5;
+}
+.hp-overlay-avatar--right {
+  background: radial-gradient(circle at 70% 30%, #38bdf8, #1d4ed8);
+}
+
+/* 중앙 VS */
+.hp-overlay-center {
+  position: relative;
+  width: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.hp-overlay-vs-badge {
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 30% 30%, #f97316, #b91c1c);
+  color: #fefce8;
+  font-weight: 900;
+  font-size: 18px;
+  letter-spacing: 0.18em;
+  text-shadow: 0 0 12px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 0 25px rgba(248, 113, 113, 0.75);
+  animation: hp-vs-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes hp-vs-pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 14px rgba(248, 113, 113, 0.8);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 0 28px rgba(248, 113, 113, 1);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 14px rgba(248, 113, 113, 0.8);
+  }
+}
+
+/* 이펙트 레이어(나중에 이펙트 넣을 자리) */
+.hp-overlay-effects {
+  position: relative;
+  width: 80px;
+  height: 40px;
+}
+
+/* =============================
+   TEAM vs 1 모드
+============================= */
+.hp-overlay-mode-team {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 40px;
+}
+
+/* 팀 모드 아레나: 팀 / VS / 보스(오른쪽) */
+.hp-overlay-arena--team {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: stretch;
+  gap: 12px;
+}
+
+/* 왼쪽 팀 리스트 (여러 바 세로 배치) */
+.hp-overlay-team-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* =============================
+   1 vs 1 vs 1 (FFA 3) 모드
+============================= */
+.hp-overlay-mode-ffa {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 40px;
+}
+
+.hp-overlay-arena--ffa {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+/* 아래쪽 3번 플레이어 바 */
+.hp-overlay-ffa-bottom {
+  display: flex;
+  justify-content: center;
+}
+
+/* =============================
+   HP Bar
+============================= */
 .hpbar-root {
   width: 100%;
-  margin: 4px 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  color: #f9fafb;
+  max-width: 320px;
+}
+.hpbar-root--right {
+  /* 필요하면 오른쪽 정렬용 스타일 추가 */
 }
 
 .hpbar-header {
   display: flex;
   justify-content: space-between;
-  font-size: 14px;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+.hpbar-name {
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.hpbar-value {
+  font-weight: 600;
+  opacity: 0.85;
 }
 
+/* 바 기본 */
 .hpbar-bar {
   position: relative;
   width: 100%;
-  height: 26px;
+  height: 20px;
   border-radius: 999px;
-  background: #111827;
   overflow: hidden;
-  box-shadow: 0 0 8px rgba(15, 23, 42, 0.8);
+  background: linear-gradient(
+    135deg,
+    rgba(15, 23, 42, 0.9),
+    rgba(15, 23, 42, 0.8)
+  );
+  box-shadow: 0 0 12px rgba(15, 23, 42, 0.95);
 }
 
+/* 좌/우 방향 차이 */
+.hpbar-bar--left .hpbar-fill {
+  transform-origin: left center;
+}
+.hpbar-bar--right .hpbar-fill {
+  transform-origin: right center;
+}
+
+/* 체력 채움 */
 .hpbar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #22c55e, #eab308, #ef4444);
-  transition: width 0.3s ease;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  background: linear-gradient(90deg, #f97316, #dc2626);
+  transition: width 0.3s ease-out;
 }
 
+/* 쉴드 */
 .hpbar-shield {
   position: absolute;
-  right: 10px;
-  top: 2px;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
   font-size: 12px;
-  color: #e5f3ff;
-  text-shadow: 0 0 4px rgba(15, 23, 42, 0.9);
+  background: rgba(15, 23, 42, 0.8);
+  border-radius: 999px;
+  padding: 0 6px;
+  border: 1px solid rgba(96, 165, 250, 0.7);
 }
 
+/* 버프/디버프 태그 */
 .hpbar-tags {
   position: absolute;
-  left: 8px;
   bottom: 2px;
+  left: 6px;
   display: flex;
   gap: 4px;
-  font-size: 10px;
+  font-size: 9px;
 }
-
 .hpbar-tag {
-  padding: 1px 4px;
+  padding: 0 4px;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(248, 250, 252, 0.2);
+  backdrop-filter: blur(3px);
 }
-
 .hpbar-tag--buff {
-  border: 1px solid #4ade80;
-  color: #bbf7d0;
+  background: rgba(22, 163, 74, 0.3);
 }
-
 .hpbar-tag--debuff {
-  border: 1px solid #f97316;
-  color: #fed7aa;
+  background: rgba(220, 38, 38, 0.3);
 }
 
-/* attack 이펙트 */
-.hpbar-bar.hpbar-attack::after {
-  content: "";
-  position: absolute;
-  inset: -8px;
-  background: url("/public/images/overlay/slash.png") center/contain no-repeat;
-  animation: hp-attack 0.4s ease-out;
-  pointer-events: none;
+/* =============================
+   피격/회복 애니메이션
+============================= */
+
+/* 공격: 붉은 플래시 + 흔들림 */
+.hpbar-attack {
+  animation: hpbar-hit-flash 0.4s ease-out, hpbar-hit-shake 0.4s ease-out;
 }
 
-@keyframes hp-attack {
+@keyframes hpbar-hit-flash {
   0% {
-    opacity: 0;
-    transform: scale(0.7) translateY(-8px);
+    box-shadow: 0 0 0 rgba(239, 68, 68, 0);
+  }
+  20% {
+    box-shadow: 0 0 22px rgba(239, 68, 68, 0.9);
+  }
+  100% {
+    box-shadow: 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+@keyframes hpbar-hit-shake {
+  0% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-3px);
+  }
+  40% {
+    transform: translateX(3px);
+  }
+  60% {
+    transform: translateX(-1px);
+  }
+  80% {
+    transform: translateX(1px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* 회복: 초록색 플래시 */
+.hpbar-heal {
+  animation: hpbar-heal-flash 0.4s ease-out;
+}
+@keyframes hpbar-heal-flash {
+  0% {
+    box-shadow: 0 0 0 rgba(34, 197, 94, 0);
   }
   30% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
+    box-shadow: 0 0 18px rgba(34, 197, 94, 0.9);
   }
   100% {
-    opacity: 0;
-    transform: scale(1.2) translateY(8px);
+    box-shadow: 0 0 0 rgba(34, 197, 94, 0);
   }
 }
 
-/* heal 이펙트 */
-.hpbar-bar.hpbar-heal::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at center, rgba(34, 197, 94, 0.5), transparent);
-  animation: hp-heal 0.6s ease-out;
+/* 방어 */
+.hpbar-defend {
+  animation: hpbar-guard-flash 0.4s ease-out;
 }
-
-@keyframes hp-heal {
+@keyframes hpbar-guard-flash {
   0% {
-    opacity: 0;
+    box-shadow: 0 0 0 rgba(59, 130, 246, 0);
   }
   30% {
-    opacity: 1;
+    box-shadow: 0 0 18px rgba(59, 130, 246, 0.9);
   }
   100% {
-    opacity: 0;
+    box-shadow: 0 0 0 rgba(59, 130, 246, 0);
   }
 }
 
-/* defend 이펙트 */
-.hpbar-bar.hpbar-defend::after {
-  content: "";
-  position: absolute;
-  inset: -4px;
-  border-radius: 999px;
-  border: 2px solid rgba(59, 130, 246, 0.9);
-  box-shadow: 0 0 12px rgba(59, 130, 246, 0.8);
-  animation: hp-defend 0.4s ease-out;
+/* 아이템 */
+.hpbar-item {
+  animation: hpbar-item-flash 0.4s ease-out;
 }
-
-@keyframes hp-defend {
+@keyframes hpbar-item-flash {
   0% {
-    opacity: 0;
-    transform: scale(1.1);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* item 이펙트 */
-.hpbar-bar.hpbar-item::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at center, rgba(234, 179, 8, 0.5), transparent);
-  animation: hp-item 0.6s ease-out;
-}
-
-@keyframes hp-item {
-  0% {
-    opacity: 0;
+    box-shadow: 0 0 0 rgba(234, 179, 8, 0);
   }
   30% {
-    opacity: 1;
+    box-shadow: 0 0 18px rgba(234, 179, 8, 0.9);
   }
   100% {
-    opacity: 0;
+    box-shadow: 0 0 0 rgba(234, 179, 8, 0);
   }
-}
-
-
-.hp-overlay-root {
-  width: 100%;
-  height: 100%;
-  padding: 16px 24px;
-  box-sizing: border-box;
-  background: transparent; /* OBS 투명 오버레이 */
-  color: #f9fafb;
-}
-
-.hp-overlay-title {
-  text-align: center;
-  font-size: 24px;
-  font-weight: 700;
-  margin-bottom: 12px;
-  text-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
-}
-
-.hp-overlay-mode-team-vs-one .hp-overlay-boss-wrap {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.hp-overlay-mode-1v1 .hp-overlay-1v1-bars {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
-}
-
-.hp-overlay-1v1-left,
-.hp-overlay-1v1-right {
-  width: 40%;
-}
-
-.hp-overlay-1v1-vs {
-  font-size: 32px;
-  font-weight: 900;
-}
-
-.hp-overlay-mode-ffa3 .hp-overlay-ffa3-bars {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.hp-overlay-ffa3-item + .hp-overlay-ffa3-item {
-  margin-top: 8px;
-}
-
-
-.hpctrl-root {
-  min-height: 100vh;
-  padding: 16px 24px;
-  box-sizing: border-box;
-  background: #020617;
-  color: #e5e7eb;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
-
-.hpctrl-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-
-.hpctrl-mode-tabs {
-  display: inline-flex;
-  gap: 4px;
-  background: rgba(15, 23, 42, 0.9);
-  padding: 4px;
-  border-radius: 999px;
-}
-
-.hpctrl-tab {
-  border: none;
-  border-radius: 999px;
-  padding: 4px 12px;
-  font-size: 13px;
-  cursor: pointer;
-  background: transparent;
-  color: #e5e7eb;
-}
-
-.hpctrl-tab--active {
-  background: linear-gradient(135deg, #6366f1, #ec4899);
-  color: #0f172a;
-  font-weight: 700;
-}
-
-.hpctrl-main {
-  display: flex;
-  gap: 24px;
-  align-items: flex-start;
-}
-
-.hpctrl-fighters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  max-width: 600px;
-}
-
-.hpctrl-fighter-card {
-  background: rgba(15, 23, 42, 0.95);
-  border-radius: 8px;
-  padding: 8px 10px;
-  min-width: 180px;
-  box-shadow: 0 0 10px rgba(15, 23, 42, 0.9);
-}
-
-.hpctrl-fighter-header {
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-
-.hpctrl-row {
-  margin-bottom: 6px;
-  font-size: 13px;
-}
-
-.hpctrl-row input,
-.hpctrl-row select {
-  background: #020617;
-  color: #e5e7eb;
-  border: 1px solid #374151;
-  border-radius: 4px;
-  padding: 2px 4px;
-  font-size: 13px;
-  margin-left: 4px;
-}
-
-.hpctrl-actions {
-  flex: 1;
-  background: rgba(15, 23, 42, 0.95);
-  border-radius: 8px;
-  padding: 10px 12px;
-  box-shadow: 0 0 10px rgba(15, 23, 42, 0.9);
-}
-
-.hpctrl-buttons button {
-  margin-right: 8px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  border: none;
-  cursor: pointer;
-  background: #1d4ed8;
-  color: #e5e7eb;
-  font-size: 13px;
-}
-
-.hpctrl-buttons button:hover {
-  background: #2563eb;
 }

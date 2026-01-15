@@ -2,21 +2,37 @@
 import { db } from "../../firebase";
 import { ref, onValue, set } from "firebase/database";
 
-console.log("🔥 db in battleStorage:", db); // <= 이 줄 반드시 추가
+console.log("🔥 db in battleStorage:", db);
 
 export async function loadBattleStateOnce(battleId = "default") {
   return new Promise((resolve) => {
     const battleRef = ref(db, `battles/${battleId}`);
 
-    const unsubscribe = onValue(
+    let unsubscribe; // ✅ 먼저 선언만
+
+    unsubscribe = onValue(
       battleRef,
       (snapshot) => {
-        unsubscribe();
+        if (unsubscribe) unsubscribe(); // ✅ 호출
         const val = snapshot.val();
-        resolve(val || null);
+        if (!val) {
+          resolve(null);
+          return;
+        }
+
+        let fighters = val.fighters || [];
+        if (!Array.isArray(fighters)) {
+          fighters = Object.values(fighters);
+        }
+
+        resolve({
+          ...val,
+          fighters,
+        });
       },
       (error) => {
         console.error("loadBattleStateOnce error", error);
+        if (unsubscribe) unsubscribe();
         resolve(null);
       },
       { onlyOnce: true }
@@ -31,7 +47,20 @@ export function subscribeBattleState(battleId, callback) {
     battleRef,
     (snapshot) => {
       const val = snapshot.val();
-      callback(val || null);
+      if (!val) {
+        callback(null);
+        return;
+      }
+
+      let fighters = val.fighters || [];
+      if (!Array.isArray(fighters)) {
+        fighters = Object.values(fighters);
+      }
+
+      callback({
+        ...val,
+        fighters,
+      });
     },
     (error) => {
       console.error("subscribeBattleState error", error);

@@ -2,12 +2,11 @@
 import React from "react";
 import "./HpBattle.css";
 
-export default function HpBar({ fighter, lastAction }) {
-  // fighter가 없을 때 바로 return 해서 렌더를 막거나,
-  // 기본값을 주고 안전하게 구조분해합니다.
+export default function HpBar({ fighter, lastAction, side = "left" }) {
+  console.log("💡 HpBar props:", { fighter, lastAction, side });
 
   if (!fighter) {
-    // 아직 데이터 안 온 상태면 아무 것도 안 그리거나 로딩 표시
+    console.log("⚠️ HpBar: fighter 없음, 렌더 스킵");
     return null;
   }
 
@@ -36,9 +35,10 @@ export default function HpBar({ fighter, lastAction }) {
   if (isHealed) barClass += " hpbar-heal";
   if (isDefended) barClass += " hpbar-defend";
   if (isItem) barClass += " hpbar-item";
+  barClass += side === "right" ? " hpbar-bar--right" : " hpbar-bar--left";
 
   return (
-    <div className="hpbar-root">
+    <div className={`hpbar-root hpbar-root--${side}`}>
       <div className="hpbar-header">
         <span className="hpbar-name">{name}</span>
         <span className="hpbar-value">
