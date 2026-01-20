@@ -1,0 +1,26 @@
+{
+  "name": "sighunter-desktop",
+  "version": "1.0.0",
+  "description": "SigHunter 데스크톱 앱(웹앱 껍데기)",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.jian.sighunter",
+    "productName": "SigHunter",
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg"
+    }
+  }
+}
