@@ -32,7 +32,6 @@ export default function SigHunterFlip() {
     locked,
     revealed,
     randomImages,
-    cardWeights,
     messages,          // 🔹 Firestore에서 온 메시지 세트
     setFlipped,
     setLocked,
