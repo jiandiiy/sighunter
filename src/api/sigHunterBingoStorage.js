@@ -1,8 +1,5 @@
-// src/api/sigHunterBingoStorage.js
-// 🔄 Firestore 실시간 버전으로 교체
-
 import { doc, onSnapshot, setDoc, getDoc } from "firebase/firestore";
-import { db } from "../firebase"; // 프로젝트에 맞게 경로 조정
+import { firestore } from "../firebase";
 
 const COLLECTION = "sigHunterBingo";
 
@@ -11,7 +8,7 @@ const COLLECTION = "sigHunterBingo";
  * boardId, mode, size 조합으로 각기 다른 판을 분리 저장
  */
 export const getBingoDocRef = (boardId, mode, size) =>
-  doc(db, COLLECTION, `${boardId}-${mode}-${size}`);
+  doc(firestore, COLLECTION, `${boardId}-${mode}-${size}`);
 
 /**
  * 시그헌터 빙고 상태 1회 로드 (초기 진입용)

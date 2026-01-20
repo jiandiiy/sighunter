@@ -1,5 +1,7 @@
+// src/firebase.js
 import { initializeApp } from "firebase/app";
-import { getDatabase } from "firebase/database"; // ✅ RTDB
+import { getFirestore } from "firebase/firestore";
+import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDtSFww9PH2CEMJz9caYvN__C_SXmyxr0w",
@@ -11,11 +13,12 @@ const firebaseConfig = {
   measurementId: "G-3VDF4EWY40",
 };
 
-// 앱 초기화
 const app = initializeApp(firebaseConfig);
 
-// ✅ Realtime Database 인스턴스
-const db = getDatabase(app);
+// ✅ Realtime Database (HP 배틀 등)
+const rtdb = getDatabase(app);
 
-// ✅ 이걸로만 사용
-export { app, db };
+// ✅ Firestore (시그 카드 상태 저장용)
+const firestore = getFirestore(app);
+
+export { app, rtdb, firestore };

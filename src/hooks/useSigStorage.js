@@ -9,7 +9,7 @@ import {
 
 // ✅ Firestore 실시간 구독/저장
 import { doc, onSnapshot, setDoc } from "firebase/firestore";
-import { db } from "../firebase"; // ⚠️ 프로젝트에 맞게 경로 수정
+import { firestore } from "../firebase";
 
 export function useSigStorage() {
   const [flipped, setFlippedState] = useState({});
@@ -27,7 +27,7 @@ export function useSigStorage() {
   const allSigCards = [...queendomSigCards, ...museSigCards];
 
   // ✅ Firestore 문서 위치
-  const docRef = doc(db, "sigHunter", "main");
+  const docRef = doc(firestore, "sigHunter", "main");
 
   // ✅ "지금 setState가 원격 스냅샷 때문에 일어난 것" 표시 (루프 방지)
   const fromRemoteRef = useRef(false);
@@ -141,18 +141,19 @@ export function useSigStorage() {
   };
 
   // 🔹 공통 setter 래퍼
-  const wrapSetter = (setState, key) => (updater) => {
-    setState((prev) => {
-      const next =
-        typeof updater === "function" ? updater(prev) : updater;
+  const wrapSetter =
+    (setState, key) =>
+    (updater) => {
+      setState((prev) => {
+        const next = typeof updater === "function" ? updater(prev) : updater;
 
-      if (!fromRemoteRef.current) {
-        pushToRemote({ [key]: next });
-      }
-      return next;
-    });
-    fromRemoteRef.current = false;
-  };
+        if (!fromRemoteRef.current) {
+          pushToRemote({ [key]: next });
+        }
+        return next;
+      });
+      fromRemoteRef.current = false;
+    };
 
   // 🔹 3) setter 래핑 (로컬 + 원격 동기화)
   const setFlipped = wrapSetter(setFlippedState, "flipped");
@@ -162,8 +163,7 @@ export function useSigStorage() {
 
   const setCardWeights = (updater) => {
     setCardWeightsState((prev) => {
-      const next =
-        typeof updater === "function" ? updater(prev) : updater;
+      const next = typeof updater === "function" ? updater(prev) : updater;
 
       localStorage.setItem("cardWeights", JSON.stringify(next));
 
@@ -197,13 +197,13 @@ export function useSigStorage() {
     revealed,
     randomImages,
     cardWeights,
-    messages,       // 🔹 추가
+    messages,
     setFlipped,
     setLocked,
     setRevealed: debugSetRevealed,
     setRandomImages,
     setCardWeights,
-    setMessages,    // 🔹 추가
+    setMessages,
     loaded,
   };
 }

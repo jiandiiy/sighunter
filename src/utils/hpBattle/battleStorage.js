@@ -1,19 +1,18 @@
-// src/utils/hpBattle/battleStorage.js
-import { db } from "../../firebase";
+import { rtdb } from "../../firebase";
 import { ref, onValue, set } from "firebase/database";
 
-console.log("🔥 db in battleStorage:", db);
+console.log("🔥 db in battleStorage:", rtdb);
 
 export async function loadBattleStateOnce(battleId = "default") {
   return new Promise((resolve) => {
-    const battleRef = ref(db, `battles/${battleId}`);
+    const battleRef = ref(rtdb, `battles/${battleId}`);
 
-    let unsubscribe; // ✅ 먼저 선언만
+    let unsubscribe;
 
     unsubscribe = onValue(
       battleRef,
       (snapshot) => {
-        if (unsubscribe) unsubscribe(); // ✅ 호출
+        if (unsubscribe) unsubscribe();
         const val = snapshot.val();
         if (!val) {
           resolve(null);
@@ -41,7 +40,7 @@ export async function loadBattleStateOnce(battleId = "default") {
 }
 
 export function subscribeBattleState(battleId, callback) {
-  const battleRef = ref(db, `battles/${battleId}`);
+  const battleRef = ref(rtdb, `battles/${battleId}`);
 
   const unsubscribe = onValue(
     battleRef,
@@ -72,7 +71,7 @@ export function subscribeBattleState(battleId, callback) {
 
 export async function saveBattleState(battleId, state) {
   try {
-    const battleRef = ref(db, `battles/${battleId}`);
+    const battleRef = ref(rtdb, `battles/${battleId}`);
     await set(battleRef, state);
   } catch (error) {
     console.error("saveBattleState error", error);
