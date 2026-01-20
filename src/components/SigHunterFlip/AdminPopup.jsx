@@ -11,9 +11,9 @@ import "./adminPopup.css";
 export default function AdminPopup({
   project,
   cardId,
-  messages, // { normal: [...], special: [...] }
+  messages,      // { normal: [...], special: [...] }
   onClose,
-  onUpdate, // (weightsForThisCard, cardId, updatedMessagesWholeSet)
+  onUpdate,      // (weightsForThisCard, cardId, updatedMessagesWholeSet)
 }) {
   const id = String(cardId); // 문자열 ID
   const numId = Number(cardId); // 카드 검색용 숫자
@@ -28,7 +28,7 @@ export default function AdminPopup({
 
   const [weights, setWeights] = useState([]);
   const [localMessages, setLocalMessages] = useState([]);
-  const [setIsApplied] = useState(false);
+  const [isApplied, setIsApplied] = useState(false);
   const modalRef = useRef(null);
 
   const isSpecial = !!card?.isSpecial;
@@ -58,7 +58,7 @@ export default function AdminPopup({
     setWeights(initial);
     setLocalMessages(base.map((m) => ({ ...m })));
     setIsApplied(false);
-  }, [id, card, messages, isSpecial, setIsApplied]);
+  }, [id, card, messages, isSpecial]);
 
   /** 스크롤 진행 효과 (선택) */
   useEffect(() => {
@@ -164,7 +164,9 @@ export default function AdminPopup({
         } 메시지 세트를 기본값으로 복원할까요?`
       )
     ) {
-      const base = isSpecial ? defaultSpecialMessages : defaultNormalMessages;
+      const base = isSpecial
+        ? defaultSpecialMessages
+        : defaultNormalMessages;
 
       const init = base.map((m) => m.weight ?? 1);
 
@@ -266,7 +268,9 @@ export default function AdminPopup({
                       type="text"
                       className="msg-text-input"
                       value={msg.text || ""}
-                      onChange={(e) => updateMessageText(i, e.target.value)}
+                      onChange={(e) =>
+                        updateMessageText(i, e.target.value)
+                      }
                       placeholder="메시지 내용"
                     />
                     <span className="prob-percent">({percent}%)</span>
@@ -284,7 +288,9 @@ export default function AdminPopup({
                       min="0"
                       max="100"
                       value={weights[i] || 0}
-                      onChange={(e) => updateWeight(i, e.target.value, e)}
+                      onChange={(e) =>
+                        updateWeight(i, e.target.value, e)
+                      }
                       className="range-input"
                       style={{
                         "--range-progress": `${weights[i] || 0}%`,
@@ -295,7 +301,9 @@ export default function AdminPopup({
                       min="0"
                       max="100"
                       value={weights[i] || 0}
-                      onChange={(e) => updateWeight(i, e.target.value)}
+                      onChange={(e) =>
+                        updateWeight(i, e.target.value)
+                      }
                       className="number-input"
                     />
                   </div>
@@ -312,21 +320,21 @@ export default function AdminPopup({
             </button>
           </div>
 
-          <div className="button-group">
-            <button className="reset-single-btn" onClick={resetSingleCard}>
-              🔄 이 타입 메시지만 기본값
-            </button>
-            <button className="reset-all-btn" onClick={resetAllCards}>
-              🔄 전체 메시지/확률 초기화
-            </button>
+         <div className="button-group">
+  <button className="reset-single-btn" onClick={resetSingleCard}>
+    🔄 이 타입 메시지만 기본값
+  </button>
+  <button className="reset-all-btn" onClick={resetAllCards}>
+    🔄 전체 메시지/확률 초기화
+  </button>
 
-            <button className="apply-btn" onClick={applyWeights}>
-              적용
-            </button>
-            <button className="close-btn" onClick={onClose}>
-              닫기
-            </button>
-          </div>
+  <button className="apply-btn" onClick={applyWeights}>
+    적용
+  </button>
+  <button className="close-btn" onClick={onClose}>
+    닫기
+  </button>
+</div>
         </div>
       </div>
     </div>
