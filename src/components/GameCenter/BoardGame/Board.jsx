@@ -102,7 +102,7 @@ export default function Board({
     return colors[pos % 4];
   };
 
-  const INNER_PAD_PCT = 1.2;
+  //const INNER_PAD_PCT = 1.2;
   const BOARD_BORDER = 6;
   const CENTER_PAD = 22;
 

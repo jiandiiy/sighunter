@@ -60,12 +60,12 @@ export default function CasinoWheelHuge() {
     BONUS: 1,
   });
 
-  const totalSlots = useMemo(() => {
-    return Object.values(tierCounts).reduce(
-      (sum, v) => sum + (Number(v) || 0),
-      0
-    );
-  }, [tierCounts]);
+  //const totalSlots = useMemo(() => {
+  //  return Object.values(tierCounts).reduce(
+  //    (sum, v) => sum + (Number(v) || 0),
+  //    0
+  //  );
+  //}, [tierCounts]);
 
   const makeSegments = () =>
     generateSegmentsFromCountsMixed(tierCounts, {
