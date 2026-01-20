@@ -11,9 +11,9 @@ import "./adminPopup.css";
 export default function AdminPopup({
   project,
   cardId,
-  messages,      // { normal: [...], special: [...] }
+  messages, // { normal: [...], special: [...] }
   onClose,
-  onUpdate,      // (weightsForThisCard, cardId, updatedMessagesWholeSet)
+  onUpdate, // (weightsForThisCard, cardId, updatedMessagesWholeSet)
 }) {
   const id = String(cardId); // 문자열 ID
   const numId = Number(cardId); // 카드 검색용 숫자
@@ -320,21 +320,21 @@ export default function AdminPopup({
             </button>
           </div>
 
-         <div className="button-group">
-  <button className="reset-single-btn" onClick={resetSingleCard}>
-    🔄 이 타입 메시지만 기본값
-  </button>
-  <button className="reset-all-btn" onClick={resetAllCards}>
-    🔄 전체 메시지/확률 초기화
-  </button>
+          <div className="button-group">
+            <button className="reset-single-btn" onClick={resetSingleCard}>
+              🔄 이 타입 메시지만 기본값
+            </button>
+            <button className="reset-all-btn" onClick={resetAllCards}>
+              🔄 전체 메시지/확률 초기화
+            </button>
 
-  <button className="apply-btn" onClick={applyWeights}>
-    적용
-  </button>
-  <button className="close-btn" onClick={onClose}>
-    닫기
-  </button>
-</div>
+            <button className="apply-btn" onClick={applyWeights}>
+              적용
+            </button>
+            <button className="close-btn" onClick={onClose}>
+              닫기
+            </button>
+          </div>
         </div>
       </div>
     </div>
