@@ -28,7 +28,7 @@ export default function AdminPopup({
 
   const [weights, setWeights] = useState([]);
   const [localMessages, setLocalMessages] = useState([]);
-  const [isApplied, setIsApplied] = useState(false);
+  const [setIsApplied] = useState(false);
   const modalRef = useRef(null);
 
   const isSpecial = !!card?.isSpecial;
