@@ -7,7 +7,8 @@ import {
   setDoc,
   serverTimestamp,
 } from "firebase/firestore";
-import { firestore } from "../firebase";
+// firestore import는 실제로 쓰이지 않으므로 삭제했습니다.
+// import { firestore } from "../firebase";
 import { getBingoDocRef } from "./sigHunterBingoApi";
 
 /**

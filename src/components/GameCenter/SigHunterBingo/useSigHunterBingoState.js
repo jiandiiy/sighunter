@@ -11,7 +11,7 @@ import {
 } from "../../../api/sigHunterBingoApi";
 import {
   loadAllCells,
-  subscribeAllCells,
+  // subscribeAllCells 는 아직 사용하지 않으므로 제거
   updateCell as updateCellDoc,
 } from "../../../api/sigHunterBingoCellsApi";
 import { uploadCellImage } from "../../../api/sigHunterBingoStorage";
