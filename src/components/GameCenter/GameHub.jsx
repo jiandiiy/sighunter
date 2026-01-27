@@ -13,22 +13,10 @@ export default function GameHub() {
     return saved || "sig";
   });
 
-  // 식대전 빙고 안에서 1 / 2 / 3 선택 (필요하면 나중에 다시 사용)
-  const [bingoTab, setBingoTab] = useState(() => {
-    if (typeof window === "undefined") return "1";
-    const saved = window.localStorage.getItem("gameHub.lastBingoTab");
-    return saved || "1";
-  });
-
   useEffect(() => {
     if (typeof window === "undefined") return;
     window.localStorage.setItem("gameHub.lastGame", game);
   }, [game]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    window.localStorage.setItem("gameHub.lastBingoTab", bingoTab);
-  }, [bingoTab]);
 
   // 버튼 클릭 시, game state 업데이트 + 해당 라우트로 이동
   const handleSelectGame = (targetGame) => {
