@@ -2,6 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getDatabase } from "firebase/database";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDtSFww9PH2CEMJz9caYvN__C_SXmyxr0w",
@@ -18,7 +19,10 @@ const app = initializeApp(firebaseConfig);
 // ✅ Realtime Database (HP 배틀 등)
 const rtdb = getDatabase(app);
 
-// ✅ Firestore (시그 카드 상태 저장용)
+// ✅ Firestore (시그 카드 / 빙고 상태 저장용)
 const firestore = getFirestore(app);
 
-export { app, rtdb, firestore };
+// ✅ Storage (이미지 업로드용)
+const storage = getStorage(app);
+
+export { app, rtdb, firestore, storage };

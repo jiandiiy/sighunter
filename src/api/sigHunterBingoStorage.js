@@ -1,68 +1,30 @@
-import { doc, onSnapshot, setDoc, getDoc } from "firebase/firestore";
-import { firestore } from "../firebase";
-
-const COLLECTION = "sigHunterBingo";
-
-/**
- * Firestore 문서 참조
- * boardId, mode, size 조합으로 각기 다른 판을 분리 저장
- */
-export const getBingoDocRef = (boardId, mode, size) =>
-  doc(firestore, COLLECTION, `${boardId}-${mode}-${size}`);
+// src/api/sigHunterBingoStorage.js
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "../firebase";
 
 /**
- * 시그헌터 빙고 상태 1회 로드 (초기 진입용)
+ * 특정 보드/셀에 대한 이미지 파일 업로드
+ * @param {string} boardId  - 예: "hunter-main"
+ * @param {string} mode     - 예: "normal" | "hard"
+ * @param {number} size     - 예: 5 (5x5)
+ * @param {string|number} cellId   - 예: "r0c0", "0", 0
+ * @param {File} file       - <input type="file">로 받은 File 객체
+ * @returns {Promise<string>} 다운로드 URL 반환
  */
-export async function loadSigHunterBingoState(boardId, mode, size) {
-  const ref = getBingoDocRef(boardId, mode, size);
-  const snap = await getDoc(ref);
-  return snap.exists() ? snap.data() : null;
-}
+export async function uploadCellImage(boardId, mode, size, cellId, file) {
+  const timestamp = Date.now();
+  const ext = file.name.split(".").pop() || "png";
+  const fileName = `${timestamp}.${ext}`;
 
-/**
- * 시그헌터 빙고 상태 실시간 구독
- * onData: (state | null) => void
- * onError: (error) => void
- * return: () => unsubscribe
- */
-export function subscribeSigHunterBingoState(
-  boardId,
-  mode,
-  size,
-  onData,
-  onError
-) {
-  const ref = getBingoDocRef(boardId, mode, size);
-  return onSnapshot(
-    ref,
-    (snap) => {
-      if (snap.exists()) onData(snap.data());
-      else onData(null);
-    },
-    (err) => {
-      console.error("[Bingo] onSnapshot error:", err);
-      if (onError) onError(err);
-    }
-  );
-}
+  // 예: sigHunterBingo/hunter-main-muse-5/0/1700000000000.png
+  const boardKey = `${boardId}-${mode}-${size}`;
+  const storagePath = `sigHunterBingo/${boardKey}/${cellId}/${fileName}`;
+  const storageRef = ref(storage, storagePath);
 
-/**
- * 시그헌터 빙고 상태 저장 (merge)
- * state: { cells, logs, lineOwners, playerColors, ... }
- */
-export async function saveSigHunterBingoState(boardId, mode, size, state) {
-  const ref = getBingoDocRef(boardId, mode, size);
-  try {
-    await setDoc(
-      ref,
-      {
-        mode,
-        size,
-        ...state,
-      },
-      { merge: true }
-    );
-  } catch (e) {
-    console.error("saveSigHunterBingoState failed", e);
-  }
+  // 업로드
+  await uploadBytes(storageRef, file);
+
+  // 다운로드 URL 획득
+  const downloadUrl = await getDownloadURL(storageRef);
+  return downloadUrl;
 }
