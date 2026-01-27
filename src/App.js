@@ -10,6 +10,7 @@ import BoardGame from "./components/GameCenter/BoardGame/BoardGame";
 import CasinoWheelHuge from "./components/GameCenter/BigWheel/CasinoWheelHuge";
 import BingoBoard from "./components/GameCenter/Bingo/BingoBoard";
 import SigHunterBingoBoard from "./components/GameCenter/SigHunterBingo/SigHunterBingoBoard";
+import SigHunterBingoControl from "./components/GameCenter/SigHunterBingo/SigHunterBingoControl";
 
 // HP 배틀 관련
 import HpBattle from "./components/GameCenter/HPBattle/HpBattle";
@@ -42,16 +43,22 @@ export default function App() {
             element={<BingoBoard key="bingo3" boardId="bingo3" />}
           />
 
-          {/* 시그헌터 빙고 */}
+          {/* 시그헌터 빙고 보드(OBS/시청자용) */}
           <Route
             path="/hunter-bingo"
             element={<SigHunterBingoBoard boardId="hunter-main" />}
           />
 
-          {/* HP 배틀 전체 페이지 (원하면 GameHub 안에서도 라우트로 접근) */}
+          {/* 시그헌터 빙고 설정 페이지(관리자용) */}
+          <Route
+            path="/hunter-bingo/control"
+            element={<SigHunterBingoControl boardId="hunter-main" />}
+          />
+
+          {/* HP 배틀 전체 페이지 */}
           <Route path="/hp-battle" element={<HpBattle />} />
 
-          {/* HP 배틀 컨트롤만 단독으로 보고 싶을 때 */}
+          {/* HP 배틀 컨트롤 */}
           <Route path="/hp-control" element={<HpControl battleId="sig-hp" />} />
         </Route>
 
@@ -65,7 +72,7 @@ export default function App() {
           element={<AdminPopup onClose={() => window.close()} />}
         />
 
-        {/* OBS용 HP 게이지/오버레이 전용 화면 */}
+        {/* OBS용 HP 오버레이 */}
         <Route path="/hp-overlay" element={<HpOverlay battleId="sig-hp" />} />
       </Routes>
     </Router>

@@ -1,5 +1,6 @@
 // src/components/GameCenter/GameHub.jsx
 import React, { useState, useEffect } from "react";
+import { useNavigate, Outlet } from "react-router-dom"; // 👈 Outlet 추가
 import SigHunterFlip from "../SigHunterFlip/SigHunterFlip";
 import MinesGame from "./MinesGame";
 import BoardGame from "./BoardGame/BoardGame";
@@ -9,7 +10,11 @@ import SigHunterBingoBoard from "./SigHunterBingo/SigHunterBingoBoard";
 import HpBattle from "./HPBattle/HpBattle"; // ✅ HP 배틀 전체
 
 export default function GameHub() {
+  const navigate = useNavigate();
+
   // "sig" | "mines" | "board" | "wheel" | "bingo" | "hunterBingo" | "hp"
+  // 👉 아래 state는 버튼의 스타일(선택 표시) 용도로만 사용하고,
+  // 실제 렌더링은 라우터(Outlet)에 맡긴다.
   const [game, setGame] = useState(() => {
     if (typeof window === "undefined") return "sig";
     const saved = window.localStorage.getItem("gameHub.lastGame");
@@ -32,6 +37,45 @@ export default function GameHub() {
     if (typeof window === "undefined") return;
     window.localStorage.setItem("gameHub.lastBingoTab", bingoTab);
   }, [bingoTab]);
+
+  // 버튼 클릭 시, game state 업데이트 + 해당 라우트로 이동
+  const handleSelectGame = (targetGame) => {
+    setGame(targetGame);
+    switch (targetGame) {
+      case "sig":
+        navigate("/sig");
+        break;
+      case "mines":
+        navigate("/mines");
+        break;
+      case "board":
+        navigate("/board");
+        break;
+      case "wheel":
+        navigate("/bigwheel");
+        break;
+      case "bingo":
+        // 식대전 빙고 기본은 1번으로
+        navigate("/bingo/1");
+        break;
+      case "hunterBingo":
+        navigate("/hunter-bingo");
+        break;
+      case "hp":
+        navigate("/hp-battle");
+        break;
+      default:
+        navigate("/");
+    }
+  };
+
+  // 식대전 빙고 탭 선택 시, 해당 라우트로 이동
+  const handleSelectBingoTab = (tab) => {
+    setBingoTab(tab);
+    if (tab === "1") navigate("/bingo/1");
+    else if (tab === "2") navigate("/bingo/2");
+    else if (tab === "3") navigate("/bingo/3");
+  };
 
   return (
     <div
@@ -82,7 +126,7 @@ export default function GameHub() {
         {/* 시그헌터 버튼 */}
         <button
           type="button"
-          onClick={() => setGame("sig")}
+          onClick={() => handleSelectGame("sig")}
           style={{
             padding: "6px 14px",
             borderRadius: 999,
@@ -106,7 +150,7 @@ export default function GameHub() {
         {/* 식대전 빙고 버튼 */}
         <button
           type="button"
-          onClick={() => setGame("bingo")}
+          onClick={() => handleSelectGame("bingo")}
           style={{
             padding: "6px 14px",
             borderRadius: 999,
@@ -130,7 +174,7 @@ export default function GameHub() {
         {/* 시그헌터 빙고 버튼 */}
         <button
           type="button"
-          onClick={() => setGame("hunterBingo")}
+          onClick={() => handleSelectGame("hunterBingo")}
           style={{
             padding: "6px 14px",
             borderRadius: 999,
@@ -153,10 +197,30 @@ export default function GameHub() {
           🎯 시그헌터 빙고
         </button>
 
+        {/* 시그헌터 빙고 설정 페이지로 이동 버튼 */}
+        <button
+          type="button"
+          onClick={() => navigate("/hunter-bingo/control")}
+          style={{
+            padding: "6px 14px",
+            borderRadius: 999,
+            border: "1px solid #4b5563",
+            background: "linear-gradient(135deg, #111827, #020617)",
+            color: "#a5b4fc",
+            fontWeight: 800,
+            cursor: "pointer",
+            fontSize: 13,
+            fontFamily:
+              "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          }}
+        >
+          ⚙️ 시그헌터 빙고 설정
+        </button>
+
         {/* 지뢰게임 버튼 */}
         <button
           type="button"
-          onClick={() => setGame("mines")}
+          onClick={() => handleSelectGame("mines")}
           style={{
             padding: "6px 14px",
             borderRadius: 999,
@@ -180,7 +244,7 @@ export default function GameHub() {
         {/* 브루마블 버튼 */}
         <button
           type="button"
-          onClick={() => setGame("board")}
+          onClick={() => handleSelectGame("board")}
           style={{
             padding: "6px 14px",
             borderRadius: 999,
@@ -204,7 +268,7 @@ export default function GameHub() {
         {/* 빅휠 게임 버튼 */}
         <button
           type="button"
-          onClick={() => setGame("wheel")}
+          onClick={() => handleSelectGame("wheel")}
           style={{
             padding: "6px 14px",
             borderRadius: 999,
@@ -225,10 +289,10 @@ export default function GameHub() {
           🎡 빅휠게임
         </button>
 
-        {/* ✅ HP 배틀 게이지 버튼 */}
+        {/* HP 배틀 게이지 버튼 */}
         <button
           type="button"
-          onClick={() => setGame("hp")}
+          onClick={() => handleSelectGame("hp")}
           style={{
             padding: "6px 14px",
             borderRadius: 999,
@@ -250,7 +314,7 @@ export default function GameHub() {
         </button>
       </div>
 
-      {/* 게임 컨테이너 */}
+      {/* 게임 컨테이너: 실제 화면은 현재 URL 의 자식 라우트가 렌더링됨 */}
       <div
         style={{
           width: "100%",
@@ -261,167 +325,7 @@ export default function GameHub() {
           alignItems: "flex-start",
         }}
       >
-        {game === "sig" && <SigHunterFlip />}
-        {game === "mines" && <MinesGame />}
-        {game === "board" && <BoardGame />}
-        {game === "wheel" && <CasinoWheelHuge />}
-
-        {/* 식대전 빙고 */}
-        {game === "bingo" && (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 8,
-              width: "100%",
-            }}
-          >
-            {/* 내부 탭: 빙고 1 / 빙고 2 / 빙고 3 */}
-            <div
-              style={{
-                display: "inline-flex",
-                gap: 4,
-                padding: 4,
-                borderRadius: 999,
-                background: "rgba(15,23,42,0.9)",
-                boxShadow: "0 0 10px rgba(15,23,42,0.9)",
-                marginBottom: 8,
-              }}
-            >
-              <button
-                type="button"
-                onClick={() => setBingoTab("1")}
-                style={{
-                  padding: "4px 12px",
-                  borderRadius: 999,
-                  border: "none",
-                  cursor: "pointer",
-                  fontSize: 13,
-                  fontWeight: 700,
-                  fontFamily:
-                    "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                  background:
-                    bingoTab === "1"
-                      ? "linear-gradient(135deg, #f97316, #facc15)"
-                      : "transparent",
-                  color: bingoTab === "1" ? "#0f172a" : "#e5e7eb",
-                }}
-              >
-                빙고 1
-              </button>
-              <button
-                type="button"
-                onClick={() => setBingoTab("2")}
-                style={{
-                  padding: "4px 12px",
-                  borderRadius: 999,
-                  border: "none",
-                  cursor: "pointer",
-                  fontSize: 13,
-                  fontWeight: 700,
-                  fontFamily:
-                    "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                  background:
-                    bingoTab === "2"
-                      ? "linear-gradient(135deg, #fb923c, #fef08a)"
-                      : "transparent",
-                  color: bingoTab === "2" ? "#0f172a" : "#e5e7eb",
-                }}
-              >
-                빙고 2
-              </button>
-              {/* 빙고 3 탭 */}
-              <button
-                type="button"
-                onClick={() => setBingoTab("3")}
-                style={{
-                  padding: "4px 12px",
-                  borderRadius: 999,
-                  border: "none",
-                  cursor: "pointer",
-                  fontSize: 13,
-                  fontWeight: 700,
-                  fontFamily:
-                    "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                  background:
-                    bingoTab === "3"
-                      ? "linear-gradient(135deg, #fdba74, #fef9c3)"
-                      : "transparent",
-                  color: bingoTab === "3" ? "#0f172a" : "#e5e7eb",
-                }}
-              >
-                빙고 3
-              </button>
-            </div>
-
-            {/* 빙고판: 1,2,3 각각 독립 상태를 위해 key/boardId 분리 */}
-            {bingoTab === "1" && (
-              <BingoBoard
-                key="bingo1"
-                boardId="bingo1"
-                boardRules={{
-                  conquest: { enabled: true }, // 랜덤 점령 + 이름표시
-                  specialCell: { enabled: false },
-                }}
-              />
-            )}
-
-            {bingoTab === "2" && (
-              <BingoBoard
-                key="bingo2"
-                boardId="bingo2"
-                boardRules={{
-                  conquest: { enabled: false },
-                  specialCell: {
-                    enabled: true,
-                    index: 4,
-                    src: "/images/special.png", // 가운데 스페셜 카드
-                    lock: false,
-                    autoChecked: false,
-                  },
-                }}
-              />
-            )}
-
-            {bingoTab === "3" && (
-              <BingoBoard
-                key="bingo3"
-                boardId="bingo3"
-                boardRules={{
-                  conquest: { enabled: false },
-                  specialCell: { enabled: false }, // 필요에 따라 규칙 변경
-                }}
-              />
-            )}
-          </div>
-        )}
-
-        {/* 시그헌터 빙고 */}
-        {game === "hunterBingo" && (
-          <div
-            style={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "center",
-            }}
-          >
-            <SigHunterBingoBoard boardId="hunter-main" />
-          </div>
-        )}
-
-        {/* ✅ HP 배틀 (게이지 + 컨트롤 + 오버레이 한 번에) */}
-        {game === "hp" && (
-          <div
-            style={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "center",
-            }}
-          >
-            <HpBattle />
-          </div>
-        )}
+        <Outlet />
       </div>
     </div>
   );
