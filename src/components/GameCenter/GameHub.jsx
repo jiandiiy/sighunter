@@ -1,27 +1,19 @@
 // src/components/GameCenter/GameHub.jsx
 import React, { useState, useEffect } from "react";
-import { useNavigate, Outlet } from "react-router-dom"; // 👈 Outlet 추가
-import SigHunterFlip from "../SigHunterFlip/SigHunterFlip";
-import MinesGame from "./MinesGame";
-import BoardGame from "./BoardGame/BoardGame";
-import CasinoWheelHuge from "./BigWheel/CasinoWheelHuge";
-import BingoBoard from "./Bingo/BingoBoard";
-import SigHunterBingoBoard from "./SigHunterBingo/SigHunterBingoBoard";
-import HpBattle from "./HPBattle/HpBattle"; // ✅ HP 배틀 전체
+import { useNavigate, Outlet } from "react-router-dom";
 
 export default function GameHub() {
   const navigate = useNavigate();
 
   // "sig" | "mines" | "board" | "wheel" | "bingo" | "hunterBingo" | "hp"
-  // 👉 아래 state는 버튼의 스타일(선택 표시) 용도로만 사용하고,
-  // 실제 렌더링은 라우터(Outlet)에 맡긴다.
+  // 👉 버튼 스타일(선택 표시) 용도로만 사용
   const [game, setGame] = useState(() => {
     if (typeof window === "undefined") return "sig";
     const saved = window.localStorage.getItem("gameHub.lastGame");
     return saved || "sig";
   });
 
-  // 식대전 빙고 안에서 1 / 2 / 3 선택
+  // 식대전 빙고 안에서 1 / 2 / 3 선택 (필요하면 나중에 다시 사용)
   const [bingoTab, setBingoTab] = useState(() => {
     if (typeof window === "undefined") return "1";
     const saved = window.localStorage.getItem("gameHub.lastBingoTab");
@@ -55,8 +47,7 @@ export default function GameHub() {
         navigate("/bigwheel");
         break;
       case "bingo":
-        // 식대전 빙고 기본은 1번으로
-        navigate("/bingo/1");
+        navigate("/bingo/1"); // 식대전 빙고 기본: 1번
         break;
       case "hunterBingo":
         navigate("/hunter-bingo");
@@ -67,14 +58,6 @@ export default function GameHub() {
       default:
         navigate("/");
     }
-  };
-
-  // 식대전 빙고 탭 선택 시, 해당 라우트로 이동
-  const handleSelectBingoTab = (tab) => {
-    setBingoTab(tab);
-    if (tab === "1") navigate("/bingo/1");
-    else if (tab === "2") navigate("/bingo/2");
-    else if (tab === "3") navigate("/bingo/3");
   };
 
   return (
@@ -314,7 +297,7 @@ export default function GameHub() {
         </button>
       </div>
 
-      {/* 게임 컨테이너: 실제 화면은 현재 URL 의 자식 라우트가 렌더링됨 */}
+      {/* 게임 컨테이너: 현재 URL 의 자식 라우트가 렌더링됨 */}
       <div
         style={{
           width: "100%",
