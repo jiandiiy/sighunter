@@ -1,5 +1,6 @@
 // src/components/GameCenter/Bingo/BingoBoard.jsx
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./BingoBoard.css";
 
 import {
@@ -28,7 +29,12 @@ const LINES_3X3 = [
   [2, 4, 6],
 ];
 
-export default function BingoBoard({ boardId = "default" }) {
+export default function BingoBoard({
+  boardId = "default",
+  currentBoardNo = "1", // URL 기준 현재 빙고 번호
+}) {
+  const navigate = useNavigate();
+
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState("muse");
   const [images, setImages] = useState([]);
@@ -49,9 +55,9 @@ export default function BingoBoard({ boardId = "default" }) {
 
       const nextMode = remote?.mode || "muse";
 
-      let randomImages = getRandomBingoImages(nextMode, CELL_COUNT);
+      const randomImages = getRandomBingoImages(nextMode, CELL_COUNT);
 
-      let initChecked =
+      const initChecked =
         Array.isArray(remote?.checked) && remote.checked.length === CELL_COUNT
           ? remote.checked
           : Array(CELL_COUNT).fill(false);
@@ -124,8 +130,7 @@ export default function BingoBoard({ boardId = "default" }) {
   const handleChangeMode = (nextMode) => {
     if (mode === nextMode) return;
 
-    let randomImages = getRandomBingoImages(nextMode, CELL_COUNT);
-
+    const randomImages = getRandomBingoImages(nextMode, CELL_COUNT);
     const initChecked = Array(CELL_COUNT).fill(false);
 
     setMode(nextMode);
@@ -143,8 +148,7 @@ export default function BingoBoard({ boardId = "default" }) {
   };
 
   const handleResetBoard = () => {
-    let randomImages = getRandomBingoImages(mode, CELL_COUNT);
-
+    const randomImages = getRandomBingoImages(mode, CELL_COUNT);
     const initChecked = Array(CELL_COUNT).fill(false);
 
     setImages(randomImages);
@@ -170,7 +174,9 @@ export default function BingoBoard({ boardId = "default" }) {
             {MODES.map((m) => (
               <button
                 key={m}
-                className={"bingo-tab" + (mode === m ? " bingo-tab--active" : "")}
+                className={
+                  "bingo-tab" + (mode === m ? " bingo-tab--active" : "")
+                }
                 onClick={() => handleChangeMode(m)}
               >
                 {m === "muse" ? "뮤즈" : "퀸덤"}
@@ -185,6 +191,39 @@ export default function BingoBoard({ boardId = "default" }) {
           >
             초기화
           </button>
+        </div>
+
+        {/* 뮤즈/퀸덤 아래 빙고 1,2,3 탭 */}
+        <div
+          style={{
+            marginTop: 8,
+            display: "flex",
+            gap: 8,
+            justifyContent: "center",
+          }}
+        >
+          {["1", "2", "3"].map((no) => {
+            const active = currentBoardNo === no;
+            return (
+              <button
+                key={no}
+                type="button"
+                onClick={() => navigate(`/bingo/${no}`)}
+                style={{
+                  padding: "4px 12px",
+                  borderRadius: 999,
+                  border: active ? "2px solid #f97316" : "1px solid #f97316",
+                  background: active ? "#0f172a" : "#020617",
+                  color: "#f9fafb",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                {`빙고 ${no}`}
+              </button>
+            );
+          })}
         </div>
 
         <h2 className="bingo-title-text">🍽️ 식사대전 빙고 🍽️</h2>
