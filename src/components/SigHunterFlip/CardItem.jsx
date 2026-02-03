@@ -30,8 +30,8 @@ function CardItem({
 
   const title =
     sigItem?.title || card.title || (isSpecial ? "스페셜 카드" : `카드 ${id}`);
-  const score =
-    typeof sigItem?.score === "number" ? sigItem.score : null;
+  // const score =
+  //   typeof sigItem?.score === "number" ? sigItem.score : null; // 🔸 사용 안 해서 제거
 
   // 🔹 이미지: 업로드 > remote > 기본(frontImages[0]) > placeholder
   const baseImage =
