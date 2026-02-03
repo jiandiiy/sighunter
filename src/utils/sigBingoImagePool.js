@@ -1,7 +1,7 @@
 // src/utils/sigBingoImagePool.js
 // 식대전 빙고용: 랜덤 카드(일반/스페셜) 가져오기
-// - 1) 백엔드 API가 되면 API 우선 사용
-// - 2) API 실패/미구동 시, 로컬 bingoImagePool 로 fallback
+// - 1) 백엔드 API 우선 사용
+// - 2) API 부족/실패 시, 로컬 bingoImagePool 와 섞어서 사용
 
 import { bingoImagePool } from "../data/sigBingoImagePool";
 import { fetchRandomSigItems } from "../api/sigHunterImageLibraryApi";
@@ -139,39 +139,69 @@ function getLocalRandomBingoImage(mode, opts = {}) {
   return normalizeItem(list[idx], { mode, rarity, idx });
 }
 
-/* -------- 최종 export: API → 실패 시 로컬 -------- */
+/* -------- 최종 export: API + 로컬 혼합 -------- */
 
 /**
- * 빙고 보드 전체용 카드 목록
+ * 빙고 보드 전체용 카드 목록 (기본 랜덤 풀)
+ * - 백엔드에서 온 카드 + 로컬 풀을 섞어서
+ *   항상 length === count 가 되도록 맞춤
  */
 export async function getRandomBingoImages(
   mode,
   count,
   { rarity = "normal", ...restOpts } = {}
 ) {
-  // 1) API 시도
+  let remoteItems = [];
   try {
-    const items = await fetchRandomSigItems({
+    remoteItems = await fetchRandomSigItems({
       mode,
       type: "meal-bingo",
       rarity,
       count,
     });
-
-    if (Array.isArray(items) && items.length) return items;
   } catch (err) {
     console.warn(
-      "[sigBingoImagePool] API 호출 실패, 로컬 bingoImagePool 로 fallback 합니다.",
+      "[sigBingoImagePool] API 호출 실패, 로컬 bingoImagePool 로만 사용합니다.",
       err
     );
   }
 
-  // 2) 실패하면 로컬
-  return getLocalRandomBingoImages(mode, count, { rarity, ...restOpts });
+  if (!Array.isArray(remoteItems)) remoteItems = [];
+
+  // 로컬 풀에서도 카드 가져오기
+  const localItems = getLocalRandomBingoImages(mode, count, {
+    rarity,
+    ...restOpts,
+  });
+
+  // remote + local 합쳐서 섞기 (id 기준으로 중복 제거)
+  const mergedMap = new Map();
+  [...remoteItems, ...localItems].forEach((item) => {
+    if (!item) return;
+    const key = item.id || item.imageUrl || Math.random().toString(36);
+    if (!mergedMap.has(key)) mergedMap.set(key, item);
+  });
+
+  let pool = shuffle(Array.from(mergedMap.values()));
+
+  if (!pool.length) {
+    // 정말 아무 것도 없으면 null로 채움
+    return Array(count).fill(null);
+  }
+
+  // pool이 count보다 적으면, 풀에서 반복해서 채우기
+  const result = [];
+  let idx = 0;
+  while (result.length < count) {
+    result.push(pool[idx % pool.length]);
+    idx += 1;
+  }
+
+  return result.slice(0, count);
 }
 
 /**
- * 한 장만 (라인 완성 시 교체용)
+ * 한 장만 (라인 완성 시 교체용, 전체 풀 기준)
  */
 export async function getRandomBingoImage(
   mode,

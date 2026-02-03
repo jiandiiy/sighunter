@@ -12,6 +12,7 @@
     "firebase": "^12.8.0",
     "fs-extra": "^11.3.2",
     "jimp": "^1.6.0",
+    "multer": "^2.0.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.30.1",

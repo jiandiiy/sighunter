@@ -1,104 +1,151 @@
 // server/sigStore.js
-const fs = require("fs");
-const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 
-const DATA_DIR = path.join(__dirname, "data");
-const DATA_FILE = path.join(DATA_DIR, "sig-items.json");
+// 메모리 상에 저장
+let sigs = [];
 
-function ensureDataFile() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-  }
-  if (!fs.existsSync(DATA_FILE)) {
-    fs.writeFileSync(DATA_FILE, JSON.stringify([], null, 2), "utf-8");
-  }
-}
-
-function readAll() {
-  ensureDataFile();
-  const raw = fs.readFileSync(DATA_FILE, "utf-8");
-  return JSON.parse(raw);
-}
-
-function writeAll(items) {
-  ensureDataFile();
-  fs.writeFileSync(DATA_FILE, JSON.stringify(items, null, 2), "utf-8");
-}
-
-// type 예시:
-//  - "meal-bingo"       : 식대전 빙고
-//  - "sighunter-bingo"  : 시그헌터 빙고
-//  - "sighunter"        : 시그헌터(카드)
-// rarity 예시:
-//  - "normal"           : 일반 카드
-//  - "special"          : 스페셜 카드
+/**
+ * 새 시그 추가
+ */
 function addSig({
   title,
   score,
   mode,
   type,
-  rarity = "normal",
+  rarity,
   imageUrl,
-  isActive = true,
+  isActive,
+  slotIndex,
+  boardIndex,   // ✅ 빙고판 번호 추가
 }) {
-  const items = readAll();
-  const now = new Date().toISOString();
-
   const item = {
-    id: uuidv4(),
+    id: uuidv4(), // 문자열 ID
     title: title || "",
-    score: Number.isNaN(Number(score)) ? 0 : Number(score),
-    mode, // "muse" | "queendom"
-    type, // "meal-bingo" | "sighunter-bingo" | "sighunter"
-    rarity: rarity || "normal", // "normal" | "special"
+    score: score != null ? Number(score) : 0,
+    mode,
+    type,
+    rarity: rarity || "normal",
     imageUrl,
-    isActive: Boolean(isActive),
-    createdAt: now,
-    updatedAt: now,
+    isActive: !!isActive,
+    slotIndex:
+      slotIndex === null || slotIndex === undefined || slotIndex === ""
+        ? null
+        : Number(slotIndex),
+    boardIndex:
+      boardIndex === null || boardIndex === undefined || boardIndex === ""
+        ? null
+        : Number(boardIndex),           // ✅ 저장
+    createdAt: new Date().toISOString(),
   };
 
-  items.push(item);
-  writeAll(items);
-
+  sigs.push(item);
   return item;
 }
 
-function findAll({ mode, type, rarity, onlyActive = true } = {}) {
-  let items = readAll();
+/**
+ * 조건에 맞는 전체 조회
+ */
+function findAll({
+  mode,
+  type,
+  rarity,
+  boardIndex,          // ✅ 추가
+  onlyActive = true,
+} = {}) {
+  return sigs.filter((item) => {
+    if (mode && item.mode !== mode) return false;
+    if (type && item.type !== type) return false;
+    if (rarity && item.rarity !== rarity) return false;
 
-  if (mode) {
-    items = items.filter((i) => i.mode === mode);
-  }
-  if (type) {
-    items = items.filter((i) => i.type === type);
-  }
-  if (rarity) {
-    items = items.filter((i) => i.rarity === rarity);
-  }
-  if (onlyActive) {
-    items = items.filter((i) => i.isActive);
-  }
+    // ✅ 빙고판 번호 필터링
+    if (
+      boardIndex !== undefined &&
+      boardIndex !== null &&
+      boardIndex !== ""
+    ) {
+      if (Number(item.boardIndex) !== Number(boardIndex)) return false;
+    }
 
-  return items;
+    if (onlyActive && !item.isActive) return false;
+    return true;
+  });
 }
 
-function sampleRandom(items, count) {
-  const copy = [...items];
+/**
+ * 랜덤 샘플
+ */
+function sampleRandom(arr, count) {
+  if (!Array.isArray(arr) || arr.length === 0) return [];
+  const copy = [...arr];
+  const n = Math.min(count, copy.length);
   const result = [];
-  const max = Math.min(count, copy.length);
-
-  for (let i = 0; i < max; i++) {
+  for (let i = 0; i < n; i++) {
     const idx = Math.floor(Math.random() * copy.length);
     result.push(copy[idx]);
     copy.splice(idx, 1);
   }
-
   return result;
+}
+
+/**
+ * 시그 수정
+ * patch: { title?, score?, slotIndex?, boardIndex?, isActive? }
+ */
+function updateSig(id, patch = {}) {
+  const targetId = String(id);
+  const idx = sigs.findIndex((item) => String(item.id) === targetId);
+  if (idx === -1) return null;
+
+  const prev = sigs[idx];
+  const next = { ...prev };
+
+  if (patch.title !== undefined) next.title = patch.title;
+
+  if (patch.score !== undefined && patch.score !== "") {
+    next.score = Number(patch.score);
+  }
+  if (patch.score === "") {
+    next.score = 0;
+  }
+
+  if (patch.slotIndex !== undefined) {
+    next.slotIndex =
+      patch.slotIndex === null || patch.slotIndex === ""
+        ? null
+        : Number(patch.slotIndex);
+  }
+
+  // ✅ 빙고판 번호 수정
+  if (patch.boardIndex !== undefined) {
+    next.boardIndex =
+      patch.boardIndex === null || patch.boardIndex === ""
+        ? null
+        : Number(patch.boardIndex);
+  }
+
+  if (patch.isActive !== undefined) {
+    next.isActive = !!patch.isActive;
+  }
+
+  sigs[idx] = next;
+  return next;
+}
+
+/**
+ * 시그 삭제
+ */
+function removeSig(id) {
+  const targetId = String(id);
+  const idx = sigs.findIndex((item) => String(item.id) === targetId);
+  if (idx === -1) return false;
+  sigs.splice(idx, 1);
+  return true;
 }
 
 module.exports = {
   addSig,
   findAll,
   sampleRandom,
+  updateSig,
+  removeSig,
 };

@@ -1,9 +1,10 @@
 // src/components/common/GameCenter/Admin/SigImageAdminPage.jsx
-
 import React, { useState, useEffect } from "react";
 import {
   uploadSigItem,
   fetchSigItems,
+  updateSigItem,
+  deleteSigItem,
 } from "../../../api/sigHunterImageLibraryApi";
 
 const GAME_TYPES = [
@@ -22,6 +23,12 @@ const RARITIES = [
   { value: "special", label: "스페셜 카드" },
 ];
 
+const MEAL_BINGO_BOARDS = [
+  { value: "1", label: "1판" },
+  { value: "2", label: "2판" },
+  { value: "3", label: "3판" },
+];
+
 export default function SigImageAdminPage() {
   const [title, setTitle] = useState("");
   const [score, setScore] = useState("");
@@ -29,6 +36,9 @@ export default function SigImageAdminPage() {
   const [type, setType] = useState("meal-bingo");
   const [rarity, setRarity] = useState("normal");
   const [isActive, setIsActive] = useState(true);
+  const [slotIndex, setSlotIndex] = useState(""); // 칸 번호(필수)
+  const [boardIndex, setBoardIndex] = useState("1"); // 빙고판 번호(식대전 전용)
+
   const [file, setFile] = useState(null);
 
   const [submitting, setSubmitting] = useState(false);
@@ -38,6 +48,10 @@ export default function SigImageAdminPage() {
 
   const [items, setItems] = useState([]);
   const [loadingList, setLoadingList] = useState(false);
+  const [savingRowId, setSavingRowId] = useState(null);
+  const [deletingRowId, setDeletingRowId] = useState(null);
+
+  const isMealBingo = type === "meal-bingo";
 
   // 메시지 자동 제거
   useEffect(() => {
@@ -49,13 +63,29 @@ export default function SigImageAdminPage() {
     return () => clearTimeout(t);
   }, [message, error]);
 
-  // 현재 필터(게임/모드/카드종류)에 맞는 목록 로딩
+  const loadList = async (opts) => {
+    const params = {
+      mode,
+      type,
+      rarity,
+      activeOnly: false,
+      ...(opts || {}),
+    };
+
+    if (type === "meal-bingo") {
+      params.boardIndex = boardIndex || "1";
+    }
+
+    const list = await fetchSigItems(params);
+    setItems(list);
+  };
+
+  // 현재 필터(게임/모드/카드종류/빙고판)에 맞는 목록 로딩
   useEffect(() => {
     async function load() {
       try {
         setLoadingList(true);
-        const list = await fetchSigItems({ mode, type, rarity, activeOnly: false });
-        setItems(list);
+        await loadList();
       } catch (e) {
         console.error(e);
         setError("목록을 불러오는데 실패했습니다.");
@@ -64,7 +94,7 @@ export default function SigImageAdminPage() {
       }
     }
     load();
-  }, [mode, type, rarity]);
+  }, [mode, type, rarity, boardIndex]);
 
   const handleFileChange = (e) => {
     const f = e.target.files && e.target.files[0];
@@ -86,6 +116,20 @@ export default function SigImageAdminPage() {
       return;
     }
 
+    if (!slotIndex) {
+      setError("칸 번호를 입력해주세요.");
+      return;
+    }
+    if (isNaN(Number(slotIndex))) {
+      setError("칸 번호는 숫자로 입력해주세요.");
+      return;
+    }
+
+    if (isMealBingo && !boardIndex) {
+      setError("빙고판 번호를 선택해주세요.");
+      return;
+    }
+
     try {
       setSubmitting(true);
       setError("");
@@ -98,27 +142,99 @@ export default function SigImageAdminPage() {
         type,
         rarity,
         isActive,
+        slotIndex,
+        boardIndex: isMealBingo ? boardIndex : null,
       });
 
       setMessage("업로드 완료! 🎉");
 
       setTitle("");
       setScore("");
-      setMode(mode); // 그대로 유지
+      setMode(mode);
       setType(type);
       setRarity(rarity);
       setIsActive(true);
+      setSlotIndex("");
+      if (isMealBingo && !boardIndex) setBoardIndex("1");
       setFile(null);
       setPreviewUrl("");
 
-      // 새로 업로드한 내용 반영
-      const list = await fetchSigItems({ mode, type, rarity, activeOnly: false });
-      setItems(list);
+      await loadList();
     } catch (err) {
       console.error(err);
       setError(err.message || "업로드에 실패했습니다.");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  // 테이블 행 수정용 로컬 상태 업데이트
+  const handleChangeItemField = (id, field, value) => {
+    setItems((prev) =>
+      prev.map((it) => (it.id === id ? { ...it, [field]: value } : it))
+    );
+  };
+
+  const handleToggleItemActive = (id) => {
+    setItems((prev) =>
+      prev.map((it) =>
+        it.id === id ? { ...it, isActive: !it.isActive } : it
+      )
+    );
+  };
+
+  const handleSaveRow = async (item) => {
+    try {
+      setSavingRowId(item.id);
+      setError("");
+      setMessage("");
+
+      await updateSigItem(item.id, {
+        title: item.title ?? "",
+        score: item.score ?? "",
+        slotIndex: item.slotIndex ?? "",
+        boardIndex: item.boardIndex ?? "",
+        isActive: item.isActive,
+      });
+
+      setMessage("수정이 저장되었습니다.");
+      await loadList();
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "수정에 실패했습니다.");
+    } finally {
+      setSavingRowId(null);
+    }
+  };
+
+  const handleDeleteRow = async (item) => {
+    if (
+      typeof window !== "undefined" &&
+      !window.confirm("이 카드를 삭제할까요?")
+    ) {
+      return;
+    }
+    try {
+      setDeletingRowId(item.id);
+      setError("");
+      setMessage("");
+
+      await deleteSigItem(item.id);
+      setMessage("삭제가 완료되었습니다.");
+      await loadList();
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "삭제에 실패했습니다.");
+    } finally {
+      setDeletingRowId(null);
+    }
+  };
+
+  const handleChangeType = (e) => {
+    const newType = e.target.value;
+    setType(newType);
+    if (newType === "meal-bingo" && !boardIndex) {
+      setBoardIndex("1");
     }
   };
 
@@ -173,18 +289,20 @@ export default function SigImageAdminPage() {
                 color: "#9ca3af",
               }}
             >
-              게임 / 모드 / 일반·스페셜 별로 카드 이미지를 등록하고, 점수와 이름을 관리합니다.
+              게임 / 모드 / 일반·스페셜 / 빙고판 별로 카드 이미지를 관리합니다.
             </p>
           </div>
         </div>
 
         {/* 업로드 폼 영역 */}
         <form onSubmit={handleSubmit}>
-          {/* 게임 / 모드 / 카드 종류 */}
+          {/* 게임 / 모드 / 카드 종류 / 빙고판 */}
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(3, minmax(0,1fr))",
+              gridTemplateColumns: isMealBingo
+                ? "repeat(4, minmax(0,1fr))"
+                : "repeat(3, minmax(0,1fr))",
               gap: 12,
               marginBottom: 16,
             }}
@@ -202,7 +320,7 @@ export default function SigImageAdminPage() {
               </label>
               <select
                 value={type}
-                onChange={(e) => setType(e.target.value)}
+                onChange={handleChangeType}
                 style={{
                   width: "100%",
                   padding: "8px 10px",
@@ -287,13 +405,49 @@ export default function SigImageAdminPage() {
                 ))}
               </select>
             </div>
+
+            {isMealBingo && (
+              <div>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: 4,
+                    fontSize: 13,
+                    color: "#cbd5f5",
+                  }}
+                >
+                  빙고판
+                </label>
+                <select
+                  value={boardIndex}
+                  onChange={(e) => setBoardIndex(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "8px 10px",
+                    borderRadius: 10,
+                    border: "1px solid #374151",
+                    background: "#020617",
+                    color: "#e5e7eb",
+                    fontSize: 14,
+                    outline: "none",
+                  }}
+                >
+                  {MEAL_BINGO_BOARDS.map((b) => (
+                    <option key={b.value} value={b.value}>
+                      {b.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
 
-          {/* 제목 / 점수 */}
+          {/* 제목 / 점수 / 칸 번호 */}
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "minmax(0,2fr) minmax(0,1fr)",
+              gridTemplateColumns:
+                "minmax(0,2.2fr) minmax(0,1.2fr) minmax(0,0.8fr)",
               gap: 12,
               marginBottom: 14,
             }}
@@ -343,6 +497,37 @@ export default function SigImageAdminPage() {
                 value={score}
                 placeholder="예) 100"
                 onChange={(e) => setScore(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "8px 10px",
+                  borderRadius: 10,
+                  border: "1px solid #374151",
+                  background: "#020617",
+                  color: "#e5e7eb",
+                  fontSize: 14,
+                  outline: "none",
+                }}
+              />
+            </div>
+
+            <div>
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: 4,
+                  fontSize: 13,
+                  color: "#cbd5f5",
+                }}
+              >
+                칸 번호 (필수)
+              </label>
+              <input
+                type="number"
+                min="1"
+                max="25"
+                value={slotIndex}
+                placeholder="예) 1 ~ 25"
+                onChange={(e) => setSlotIndex(e.target.value)}
                 style={{
                   width: "100%",
                   padding: "8px 10px",
@@ -427,7 +612,9 @@ export default function SigImageAdminPage() {
                   minHeight: 18,
                 }}
               >
-                {file ? file.name : "PNG / JPG / GIF 등 이미지 파일을 선택하세요."}
+                {file
+                  ? file.name
+                  : "PNG / JPG / GIF 등 이미지 파일을 선택하세요."}
               </div>
 
               <label
@@ -543,7 +730,7 @@ export default function SigImageAdminPage() {
           </div>
         </form>
 
-        {/* 목록 테이블: 이게 “어떤 게임에 어떤 이미지들이 등록돼 있는지” 확인용 */}
+        {/* 목록 테이블 */}
         <div
           style={{
             marginTop: 16,
@@ -573,6 +760,13 @@ export default function SigImageAdminPage() {
               {MODES.find((m) => m.value === mode)?.label} /{" "}
               {GAME_TYPES.find((g) => g.value === type)?.label} /{" "}
               {RARITIES.find((r) => r.value === rarity)?.label}
+              {isMealBingo && boardIndex
+                ? ` / ${
+                    MEAL_BINGO_BOARDS.find(
+                      (b) => b.value === boardIndex
+                    )?.label || `${boardIndex}판`
+                  }`
+                : ""}
             </span>
           </div>
 
@@ -611,7 +805,16 @@ export default function SigImageAdminPage() {
                     점수
                   </th>
                   <th style={{ padding: "6px 8px", textAlign: "center" }}>
+                    판
+                  </th>
+                  <th style={{ padding: "6px 8px", textAlign: "center" }}>
+                    칸
+                  </th>
+                  <th style={{ padding: "6px 8px", textAlign: "center" }}>
                     활성
+                  </th>
+                  <th style={{ padding: "6px 8px", textAlign: "center" }}>
+                    관리
                   </th>
                   <th style={{ padding: "6px 8px", textAlign: "center" }}>
                     ID
@@ -622,7 +825,7 @@ export default function SigImageAdminPage() {
                 {loadingList ? (
                   <tr>
                     <td
-                      colSpan={5}
+                      colSpan={8}
                       style={{
                         padding: 16,
                         textAlign: "center",
@@ -635,7 +838,7 @@ export default function SigImageAdminPage() {
                 ) : items.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={5}
+                      colSpan={8}
                       style={{
                         padding: 16,
                         textAlign: "center",
@@ -666,35 +869,204 @@ export default function SigImageAdminPage() {
                           }}
                         />
                       </td>
+
                       <td style={{ padding: "4px 6px", maxWidth: 200 }}>
-                        <div
+                        <input
+                          type="text"
+                          value={item.title || ""}
+                          onChange={(e) =>
+                            handleChangeItemField(
+                              item.id,
+                              "title",
+                              e.target.value
+                            )
+                          }
                           style={{
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
+                            width: "100%",
+                            padding: "4px 6px",
+                            borderRadius: 6,
+                            border: "1px solid #374151",
+                            background: "#020617",
+                            color: "#e5e7eb",
+                            fontSize: 12,
+                            outline: "none",
+                          }}
+                        />
+                      </td>
+
+                      <td
+                        style={{
+                          padding: "4px 6px",
+                          textAlign: "center",
+                        }}
+                      >
+                        <input
+                          type="number"
+                          value={item.score ?? ""}
+                          onChange={(e) =>
+                            handleChangeItemField(
+                              item.id,
+                              "score",
+                              e.target.value
+                            )
+                          }
+                          style={{
+                            width: "100%",
+                            padding: "4px 6px",
+                            borderRadius: 6,
+                            border: "1px solid #374151",
+                            background: "#020617",
+                            color: "#fbbf24",
+                            fontSize: 12,
+                            outline: "none",
+                            textAlign: "center",
+                          }}
+                        />
+                      </td>
+
+                      <td
+                        style={{
+                          padding: "4px 6px",
+                          textAlign: "center",
+                        }}
+                      >
+                        <input
+                          type="number"
+                          min="1"
+                          max="3"
+                          value={item.boardIndex ?? ""}
+                          onChange={(e) =>
+                            handleChangeItemField(
+                              item.id,
+                              "boardIndex",
+                              e.target.value
+                            )
+                          }
+                          style={{
+                            width: "100%",
+                            padding: "4px 6px",
+                            borderRadius: 6,
+                            border: "1px solid #374151",
+                            background: "#020617",
+                            color: "#e5e7eb",
+                            fontSize: 12,
+                            outline: "none",
+                            textAlign: "center",
+                          }}
+                        />
+                      </td>
+
+                      <td
+                        style={{
+                          padding: "4px 6px",
+                          textAlign: "center",
+                        }}
+                      >
+                        <input
+                          type="number"
+                          value={item.slotIndex ?? ""}
+                          onChange={(e) =>
+                            handleChangeItemField(
+                              item.id,
+                              "slotIndex",
+                              e.target.value
+                            )
+                          }
+                          style={{
+                            width: "100%",
+                            padding: "4px 6px",
+                            borderRadius: 6,
+                            border: "1px solid #374151",
+                            background: "#020617",
+                            color: "#e5e7eb",
+                            fontSize: 12,
+                            outline: "none",
+                            textAlign: "center",
+                          }}
+                        />
+                      </td>
+
+                      <td
+                        style={{
+                          padding: "4px 6px",
+                          textAlign: "center",
+                        }}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => handleToggleItemActive(item.id)}
+                          style={{
+                            padding: "2px 8px",
+                            borderRadius: 999,
+                            border: "1px solid #374151",
+                            background: item.isActive
+                              ? "#064e3b"
+                              : "#111827",
+                            color: item.isActive ? "#4ade80" : "#6b7280",
+                            fontSize: 11,
+                            cursor: "pointer",
                           }}
                         >
-                          {item.title || "-"}
+                          {item.isActive ? "ON" : "OFF"}
+                        </button>
+                      </td>
+
+                      <td
+                        style={{
+                          padding: "4px 6px",
+                          textAlign: "center",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            gap: 6,
+                          }}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => handleSaveRow(item)}
+                            disabled={savingRowId === item.id}
+                            style={{
+                              padding: "2px 8px",
+                              borderRadius: 999,
+                              border: "none",
+                              background:
+                                "linear-gradient(135deg,#22c55e,#16a34a)",
+                              color: "#022c22",
+                              fontSize: 11,
+                              cursor:
+                                savingRowId === item.id
+                                  ? "default"
+                                  : "pointer",
+                            }}
+                          >
+                            {savingRowId === item.id ? "저장중" : "저장"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteRow(item)}
+                            disabled={deletingRowId === item.id}
+                            style={{
+                              padding: "2px 8px",
+                              borderRadius: 999,
+                              border: "none",
+                              background:
+                                "linear-gradient(135deg,#f97373,#ef4444)",
+                              color: "#fee2e2",
+                              fontSize: 11,
+                              cursor:
+                                deletingRowId === item.id
+                                  ? "default"
+                                  : "pointer",
+                            }}
+                          >
+                            {deletingRowId === item.id ? "삭제중" : "삭제"}
+                          </button>
                         </div>
                       </td>
-                      <td
-                        style={{
-                          padding: "4px 6px",
-                          textAlign: "center",
-                          color: "#fbbf24",
-                        }}
-                      >
-                        {item.score ?? 0}
-                      </td>
-                      <td
-                        style={{
-                          padding: "4px 6px",
-                          textAlign: "center",
-                          color: item.isActive ? "#4ade80" : "#6b7280",
-                        }}
-                      >
-                        {item.isActive ? "ON" : "OFF"}
-                      </td>
+
                       <td
                         style={{
                           padding: "4px 6px",
@@ -723,7 +1095,8 @@ export default function SigImageAdminPage() {
             }}
           >
             * 랜덤으로 뽑을 때, 이 목록의 카드들 중에서 (게임 / 모드 / 카드
-            종류에 맞게) 사용됩니다.
+            종류 / 빙고판에 맞게) 사용됩니다. 칸 번호와 일반/스페셜로 나눠서
+            관리할 수 있습니다.
           </p>
         </div>
       </div>

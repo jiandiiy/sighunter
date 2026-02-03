@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "id": "e28bb40a-7aea-45bd-9dcf-0bb1116ec3a3",
+    "title": "",
+    "score": 0,
+    "mode": "queendom",
+    "type": "meal-bingo",
+    "rarity": "normal",
+    "imageUrl": "/uploads/sig-images/1770083681237-sig_301.webp",
+    "isActive": true,
+    "createdAt": "2026-02-03T01:54:41.244Z",
+    "updatedAt": "2026-02-03T01:54:41.244Z"
+  }
+]
