@@ -1,5 +1,5 @@
 // src/components/common/GameCenter/Admin/SigImageAdminPage.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   uploadSigItem,
   fetchSigItems,
@@ -63,22 +63,25 @@ export default function SigImageAdminPage() {
     return () => clearTimeout(t);
   }, [message, error]);
 
-  const loadList = async (opts) => {
-    const params = {
-      mode,
-      type,
-      rarity,
-      activeOnly: false,
-      ...(opts || {}),
-    };
+  const loadList = useCallback(
+    async (opts) => {
+      const params = {
+        mode,
+        type,
+        rarity,
+        activeOnly: false,
+        ...(opts || {}),
+      };
 
-    if (type === "meal-bingo") {
-      params.boardIndex = boardIndex || "1";
-    }
+      if (type === "meal-bingo") {
+        params.boardIndex = boardIndex || "1";
+      }
 
-    const list = await fetchSigItems(params);
-    setItems(list);
-  };
+      const list = await fetchSigItems(params);
+      setItems(list);
+    },
+    [mode, type, rarity, boardIndex]
+  );
 
   // 현재 필터(게임/모드/카드종류/빙고판)에 맞는 목록 로딩
   useEffect(() => {
@@ -94,7 +97,7 @@ export default function SigImageAdminPage() {
       }
     }
     load();
-  }, [mode, type, rarity, boardIndex]);
+  }, [loadList]);
 
   const handleFileChange = (e) => {
     const f = e.target.files && e.target.files[0];
