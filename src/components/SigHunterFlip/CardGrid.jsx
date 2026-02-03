@@ -1,3 +1,4 @@
+// src/components/SigHunterFlip/CardGrid.jsx
 import React, { memo } from "react";
 import CardItem from "./CardItem";
 
@@ -7,6 +8,7 @@ function CardGrid({
   locked,
   revealed,
   randomImages,
+  sigItemsByCard = {}, // 🔹 cardId -> remote 시그 메타데이터
   onFlip,
   onAdmin,
   onEdit,
@@ -20,6 +22,7 @@ function CardGrid({
         <CardItem
           key={card.id}
           card={card}
+          sigItem={sigItemsByCard[card.id] || null}
           flipped={flipped}
           locked={locked}
           revealed={revealed}

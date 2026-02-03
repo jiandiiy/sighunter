@@ -195,8 +195,6 @@
   perspective: 800px;
 }
 
-/* (기존 nth-child 위치 지정은 모두 제거됨) */
-
 /* 플립용 내부 박스 */
 .hunter-cell-inner {
   width: 100%;
@@ -240,7 +238,68 @@
   display: block;
 }
 
-/* 앞면 텍스트/숫자는 숨김 */
+/* 🔹 카드 앞면 상단 메타 영역 (일반/스페셜 + 점수) */
+.hunter-card-meta-bar {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  right: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  z-index: 2;
+}
+
+/* 🔹 일반 / 스페셜 뱃지 */
+.hunter-rarity-badge {
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.hunter-rarity-badge--normal {
+  background: rgba(16, 185, 129, 0.9);
+  color: #ecfdf5;
+}
+
+.hunter-rarity-badge--special {
+  background: rgba(245, 158, 11, 0.95);
+  color: #fffbeb;
+}
+
+/* 🔹 점수 라벨 */
+.hunter-score-label {
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.9);
+  color: #facc15;
+  font-weight: 600;
+}
+
+/* 🔹 카드 이름 바 (앞면 하단) */
+.hunter-name-bar {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
+  padding: 3px 6px;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.88);
+  color: #e5e7eb;
+  font-size: 10px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 2;
+}
+
+.hunter-name-text {
+  font-weight: 600;
+}
+
+/* 앞면 텍스트/숫자는 숨김 (예전 구조용, 지금은 거의 사용 안 함) */
 .hunter-sig-name,
 .hunter-sig-count-front {
   display: none;
@@ -430,13 +489,13 @@
   color: #f9fafb;
   font-size: 14px; /* 이모지 크기 */
   cursor: pointer;
-  display: flex;             /* 기본적으로는 숨길 거라 의미는 없지만 hover용 구조로 */
+  display: flex;
   align-items: center;
   justify-content: center;
   backdrop-filter: blur(4px);
   opacity: 0;
   transform: scale(0.8);
-  pointer-events: none;      /* 기본 상태 클릭 불가 */
+  pointer-events: none;
   transition:
     opacity 0.15s ease,
     transform 0.15s ease,
@@ -449,7 +508,7 @@
 .hunter-cell:hover .hunter-img-change-btn {
   opacity: 1;
   transform: scale(1);
-  pointer-events: auto;      /* hover 시에만 클릭 가능 */
+  pointer-events: auto;
 }
 
 /* hover 시 살짝 강조 */

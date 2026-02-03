@@ -1,5 +1,12 @@
 // src/utils/sigBingoImagePool.js
+// 식대전 빙고용: 랜덤 카드(일반/스페셜) 가져오기
+// - 1) 백엔드 API가 되면 API 우선 사용
+// - 2) API 실패/미구동 시, 로컬 bingoImagePool 로 fallback
+
 import { bingoImagePool } from "../data/sigBingoImagePool";
+import { fetchRandomSigItems } from "../api/sigHunterImageLibraryApi";
+
+/* 공용 유틸 */
 
 function shuffle(arr) {
   const a = [...arr];
@@ -10,63 +17,182 @@ function shuffle(arr) {
   return a;
 }
 
-// 단일 이미지 1장 랜덤 (기본: 일반 풀에서)
-export function getRandomBingoImage(mode, opts = {}) {
-  const { poolKey = "default" } = opts;
+// 🔹 로컬 풀 원소를 API에서 쓰는 카드 형식으로 통일
+function normalizeItem(raw, { mode, rarity = "normal", idx }) {
+  if (!raw) return null;
 
+  // 이미 imageUrl 가진 객체면 그대로 (필수값만 기본 세팅)
+  if (typeof raw === "object") {
+    return {
+      id: raw.id ?? `${mode}-${rarity}-${idx}`,
+      title: raw.title ?? "",
+      score: raw.score ?? 0,
+      mode: raw.mode ?? mode,
+      type: raw.type ?? "meal-bingo",
+      rarity: raw.rarity ?? rarity,
+      imageUrl:
+        raw.imageUrl ??
+        raw.src ??
+        raw.url ??
+        "", // 그래도 없으면 빈 문자열
+    };
+  }
+
+  // 문자열이면 "이미지 경로"라고 가정
+  if (typeof raw === "string") {
+    return {
+      id: `${mode}-${rarity}-${idx}`,
+      title: "",
+      score: 0,
+      mode,
+      type: "meal-bingo",
+      rarity,
+      imageUrl: raw,
+    };
+  }
+
+  return null;
+}
+
+/* -------- 로컬 풀 기반 구현 (fallback) -------- */
+
+function getLocalPools(mode) {
   const modePool = bingoImagePool?.[mode];
+
+  const defaultList = Array.isArray(modePool) ? modePool : [];
+  const defaultList2 = Array.isArray(modePool?.default) ? modePool.default : [];
+  const normalRaw = defaultList.length ? defaultList : defaultList2;
+
+  return {
+    modePool,
+    normalRaw,
+  };
+}
+
+function getLocalRandomBingoImages(mode, count, opts = {}) {
+  const {
+    centerIndex = 4,
+    centerPoolKey = "specialCenter",
+    useCenterPool = false,
+    rarity = "normal",
+  } = opts;
+
+  const { modePool, normalRaw } = getLocalPools(mode);
+  const centerRaw = Array.isArray(modePool?.[centerPoolKey])
+    ? modePool[centerPoolKey]
+    : [];
+
+  if (!normalRaw.length && !(useCenterPool && centerRaw.length)) {
+    return Array(count).fill(null);
+  }
+
+  // 기본 풀 정규화
+  const normalPool = normalRaw
+    .map((item, idx) => normalizeItem(item, { mode, rarity, idx }))
+    .filter(Boolean);
+
+  const centerPool = centerRaw
+    .map((item, idx) =>
+      normalizeItem(item, { mode, rarity: "special", idx })
+    )
+    .filter(Boolean);
+
+  const base =
+    normalPool.length > 0
+      ? shuffle(normalPool)
+          .slice(0, count)
+          .concat(
+            Array(Math.max(0, count - normalPool.length)).fill(
+              normalPool[0] || null
+            )
+          )
+      : Array(count).fill(null);
+
+  if (
+    useCenterPool &&
+    centerPool.length &&
+    centerIndex >= 0 &&
+    centerIndex < count
+  ) {
+    base[centerIndex] = centerPool[0];
+  }
+
+  return base.slice(0, count);
+}
+
+function getLocalRandomBingoImage(mode, opts = {}) {
+  const { poolKey = "default", rarity = "normal" } = opts;
+  const modePool = bingoImagePool?.[mode];
+
   const list =
     poolKey === "default"
       ? Array.isArray(modePool)
         ? modePool
         : []
       : Array.isArray(modePool?.[poolKey])
-        ? modePool[poolKey]
-        : [];
+      ? modePool[poolKey]
+      : [];
 
-  if (!list.length) return "";
+  if (!list.length) return null;
+
   const idx = Math.floor(Math.random() * list.length);
-  return list[idx] || "";
+  return normalizeItem(list[idx], { mode, rarity, idx });
+}
+
+/* -------- 최종 export: API → 실패 시 로컬 -------- */
+
+/**
+ * 빙고 보드 전체용 카드 목록
+ */
+export async function getRandomBingoImages(
+  mode,
+  count,
+  { rarity = "normal", ...restOpts } = {}
+) {
+  // 1) API 시도
+  try {
+    const items = await fetchRandomSigItems({
+      mode,
+      type: "meal-bingo",
+      rarity,
+      count,
+    });
+
+    if (Array.isArray(items) && items.length) return items;
+  } catch (err) {
+    console.warn(
+      "[sigBingoImagePool] API 호출 실패, 로컬 bingoImagePool 로 fallback 합니다.",
+      err
+    );
+  }
+
+  // 2) 실패하면 로컬
+  return getLocalRandomBingoImages(mode, count, { rarity, ...restOpts });
 }
 
 /**
- * 초기 보드용: count개 뽑기
- * - opts.centerIndex: 가운데 인덱스(기본 4)
- * - opts.centerPoolKey: 가운데칸 전용 풀 키(예: "specialCenter")
- * - opts.useCenterPool: true면 가운데칸만 centerPoolKey에서 뽑음
+ * 한 장만 (라인 완성 시 교체용)
  */
-export function getRandomBingoImages(mode, count, opts = {}) {
-  const {
-    centerIndex = 4,
-    centerPoolKey = "specialCenter",
-    useCenterPool = false,
-  } = opts;
-
-  const modePool = bingoImagePool?.[mode];
-
-  // ✅ 기존 구조(배열)도 지원
-  const defaultList = Array.isArray(modePool) ? modePool : [];
-  // ✅ 확장 구조(객체: { default: [], specialCenter: [] }) 지원
-  const defaultList2 = Array.isArray(modePool?.default) ? modePool.default : [];
-  const normalPool = defaultList.length ? defaultList : defaultList2;
-
-  const centerPool = Array.isArray(modePool?.[centerPoolKey])
-    ? modePool[centerPoolKey]
-    : [];
-
-  if (!normalPool.length && !(useCenterPool && centerPool.length)) {
-    return Array(count).fill("");
+export async function getRandomBingoImage(
+  mode,
+  { rarity = "normal", ...restOpts } = {}
+) {
+  // 1) API 시도
+  try {
+    const items = await fetchRandomSigItems({
+      mode,
+      type: "meal-bingo",
+      rarity,
+      count: 1,
+    });
+    if (Array.isArray(items) && items[0]) return items[0];
+  } catch (err) {
+    console.warn(
+      "[sigBingoImagePool] 단일 카드 API 실패, 로컬 bingoImagePool 로 fallback 합니다.",
+      err
+    );
   }
 
-  // 일반 칸은 중복 없이 셔플로 뽑기(기존 동작 유지)
-  const pickedNormal = normalPool.length
-    ? shuffle(normalPool).slice(0, count).concat(Array(Math.max(0, count - normalPool.length)).fill(""))
-    : Array(count).fill("");
-
-  // 가운데칸만 전용 풀에서 교체
-  if (useCenterPool && centerPool.length && centerIndex >= 0 && centerIndex < count) {
-    pickedNormal[centerIndex] = getRandomBingoImage(mode, { poolKey: centerPoolKey });
-  }
-
-  return pickedNormal.slice(0, count);
+  // 2) 실패하면 로컬
+  return getLocalRandomBingoImage(mode, { rarity, ...restOpts });
 }

@@ -13,6 +13,7 @@ import {
 } from "../../../api/sigBingoStorage";
 
 const MODES = ["muse", "queendom"];
+const GLOBAL_MODE_KEY = "sigBingo-global-mode";
 
 const ROWS = 3;
 const COLS = 3;
@@ -31,13 +32,14 @@ const LINES_3X3 = [
 
 export default function BingoBoard({
   boardId = "default",
-  currentBoardNo = "1", // URL 기준 현재 빙고 번호
+  currentBoardNo = "1",
 }) {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState("muse");
-  const [images, setImages] = useState([]);
+  // 각 칸마다 { id, title, score, imageUrl, ... } 형태로 저장
+  const [cards, setCards] = useState([]);
   const [checked, setChecked] = useState(Array(CELL_COUNT).fill(false));
   const [completedLines, setCompletedLines] = useState([]);
 
@@ -51,34 +53,65 @@ export default function BingoBoard({
 
   useEffect(() => {
     async function init() {
-      const remote = await loadSigBingoState(boardId);
+      try {
+        const remote = await loadSigBingoState(boardId);
 
-      const nextMode = remote?.mode || "muse";
+        // 전역 모드 읽기 (없으면 muse)
+        let globalMode = "muse";
+        if (typeof window !== "undefined") {
+          const v = window.localStorage.getItem(GLOBAL_MODE_KEY);
+          if (v === "queendom") globalMode = "queendom";
+        }
+        const nextMode = globalMode;
 
-      const randomImages = getRandomBingoImages(nextMode, CELL_COUNT);
+        // 저장된 카드가 새 포맷(객체 + imageUrl)이고, 모드도 일치하는지 검사
+        const isValidCard = (c) =>
+          c &&
+          typeof c === "object" &&
+          typeof c.imageUrl === "string" &&
+          c.imageUrl.length > 0;
 
-      const initChecked =
-        Array.isArray(remote?.checked) && remote.checked.length === CELL_COUNT
-          ? remote.checked
-          : Array(CELL_COUNT).fill(false);
+        const storedCards =
+          remote?.mode === nextMode &&
+          Array.isArray(remote?.cards) &&
+          remote.cards.length === CELL_COUNT &&
+          remote.cards.every(isValidCard)
+            ? remote.cards
+            : null;
 
-      const newLines = Array.isArray(remote?.completedLines)
-        ? remote.completedLines
-        : calcCompletedLines(initChecked);
+        const randomCards =
+          storedCards ||
+          (await getRandomBingoImages(nextMode, CELL_COUNT, {
+            rarity: "normal",
+          }));
 
-      setMode(nextMode);
-      setImages(randomImages);
-      setChecked(initChecked);
-      setCompletedLines(newLines);
+        const initChecked =
+          Array.isArray(remote?.checked) &&
+          remote.checked.length === CELL_COUNT
+            ? remote.checked
+            : Array(CELL_COUNT).fill(false);
 
-      await saveSigBingoState(boardId, {
-        mode: nextMode,
-        images: randomImages,
-        checked: initChecked,
-        completedLines: newLines,
-      });
+        const newLines = Array.isArray(remote?.completedLines)
+          ? remote.completedLines
+          : calcCompletedLines(initChecked);
 
-      setLoading(false);
+        setMode(nextMode);
+        setCards(randomCards);
+        setChecked(initChecked);
+        setCompletedLines(newLines);
+
+        await saveSigBingoState(boardId, {
+          mode: nextMode,
+          cards: randomCards,
+          checked: initChecked,
+          completedLines: newLines,
+        });
+
+        setLoading(false);
+      } catch (err) {
+        console.error("BingoBoard init error:", err);
+        setLoading(false);
+      }
     }
 
     init();
@@ -97,71 +130,95 @@ export default function BingoBoard({
         completedLines.includes(lineIndex) && line.includes(cellIndex)
     );
 
-  const handleToggleCell = (idx) => {
-    setChecked((prevChecked) => {
-      const nextChecked = [...prevChecked];
+  const handleToggleCell = async (idx) => {
+    try {
+      const nextChecked = [...checked];
       nextChecked[idx] = !nextChecked[idx];
 
       const newLines = calcCompletedLines(nextChecked);
-      setCompletedLines(newLines);
 
       const isInCompletedLine = LINES_3X3.some(
         (line, lineIndex) => newLines.includes(lineIndex) && line.includes(idx)
       );
 
-      let nextImages = images;
+      let nextCards = cards;
+
+      // 라인 완성에 포함된 칸이면 새 카드로 교체
       if (isInCompletedLine) {
-        nextImages = [...images];
-        nextImages[idx] = getRandomBingoImage(mode);
-        setImages(nextImages);
+        const newCard = await getRandomBingoImage(mode, { rarity: "special" });
+        if (newCard) {
+          nextCards = [...cards];
+          nextCards[idx] = newCard;
+        }
       }
+
+      setChecked(nextChecked);
+      setCompletedLines(newLines);
+      setCards(nextCards);
 
       sync({
         mode,
-        images: nextImages,
+        cards: nextCards,
         checked: nextChecked,
         completedLines: newLines,
       });
-
-      return nextChecked;
-    });
+    } catch (err) {
+      console.error("handleToggleCell error:", err);
+    }
   };
 
-  const handleChangeMode = (nextMode) => {
+  const handleChangeMode = async (nextMode) => {
     if (mode === nextMode) return;
 
-    const randomImages = getRandomBingoImages(nextMode, CELL_COUNT);
-    const initChecked = Array(CELL_COUNT).fill(false);
+    try {
+      // 전역 모드 저장
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(GLOBAL_MODE_KEY, nextMode);
+      }
 
-    setMode(nextMode);
-    setImages(randomImages);
-    setChecked(initChecked);
-    const newLines = calcCompletedLines(initChecked);
-    setCompletedLines(newLines);
+      const randomCards = await getRandomBingoImages(nextMode, CELL_COUNT, {
+        rarity: "normal",
+      });
+      const initChecked = Array(CELL_COUNT).fill(false);
+      const newLines = calcCompletedLines(initChecked);
 
-    sync({
-      mode: nextMode,
-      images: randomImages,
-      checked: initChecked,
-      completedLines: newLines,
-    });
+      setMode(nextMode);
+      setCards(randomCards);
+      setChecked(initChecked);
+      setCompletedLines(newLines);
+
+      sync({
+        mode: nextMode,
+        cards: randomCards,
+        checked: initChecked,
+        completedLines: newLines,
+      });
+    } catch (err) {
+      console.error("handleChangeMode error:", err);
+    }
   };
 
-  const handleResetBoard = () => {
-    const randomImages = getRandomBingoImages(mode, CELL_COUNT);
-    const initChecked = Array(CELL_COUNT).fill(false);
+  const handleResetBoard = async () => {
+    try {
+      const randomCards = await getRandomBingoImages(mode, CELL_COUNT, {
+        rarity: "normal",
+      });
+      const initChecked = Array(CELL_COUNT).fill(false);
+      const newLines = calcCompletedLines(initChecked);
 
-    setImages(randomImages);
-    setChecked(initChecked);
-    const newLines = calcCompletedLines(initChecked);
-    setCompletedLines(newLines);
+      setCards(randomCards);
+      setChecked(initChecked);
+      setCompletedLines(newLines);
 
-    sync({
-      mode,
-      images: randomImages,
-      checked: initChecked,
-      completedLines: newLines,
-    });
+      sync({
+        mode,
+        cards: randomCards,
+        checked: initChecked,
+        completedLines: newLines,
+      });
+    } catch (err) {
+      console.error("handleResetBoard error:", err);
+    }
   };
 
   if (loading) return <div style={{ color: "#fff" }}>로딩 중...</div>;
@@ -193,7 +250,6 @@ export default function BingoBoard({
           </button>
         </div>
 
-        {/* 뮤즈/퀸덤 아래 빙고 1,2,3 탭 */}
         <div
           style={{
             marginTop: 8,
@@ -230,7 +286,7 @@ export default function BingoBoard({
       </header>
 
       <div className="bingo-grid">
-        {images.slice(0, CELL_COUNT).map((src, idx) => {
+        {cards.slice(0, CELL_COUNT).map((card, idx) => {
           const inCompletedLine = isCellInCompletedLine(idx);
 
           return (
@@ -238,14 +294,21 @@ export default function BingoBoard({
               key={idx}
               className={
                 "bingo-cell" +
-                (checked[idx] ? " bingo-cell--checked" : "") +
-                (inCompletedLine ? " bingo-cell--line-completed" : "")
+                (checked[idx] ? "bingo-cell--checked " : " ") +
+                (inCompletedLine ? "bingo-cell--line-completed" : "")
               }
               onClick={() => handleToggleCell(idx)}
             >
               <div className="bingo-cell-inner">
                 <div className="bingo-cell-front">
-                  <img src={src} alt={`bingo-sig-${idx + 1}`} />
+                  {card?.imageUrl && (
+                    <img
+                      src={card.imageUrl}
+                      alt={card.title || `bingo-${idx}`}
+                    />
+                  )}
+
+                  {/* 번호만 표시 (이름/점수는 숨김) */}
                   <span className="bingo-cell-number">{idx + 1}</span>
                 </div>
 

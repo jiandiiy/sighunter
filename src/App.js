@@ -11,6 +11,7 @@ import CasinoWheelHuge from "./components/GameCenter/BigWheel/CasinoWheelHuge";
 import BingoBoard from "./components/GameCenter/Bingo/BingoBoard";
 import SigHunterBingoBoard from "./components/GameCenter/SigHunterBingo/SigHunterBingoBoard";
 import SigHunterBingoControl from "./components/GameCenter/SigHunterBingo/SigHunterBingoControl";
+import SigImageAdminPage from "./components/GameCenter/Admin/SigImageAdminPage";
 
 // HP 배틀 관련
 import HpBattle from "./components/GameCenter/HPBattle/HpBattle";
@@ -32,15 +33,15 @@ export default function App() {
           {/* 식대전 빙고 1 / 2 / 3 */}
           <Route
             path="/bingo/1"
-            element={<BingoBoard key="bingo1" boardId="bingo1" />}
+            element={<BingoBoard key="bingo1" boardId="bingo1" currentBoardNo="1" />}
           />
           <Route
             path="/bingo/2"
-            element={<BingoBoard key="bingo2" boardId="bingo2" />}
+            element={<BingoBoard key="bingo2" boardId="bingo2" currentBoardNo="2" />}
           />
           <Route
             path="/bingo/3"
-            element={<BingoBoard key="bingo3" boardId="bingo3" />}
+            element={<BingoBoard key="bingo3" boardId="bingo3" currentBoardNo="3" />}
           />
 
           {/* 시그헌터 빙고 보드(OBS/시청자용) */}
@@ -60,6 +61,9 @@ export default function App() {
 
           {/* HP 배틀 컨트롤 */}
           <Route path="/hp-control" element={<HpControl battleId="sig-hp" />} />
+
+          {/* 시그 이미지 업로드/관리 페이지 */}
+          <Route path="/admin/sig" element={<SigImageAdminPage />} />
         </Route>
 
         {/* 팝업 라우트들 */}

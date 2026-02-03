@@ -118,6 +118,7 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                   onClick={() => handleClickCell(cell.id, currentPlayer)}
                 >
                   <div className="hunter-cell-inner">
+                    {/* 앞면: 이미지만 노출 */}
                     <div className="hunter-cell-front">
                       {currentImage && (
                         <div className="hunter-sig-image-wrap">
@@ -128,8 +129,10 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                           />
                         </div>
                       )}
+                      {/* 앞면 이름/점수/뱃지 영역은 모두 제거 */}
                     </div>
 
+                    {/* 뒷면: 소유자 / 점수 */}
                     <div className="hunter-cell-back">
                       <div
                         className="hunter-cell-owner-area"
@@ -274,7 +277,7 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                       <span className="hunter-log-text">
                         [{log.actor}] 님이{" "}
                         {log.prevOwner ? `${log.prevOwner} 님에게서 ` : ""}
-                        {log.sigName} (x{log.sigCount}) 칸을
+                        {log.sigName} ({log.sigCount}점) 칸을
                         {log.prevOwner
                           ? " 뺏었습니다."
                           : " 점령했습니다."}

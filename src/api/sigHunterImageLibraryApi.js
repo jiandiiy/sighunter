@@ -1,68 +1,94 @@
 // src/api/sigHunterImageLibraryApi.js
-import {
-  collection,
-  addDoc,
-  getDocs,
-  deleteDoc,
-  doc,
-  updateDoc,
-  serverTimestamp,
-} from "firebase/firestore";
-import { firestore } from "../firebase";
 
-const IMAGES_COL = "sigHunterImages";
+const API_BASE =
+  process.env.REACT_APP_API_BASE_URL || "http://localhost:4000";
 
-/**
- * 새 이미지 메타데이터 등록 (Storage 업로드는 별도)
- * @param {Object} data
- *   - url: string
- *   - title?: string
- *   - tags?: string[]
- *   - note?: string
- */
-export async function createImageMeta(data) {
-  const colRef = collection(firestore, IMAGES_COL);
-  const docRef = await addDoc(colRef, {
-    ...data,
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
-  });
-  return docRef.id;
+export function resolveSigImageUrl(imagePath) {
+  if (!imagePath) return "";
+  if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+    return imagePath;
+  }
+  return `${API_BASE}${imagePath}`;
 }
 
 /**
- * 전체 이미지 목록 가져오기
- * return: [{ id, url, title, tags, note, ... }, ...]
+ * 새 시그 업로드
  */
-export async function getImageList() {
-  const colRef = collection(firestore, IMAGES_COL);
-  const snapshot = await getDocs(colRef);
-  const list = [];
-  snapshot.forEach((docSnap) => {
-    list.push({
-      id: docSnap.id,
-      ...docSnap.data(),
-    });
+export async function uploadSigItem({
+  file,
+  title,
+  score,
+  mode,
+  type,
+  rarity = "normal",
+  isActive,
+}) {
+  const formData = new FormData();
+  formData.append("image", file);
+  if (title) formData.append("title", title);
+  if (score !== undefined && score !== null)
+    formData.append("score", String(score));
+  formData.append("mode", mode);
+  formData.append("type", type);
+  formData.append("rarity", rarity);
+  formData.append("isActive", String(isActive));
+
+  const res = await fetch(`${API_BASE}/api/sigs`, {
+    method: "POST",
+    body: formData,
   });
-  return list;
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(error.error || "Failed to upload sig item");
+  }
+
+  const json = await res.json();
+  return { ...json, imageUrl: resolveSigImageUrl(json.imageUrl) };
 }
 
 /**
- * 이미지 메타데이터 수정 (제목, 태그, 메모 등)
+ * 랜덤 조회 (게임에서 사용)
  */
-export async function updateImageMeta(imageId, data) {
-  const docRef = doc(firestore, IMAGES_COL, imageId);
-  await updateDoc(docRef, {
-    ...data,
-    updatedAt: serverTimestamp(),
-  });
+export async function fetchRandomSigItems({ mode, type, rarity, count }) {
+  const url = new URL(`${API_BASE}/api/sigs/random`);
+
+  if (mode) url.searchParams.set("mode", mode);
+  if (type) url.searchParams.set("type", type);
+  if (rarity) url.searchParams.set("rarity", rarity);
+  if (count) url.searchParams.set("count", String(count));
+
+  const res = await fetch(url.toString());
+  if (!res.ok) {
+    throw new Error("Failed to fetch random sig items");
+  }
+
+  const arr = await res.json();
+  return arr.map((item) => ({
+    ...item,
+    imageUrl: resolveSigImageUrl(item.imageUrl),
+  }));
 }
 
 /**
- * 이미지 메타데이터 삭제
- * (Storage 실제 파일 삭제는 원하면 나중에 별도 추가)
+ * 관리용 전체 목록 조회
  */
-export async function deleteImageMeta(imageId) {
-  const docRef = doc(firestore, IMAGES_COL, imageId);
-  await deleteDoc(docRef);
+export async function fetchSigItems({ mode, type, rarity, activeOnly = true }) {
+  const url = new URL(`${API_BASE}/api/sigs`);
+
+  if (mode) url.searchParams.set("mode", mode);
+  if (type) url.searchParams.set("type", type);
+  if (rarity) url.searchParams.set("rarity", rarity);
+  url.searchParams.set("activeOnly", String(activeOnly));
+
+  const res = await fetch(url.toString());
+  if (!res.ok) {
+    throw new Error("Failed to fetch sig items");
+  }
+
+  const arr = await res.json();
+  return arr.map((item) => ({
+    ...item,
+    imageUrl: resolveSigImageUrl(item.imageUrl),
+  }));
 }

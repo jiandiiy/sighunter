@@ -1,4 +1,5 @@
 // src/components/GameCenter/SigHunterBingo/useSigHunterBingoState.js
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   getInitialHunterCells,
@@ -11,7 +12,6 @@ import {
 } from "../../../api/sigHunterBingoApi";
 import {
   loadAllCells,
-  // subscribeAllCells 는 아직 사용하지 않으므로 제거
   updateCell as updateCellDoc,
 } from "../../../api/sigHunterBingoCellsApi";
 import { uploadCellImage } from "../../../api/sigHunterBingoStorage";
@@ -72,13 +72,14 @@ export function useSigHunterBingoState(boardId = "hunter1") {
   const stateKey = `${mode}-${size}`; // 메모리 내 모드별 상태 키
   const storageKey = `${boardId}-${mode}-${size}`; // 영구 저장 키
 
-  const [cells, setCells] = useState([]); // {id, sigName, sigCount, owner, images, counts, imageIndex, imageUrl}
+  // {id, sigName, sigCount, owner, images, counts, imageIndex, imageUrl, isSpecial?}
+  const [cells, setCells] = useState([]);
   const [logs, setLogs] = useState([]);
   const [lineOwners, setLineOwners] = useState(() =>
     makeLines(5).map(() => ({ owner: null }))
   );
   const [playerColors, setPlayerColors] = useState({});
-  const [modeStates, setModeStates] = useState({}); // 모드/사이즈별 스냅샷
+  const [modeStates, setModeStates] = useState({});
 
   // 셀별 파일 input 참조 (설정 페이지에서 사용)
   const fileInputRefs = useRef({});
@@ -137,7 +138,7 @@ export function useSigHunterBingoState(boardId = "hunter1") {
     return nextLineOwners;
   };
 
-  // Firestore 저장 (기존 문서 구조 유지)
+  // Firestore 저장
   const sync = (key, nextState) => {
     saveSigHunterBingoState(key, nextState).catch((e) =>
       console.error("saveSigHunterBingoState failed", e)
@@ -151,14 +152,12 @@ export function useSigHunterBingoState(boardId = "hunter1") {
     async function init() {
       setLoading(true);
 
-      // ① 기본 상태 문서 로드
       const stored = await loadSigHunterBingoState(storageKey);
 
-      // ② 기본 셀 구조 (sigHunterBingoData)
       const initCells = getInitialHunterCells(mode, size);
       const initLineOwners = lines.map(() => ({ owner: null }));
 
-      // ③ 셀 이미지/메타데이터 (cells 서브컬렉션) 1회 로드
+      // cells 서브컬렉션에서 이미지 URL 로딩
       const cellDocs = await loadAllCells(boardId, mode, size);
       const imageUrlByIndex = {};
       cellDocs.forEach((doc) => {
@@ -184,9 +183,13 @@ export function useSigHunterBingoState(boardId = "hunter1") {
                 c.counts && Array.isArray(c.counts) ? c.counts : base.counts,
               imageIndex:
                 typeof c.imageIndex === "number" ? c.imageIndex : 0,
+              // isSpecial 이 있으면 그대로 유지 (없으면 base 것 사용)
+              isSpecial:
+                typeof c.isSpecial === "boolean"
+                  ? c.isSpecial
+                  : base.isSpecial ?? false,
             };
 
-            // Storage 기반 이미지 URL 덮어쓰기 (있으면 우선)
             if (imageUrlByIndex[idx]) {
               merged.imageUrl = imageUrlByIndex[idx];
             }
@@ -267,7 +270,6 @@ export function useSigHunterBingoState(boardId = "hunter1") {
   const handleChangeMode = (nextMode) => {
     if (mode === nextMode) return;
 
-    // 현재 상태 백업
     setModeStates((prev) => ({
       ...prev,
       [`${mode}-${size}`]: { cells, logs, lineOwners, playerColors },
@@ -416,7 +418,6 @@ export function useSigHunterBingoState(boardId = "hunter1") {
 
   // 현재 이미지 / 카운트
   const getCurrentImage = (cell) => {
-    // Storage 기반 imageUrl이 우선
     if (cell?.imageUrl) return cell.imageUrl;
 
     if (!cell?.images || cell.images.length === 0) return null;
@@ -452,7 +453,6 @@ export function useSigHunterBingoState(boardId = "hunter1") {
       const parsed = input != null ? parseInt(input, 10) : null;
       const sigCount = Number.isFinite(parsed) ? parsed : null;
 
-      // 1) Storage 업로드
       const url = await uploadCellImage(
         boardId,
         mode,
@@ -461,20 +461,16 @@ export function useSigHunterBingoState(boardId = "hunter1") {
         file
       );
 
-      // 2) cells 서브컬렉션에 imageUrl 저장
       await updateCellDoc(boardId, mode, size, String(cellId), {
         imageUrl: url,
         ...(sigCount != null ? { sigCount } : {}),
       });
 
-      // 3) 로컬 상태 반영
       setCells((prev) => {
         const next = prev.map((c, idx) => {
           if (idx !== cellId) return c;
           const updated = { ...c, imageUrl: url };
-          if (sigCount != null) {
-            updated.sigCount = sigCount;
-          }
+          if (sigCount != null) updated.sigCount = sigCount;
           return updated;
         });
 
@@ -518,6 +514,7 @@ export function useSigHunterBingoState(boardId = "hunter1") {
 
       const prevOwner = cell.owner;
 
+      // 기본 랜덤 셀 생성 (sigHunterBingoData 에 정의된 규칙 사용)
       const newCellBase = createRandomHunterCell(mode, size, cellId);
 
       cell = Object.assign(cell, {
@@ -527,6 +524,8 @@ export function useSigHunterBingoState(boardId = "hunter1") {
         counts: newCellBase.counts,
         imageIndex: newCellBase.imageIndex,
         owner: actor,
+        // 🔹 스페셜 여부가 정의돼 있다면 함께 반영
+        isSpecial: newCellBase.isSpecial ?? false,
       });
 
       getColorForPlayer(actor);

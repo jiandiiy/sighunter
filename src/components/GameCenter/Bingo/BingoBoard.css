@@ -1,3 +1,4 @@
+/* src/components/GameCenter/Bingo/BingoBoard.css */
 .bingo-root {
   width: 100%;
   max-width: 700px;
@@ -156,6 +157,7 @@
   object-fit: cover;
 }
 
+/* 번호만 표시 (이름/점수는 JSX에서 제거됨) */
 .bingo-cell-number {
   position: absolute;
   top: 4px;
@@ -168,10 +170,7 @@
 
 /* 뒷면: 빨간 O — 항상 흰색 배경 고정 */
 .bingo-cell-back {
-  background-color: #ffffff; /* OBS에서도 무조건 흰색 */
-  /* 원하면 살짝 입체감 주고 싶으면 아래 한 줄 추가
-   * background-image: radial-gradient(circle at center, #ffffff, #ffffff);
-   */
+  background-color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -181,7 +180,7 @@
 .bingo-check-icon {
   font-size: 250px;
   font-weight: 800;
-  color: #ef4444; /* 진한 빨강 O */
+  color: #ef4444;
   text-shadow: 0 0 8px rgba(127, 29, 29, 0.9);
 }
 
@@ -190,19 +189,18 @@
   transform: rotateY(180deg);
 }
 
-/* ✅ 한 줄 전체를 가로지르는 빙고 라인 오버레이 */
+/* 빙고 라인 오버레이 */
 .bingo-line-overlay {
   position: absolute;
   inset: 0;
   pointer-events: none;
 }
 
-/* 실제 선: 단색 검정 + 굵게 */
 .bingo-line-overlay::before {
   content: "";
   position: absolute;
-  background-color: #000000; /* 단색 검정 */
-  height: 22px;              /* 굵기 (축소해도 잘 보이게) */
+  background-color: #000000;
+  height: 22px;
 }
 
 /* 0: 맨 위 가로줄 */
@@ -233,7 +231,7 @@
 .bingo-line-5::before {
   top: 5%;
   bottom: 5%;
-  width: 24px;  /* 세로줄 굵기 */
+  width: 24px;
   height: auto;
 }
 
@@ -253,7 +251,7 @@
   right: calc(100% / 6 - 5px);
 }
 
-/* 대각선 둘: 가운데서 회전 */
+/* 대각선 둘 */
 .bingo-line-6::before,
 .bingo-line-7::before {
   top: 5%;
@@ -275,10 +273,11 @@
 .bingo-line-7::before {
   transform: rotate(45deg);
 }
-.bingo-owner-name{
+
+.bingo-owner-name {
   margin-top: 6px;
   font-size: 14px;
   font-weight: 700;
   color: #fff;
-  text-shadow: 0 1px 2px rgba(0,0,0,.5);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }

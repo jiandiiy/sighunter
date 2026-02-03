@@ -1,7 +1,9 @@
+// src/components/SigHunterFlip/CardItem.jsx
 import React, { useState } from "react";
 
 function CardItem({
   card = {},
+  sigItem = null,            // 🔹 서버에서 온 시그 메타데이터 (title, score, rarity, imageUrl ...)
   flipped = {},
   locked = {},
   revealed = {},
@@ -21,14 +23,26 @@ function CardItem({
   const isFlipped = flipped?.[id] || false;
   const isLocked = locked?.[id] || false;
 
-  const newSrc =
-    randomImages?.[id] ||
+  // 🔹 메타데이터 (이름 / 점수 / 일반·스페셜) – 데이터는 쓰지만, 앞면엔 표시 안 함
+  const rarity =
+    sigItem?.rarity || (card.isSpecial ? "special" : "normal");
+  const isSpecial = rarity === "special";
+
+  const title =
+    sigItem?.title || card.title || (isSpecial ? "스페셜 카드" : `카드 ${id}`);
+  const score =
+    typeof sigItem?.score === "number" ? sigItem.score : null;
+
+  // 🔹 이미지: 업로드 > remote > 기본(frontImages[0]) > placeholder
+  const baseImage =
+    sigItem?.imageUrl ||
     card.frontImages?.[0] ||
     "https://via.placeholder.com/200/CCCCCC/FFFFFF?text=No+Image";
 
+  const newSrc = randomImages?.[id] || baseImage;
+
   /** 🃏 카드 클릭 */
   const handleFlip = (e) => {
-    // file input이면 카드까지 올라가지 않게 여기서 바로 막기
     if (e.target.tagName === "INPUT" && e.target.type === "file") {
       e.stopPropagation();
       return;
@@ -59,17 +73,17 @@ function CardItem({
 
   return (
     <div
-      className={`natural-card ${card.isSpecial ? "special-card" : ""} 
+      className={`natural-card ${isSpecial ? "special-card" : ""} 
         ${isFlipped ? "flipped" : ""} 
         ${isLocked ? "locked" : ""}`}
       onClick={handleFlip}
     >
       <div className="card-inner">
-        {/* 카드 앞면 */}
+        {/* 카드 앞면 - 이미지만 노출 */}
         <div className="card-front">
           <img
-            src={newSrc}                 // ✅ 바로 newSrc 사용
-            alt={`카드 ${id}`}
+            src={newSrc}
+            alt={title}
             onError={handleImageError}
             onLoad={handleImageLoad}
             loading="lazy"
@@ -80,6 +94,7 @@ function CardItem({
             <div className="image-error-badge">⚠️ 이미지 오류</div>
           )}
 
+          {/* ⚙️/✏️ 버튼은 유지 (메시지/확률 편집용) */}
           <button
             type="button"
             className="edit-msg-btn"
