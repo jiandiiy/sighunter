@@ -1,5 +1,5 @@
 // src/components/SigHunterFlip/SigHunterFlip.jsx
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useMemo } from "react";
 import {
   queendomSigCards,
   museSigCards,
@@ -14,22 +14,28 @@ import EditMessageModal from "./EditMessageModal";
 import AdminPopup from "./AdminPopup";
 import "./flip.css";
 
+// 🔹 프로젝트별 카드 세트 매핑 (컴포넌트 밖으로 빼서 참조 안정화)
+const projectCardSets = {
+  queendom: queendomSigCards,
+  muse: museSigCards,
+};
+
 export default function SigHunterFlip() {
   // 🔹 프로젝트 선택 (퀸덤 / 뮤즈)
   const [project, setProject] = useState("queendom");
 
-  // 🔹 프로젝트별 카드 세트 매핑
-  const projectCardSets = {
-    queendom: queendomSigCards,
-    muse: museSigCards,
-  };
-
   // 🔹 현재 선택된 프로젝트의 카드 세트 (슬롯 정보)
   const sigCards = projectCardSets[project];
 
-  // 🔹 일반 / 스페셜 슬롯 구분
-  const normalCards = sigCards.filter((c) => !c.isSpecial);
-  const specialCard = sigCards.find((c) => c.isSpecial);
+  // 🔹 일반 / 스페셜 슬롯 구분 (useMemo로 참조 고정)
+  const normalCards = useMemo(
+    () => sigCards.filter((c) => !c.isSpecial),
+    [sigCards]
+  );
+  const specialCard = useMemo(
+    () => sigCards.find((c) => c.isSpecial),
+    [sigCards]
+  );
 
   // 🔹 서버에서 가져온 시그 메타데이터: cardId -> sigItem
   const [sigItemsByCard, setSigItemsByCard] = useState({});
@@ -100,7 +106,7 @@ export default function SigHunterFlip() {
     }
 
     loadSigItems();
-  }, [project, loaded, normalCards.length, specialCard]);
+  }, [project, loaded, normalCards, specialCard]); // ✅ normalCards 추가 (useMemo로 안정화됨)
 
   if (!loaded) {
     return (
@@ -195,11 +201,7 @@ export default function SigHunterFlip() {
     reader.readAsDataURL(file);
   };
 
-  /** 🔹 특정 카드 집합(일반/스페셜 등)만 초기화하는 유틸
-   *   - 업로드 이미지 삭제
-   *   - 메시지/뒤집힘/잠금 상태 초기화
-   *   - 해당 카드들의 가중치 초기화
-   */
+  /** 🔹 특정 카드 집합(일반/스페셜 등)만 초기화하는 유틸 */
   const resetCards = (cards) => {
     // 업로드 이미지 초기화
     setRandomImages((prevImgs) => {
@@ -252,7 +254,6 @@ export default function SigHunterFlip() {
 
   /** 🔄 전체 초기화 (현재 프로젝트 기준, 일반+스페셜 전부) */
   const resetAll = () => {
-    // 시그헌터 관련 로컬스토리지 키만 정리
     ["sigFlipped", "sigLocked", "sigRevealed", "sigImages", "cardWeights"].forEach(
       (key) => localStorage.removeItem(key)
     );
@@ -294,7 +295,7 @@ export default function SigHunterFlip() {
               type="button"
               onClick={() => {
                 setProject(key);
-                // 프로젝트 바뀔 때, 카드 상태는 모두 초기화
+                // 프로젝트 바뀔 때, 이전 프로젝트 카드 상태 초기화
                 resetCards(sigCards);
               }}
               style={{
