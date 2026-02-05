@@ -469,7 +469,7 @@ export default function SigImageAdminPage() {
               <input
                 type="text"
                 value={title}
-                placeholder="예) 초고속 설거지권"
+                placeholder="예) 시그 이름"
                 onChange={(e) => setTitle(e.target.value)}
                 style={{
                   width: "100%",

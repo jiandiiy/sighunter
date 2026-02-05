@@ -1,16 +1,33 @@
 // src/api/sigHunterImageLibraryApi.js
+// 기존 localhost:4000 API 대신 Firebase Firestore + Storage 직접 사용
 
-const API_BASE =
-  process.env.REACT_APP_API_BASE_URL || "http://localhost:4000";
+import { firestore, storage } from "../firebase";
 
-const SIG_API_BASE = `${API_BASE}/api/sigs`;
+import {
+  collection,
+  addDoc,
+  getDocs,
+  getDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  query,
+  where,
+  orderBy,
+} from "firebase/firestore";
+
+import {
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from "firebase/storage";
+
+const COLLECTION = "sigItems";
 
 export function resolveSigImageUrl(imagePath) {
-  if (!imagePath) return "";
-  if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
-    return imagePath;
-  }
-  return `${API_BASE}${imagePath}`;
+  // Firebase Storage URL은 이미 절대 경로이므로 그대로 반환
+  return imagePath || "";
 }
 
 /**
@@ -24,39 +41,48 @@ export async function uploadSigItem({
   type,
   rarity = "normal",
   isActive,
-  slotIndex,   // 칸 번호
-  boardIndex,  // 빙고판 번호 (1~3)
+  slotIndex, // 칸 번호
+  boardIndex, // 빙고판 번호 (1~3)
 }) {
-  const formData = new FormData();
-  formData.append("image", file);
-  if (title) formData.append("title", title);
-  if (score !== undefined && score !== null) {
-    formData.append("score", String(score));
-  }
-  formData.append("mode", mode);
-  formData.append("type", type);
-  formData.append("rarity", rarity);
-  formData.append("isActive", String(isActive));
+  if (!file) throw new Error("이미지 파일이 없습니다.");
 
-  if (slotIndex !== undefined && slotIndex !== null && slotIndex !== "") {
-    formData.append("slotIndex", String(slotIndex));
-  }
-  if (boardIndex !== undefined && boardIndex !== null && boardIndex !== "") {
-    formData.append("boardIndex", String(boardIndex));
-  }
+  // 1) Storage 에 파일 업로드
+  const ext = file.name.split(".").pop() || "png";
+  const path = `sigItems/${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2)}.${ext}`;
 
-  const res = await fetch(SIG_API_BASE, {
-    method: "POST",
-    body: formData,
+  const fileRef = storageRef(storage, path);
+  await uploadBytes(fileRef, file);
+  const imageUrl = await getDownloadURL(fileRef);
+
+  // 2) Firestore 에 메타데이터 저장
+  const docRef = await addDoc(collection(firestore, COLLECTION), {
+    title: title ?? "",
+    score: score ?? "",
+    mode,
+    type,
+    rarity,
+    isActive: !!isActive,
+    slotIndex: slotIndex ?? "",
+    boardIndex: boardIndex ?? "",
+    imageUrl,
+    storagePath: path,
+    createdAt: Date.now(),
   });
 
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({}));
-    throw new Error(error.error || "Failed to upload sig item");
-  }
-
-  const json = await res.json();
-  return { ...json, imageUrl: resolveSigImageUrl(json.imageUrl) };
+  return {
+    id: docRef.id,
+    title: title ?? "",
+    score: score ?? "",
+    mode,
+    type,
+    rarity,
+    isActive: !!isActive,
+    slotIndex: slotIndex ?? "",
+    boardIndex: boardIndex ?? "",
+    imageUrl,
+  };
 }
 
 /**
@@ -66,29 +92,25 @@ export async function fetchRandomSigItems({
   mode,
   type,
   rarity,
-  count,
+  count = 1,
   boardIndex,
-}) {
-  const url = new URL(`${SIG_API_BASE}/random`);
+} = {}) {
+  const list = await fetchSigItems({
+    mode,
+    type,
+    rarity,
+    boardIndex,
+    activeOnly: true,
+  });
 
-  if (mode) url.searchParams.set("mode", mode);
-  if (type) url.searchParams.set("type", type);
-  if (rarity) url.searchParams.set("rarity", rarity);
-  if (count) url.searchParams.set("count", String(count));
-  if (boardIndex !== undefined && boardIndex !== null && boardIndex !== "") {
-    url.searchParams.set("boardIndex", String(boardIndex));
+  if (!list.length) return [];
+
+  const result = [];
+  for (let i = 0; i < count; i++) {
+    const idx = Math.floor(Math.random() * list.length);
+    result.push(list[idx]);
   }
-
-  const res = await fetch(url.toString());
-  if (!res.ok) {
-    throw new Error("Failed to fetch random sig items");
-  }
-
-  const arr = await res.json();
-  return arr.map((item) => ({
-    ...item,
-    imageUrl: resolveSigImageUrl(item.imageUrl),
-  }));
+  return result;
 }
 
 /**
@@ -100,27 +122,36 @@ export async function fetchSigItems({
   rarity,
   activeOnly = true,
   boardIndex,
-}) {
-  const url = new URL(SIG_API_BASE);
+} = {}) {
+  const col = collection(firestore, COLLECTION);
 
-  if (mode) url.searchParams.set("mode", mode);
-  if (type) url.searchParams.set("type", type);
-  if (rarity) url.searchParams.set("rarity", rarity);
-  url.searchParams.set("activeOnly", String(activeOnly));
+  const filters = [];
+  if (mode) filters.push(where("mode", "==", mode));
+  if (type) filters.push(where("type", "==", type));
+  if (rarity) filters.push(where("rarity", "==", rarity));
   if (boardIndex !== undefined && boardIndex !== null && boardIndex !== "") {
-    url.searchParams.set("boardIndex", String(boardIndex));
+    filters.push(where("boardIndex", "==", String(boardIndex)));
+  }
+  if (activeOnly) {
+    filters.push(where("isActive", "==", true));
   }
 
-  const res = await fetch(url.toString());
-  if (!res.ok) {
-    throw new Error("Failed to fetch sig items");
+  let q;
+  if (filters.length > 0) {
+    q = query(col, ...filters, orderBy("createdAt", "desc"));
+  } else {
+    q = query(col, orderBy("createdAt", "desc"));
   }
 
-  const arr = await res.json();
-  return arr.map((item) => ({
-    ...item,
-    imageUrl: resolveSigImageUrl(item.imageUrl),
-  }));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => {
+    const data = d.data();
+    return {
+      id: d.id,
+      ...data,
+      imageUrl: resolveSigImageUrl(data.imageUrl),
+    };
+  });
 }
 
 /**
@@ -130,40 +161,46 @@ export async function updateSigItem(
   id,
   { title, score, slotIndex, boardIndex, isActive }
 ) {
-  const body = {};
-  if (title !== undefined) body.title = title;
-  if (score !== undefined) body.score = score;
-  if (slotIndex !== undefined) body.slotIndex = slotIndex;
-  if (boardIndex !== undefined) body.boardIndex = boardIndex;
-  if (isActive !== undefined) body.isActive = isActive;
+  const ref = doc(firestore, COLLECTION, id);
 
-  const res = await fetch(`${SIG_API_BASE}/${id}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
+  const updateData = {};
+  if (title !== undefined) updateData.title = title;
+  if (score !== undefined) updateData.score = score;
+  if (slotIndex !== undefined) updateData.slotIndex = slotIndex;
+  if (boardIndex !== undefined) updateData.boardIndex = boardIndex;
+  if (isActive !== undefined) updateData.isActive = !!isActive;
 
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({}));
-    throw new Error(error.error || "Failed to update sig item");
-  }
+  await updateDoc(ref, updateData);
 
-  const json = await res.json();
-  return { ...json, imageUrl: resolveSigImageUrl(json.imageUrl) };
+  const snap = await getDoc(ref);
+  const data = snap.data() || {};
+  return {
+    id,
+    ...data,
+    imageUrl: resolveSigImageUrl(data.imageUrl),
+  };
 }
 
 /**
- * 시그 삭제
+ * 시그 삭제 (Firestore 문서 + Storage 이미지 같이 삭제)
  */
 export async function deleteSigItem(id) {
-  const res = await fetch(`${SIG_API_BASE}/${id}`, {
-    method: "DELETE",
-  });
+  const ref = doc(firestore, COLLECTION, id);
 
-  if (!res.ok && res.status !== 204) {
-    const error = await res.json().catch(() => ({}));
-    throw new Error(error.error || "Failed to delete sig item");
+  // storagePath 있으면 이미지도 같이 삭제
+  const snap = await getDoc(ref);
+  if (snap.exists()) {
+    const data = snap.data();
+    if (data.storagePath) {
+      try {
+        await deleteObject(storageRef(storage, data.storagePath));
+      } catch (e) {
+        // 스토리지에 없으면 그냥 무시
+        // eslint-disable-next-line no-console
+        console.warn("Storage 이미지 삭제 실패(무시):", e);
+      }
+    }
   }
+
+  await deleteDoc(ref);
 }
