@@ -8,10 +8,7 @@ import {
   getRandomBingoImage,
 } from "../../../utils/sigBingoImagePool";
 import { fetchSigItems } from "../../../api/sigHunterImageLibraryApi";
-import {
-  loadSigBingoState,
-  saveSigBingoState,
-} from "../../../api/sigBingoStorage";
+import { saveSigBingoState } from "../../../api/sigBingoStorage";
 
 console.log("[BINGO] *** THIS IS THE REAL BingoBoard.jsx ***");
 
