@@ -1,6 +1,4 @@
 // src/api/sigHunterImageLibraryApi.js
-// 기존 localhost:4000 API 대신 Firebase Firestore + Storage 직접 사용
-
 import { firestore, storage } from "../firebase";
 
 import {
@@ -26,13 +24,9 @@ import {
 const COLLECTION = "sigItems";
 
 export function resolveSigImageUrl(imagePath) {
-  // Firebase Storage URL은 이미 절대 경로이므로 그대로 반환
   return imagePath || "";
 }
 
-/**
- * 새 시그 업로드
- */
 export async function uploadSigItem({
   file,
   title,
@@ -40,13 +34,14 @@ export async function uploadSigItem({
   mode,
   type,
   rarity = "normal",
-  isActive,
-  slotIndex, // 칸 번호
-  boardIndex, // 빙고판 번호 (1~3)
+  isActive = true,
+  slotIndex,
+  boardIndex,
 }) {
   if (!file) throw new Error("이미지 파일이 없습니다.");
+  if (!mode) throw new Error("mode 값이 필요합니다.");
+  if (!type) throw new Error("type 값이 필요합니다.");
 
-  // 1) Storage 에 파일 업로드
   const ext = file.name.split(".").pop() || "png";
   const path = `sigItems/${Date.now()}-${Math.random()
     .toString(36)
@@ -56,16 +51,29 @@ export async function uploadSigItem({
   await uploadBytes(fileRef, file);
   const imageUrl = await getDownloadURL(fileRef);
 
-  // 2) Firestore 에 메타데이터 저장
+  const normalizedScore =
+    score === undefined || score === null || score === ""
+      ? null
+      : Number(score);
+
+  const normalizedSlotIndex =
+    slotIndex === undefined || slotIndex === null || slotIndex === ""
+      ? ""
+      : String(slotIndex);
+  const normalizedBoardIndex =
+    boardIndex === undefined || boardIndex === null || boardIndex === ""
+      ? ""
+      : String(boardIndex);
+
   const docRef = await addDoc(collection(firestore, COLLECTION), {
     title: title ?? "",
-    score: score ?? "",
+    score: normalizedScore,
     mode,
     type,
     rarity,
     isActive: !!isActive,
-    slotIndex: slotIndex ?? "",
-    boardIndex: boardIndex ?? "",
+    slotIndex: normalizedSlotIndex,
+    boardIndex: normalizedBoardIndex,
     imageUrl,
     storagePath: path,
     createdAt: Date.now(),
@@ -74,20 +82,17 @@ export async function uploadSigItem({
   return {
     id: docRef.id,
     title: title ?? "",
-    score: score ?? "",
+    score: normalizedScore,
     mode,
     type,
     rarity,
     isActive: !!isActive,
-    slotIndex: slotIndex ?? "",
-    boardIndex: boardIndex ?? "",
+    slotIndex: normalizedSlotIndex,
+    boardIndex: normalizedBoardIndex,
     imageUrl,
   };
 }
 
-/**
- * 랜덤 조회 (게임에서 사용)
- */
 export async function fetchRandomSigItems({
   mode,
   type,
@@ -113,9 +118,6 @@ export async function fetchRandomSigItems({
   return result;
 }
 
-/**
- * 관리용 전체 목록 조회
- */
 export async function fetchSigItems({
   mode,
   type,
@@ -126,15 +128,25 @@ export async function fetchSigItems({
   const col = collection(firestore, COLLECTION);
 
   const filters = [];
-  if (mode) filters.push(where("mode", "==", mode));
-  if (type) filters.push(where("type", "==", type));
-  if (rarity) filters.push(where("rarity", "==", rarity));
-  if (boardIndex !== undefined && boardIndex !== null && boardIndex !== "") {
-    filters.push(where("boardIndex", "==", String(boardIndex)));
-  }
+  
+  // 🔴 순서 변경: isActive를 먼저 (세 번째 인덱스 활용)
   if (activeOnly) {
     filters.push(where("isActive", "==", true));
   }
+  
+  if (mode) filters.push(where("mode", "==", mode));
+  if (rarity) filters.push(where("rarity", "==", rarity));
+  if (type) filters.push(where("type", "==", type));
+
+  // 🔴 boardIndex 쿼리는 일단 제외 (클라이언트에서 필터링)
+  // if (boardIndex !== undefined && boardIndex !== null && boardIndex !== "") {
+  //   filters.push(where("boardIndex", "==", String(boardIndex)));
+  // }
+
+  console.log("[API] fetchSigItems BEFORE getDocs", { 
+    mode, type, rarity, boardIndex, activeOnly, 
+    filterCount: filters.length 
+  });
 
   let q;
   if (filters.length > 0) {
@@ -143,8 +155,18 @@ export async function fetchSigItems({
     q = query(col, orderBy("createdAt", "desc"));
   }
 
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => {
+  let snap;
+  try {
+    snap = await getDocs(q);
+    console.log("[API] fetchSigItems AFTER getDocs", { docCount: snap.docs.length });
+  } catch (err) {
+    console.error("[API] ===== Firestore Query Error =====");
+    console.error(err);
+    console.error("[API] =====================================");
+    return [];
+  }
+
+  const list = snap.docs.map((d) => {
     const data = d.data();
     return {
       id: d.id,
@@ -152,11 +174,18 @@ export async function fetchSigItems({
       imageUrl: resolveSigImageUrl(data.imageUrl),
     };
   });
+
+  // 🔴 boardIndex 필터링은 클라이언트에서
+  let filtered = list;
+  if (boardIndex !== undefined && boardIndex !== null && boardIndex !== "") {
+    filtered = list.filter(item => item.boardIndex === String(boardIndex));
+  }
+
+  filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+  return filtered;
 }
 
-/**
- * 시그 정보 수정 (이름, 점수, 칸번호, 빙고판, 활성 여부)
- */
 export async function updateSigItem(
   id,
   { title, score, slotIndex, boardIndex, isActive }
@@ -164,11 +193,39 @@ export async function updateSigItem(
   const ref = doc(firestore, COLLECTION, id);
 
   const updateData = {};
-  if (title !== undefined) updateData.title = title;
-  if (score !== undefined) updateData.score = score;
-  if (slotIndex !== undefined) updateData.slotIndex = slotIndex;
-  if (boardIndex !== undefined) updateData.boardIndex = boardIndex;
-  if (isActive !== undefined) updateData.isActive = !!isActive;
+
+  if (title !== undefined) {
+    updateData.title = title;
+  }
+
+  if (score !== undefined) {
+    updateData.score =
+      score === null || score === "" ? null : Number(score);
+  }
+
+  if (slotIndex !== undefined) {
+    updateData.slotIndex =
+      slotIndex === null || slotIndex === "" ? "" : String(slotIndex);
+  }
+
+  if (boardIndex !== undefined) {
+    updateData.boardIndex =
+      boardIndex === null || boardIndex === "" ? "" : String(boardIndex);
+  }
+
+  if (isActive !== undefined) {
+    updateData.isActive = !!isActive;
+  }
+
+  if (Object.keys(updateData).length === 0) {
+    const currentSnap = await getDoc(ref);
+    const currentData = currentSnap.data() || {};
+    return {
+      id,
+      ...currentData,
+      imageUrl: resolveSigImageUrl(currentData.imageUrl),
+    };
+  }
 
   await updateDoc(ref, updateData);
 
@@ -181,13 +238,9 @@ export async function updateSigItem(
   };
 }
 
-/**
- * 시그 삭제 (Firestore 문서 + Storage 이미지 같이 삭제)
- */
 export async function deleteSigItem(id) {
   const ref = doc(firestore, COLLECTION, id);
 
-  // storagePath 있으면 이미지도 같이 삭제
   const snap = await getDoc(ref);
   if (snap.exists()) {
     const data = snap.data();
@@ -195,8 +248,6 @@ export async function deleteSigItem(id) {
       try {
         await deleteObject(storageRef(storage, data.storagePath));
       } catch (e) {
-        // 스토리지에 없으면 그냥 무시
-        // eslint-disable-next-line no-console
         console.warn("Storage 이미지 삭제 실패(무시):", e);
       }
     }

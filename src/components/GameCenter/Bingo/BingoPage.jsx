@@ -11,6 +11,9 @@ const BOARD_IDS = {
 
 export default function BingoPage() {
   const { id = "1" } = useParams(); // /bingo/1, /bingo/2, /bingo/3
+
+    console.log("[BINGO] From Route Component", { no }); // 🔹이 줄 추가
+
   const currentBoardNo = ["1", "2", "3"].includes(id) ? id : "1";
   const boardId = BOARD_IDS[currentBoardNo];
 

@@ -13,6 +13,8 @@ import {
   saveSigBingoState,
 } from "../../../api/sigBingoStorage";
 
+console.log("[BINGO] *** THIS IS THE REAL BingoBoard.jsx ***");
+
 const MODES = ["muse", "queendom"];
 const GLOBAL_MODE_KEY = "sigBingo-global-mode";
 
@@ -54,15 +56,7 @@ export default function BingoBoard({
     return done;
   };
 
-  /**
-   * 관리자에서 등록한 "식대전 빙고" 카드들을
-   * boardIndex + slotIndex(1~9) 기준으로 모아
-   * 칸별 풀(배열[])로 리턴
-   *
-   * slotPools[0] = 1번 칸용 풀(관리자 등록 이미지들 배열)
-   * ...
-   * slotPools[8] = 9번 칸용 풀
-   */
+  /** 관리자에서 등록한 "식대전 빙고" 카드들을 칸별 풀로 리턴 */
   const loadSlotPoolsForBoard = async (targetMode, boardNo) => {
     try {
       const list = await fetchSigItems({
@@ -72,6 +66,12 @@ export default function BingoBoard({
         activeOnly: true,
         boardIndex: boardNo,
       });
+
+      console.log(
+        "[BINGO] Firestore list",
+        { targetMode, boardNo, count: list.length },
+        list
+      );
 
       const slotPools = Array.from({ length: CELL_COUNT }, () => []);
 
@@ -84,6 +84,16 @@ export default function BingoBoard({
         }
       });
 
+      console.log("[BINGO] slotPools summary", {
+        mode: targetMode,
+        boardNo,
+        slots: slotPools.map((pool, i) => ({
+          slot: i + 1,
+          size: pool.length,
+          ids: pool.map((p) => p.id || p.imageUrl),
+        })),
+      });
+
       return slotPools;
     } catch (e) {
       console.error("loadSlotPoolsForBoard error:", e);
@@ -91,12 +101,7 @@ export default function BingoBoard({
     }
   };
 
-  /**
-   * 하나의 칸에 대해:
-   * - 풀(pool) 안에서, 아직 한 번도 안 나온 이미지가 있으면 그중 랜덤 1장
-   * - 모두 한 번 이상 나왔으면 풀 전체에서 랜덤 1장
-   * - 선택된 이미지는 shownHistory에 기록
-   */
+  /** 풀에서 아직 안 나온 이미지를 우선 선택 */
   const pickCardFromPoolWithGuarantee = (
     pool,
     targetMode,
@@ -140,74 +145,124 @@ export default function BingoBoard({
     return { card: chosen, history: nextHistory };
   };
 
-  /**
-   * 빙고판 한 장을 구성:
-   * 1) 전체 풀에서 랜덤 카드 9장 (기본 랜덤 이미지들)
-   * 2) 해당 모드 + 빙고판의 "슬롯별 관리자 카드 풀" 로 칸마다 덮어쓰기
-   * 3) 각 칸에서:
-   *    - 기본 랜덤 1장 + 슬롯 전용 관리자 이미지들 을 합쳐 하나의 풀로 만들고
-   *    - pickCardFromPoolWithGuarantee 로 1장을 선택
-   */
+  /** 빙고판 한 장 구성 */
   const buildBoardWithRandomAndFixed = async (
     targetMode,
     boardNo,
     baseHistory
   ) => {
-    // 1) 기본 랜덤 카드 9장 (전체 풀에서)
-    const baseRandom = await getRandomBingoImages(targetMode, CELL_COUNT, {
-      rarity: "normal",
-    });
-
-    // 2) 슬롯별 관리자 풀
-    const slotPools = await loadSlotPoolsForBoard(targetMode, boardNo);
-
-    const combined = Array(CELL_COUNT).fill(null);
-    let nextHistory = { ...baseHistory };
-
-    for (let i = 0; i < CELL_COUNT; i++) {
-      const pool = [];
-
-      // 기존 랜덤 이미지 1개
-      if (baseRandom[i]) pool.push(baseRandom[i]);
-
-      // 이 칸 전용 관리자 이미지들
-      if (slotPools[i] && slotPools[i].length) {
-        pool.push(...slotPools[i]);
-      }
-
-      // id/imageUrl 로 중복 제거
-      const uniqueMap = new Map();
-      pool.forEach((item) => {
-        if (!item) return;
-        const key = item.id || item.imageUrl;
-        if (!key) return;
-        if (!uniqueMap.has(key)) uniqueMap.set(key, item);
-      });
-      const finalPool = Array.from(uniqueMap.values());
-
-      if (!finalPool.length) {
-        combined[i] = null;
-        continue;
-      }
-
-      const picked = pickCardFromPoolWithGuarantee(
-        finalPool,
+    try {
+      console.log("[BINGO] buildBoardWithRandomAndFixed ENTER", {
         targetMode,
-        i,
-        nextHistory
-      );
+        boardNo,
+      });
 
-      combined[i] = picked.card;
-      nextHistory = picked.history;
+      // 1) 기본 랜덤 카드 9장 (전체 풀에서)
+      const baseRandom = await getRandomBingoImages(targetMode, CELL_COUNT, {
+        rarity: "normal",
+      });
+      console.log("[BINGO] after getRandomBingoImages", {
+        targetMode,
+        boardNo,
+        hasBaseRandom: Array.isArray(baseRandom),
+        length: Array.isArray(baseRandom) ? baseRandom.length : null,
+        baseRandom,
+      });
+
+      // 2) 슬롯별 관리자 풀
+      const slotPools = await loadSlotPoolsForBoard(targetMode, boardNo);
+      console.log("[BINGO] after loadSlotPoolsForBoard", {
+        targetMode,
+        boardNo,
+        slotPoolsIsArray: Array.isArray(slotPools),
+        slotPoolsLength: Array.isArray(slotPools) ? slotPools.length : null,
+        slotPools,
+      });
+
+      const combined = Array(CELL_COUNT).fill(null);
+      let nextHistory = { ...baseHistory };
+
+      for (let i = 0; i < CELL_COUNT; i++) {
+        const pool = [];
+
+        // 기본 랜덤 1장
+        if (baseRandom[i]) pool.push(baseRandom[i]);
+
+        // 이 칸 전용 관리자 이미지들
+        if (slotPools[i] && slotPools[i].length) {
+          pool.push(...slotPools[i]);
+        }
+
+        // id/imageUrl 기준 중복 제거
+        const uniqueMap = new Map();
+        pool.forEach((item) => {
+          if (!item) return;
+          const key = item.id || item.imageUrl;
+          if (!key) return;
+          if (!uniqueMap.has(key)) uniqueMap.set(key, item);
+        });
+        const finalPool = Array.from(uniqueMap.values());
+
+        if (!finalPool.length) {
+          combined[i] = null;
+          continue;
+        }
+
+        const picked = pickCardFromPoolWithGuarantee(
+          finalPool,
+          targetMode,
+          i,
+          nextHistory
+        );
+
+        combined[i] = picked.card;
+        nextHistory = picked.history;
+      }
+
+      console.log("[BINGO] buildBoardWithRandomAndFixed EXIT", {
+        targetMode,
+        boardNo,
+        nonNull: combined.filter(Boolean).length,
+      });
+
+      return { cards: combined, history: nextHistory };
+    } catch (e) {
+      console.error("[BINGO] buildBoardWithRandomAndFixed error >>>", e);
+      // 에러가 나도 상위에서 Promise 에러 안 터지게 안전한 기본값 리턴
+      return {
+        cards: Array(CELL_COUNT).fill(null),
+        history: baseHistory || {},
+      };
+    }
+  };
+
+  // 디버그용: 랜덤 이미지 API 테스트
+  useEffect(() => {
+    async function debugRandom() {
+      try {
+        console.log("[BINGO-DEBUG] test getRandomBingoImages START");
+        const result = await getRandomBingoImages("muse", 9, {
+          rarity: "normal",
+        });
+        console.log("[BINGO-DEBUG] test getRandomBingoImages RESULT", {
+          ok: Array.isArray(result),
+          length: Array.isArray(result) ? result.length : null,
+        });
+      } catch (e) {
+        console.error("[BINGO-DEBUG] test getRandomBingoImages ERROR", e);
+      }
     }
 
-    return { cards: combined, history: nextHistory };
-  };
+    debugRandom();
+  }, []);
 
   useEffect(() => {
     async function init() {
       try {
-        const remote = await loadSigBingoState(boardId);
+        console.log("[BINGO] init start", { boardId, currentBoardNo });
+
+        // Firestore 로드는 제거
+        const remote = null;
 
         // 전역 모드 읽기 (없으면 muse)
         let globalMode = "muse";
@@ -222,46 +277,24 @@ export default function BingoBoard({
             ? remote.shownHistory
             : {};
 
-        const isValidCard = (c) =>
-          c &&
-          typeof c === "object" &&
-          typeof c.imageUrl === "string" &&
-          c.imageUrl.length > 0;
+        // 항상 최신 데이터 기준으로 보드를 새로 구성
+        const built = await buildBoardWithRandomAndFixed(
+          nextMode,
+          currentBoardNo,
+          initialHistory
+        );
+        const baseCards = built.cards;
+        const historyToUse = built.history;
 
-        // 저장된 카드가 있고, 모드도 일치하면 그대로 사용
-        const storedCards =
-          remote?.mode === nextMode &&
-          Array.isArray(remote?.cards) &&
-          remote.cards.length === CELL_COUNT &&
-          remote.cards.every(isValidCard)
-            ? remote.cards
-            : null;
+        console.log("[BINGO] init after buildBoardWithRandomAndFixed", {
+          baseCardsLength: Array.isArray(baseCards) ? baseCards.length : null,
+          nonNull: Array.isArray(baseCards)
+            ? baseCards.filter(Boolean).length
+            : null,
+        });
 
-        let baseCards;
-        let historyToUse = initialHistory;
-
-        // 없으면: 랜덤 + 슬롯별 풀 조합으로 새로 생성
-        if (!storedCards) {
-          const built = await buildBoardWithRandomAndFixed(
-            nextMode,
-            currentBoardNo,
-            initialHistory
-          );
-          baseCards = built.cards;
-          historyToUse = built.history;
-        } else {
-          baseCards = storedCards;
-        }
-
-        const initChecked =
-          Array.isArray(remote?.checked) &&
-          remote.checked.length === CELL_COUNT
-            ? remote.checked
-            : Array(CELL_COUNT).fill(false);
-
-        const newLines = Array.isArray(remote?.completedLines)
-          ? remote.completedLines
-          : calcCompletedLines(initChecked);
+        const initChecked = Array(CELL_COUNT).fill(false);
+        const newLines = calcCompletedLines(initChecked);
 
         setMode(nextMode);
         setCards(baseCards);
@@ -269,17 +302,17 @@ export default function BingoBoard({
         setCompletedLines(newLines);
         setShownHistory(historyToUse);
 
-        await saveSigBingoState(boardId, {
+        saveSigBingoState(boardId, {
           mode: nextMode,
           cards: baseCards,
           checked: initChecked,
           completedLines: newLines,
           shownHistory: historyToUse,
-        });
+        }).catch((e) => console.error("saveSigBingoState (init) failed", e));
 
         setLoading(false);
       } catch (err) {
-        console.error("BingoBoard init error:", err);
+        console.error("[BINGO] init error >>>", err);
         setLoading(false);
       }
     }
@@ -318,7 +351,6 @@ export default function BingoBoard({
       let nextCards = cards;
 
       // 라인 완성에 포함된 칸이면 새 "스페셜" 카드로 교체
-      // (이 카드는 슬롯 전용 풀과 무관하게 전체 풀에서 랜덤)
       if (isInCompletedLine) {
         const newCard = await getRandomBingoImage(mode, { rarity: "special" });
         if (newCard) {
@@ -385,8 +417,6 @@ export default function BingoBoard({
 
   const handleResetBoard = async () => {
     try {
-      // 초기화: 현재 모드 + 현재 빙고판 기준으로
-      // 랜덤 + 슬롯별 풀 조합을 다시 만든다
       const built = await buildBoardWithRandomAndFixed(
         mode,
         currentBoardNo,
@@ -416,6 +446,13 @@ export default function BingoBoard({
       console.error("handleResetBoard error:", err);
     }
   };
+
+  console.log("[BINGO] render", {
+    cardsLength: cards.length,
+    mode,
+    currentBoardNo,
+    loading,
+  });
 
   if (loading) return <div style={{ color: "#fff" }}>로딩 중...</div>;
 
@@ -491,7 +528,7 @@ export default function BingoBoard({
               className={
                 "bingo-cell" +
                 (checked[idx] ? " bingo-cell--checked " : " ") +
-                (inCompletedLine ? "bingo-cell--line-completed" : "")
+                (inCompletedLine ? " bingo-cell--line-completed" : "")
               }
               onClick={() => handleToggleCell(idx)}
             >
