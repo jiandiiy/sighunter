@@ -32,8 +32,10 @@ const MEAL_BINGO_BOARDS = [
 export default function SigImageAdminPage() {
   const [title, setTitle] = useState("");
   const [score, setScore] = useState("");
-  const [mode, setMode] = useState("muse");
-  const [type, setType] = useState("meal-bingo");
+  //const [mode, setMode] = useState("muse");
+  //const [type, setType] = useState("meal-bingo");
+  const [mode, setMode] = useState("queendom");   // 게임 페이지랑 맞추기
+const [type, setType] = useState("sighunter");  // 🔴 시그헌터 (카드)로 고정
   const [rarity, setRarity] = useState("normal");
   const [isActive, setIsActive] = useState(true);
   const [slotIndex, setSlotIndex] = useState(""); // 칸 번호(필수)
@@ -78,6 +80,7 @@ export default function SigImageAdminPage() {
       }
 
       const list = await fetchSigItems(params);
+      console.log("[ADMIN] fetchSigItems result", params, list);
       setItems(list);
     },
     [mode, type, rarity, boardIndex]

@@ -1,100 +1,161 @@
 // src/api/sigBingoStorage.js
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { firestore } from "../firebase";
+import { firestore as db } from "../firebaseConfig"; // 🔥 firestore → db로 변경
 
-const BINGO_COLLECTION = "sigBingo";
+const BINGO_COLLECTION = "sigBingoStates"; // 🔥 컬렉션명 통일
 
-console.log("[BINGO] *** THIS IS THE REAL sigBingoStorage.js ***");
+console.log("[sigBingoStorage] *** 초기화 완료 ***");
 
-// 공통: Firestore 호출을 타임아웃으로 감싸는 헬퍼
+// 🔧 Firestore 호출 타임아웃 헬퍼
 async function withTimeout(promise, ms, label) {
   let timeoutId;
   const timeoutPromise = new Promise((resolve) => {
     timeoutId = setTimeout(() => {
       console.warn(
-        `[sigBingoStorage] ${label} TIMEOUT after ${ms}ms – fallback to null`
+        `[sigBingoStorage] ${label} TIMEOUT (${ms}ms) - null 반환`
       );
       resolve(null);
     }, ms);
   });
 
-  // race: 먼저 끝나는 쪽이 승리
   const result = await Promise.race([promise, timeoutPromise]);
   clearTimeout(timeoutId);
   return result;
 }
 
+/**
+ * 🎲 빙고 상태 불러오기 (Firestore + localStorage 폴백)
+ */
 export async function loadSigBingoState(boardId = "default") {
   try {
-    console.log("[sigBingoStorage] loadSigBingoState START", { boardId });
+    console.log("[sigBingoStorage] 불러오기 시작", { boardId });
 
-    // Firestore 인스턴스 안전 체크
-    if (!firestore) {
-      console.error(
-        "[sigBingoStorage] loadSigBingoState: firestore NOT initialized"
-      );
-      return null;
+    // 🔥 Firestore 인스턴스 확인
+    if (!db) {
+      console.error("[sigBingoStorage] Firestore 초기화 안 됨");
+      return loadFromLocalStorage(boardId);
     }
 
-    const ref = doc(firestore, BINGO_COLLECTION, boardId);
-    console.log("[sigBingoStorage] doc ref created", {
-      boardId,
-      refPath: ref.path,
-    });
+    // 🔥 Firestore 문서 참조
+    const ref = doc(db, BINGO_COLLECTION, boardId);
+    console.log("[sigBingoStorage] Firestore 경로:", ref.path);
 
-    // getDoc 에 1000ms 타임아웃 적용
+    // 🔥 타임아웃 적용 (3초)
     const snap = await withTimeout(
       getDoc(ref),
-      1000,
-      `loadSigBingoState getDoc(${boardId})`
+      3000,
+      `getDoc(${boardId})`
     );
 
-    // 타임아웃으로 null 들어오는 경우
+    // 타임아웃 발생 시
     if (!snap) {
-      console.warn(
-        "[sigBingoStorage] loadSigBingoState: snap is null (timeout or error)"
-      );
-      return null;
+      console.warn("[sigBingoStorage] Firestore 타임아웃, localStorage 사용");
+      return loadFromLocalStorage(boardId);
     }
 
-    console.log("[sigBingoStorage] after getDoc", {
-      boardId,
+    console.log("[sigBingoStorage] Firestore 응답:", {
       exists: snap.exists(),
     });
 
-    if (!snap.exists()) return null;
+    // 🔥 데이터 존재 시
+    if (snap.exists()) {
+      const data = snap.data();
+      console.log("[sigBingoStorage] Firestore 데이터 로드 완료", {
+        mode: data.mode,
+        cardCount: data.cards?.length,
+      });
+      
+      // localStorage에도 백업
+      saveToLocalStorage(boardId, data);
+      
+      return data;
+    }
 
-    const data = snap.data();
-    console.log("[sigBingoStorage] loadSigBingoState OK", {
-      boardId,
-      hasData: !!data,
+    // 🔥 Firestore에 없으면 localStorage 확인
+    console.log("[sigBingoStorage] Firestore 데이터 없음, localStorage 확인");
+    return loadFromLocalStorage(boardId);
+
+  } catch (error) {
+    console.error("[sigBingoStorage] Firestore 로드 에러:", error);
+    return loadFromLocalStorage(boardId);
+  }
+}
+
+/**
+ * 🎲 빙고 상태 저장 (Firestore + localStorage)
+ */
+export async function saveSigBingoState(boardId = "default", state) {
+  try {
+    console.log("[sigBingoStorage] 저장 시작", { boardId, state });
+
+    // 🔥 localStorage 먼저 저장 (즉시 반영)
+    saveToLocalStorage(boardId, state);
+
+    // 🔥 Firestore 확인
+    if (!db) {
+      console.warn("[sigBingoStorage] Firestore 초기화 안 됨, localStorage만 저장");
+      return;
+    }
+
+    // 🔥 Firestore 저장
+    const ref = doc(db, BINGO_COLLECTION, boardId);
+    
+    await withTimeout(
+      setDoc(ref, {
+        ...state,
+        updatedAt: new Date().toISOString(),
+        timestamp: Date.now(),
+      }, { merge: true }),
+      3000,
+      `setDoc(${boardId})`
+    );
+
+    console.log("[sigBingoStorage] Firestore 저장 완료");
+
+  } catch (error) {
+    console.error("[sigBingoStorage] Firestore 저장 에러:", error);
+    // localStorage는 이미 저장됨
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 🔧 localStorage 헬퍼 함수                                                  */
+/* -------------------------------------------------------------------------- */
+
+function loadFromLocalStorage(boardId) {
+  try {
+    if (typeof window === "undefined") return null;
+
+    const key = `sigBingo-${boardId}`;
+    const stored = window.localStorage.getItem(key);
+
+    if (!stored) {
+      console.log("[sigBingoStorage] localStorage 데이터 없음");
+      return null;
+    }
+
+    const data = JSON.parse(stored);
+    console.log("[sigBingoStorage] localStorage 데이터 로드 완료", {
+      mode: data.mode,
+      cardCount: data.cards?.length,
     });
 
     return data;
-  } catch (e) {
-    console.error("[sigBingoStorage] loadSigBingoState error", {
-      boardId,
-      error: e,
-    });
+  } catch (error) {
+    console.error("[sigBingoStorage] localStorage 로드 에러:", error);
     return null;
   }
 }
 
-export async function saveSigBingoState(boardId = "default", state) {
+function saveToLocalStorage(boardId, state) {
   try {
-    if (!firestore) {
-      console.error(
-        "[sigBingoStorage] saveSigBingoState: firestore NOT initialized"
-      );
-      return;
-    }
+    if (typeof window === "undefined") return;
 
-    const ref = doc(firestore, BINGO_COLLECTION, boardId);
-    await setDoc(ref, { ...state, updatedAt: Date.now() }, { merge: true });
-  } catch (e) {
-    console.error("[sigBingoStorage] saveSigBingoState error", {
-      boardId,
-      error: e,
-    });
+    const key = `sigBingo-${boardId}`;
+    window.localStorage.setItem(key, JSON.stringify(state));
+    
+    console.log("[sigBingoStorage] localStorage 저장 완료");
+  } catch (error) {
+    console.error("[sigBingoStorage] localStorage 저장 에러:", error);
   }
 }

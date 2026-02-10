@@ -27,6 +27,9 @@ export function resolveSigImageUrl(imagePath) {
   return imagePath || "";
 }
 
+/**
+ * 시그 이미지 업로드
+ */
 export async function uploadSigItem({
   file,
   title,
@@ -60,10 +63,13 @@ export async function uploadSigItem({
     slotIndex === undefined || slotIndex === null || slotIndex === ""
       ? ""
       : String(slotIndex);
+
   const normalizedBoardIndex =
     boardIndex === undefined || boardIndex === null || boardIndex === ""
       ? ""
       : String(boardIndex);
+
+  const now = Date.now();
 
   const docRef = await addDoc(collection(firestore, COLLECTION), {
     title: title ?? "",
@@ -76,7 +82,7 @@ export async function uploadSigItem({
     boardIndex: normalizedBoardIndex,
     imageUrl,
     storagePath: path,
-    createdAt: Date.now(),
+    createdAt: now,
   });
 
   return {
@@ -90,9 +96,13 @@ export async function uploadSigItem({
     slotIndex: normalizedSlotIndex,
     boardIndex: normalizedBoardIndex,
     imageUrl,
+    createdAt: now,
   };
 }
 
+/**
+ * 랜덤 뽑기
+ */
 export async function fetchRandomSigItems({
   mode,
   type,
@@ -100,13 +110,8 @@ export async function fetchRandomSigItems({
   count = 1,
   boardIndex,
 } = {}) {
-  const list = await fetchSigItems({
-    mode,
-    type,
-    rarity,
-    boardIndex,
-    activeOnly: true,
-  });
+  // 디버그 단계에서는 필터 없이 전체 목록에서 뽑도록 단순화
+  const list = await fetchSigItems();
 
   if (!list.length) return [];
 
@@ -118,52 +123,28 @@ export async function fetchRandomSigItems({
   return result;
 }
 
-export async function fetchSigItems({
-  mode,
-  type,
-  rarity,
-  activeOnly = true,
-  boardIndex,
-} = {}) {
+
+/**
+ * 시그 이미지 목록 조회
+ * - 디버그용: 필터 없이 전체 조회 + 로그 출력
+ */
+export async function fetchSigItems() {
   const col = collection(firestore, COLLECTION);
 
-  const filters = [];
-  
-  // 🔴 순서 변경: isActive를 먼저 (세 번째 인덱스 활용)
-  if (activeOnly) {
-    filters.push(where("isActive", "==", true));
-  }
-  
-  if (mode) filters.push(where("mode", "==", mode));
-  if (rarity) filters.push(where("rarity", "==", rarity));
-  if (type) filters.push(where("type", "==", type));
-
-  // 🔴 boardIndex 쿼리는 일단 제외 (클라이언트에서 필터링)
-  // if (boardIndex !== undefined && boardIndex !== null && boardIndex !== "") {
-  //   filters.push(where("boardIndex", "==", String(boardIndex)));
-  // }
-
-  console.log("[API] fetchSigItems BEFORE getDocs", { 
-    mode, type, rarity, boardIndex, activeOnly, 
-    filterCount: filters.length 
-  });
-
-  let q;
-  if (filters.length > 0) {
-    q = query(col, ...filters, orderBy("createdAt", "desc"));
-  } else {
-    q = query(col, orderBy("createdAt", "desc"));
-  }
+  console.log("[API] fetchSigItems (DEBUG) get all sigItems");
 
   let snap;
   try {
+    const q = query(col, orderBy("createdAt", "desc"));
     snap = await getDocs(q);
-    console.log("[API] fetchSigItems AFTER getDocs", { docCount: snap.docs.length });
+    console.log("[API] fetchSigItems AFTER getDocs (DEBUG)", {
+      docCount: snap.docs.length,
+    });
   } catch (err) {
-    console.error("[API] ===== Firestore Query Error =====");
+    console.error("[API] ===== Firestore Query Error (DEBUG) =====");
     console.error(err);
-    console.error("[API] =====================================");
-    return [];
+    console.error("[API] =========================================");
+    throw err;
   }
 
   const list = snap.docs.map((d) => {
@@ -175,17 +156,20 @@ export async function fetchSigItems({
     };
   });
 
-  // 🔴 boardIndex 필터링은 클라이언트에서
-  let filtered = list;
-  if (boardIndex !== undefined && boardIndex !== null && boardIndex !== "") {
-    filtered = list.filter(item => item.boardIndex === String(boardIndex));
-  }
+  console.log(
+    "[API] fetchSigItems (DEBUG) first 3 items",
+    list.slice(0, 3)
+  );
 
-  filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  // createdAt 내림차순 정렬 (방어코드 포함)
+  list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
-  return filtered;
+  return list;
 }
 
+/**
+ * 업데이트
+ */
 export async function updateSigItem(
   id,
   { title, score, slotIndex, boardIndex, isActive }
@@ -238,6 +222,9 @@ export async function updateSigItem(
   };
 }
 
+/**
+ * 삭제
+ */
 export async function deleteSigItem(id) {
   const ref = doc(firestore, COLLECTION, id);
 

@@ -8,9 +8,12 @@ import {
   getRandomBingoImage,
 } from "../../../utils/sigBingoImagePool";
 import { fetchSigItems } from "../../../api/sigHunterImageLibraryApi";
-import { saveSigBingoState } from "../../../api/sigBingoStorage";
+import {
+  loadSigBingoState,
+  saveSigBingoState,
+} from "../../../api/sigBingoStorage";
 
-console.log("[BINGO] *** THIS IS THE REAL BingoBoard.jsx ***");
+console.log("[BINGO] *** BingoBoard.jsx 로드 완료 ***");
 
 const MODES = ["muse", "queendom"];
 const GLOBAL_MODE_KEY = "sigBingo-global-mode";
@@ -20,14 +23,14 @@ const COLS = 3;
 const CELL_COUNT = ROWS * COLS;
 
 const LINES_3X3 = [
-  [0, 1, 2],
-  [3, 4, 5],
-  [6, 7, 8],
-  [0, 3, 6],
-  [1, 4, 7],
-  [2, 5, 8],
-  [0, 4, 8],
-  [2, 4, 6],
+  [0, 1, 2], // 가로1
+  [3, 4, 5], // 가로2
+  [6, 7, 8], // 가로3
+  [0, 3, 6], // 세로1
+  [1, 4, 7], // 세로2
+  [2, 5, 8], // 세로3
+  [0, 4, 8], // 대각선1
+  [2, 4, 6], // 대각선2
 ];
 
 export default function BingoBoard({
@@ -38,13 +41,15 @@ export default function BingoBoard({
 
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState("muse");
-  // 각 칸마다 { id, title, score, imageUrl, slotIndex, boardIndex, ... }
   const [cards, setCards] = useState([]);
   const [checked, setChecked] = useState(Array(CELL_COUNT).fill(false));
   const [completedLines, setCompletedLines] = useState([]);
-  // { [mode]: { [cellIndex]: string[](이미 한 번이라도 나온 이미지 id 목록) } }
+  // { [mode]: { [cellIndex]: string[] } } 형태로 이미 나온 이미지 ID 기록
   const [shownHistory, setShownHistory] = useState({});
 
+  /* -------------------------------------------------------------------------- */
+  /* 🔧 유틸: 완성된 라인 계산                                                    */
+  /* -------------------------------------------------------------------------- */
   const calcCompletedLines = (checkedArr) => {
     const done = [];
     LINES_3X3.forEach((line, idx) => {
@@ -53,7 +58,9 @@ export default function BingoBoard({
     return done;
   };
 
-  /** 관리자에서 등록한 "식대전 빙고" 카드들을 칸별 풀로 리턴 */
+  /* -------------------------------------------------------------------------- */
+  /* 🔧 Firestore: 관리자가 등록한 식대전 빙고 카드 로드 (슬롯별)                  */
+  /* -------------------------------------------------------------------------- */
   const loadSlotPoolsForBoard = async (targetMode, boardNo) => {
     try {
       const list = await fetchSigItems({
@@ -64,11 +71,11 @@ export default function BingoBoard({
         boardIndex: boardNo,
       });
 
-      console.log(
-        "[BINGO] Firestore list",
-        { targetMode, boardNo, count: list.length },
-        list
-      );
+      console.log("[BINGO] Firestore 슬롯별 카드 로드", {
+        mode: targetMode,
+        boardNo,
+        count: list.length,
+      });
 
       const slotPools = Array.from({ length: CELL_COUNT }, () => []);
 
@@ -81,24 +88,25 @@ export default function BingoBoard({
         }
       });
 
-      console.log("[BINGO] slotPools summary", {
+      console.log("[BINGO] 슬롯별 풀 구성 완료", {
         mode: targetMode,
         boardNo,
         slots: slotPools.map((pool, i) => ({
           slot: i + 1,
           size: pool.length,
-          ids: pool.map((p) => p.id || p.imageUrl),
         })),
       });
 
       return slotPools;
-    } catch (e) {
-      console.error("loadSlotPoolsForBoard error:", e);
+    } catch (error) {
+      console.error("[BINGO] 슬롯별 카드 로드 실패:", error);
       return Array.from({ length: CELL_COUNT }, () => []);
     }
   };
 
-  /** 풀에서 아직 안 나온 이미지를 우선 선택 */
+  /* -------------------------------------------------------------------------- */
+  /* 🔧 히스토리 기반 중복 방지 카드 선택                                          */
+  /* -------------------------------------------------------------------------- */
   const pickCardFromPoolWithGuarantee = (
     pool,
     targetMode,
@@ -112,9 +120,11 @@ export default function BingoBoard({
     const modeKey = targetMode;
     const cellKey = String(cellIndex);
 
+    // 이미 나온 ID 목록
     const modeHistory = history[modeKey] || {};
     const seenIds = new Set(modeHistory[cellKey] || []);
 
+    // 아직 안 나온 카드 우선 선택
     const unseen = pool.filter((item) => {
       if (!item) return false;
       const id = item.id || item.imageUrl;
@@ -128,6 +138,7 @@ export default function BingoBoard({
 
     if (!chosen) return { card: null, history };
 
+    // 히스토리 업데이트
     const chosenId = chosen.id || chosen.imageUrl;
     if (!chosenId) return { card: chosen, history };
 
@@ -142,43 +153,38 @@ export default function BingoBoard({
     return { card: chosen, history: nextHistory };
   };
 
-  /** 빙고판 한 장 구성 */
+  /* -------------------------------------------------------------------------- */
+  /* 🎲 빙고판 한 장 구성 (랜덤 + Firestore 슬롯별 카드 혼합)                      */
+  /* -------------------------------------------------------------------------- */
   const buildBoardWithRandomAndFixed = async (
     targetMode,
     boardNo,
     baseHistory
   ) => {
     try {
-      console.log("[BINGO] buildBoardWithRandomAndFixed ENTER", {
-        targetMode,
+      console.log("[BINGO] 빙고판 구성 시작", {
+        mode: targetMode,
         boardNo,
       });
 
-      // 1) 기본 랜덤 카드 9장 (전체 풀에서)
+      // 🔥 1) 기본 랜덤 카드 9장 (로컬 이미지 풀)
       const baseRandom = await getRandomBingoImages(targetMode, CELL_COUNT, {
         rarity: "normal",
       });
-      console.log("[BINGO] after getRandomBingoImages", {
-        targetMode,
-        boardNo,
-        hasBaseRandom: Array.isArray(baseRandom),
-        length: Array.isArray(baseRandom) ? baseRandom.length : null,
-        baseRandom,
+
+      console.log("[BINGO] 로컬 랜덤 카드 로드", {
+        count: baseRandom.length,
       });
 
-      // 2) 슬롯별 관리자 풀
+      // 🔥 2) 슬롯별 관리자 등록 카드 (Firestore)
       const slotPools = await loadSlotPoolsForBoard(targetMode, boardNo);
-      console.log("[BINGO] after loadSlotPoolsForBoard", {
-        targetMode,
-        boardNo,
-        slotPoolsIsArray: Array.isArray(slotPools),
-        slotPoolsLength: Array.isArray(slotPools) ? slotPools.length : null,
-        slotPools,
-      });
+
+      console.log("[BINGO] Firestore 슬롯 풀 로드 완료");
 
       const combined = Array(CELL_COUNT).fill(null);
       let nextHistory = { ...baseHistory };
 
+      // 🔥 3) 각 칸마다 랜덤 + 관리자 카드 합쳐서 선택
       for (let i = 0; i < CELL_COUNT; i++) {
         const pool = [];
 
@@ -186,11 +192,11 @@ export default function BingoBoard({
         if (baseRandom[i]) pool.push(baseRandom[i]);
 
         // 이 칸 전용 관리자 이미지들
-        if (slotPools[i] && slotPools[i].length) {
+        if (slotPools[i]?.length) {
           pool.push(...slotPools[i]);
         }
 
-        // id/imageUrl 기준 중복 제거
+        // 🔥 ID 중복 제거 (같은 이미지 여러 번 등록된 경우 대비)
         const uniqueMap = new Map();
         pool.forEach((item) => {
           if (!item) return;
@@ -201,10 +207,12 @@ export default function BingoBoard({
         const finalPool = Array.from(uniqueMap.values());
 
         if (!finalPool.length) {
+          console.warn(`[BINGO] 칸 ${i + 1} 풀이 비어있음`);
           combined[i] = null;
           continue;
         }
 
+        // 🔥 히스토리 기반 중복 방지 선택
         const picked = pickCardFromPoolWithGuarantee(
           finalPool,
           targetMode,
@@ -216,16 +224,15 @@ export default function BingoBoard({
         nextHistory = picked.history;
       }
 
-      console.log("[BINGO] buildBoardWithRandomAndFixed EXIT", {
-        targetMode,
+      console.log("[BINGO] 빙고판 구성 완료", {
+        mode: targetMode,
         boardNo,
         nonNull: combined.filter(Boolean).length,
       });
 
       return { cards: combined, history: nextHistory };
-    } catch (e) {
-      console.error("[BINGO] buildBoardWithRandomAndFixed error >>>", e);
-      // 에러가 나도 상위에서 Promise 에러 안 터지게 안전한 기본값 리턴
+    } catch (error) {
+      console.error("[BINGO] 빙고판 구성 에러:", error);
       return {
         cards: Array(CELL_COUNT).fill(null),
         history: baseHistory || {},
@@ -233,83 +240,95 @@ export default function BingoBoard({
     }
   };
 
-  // 디버그용: 랜덤 이미지 API 테스트
+  /* -------------------------------------------------------------------------- */
+  /* 🔧 디버그: 랜덤 이미지 API 테스트                                             */
+  /* -------------------------------------------------------------------------- */
   useEffect(() => {
     async function debugRandom() {
       try {
-        console.log("[BINGO-DEBUG] test getRandomBingoImages START");
+        console.log("[BINGO-DEBUG] 랜덤 이미지 API 테스트 시작");
         const result = await getRandomBingoImages("muse", 9, {
           rarity: "normal",
         });
-        console.log("[BINGO-DEBUG] test getRandomBingoImages RESULT", {
+        console.log("[BINGO-DEBUG] 랜덤 이미지 API 테스트 결과", {
           ok: Array.isArray(result),
-          length: Array.isArray(result) ? result.length : null,
+          length: result.length,
+          sample: result[0],
         });
-      } catch (e) {
-        console.error("[BINGO-DEBUG] test getRandomBingoImages ERROR", e);
+      } catch (error) {
+        console.error("[BINGO-DEBUG] 랜덤 이미지 API 테스트 실패:", error);
       }
     }
 
     debugRandom();
   }, []);
 
+  /* -------------------------------------------------------------------------- */
+  /* 🎬 초기화: Firestore 로드 + 빙고판 구성                                       */
+  /* -------------------------------------------------------------------------- */
   useEffect(() => {
     async function init() {
       try {
-        console.log("[BINGO] init start", { boardId, currentBoardNo });
+        console.log("[BINGO] 초기화 시작", { boardId, currentBoardNo });
 
-        // Firestore 로드는 제거
-        const remote = null;
-
-        // 전역 모드 읽기 (없으면 muse)
+        // 🔥 전역 모드 읽기 (localStorage)
         let globalMode = "muse";
         if (typeof window !== "undefined") {
           const v = window.localStorage.getItem(GLOBAL_MODE_KEY);
           if (v === "queendom") globalMode = "queendom";
         }
-        const nextMode = globalMode;
 
-        const initialHistory =
-          remote && typeof remote.shownHistory === "object"
-            ? remote.shownHistory
-            : {};
+        // 🔥 Firestore에서 저장된 상태 로드
+        const remote = await loadSigBingoState(boardId);
 
-        // 항상 최신 데이터 기준으로 보드를 새로 구성
-        const built = await buildBoardWithRandomAndFixed(
-          nextMode,
-          currentBoardNo,
-          initialHistory
-        );
-        const baseCards = built.cards;
-        const historyToUse = built.history;
+        if (remote && remote.mode === globalMode) {
+          console.log("[BINGO] Firestore 데이터 복원", {
+            mode: remote.mode,
+            cardCount: remote.cards?.length,
+          });
 
-        console.log("[BINGO] init after buildBoardWithRandomAndFixed", {
-          baseCardsLength: Array.isArray(baseCards) ? baseCards.length : null,
-          nonNull: Array.isArray(baseCards)
-            ? baseCards.filter(Boolean).length
-            : null,
-        });
+          // 저장된 상태 그대로 복원
+          setMode(remote.mode);
+          setCards(remote.cards || []);
+          setChecked(remote.checked || Array(CELL_COUNT).fill(false));
+          setCompletedLines(remote.completedLines || []);
+          setShownHistory(remote.shownHistory || {});
+        } else {
+          console.log("[BINGO] 새 게임 시작 (Firestore 데이터 없음)");
 
-        const initChecked = Array(CELL_COUNT).fill(false);
-        const newLines = calcCompletedLines(initChecked);
+          // 🔥 새 빙고판 구성
+          const initialHistory = remote?.shownHistory || {};
+          const built = await buildBoardWithRandomAndFixed(
+            globalMode,
+            currentBoardNo,
+            initialHistory
+          );
 
-        setMode(nextMode);
-        setCards(baseCards);
-        setChecked(initChecked);
-        setCompletedLines(newLines);
-        setShownHistory(historyToUse);
+          const baseCards = built.cards;
+          const historyToUse = built.history;
 
-        saveSigBingoState(boardId, {
-          mode: nextMode,
-          cards: baseCards,
-          checked: initChecked,
-          completedLines: newLines,
-          shownHistory: historyToUse,
-        }).catch((e) => console.error("saveSigBingoState (init) failed", e));
+          const initChecked = Array(CELL_COUNT).fill(false);
+          const newLines = calcCompletedLines(initChecked);
+
+          setMode(globalMode);
+          setCards(baseCards);
+          setChecked(initChecked);
+          setCompletedLines(newLines);
+          setShownHistory(historyToUse);
+
+          // 🔥 Firestore 저장
+          saveSigBingoState(boardId, {
+            mode: globalMode,
+            cards: baseCards,
+            checked: initChecked,
+            completedLines: newLines,
+            shownHistory: historyToUse,
+          }).catch((e) => console.error("[BINGO] 저장 실패:", e));
+        }
 
         setLoading(false);
-      } catch (err) {
-        console.error("[BINGO] init error >>>", err);
+      } catch (error) {
+        console.error("[BINGO] 초기화 에러:", error);
         setLoading(false);
       }
     }
@@ -318,6 +337,9 @@ export default function BingoBoard({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [boardId, currentBoardNo]);
 
+  /* -------------------------------------------------------------------------- */
+  /* 🔧 Firestore 동기화                                                         */
+  /* -------------------------------------------------------------------------- */
   const sync = (next, historyOverride) => {
     const historyToSave =
       historyOverride !== undefined ? historyOverride : shownHistory;
@@ -325,15 +347,21 @@ export default function BingoBoard({
     saveSigBingoState(boardId, {
       ...next,
       shownHistory: historyToSave,
-    }).catch((e) => console.error("saveSigBingoState failed", e));
+    }).catch((e) => console.error("[BINGO] 동기화 실패:", e));
   };
 
+  /* -------------------------------------------------------------------------- */
+  /* 🔧 완성된 라인에 포함된 칸인지 확인                                            */
+  /* -------------------------------------------------------------------------- */
   const isCellInCompletedLine = (cellIndex) =>
     LINES_3X3.some(
       (line, lineIndex) =>
         completedLines.includes(lineIndex) && line.includes(cellIndex)
     );
 
+  /* -------------------------------------------------------------------------- */
+  /* 🎯 칸 클릭 핸들러 (체크/해제 + 라인 완성 시 스페셜 카드 교체)                   */
+  /* -------------------------------------------------------------------------- */
   const handleToggleCell = async (idx) => {
     try {
       const nextChecked = [...checked];
@@ -341,14 +369,16 @@ export default function BingoBoard({
 
       const newLines = calcCompletedLines(nextChecked);
 
+      // 🔥 라인 완성에 포함된 칸인지 확인
       const isInCompletedLine = LINES_3X3.some(
         (line, lineIndex) => newLines.includes(lineIndex) && line.includes(idx)
       );
 
       let nextCards = cards;
 
-      // 라인 완성에 포함된 칸이면 새 "스페셜" 카드로 교체
+      // 🔥 라인 완성 시 스페셜 카드로 교체
       if (isInCompletedLine) {
+        console.log(`[BINGO] 칸 ${idx + 1} 라인 완성! 스페셜 카드로 교체`);
         const newCard = await getRandomBingoImage(mode, { rarity: "special" });
         if (newCard) {
           nextCards = [...cards];
@@ -360,27 +390,33 @@ export default function BingoBoard({
       setCompletedLines(newLines);
       setCards(nextCards);
 
+      // 🔥 Firestore 저장
       sync({
         mode,
         cards: nextCards,
         checked: nextChecked,
         completedLines: newLines,
       });
-    } catch (err) {
-      console.error("handleToggleCell error:", err);
+    } catch (error) {
+      console.error("[BINGO] 칸 클릭 에러:", error);
     }
   };
 
+  /* -------------------------------------------------------------------------- */
+  /* 🔄 모드 변경 핸들러 (뮤즈 ↔ 퀸덤)                                             */
+  /* -------------------------------------------------------------------------- */
   const handleChangeMode = async (nextMode) => {
     if (mode === nextMode) return;
 
     try {
-      // 전역 모드 저장
+      console.log(`[BINGO] 모드 변경: ${mode} → ${nextMode}`);
+
+      // 🔥 전역 모드 저장 (localStorage)
       if (typeof window !== "undefined") {
         window.localStorage.setItem(GLOBAL_MODE_KEY, nextMode);
       }
 
-      // 모드 변경 시: 랜덤 + 슬롯별 풀 조합 새로 생성
+      // 🔥 새 빙고판 구성
       const built = await buildBoardWithRandomAndFixed(
         nextMode,
         currentBoardNo,
@@ -398,6 +434,7 @@ export default function BingoBoard({
       setCompletedLines(newLines);
       setShownHistory(newHistory);
 
+      // 🔥 Firestore 저장
       sync(
         {
           mode: nextMode,
@@ -407,17 +444,25 @@ export default function BingoBoard({
         },
         newHistory
       );
-    } catch (err) {
-      console.error("handleChangeMode error:", err);
+    } catch (error) {
+      console.error("[BINGO] 모드 변경 에러:", error);
     }
   };
 
+  /* -------------------------------------------------------------------------- */
+  /* 🔄 보드 초기화 핸들러 (히스토리 완전 리셋)                                     */
+  /* -------------------------------------------------------------------------- */
   const handleResetBoard = async () => {
     try {
+      console.log("[BINGO] 보드 초기화 (히스토리 완전 리셋)");
+
+      // 🔥 히스토리 완전 리셋
+      const emptyHistory = {};
+
       const built = await buildBoardWithRandomAndFixed(
         mode,
         currentBoardNo,
-        shownHistory
+        emptyHistory
       );
       const baseCards = built.cards;
       const newHistory = built.history;
@@ -430,6 +475,7 @@ export default function BingoBoard({
       setCompletedLines(newLines);
       setShownHistory(newHistory);
 
+      // 🔥 Firestore 저장
       sync(
         {
           mode,
@@ -439,24 +485,36 @@ export default function BingoBoard({
         },
         newHistory
       );
-    } catch (err) {
-      console.error("handleResetBoard error:", err);
+    } catch (error) {
+      console.error("[BINGO] 보드 초기화 에러:", error);
     }
   };
 
-  console.log("[BINGO] render", {
-    cardsLength: cards.length,
+  /* -------------------------------------------------------------------------- */
+  /* 🎨 렌더링                                                                   */
+  /* -------------------------------------------------------------------------- */
+
+  console.log("[BINGO] 렌더링", {
     mode,
-    currentBoardNo,
+    boardNo: currentBoardNo,
+    cardCount: cards.length,
     loading,
   });
 
-  if (loading) return <div style={{ color: "#fff" }}>로딩 중...</div>;
+  if (loading) {
+    return (
+      <div style={{ color: "#fff", padding: "2rem", textAlign: "center" }}>
+        🎲 빙고판 로딩 중...
+      </div>
+    );
+  }
 
   return (
     <div className="bingo-root">
+      {/* 헤더: 모드 탭 + 초기화 버튼 */}
       <header className="bingo-header">
         <div className="bingo-header-row">
+          {/* 모드 선택 탭 */}
           <div className="bingo-mode-tabs">
             {MODES.map((m) => (
               <button
@@ -471,6 +529,7 @@ export default function BingoBoard({
             ))}
           </div>
 
+          {/* 초기화 버튼 */}
           <button
             type="button"
             className="bingo-reset-btn"
@@ -480,6 +539,7 @@ export default function BingoBoard({
           </button>
         </div>
 
+        {/* 빙고 보드 선택 (1/2/3) */}
         <div
           style={{
             marginTop: 8,
@@ -512,9 +572,11 @@ export default function BingoBoard({
           })}
         </div>
 
+        {/* 제목 */}
         <h2 className="bingo-title-text">🍽️ 식사대전 빙고 🍽️</h2>
       </header>
 
+      {/* 빙고 그리드 (3x3) */}
       <div className="bingo-grid">
         {cards.slice(0, CELL_COUNT).map((card, idx) => {
           const inCompletedLine = isCellInCompletedLine(idx);
@@ -530,26 +592,33 @@ export default function BingoBoard({
               onClick={() => handleToggleCell(idx)}
             >
               <div className="bingo-cell-inner">
+                {/* 앞면: 이미지 */}
                 <div className="bingo-cell-front">
                   {card?.imageUrl && (
                     <img
                       src={card.imageUrl}
                       alt={card.title || `bingo-${idx}`}
+                      onError={(e) => {
+                        console.error(`[BINGO] 이미지 로드 실패: ${card.imageUrl}`);
+                        e.target.style.display = "none";
+                      }}
                     />
                   )}
 
-                  {/* 번호만 표시 (이름/점수는 숨김) */}
+                  {/* 칸 번호 (1~9) */}
                   <span className="bingo-cell-number">{idx + 1}</span>
                 </div>
 
+                {/* 뒷면: 체크 표시 */}
                 <div className="bingo-cell-back">
-                  <span className="bingo-check-icon">O</span>
+                  <span className="bingo-check-icon">✓</span>
                 </div>
               </div>
             </div>
           );
         })}
 
+        {/* 완성된 라인 오버레이 */}
         {completedLines.map((lineIndex) => (
           <div
             key={`line-${lineIndex}`}
