@@ -1,4 +1,3 @@
-// src/components/SigHunterFlip/CardItem.jsx
 import React, { useState } from "react";
 
 function CardItem({
@@ -8,7 +7,7 @@ function CardItem({
   locked = {},
   revealed = {},
   randomImages = {},
-  frontImageIndex = 0,          // ✅ 추가
+  frontImageIndex = 0,
   onFlip = () => {},
   onAdmin = () => {},
   onEdit = () => {},
@@ -31,13 +30,11 @@ function CardItem({
   const title =
     sigItem?.title || card.title || (isSpecial ? "스페셜 카드" : `카드 ${id}`);
 
-  // ✅ frontImages 후보군에서 index 기반으로 선택
   const baseFront =
     Array.isArray(card.frontImages) && card.frontImages.length > 0
       ? card.frontImages[frontImageIndex % card.frontImages.length]
       : null;
 
-  // 🔹 이미지 우선순위: 업로드 > 서버 시그 > frontImages > placeholder
   const baseImage =
     sigItem?.imageUrl ||
     baseFront ||
@@ -45,7 +42,6 @@ function CardItem({
 
   const newSrc = randomImages?.[id] || baseImage;
 
-  /** 🃏 카드 클릭 */
   const handleFlip = (e) => {
     if (e.target.tagName === "INPUT" && e.target.type === "file") {
       e.stopPropagation();
@@ -60,7 +56,6 @@ function CardItem({
     onFlip(card, e);
   };
 
-  /** 🖼️ 이미지 로딩 에러 핸들러 */
   const handleImageError = (e) => {
     console.error("❌ 이미지 렌더 실패:", e.target.src);
     if (!imageError) {
@@ -70,7 +65,6 @@ function CardItem({
     }
   };
 
-  /** ✅ 이미지 로딩 성공 핸들러 */
   const handleImageLoad = () => {
     if (imageError) setImageError(false);
   };
@@ -83,7 +77,6 @@ function CardItem({
       onClick={handleFlip}
     >
       <div className="card-inner">
-        {/* 카드 앞면 - 이미지만 노출 */}
         <div className="card-front">
           <img
             src={newSrc}
@@ -123,7 +116,6 @@ function CardItem({
           </button>
         </div>
 
-        {/* 카드 뒷면 */}
         <div
           className="card-back"
           style={

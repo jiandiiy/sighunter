@@ -1,4 +1,3 @@
-// src/components/common/GameCenter/Admin/SigImageAdminPage.jsx
 import React, { useState, useEffect, useCallback } from "react";
 import {
   uploadSigItem,
@@ -32,10 +31,8 @@ const MEAL_BINGO_BOARDS = [
 export default function SigImageAdminPage() {
   const [title, setTitle] = useState("");
   const [score, setScore] = useState("");
-  //const [mode, setMode] = useState("muse");
-  //const [type, setType] = useState("meal-bingo");
-  const [mode, setMode] = useState("queendom");   // 게임 페이지랑 맞추기
-const [type, setType] = useState("sighunter");  // 🔴 시그헌터 (카드)로 고정
+  const [mode, setMode] = useState("queendom"); // 게임 페이지랑 맞추기
+  const [type, setType] = useState("sighunter"); // 시그헌터 (카드)로 기본
   const [rarity, setRarity] = useState("normal");
   const [isActive, setIsActive] = useState(true);
   const [slotIndex, setSlotIndex] = useState(""); // 칸 번호(필수)
@@ -174,7 +171,6 @@ const [type, setType] = useState("sighunter");  // 🔴 시그헌터 (카드)로
     }
   };
 
-  // 테이블 행 수정용 로컬 상태 업데이트
   const handleChangeItemField = (id, field, value) => {
     setItems((prev) =>
       prev.map((it) => (it.id === id ? { ...it, [field]: value } : it))

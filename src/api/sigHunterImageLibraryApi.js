@@ -1,4 +1,3 @@
-// src/api/sigHunterImageLibraryApi.js
 import { firestore, storage } from "../firebase";
 
 import {
@@ -101,49 +100,63 @@ export async function uploadSigItem({
 }
 
 /**
- * 랜덤 뽑기
+ * 시그 이미지 목록 조회
+ * - 필터 조건에 맞는 목록 조회
  */
-export async function fetchRandomSigItems({
+export async function fetchSigItems({
   mode,
   type,
   rarity,
-  count = 1,
   boardIndex,
+  slotIndex,
+  activeOnly = true,
 } = {}) {
-  // 디버그 단계에서는 필터 없이 전체 목록에서 뽑도록 단순화
-  const list = await fetchSigItems();
-
-  if (!list.length) return [];
-
-  const result = [];
-  for (let i = 0; i < count; i++) {
-    const idx = Math.floor(Math.random() * list.length);
-    result.push(list[idx]);
-  }
-  return result;
-}
-
-
-/**
- * 시그 이미지 목록 조회
- * - 디버그용: 필터 없이 전체 조회 + 로그 출력
- */
-export async function fetchSigItems() {
   const col = collection(firestore, COLLECTION);
 
-  console.log("[API] fetchSigItems (DEBUG) get all sigItems");
+  console.log("[API] fetchSigItems params", {
+    mode,
+    type,
+    rarity,
+    boardIndex,
+    slotIndex,
+    activeOnly,
+  });
+
+  const conditions = [];
+
+  if (mode) conditions.push(where("mode", "==", mode));
+  if (type) conditions.push(where("type", "==", type));
+  if (rarity) conditions.push(where("rarity", "==", rarity));
+
+  if (boardIndex !== undefined && boardIndex !== null && boardIndex !== "") {
+    conditions.push(where("boardIndex", "==", String(boardIndex)));
+  }
+
+  if (slotIndex !== undefined && slotIndex !== null && slotIndex !== "") {
+    conditions.push(where("slotIndex", "==", String(slotIndex)));
+  }
+
+  if (activeOnly) {
+    conditions.push(where("isActive", "==", true));
+  }
+
+  let q;
+  if (conditions.length > 0) {
+    q = query(col, ...conditions, orderBy("createdAt", "desc"));
+  } else {
+    q = query(col, orderBy("createdAt", "desc"));
+  }
 
   let snap;
   try {
-    const q = query(col, orderBy("createdAt", "desc"));
     snap = await getDocs(q);
-    console.log("[API] fetchSigItems AFTER getDocs (DEBUG)", {
+    console.log("[API] fetchSigItems AFTER getDocs", {
       docCount: snap.docs.length,
     });
   } catch (err) {
-    console.error("[API] ===== Firestore Query Error (DEBUG) =====");
+    console.error("[API] ===== Firestore Query Error =====");
     console.error(err);
-    console.error("[API] =========================================");
+    console.error("[API] =================================");
     throw err;
   }
 
@@ -156,15 +169,46 @@ export async function fetchSigItems() {
     };
   });
 
-  console.log(
-    "[API] fetchSigItems (DEBUG) first 3 items",
-    list.slice(0, 3)
-  );
-
-  // createdAt 내림차순 정렬 (방어코드 포함)
   list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
+  console.log("[API] fetchSigItems first 3 items", list.slice(0, 3));
+
   return list;
+}
+
+/**
+ * 랜덤 뽑기
+ * - 주어진 조건에 맞는 카드들 중에서 랜덤 선택
+ */
+export async function fetchRandomSigItems({
+  mode,
+  type,
+  rarity,
+  count = 1,
+  boardIndex,
+  slotIndex,
+  activeOnly = true,
+} = {}) {
+  const baseList = await fetchSigItems({
+    mode,
+    type,
+    rarity,
+    boardIndex,
+    slotIndex,
+    activeOnly,
+  });
+
+  if (!baseList.length) return [];
+
+  const result = [];
+
+  // 중복 허용 랜덤 샘플링
+  for (let i = 0; i < count; i++) {
+    const idx = Math.floor(Math.random() * baseList.length);
+    result.push(baseList[idx]);
+  }
+
+  return result;
 }
 
 /**

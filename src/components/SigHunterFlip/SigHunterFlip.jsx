@@ -1,4 +1,3 @@
-// src/components/SigHunterFlip/SigHunterFlip.jsx
 import React, { useRef, useState, useEffect, useMemo } from "react";
 import {
   queendomSigCards,
@@ -6,28 +5,21 @@ import {
 } from "../../data/sigData";
 import { useSigStorage } from "./FlipHooks";
 import { fireConfetti, weightedPick } from "../common/confettiUtils";
-import {
-  fetchRandomSigItems,
-} from "../../api/sigHunterImageLibraryApi";
+import { fetchRandomSigItems } from "../../api/sigHunterImageLibraryApi";
 import CardGrid from "./CardGrid";
 import EditMessageModal from "./EditMessageModal";
 import AdminPopup from "./AdminPopup";
 import "./flip.css";
 
-// 🔹 프로젝트별 카드 세트 매핑
 const projectCardSets = {
   queendom: queendomSigCards,
   muse: museSigCards,
 };
 
 export default function SigHunterFlip() {
-  // 🔹 프로젝트 선택 (퀸덤 / 뮤즈)
   const [project, setProject] = useState("queendom");
-
-  // 🔹 현재 선택된 프로젝트의 카드 세트 (슬롯 정보)
   const sigCards = projectCardSets[project];
 
-  // 🔹 일반 / 스페셜 슬롯 구분
   const normalCards = useMemo(
     () => sigCards.filter((c) => !c.isSpecial),
     [sigCards]
@@ -37,14 +29,11 @@ export default function SigHunterFlip() {
     [sigCards]
   );
 
-  // 🔹 서버에서 가져온 시그 메타데이터: cardId -> sigItem
   const [sigItemsByCard, setSigItemsByCard] = useState({});
   const [loadingSigItems, setLoadingSigItems] = useState(false);
 
-  // 🔹 카드별 frontImages에서 사용할 인덱스 (A안 핵심)
   const [frontImageIndexByCard, setFrontImageIndexByCard] = useState({});
 
-  // 🔹 file input refs
   const fileInputRefs = useRef({});
 
   const {
@@ -52,7 +41,7 @@ export default function SigHunterFlip() {
     locked,
     revealed,
     randomImages,
-    messages,          // 🔹 메시지 세트 (normal / special)
+    messages,
     cardWeights,
     setFlipped,
     setLocked,
@@ -65,7 +54,6 @@ export default function SigHunterFlip() {
 
   const [modal, setModal] = useState(null);
 
-  // 🔄 특정 카드 집합의 frontImages 인덱스를 랜덤 셔플
   const reshuffleFrontImages = (cards) => {
     setFrontImageIndexByCard((prev) => {
       const next = { ...prev };
@@ -84,38 +72,42 @@ export default function SigHunterFlip() {
     });
   };
 
-  // 🔄 시그헌터 시그 이미지 로딩 로직
+  // 슬롯별 랜덤 시그 이미지 로딩
   const loadSigItems = async (projectKey, normalCardsArg, specialCardArg) => {
     try {
       setLoadingSigItems(true);
 
-      const mode = projectKey; // "queendom" | "muse"
+      const mode = projectKey;
+      const mapping = {};
 
-      const [normalItems, specialItems] = await Promise.all([
-        fetchRandomSigItems({
+      const normalPromises = normalCardsArg.map(async (card) => {
+        const items = await fetchRandomSigItems({
           mode,
           type: "sighunter",
           rarity: "normal",
-          count: normalCardsArg.length,
-        }),
-        specialCardArg
-          ? fetchRandomSigItems({
-              mode,
-              type: "sighunter",
-              rarity: "special",
-              count: 1,
-            })
-          : Promise.resolve([]),
-      ]);
-
-      const mapping = {};
-      normalCardsArg.forEach((slot, idx) => {
-        mapping[slot.id] = normalItems[idx] || null;
+          slotIndex: String(card.id),
+          count: 1,
+        });
+        mapping[card.id] = items[0] || null;
       });
-      if (specialCardArg && specialItems[0]) {
-        mapping[specialCardArg.id] = specialItems[0];
+
+      let specialPromise = Promise.resolve();
+      if (specialCardArg) {
+        specialPromise = (async () => {
+          const items = await fetchRandomSigItems({
+            mode,
+            type: "sighunter",
+            rarity: "special",
+            slotIndex: String(specialCardArg.id),
+            count: 1,
+          });
+          mapping[specialCardArg.id] = items[0] || null;
+        })();
       }
 
+      await Promise.all([...normalPromises, specialPromise]);
+
+      console.log("[FLIP] loadSigItems mapping", mapping);
       setSigItemsByCard(mapping);
     } catch (e) {
       console.error("시그헌터 카드 메타데이터 로딩 실패:", e);
@@ -124,7 +116,6 @@ export default function SigHunterFlip() {
     }
   };
 
-  // 🔄 프로젝트 / 모드 변경 시, 시그 카드(일반/스페셜) 랜덤 로딩 + frontImages 인덱스 셔플
   useEffect(() => {
     if (!loaded) return;
     reshuffleFrontImages(sigCards);
@@ -140,16 +131,13 @@ export default function SigHunterFlip() {
     );
   }
 
-  /** 🃏 카드 클릭 이벤트 */
   const handleFlip = (card, e) => {
     const target = e.target;
 
-    // 0️⃣ file input에서 올라온 클릭이면 무시
     if (target.tagName === "INPUT" && target.type === "file") {
       return;
     }
 
-    // 1️⃣ 버튼 클릭이면 flip 완전히 무시
     if (
       target.closest(".upload-btn") ||
       target.closest(".admin-btn") ||
@@ -164,7 +152,6 @@ export default function SigHunterFlip() {
 
     const currentMsg = revealed[card.id];
 
-    // 처음 뒤집는 시점 && 이미 편집된 메시지가 아니면
     if (!currentlyFlipped && next && !(currentMsg && currentMsg.edited)) {
       const base = card.isSpecial ? messages.special : messages.normal;
 
@@ -185,30 +172,25 @@ export default function SigHunterFlip() {
     setFlipped((prev) => ({ ...prev, [card.id]: next }));
   };
 
-  /** ⚙️ 어드민 확률 조절 모달 */
   const handleAdminClick = (e, cardId) => {
     e.stopPropagation();
     e.preventDefault();
     setModal({ type: "admin", id: cardId });
   };
 
-  /** ✏️ 메시지 수정 모달 */
   const handleEditClick = (e, cardId) => {
     e.stopPropagation();
     e.preventDefault();
     setModal({ type: "edit", id: cardId });
   };
 
-  /** 🖼 이미지 업로드 버튼 */
   const handleUploadClick = (e, id) => {
     e.stopPropagation();
-
     const input = fileInputRefs.current[id];
     if (!input) return;
     input.click();
   };
 
-  /** 🖼 이미지 파일 변경 - 업로드로 해당 카드 이미지를 덮어쓰기 */
   const handleImageChange = (e, id) => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
@@ -223,9 +205,7 @@ export default function SigHunterFlip() {
     reader.readAsDataURL(file);
   };
 
-  /** 🔹 특정 카드 집합(일반/스페셜 등)만 초기화하는 유틸 */
   const resetCards = (cards) => {
-    // 업로드 이미지 초기화
     setRandomImages((prevImgs) => {
       const nextImgs = { ...prevImgs };
       cards.forEach((c) => {
@@ -234,7 +214,6 @@ export default function SigHunterFlip() {
       return nextImgs;
     });
 
-    // 메시지 초기화
     setRevealed((prev) => {
       const next = { ...prev };
       cards.forEach((c) => {
@@ -243,7 +222,6 @@ export default function SigHunterFlip() {
       return next;
     });
 
-    // 뒤집힘 상태 초기화
     setFlipped((prev) => {
       const next = { ...prev };
       cards.forEach((c) => {
@@ -252,7 +230,6 @@ export default function SigHunterFlip() {
       return next;
     });
 
-    // 잠금 상태 초기화
     setLocked((prev) => {
       const next = { ...prev };
       cards.forEach((c) => {
@@ -261,7 +238,6 @@ export default function SigHunterFlip() {
       return next;
     });
 
-    // 가중치 초기화 + localStorage 싱크
     setCardWeights((prev) => {
       const next = { ...prev };
       cards.forEach((card) => {
@@ -274,32 +250,29 @@ export default function SigHunterFlip() {
     });
   };
 
-  /** 🔄 전체 초기화 (현재 프로젝트 기준, 일반+스페셜 전부) */
   const resetAll = async () => {
     ["sigFlipped", "sigLocked", "sigRevealed", "sigImages", "cardWeights"].forEach(
       (key) => localStorage.removeItem(key)
     );
 
     resetCards(sigCards);
-    reshuffleFrontImages(sigCards); // ✅ 카드-이미지 매칭 재셔플
+    reshuffleFrontImages(sigCards);
 
     await loadSigItems(project, normalCards, specialCard);
   };
 
-  /** 🔄 일반 카드만 초기화 */
   const resetNormal = async () => {
     resetCards(normalCards);
-    reshuffleFrontImages(normalCards); // ✅ 일반 카드만 재셔플
+    reshuffleFrontImages(normalCards);
 
     await loadSigItems(project, normalCards, specialCard);
   };
 
-  /** 🔄 스페셜 카드만 초기화 */
   const resetSpecial = async () => {
     if (!specialCard) return;
 
     resetCards([specialCard]);
-    reshuffleFrontImages([specialCard]); // ✅ 스페셜 카드만 재셔플
+    reshuffleFrontImages([specialCard]);
 
     await loadSigItems(project, normalCards, specialCard);
   };
@@ -308,7 +281,6 @@ export default function SigHunterFlip() {
     <div className="natural-container">
       <h2>💖 시그헌터 💖</h2>
 
-      {/* 🔹 퀸덤 / 뮤즈 선택 버튼 그룹 */}
       <div
         style={{
           display: "flex",
@@ -354,7 +326,6 @@ export default function SigHunterFlip() {
         })}
       </div>
 
-      {/* 🔄 초기화 버튼들 */}
       <div
         style={{
           display: "flex",
@@ -385,7 +356,6 @@ export default function SigHunterFlip() {
       )}
 
       <div className="cards-wrapper">
-        {/* 일반 카드 10장 */}
         <CardGrid
           cards={normalCards}
           flipped={flipped}
@@ -393,7 +363,7 @@ export default function SigHunterFlip() {
           revealed={revealed}
           randomImages={randomImages}
           sigItemsByCard={sigItemsByCard}
-          frontImageIndexByCard={frontImageIndexByCard} // ✅ 추가
+          frontImageIndexByCard={frontImageIndexByCard}
           onFlip={handleFlip}
           onAdmin={handleAdminClick}
           onEdit={handleEditClick}
@@ -402,7 +372,6 @@ export default function SigHunterFlip() {
           fileInputRefs={fileInputRefs}
         />
 
-        {/* 특별 카드 한 장 */}
         {specialCard && (
           <div className="special-card-container">
             <CardGrid
@@ -412,7 +381,7 @@ export default function SigHunterFlip() {
               revealed={revealed}
               randomImages={randomImages}
               sigItemsByCard={sigItemsByCard}
-              frontImageIndexByCard={frontImageIndexByCard} // ✅ 추가
+              frontImageIndexByCard={frontImageIndexByCard}
               onFlip={handleFlip}
               onAdmin={handleAdminClick}
               onEdit={handleEditClick}
@@ -424,7 +393,6 @@ export default function SigHunterFlip() {
         )}
       </div>
 
-      {/* ✏️ 메시지 수정 모달 */}
       {modal && modal.type === "edit" && (
         <EditMessageModal
           project={project}
@@ -438,7 +406,6 @@ export default function SigHunterFlip() {
         />
       )}
 
-      {/* ⚙️ 확률 / 메시지 조절 모달 */}
       {modal && modal.type === "admin" && modal.id != null && (
         <AdminPopup
           project={project}

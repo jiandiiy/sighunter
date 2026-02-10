@@ -1,4 +1,3 @@
-// src/components/SigHunterFlip/CardGrid.jsx
 import React, { memo } from "react";
 import CardItem from "./CardItem";
 
@@ -9,7 +8,7 @@ function CardGrid({
   revealed,
   randomImages,
   sigItemsByCard = {},
-  frontImageIndexByCard = {},   // ✅ 추가
+  frontImageIndexByCard = {},
   onFlip,
   onAdmin,
   onEdit,
@@ -28,7 +27,7 @@ function CardGrid({
           locked={locked}
           revealed={revealed}
           randomImages={randomImages}
-          frontImageIndex={frontImageIndexByCard[card.id] ?? 0} // ✅ 추가
+          frontImageIndex={frontImageIndexByCard[card.id] ?? 0}
           onFlip={onFlip}
           onAdmin={(e) => onAdmin(e, card.id)}
           onEdit={(e) => onEdit(e, card.id)}
