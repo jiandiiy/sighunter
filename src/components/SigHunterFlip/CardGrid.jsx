@@ -8,7 +8,8 @@ function CardGrid({
   locked,
   revealed,
   randomImages,
-  sigItemsByCard = {}, // 🔹 cardId -> remote 시그 메타데이터
+  sigItemsByCard = {},
+  frontImageIndexByCard = {},   // ✅ 추가
   onFlip,
   onAdmin,
   onEdit,
@@ -27,6 +28,7 @@ function CardGrid({
           locked={locked}
           revealed={revealed}
           randomImages={randomImages}
+          frontImageIndex={frontImageIndexByCard[card.id] ?? 0} // ✅ 추가
           onFlip={onFlip}
           onAdmin={(e) => onAdmin(e, card.id)}
           onEdit={(e) => onEdit(e, card.id)}

@@ -3,11 +3,12 @@ import React, { useState } from "react";
 
 function CardItem({
   card = {},
-  sigItem = null,            // 🔹 서버에서 온 시그 메타데이터 (title, score, rarity, imageUrl ...)
+  sigItem = null,
   flipped = {},
   locked = {},
   revealed = {},
   randomImages = {},
+  frontImageIndex = 0,          // ✅ 추가
   onFlip = () => {},
   onAdmin = () => {},
   onEdit = () => {},
@@ -23,20 +24,23 @@ function CardItem({
   const isFlipped = flipped?.[id] || false;
   const isLocked = locked?.[id] || false;
 
-  // 🔹 메타데이터 (이름 / 점수 / 일반·스페셜) – 데이터는 쓰지만, 앞면엔 표시 안 함
   const rarity =
     sigItem?.rarity || (card.isSpecial ? "special" : "normal");
   const isSpecial = rarity === "special";
 
   const title =
     sigItem?.title || card.title || (isSpecial ? "스페셜 카드" : `카드 ${id}`);
-  // const score =
-  //   typeof sigItem?.score === "number" ? sigItem.score : null; // 🔸 사용 안 해서 제거
 
-  // 🔹 이미지: 업로드 > remote > 기본(frontImages[0]) > placeholder
+  // ✅ frontImages 후보군에서 index 기반으로 선택
+  const baseFront =
+    Array.isArray(card.frontImages) && card.frontImages.length > 0
+      ? card.frontImages[frontImageIndex % card.frontImages.length]
+      : null;
+
+  // 🔹 이미지 우선순위: 업로드 > 서버 시그 > frontImages > placeholder
   const baseImage =
     sigItem?.imageUrl ||
-    card.frontImages?.[0] ||
+    baseFront ||
     "https://via.placeholder.com/200/CCCCCC/FFFFFF?text=No+Image";
 
   const newSrc = randomImages?.[id] || baseImage;
@@ -94,7 +98,6 @@ function CardItem({
             <div className="image-error-badge">⚠️ 이미지 오류</div>
           )}
 
-          {/* ⚙️/✏️ 버튼은 유지 (메시지/확률 편집용) */}
           <button
             type="button"
             className="edit-msg-btn"
