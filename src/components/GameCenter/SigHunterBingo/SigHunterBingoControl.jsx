@@ -63,7 +63,7 @@ export default function SigHunterBingoControl({ boardId = "hunter1" }) {
         </div>
 
         <h2 className="hunter-title-text">
-          🎯 시그헌터 빙고 – 이미지 설정 페이지 🎯
+          🎯 시그 땅따먹기 – 이미지 설정 페이지 🎯
         </h2>
       </header>
 
@@ -75,7 +75,7 @@ export default function SigHunterBingoControl({ boardId = "hunter1" }) {
               className="hunter-reset-btn"
               onClick={handleResetBoard}
             >
-              현재 모드/사이즈 빙고 초기화
+              현재 모드/사이즈 초기화
             </button>
           </div>
 

@@ -517,3 +517,62 @@
   border-color: rgba(191, 219, 254, 0.95);
   box-shadow: 0 2px 8px rgba(37, 99, 235, 0.6);
 }
+
+.hunter-player-territory-summary {
+  margin-top: 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(55, 65, 81, 0.8);
+}
+
+.hunter-player-territory-title {
+  margin: 0 0 6px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+.hunter-player-territory-empty {
+  font-size: 18px;
+  color: #6b7280;
+}
+
+.hunter-player-territory-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.hunter-player-territory-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 18px;
+  padding: 2px 0;
+}
+
+.hunter-player-territory-color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  margin-right: 4px;
+}
+
+.hunter-player-territory-name {
+  flex: 1;
+  color: #e5e7eb;
+}
+
+.hunter-player-territory-count {
+  color: #facc15;
+  font-weight: 600;
+}
+
+.hunter-player-territory-rank {
+  width: 30px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #e5e7eb;
+}

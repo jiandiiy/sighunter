@@ -165,10 +165,10 @@ export default function GameHub() {
               "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
           }}
         >
-          🎯 시그헌터 빙고
+          🎯 시그 땅따먹기
         </button>
 
-        {/* 시그헌터 빙고 설정 페이지로 이동 버튼 */}
+        {/* 시그 땅따먹기 설정 페이지로 이동 버튼 */}
         <button
           type="button"
           onClick={() => navigate("/hunter-bingo/control")}
@@ -185,7 +185,7 @@ export default function GameHub() {
               "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
           }}
         >
-          ⚙️ 시그헌터 빙고 설정
+          ⚙️ 시그 땅따먹기 설정
         </button>
 
         {/* 시그 이미지 관리(업로드) 버튼 */}

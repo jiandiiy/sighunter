@@ -1,5 +1,3 @@
-// src/components/GameCenter/SigHunterBingo/SigHunterBingoBoard.jsx
-
 import React, { useState } from "react";
 import "./SigHunterBingoBoard.css";
 import {
@@ -29,6 +27,17 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
   } = useSigHunterBingoState(boardId);
 
   const [currentPlayer, setCurrentPlayer] = useState("");
+
+  // 🔹 플레이어별 점령 칸 수 집계
+  const playerTerritoryCounts = React.useMemo(() => {
+    const counts = {};
+    cells.forEach((cell) => {
+      if (!cell.owner) return;
+      if (!counts[cell.owner]) counts[cell.owner] = 0;
+      counts[cell.owner] += 1;
+    });
+    return counts;
+  }, [cells]);
 
   if (loading) {
     return <div style={{ color: "#fff" }}>로딩 중...</div>;
@@ -69,7 +78,7 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
           </div>
         </div>
 
-        <h2 className="hunter-title-text">🎯 시그헌터 빙고 🎯</h2>
+        <h2 className="hunter-title-text">🎯 시그 땅따먹기 🎯</h2>
       </header>
 
       <div className="hunter-main">
@@ -158,7 +167,7 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
           </div>
         </div>
 
-        {/* 우측: 닉네임, 줄 미니맵, 로그 */}
+        {/* 우측: 닉네임, 플레이어 점령 현황, 줄 미니맵, 로그 */}
         <aside className="hunter-main-right">
           <div className="hunter-sidebar-top">
             <div className="hunter-player-input-row">
@@ -176,6 +185,51 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                 현재 <span>{completedLineCount}</span> 줄 점령 중
               </div>
             </div>
+          </div>
+
+          {/* 플레이어별 점령 칸 수 */}
+          <div className="hunter-player-territory-summary">
+            <h4 className="hunter-player-territory-title">
+              플레이어 점령 현황
+            </h4>
+
+            {Object.keys(playerTerritoryCounts).length === 0 ? (
+              <div className="hunter-player-territory-empty">
+                아직 점령된 칸이 없습니다.
+              </div>
+            ) : (
+              <ul className="hunter-player-territory-list">
+                {Object.entries(playerTerritoryCounts)
+                  .sort((a, b) => b[1] - a[1]) // 많이 점령한 순
+                  .map(([player, count], index) => {
+                    const color = getColorForPlayer(player);
+                    const rank = index + 1; // 1위, 2위, 3위 ...
+
+                    return (
+                      <li
+                        key={player}
+                        className="hunter-player-territory-item"
+                      >
+                        <span className="hunter-player-territory-rank">
+                          {rank}위
+                        </span>
+                        <span
+                          className="hunter-player-territory-color-dot"
+                          style={{
+                            backgroundColor: color,
+                          }}
+                        />
+                        <span className="hunter-player-territory-name">
+                          {player}
+                        </span>
+                        <span className="hunter-player-territory-count">
+                          {count}칸
+                        </span>
+                      </li>
+                    );
+                  })}
+              </ul>
+            )}
           </div>
 
           {/* 줄 소유권 미니맵 */}
