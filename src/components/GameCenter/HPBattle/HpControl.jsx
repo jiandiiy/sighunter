@@ -166,6 +166,15 @@ export default function HpControl({ battleId = "sig-hp" }) {
     });
   };
 
+  const handleSetName = (id, val) => {
+    setState((prev) => {
+      const fightersCopy = prev.fighters.map((f) =>
+        f.id === id ? { ...f, name: val } : f
+      );
+      return { ...prev, fighters: fightersCopy };
+    });
+  };
+
   const applyItem = () => {
     if (!selectedItemId || !selectedTo) return;
     const item = ITEMS.find((i) => i.id === selectedItemId);
@@ -259,6 +268,18 @@ export default function HpControl({ battleId = "sig-hp" }) {
         {leftFighter && (
           <section className="hpctrl-player hpctrl-player--left">
             <h2 className="hpctrl-player-title">{leftFighter.name}</h2>
+
+            <label className="hpctrl-player-row">
+              <span>Name:</span>
+              <input
+                type="text"
+                value={leftFighter.name}
+                onChange={(e) =>
+                  handleSetName(leftFighter.id, e.target.value)
+                }
+              />
+            </label>
+
             <label className="hpctrl-player-row">
               <span>Max HP:</span>
               <input
@@ -396,6 +417,18 @@ export default function HpControl({ battleId = "sig-hp" }) {
         {rightFighter && (
           <section className="hpctrl-player hpctrl-player--right">
             <h2 className="hpctrl-player-title">{rightFighter.name}</h2>
+
+            <label className="hpctrl-player-row">
+              <span>Name:</span>
+              <input
+                type="text"
+                value={rightFighter.name}
+                onChange={(e) =>
+                  handleSetName(rightFighter.id, e.target.value)
+                }
+              />
+            </label>
+
             <label className="hpctrl-player-row">
               <span>Max HP:</span>
               <input
