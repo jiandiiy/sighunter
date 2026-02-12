@@ -149,18 +149,14 @@ export async function fetchSigItems({
     q = query(col);
   }
 
-  let snap;
-  try {
-    snap = await getDocs(q);
-    console.log("[API] fetchSigItems AFTER getDocs", {
-      docCount: snap.docs.length,
-    });
-  } catch (err) {
-    console.error("[API] ===== Firestore Query Error =====");
-    console.error(err);
-    console.error("[API] =================================");
-    throw err;
-  }
+  console.log("[API] fetchSigItems 쿼리 생성 완료, getDocs 시작");
+
+   // ⬇️ 여기 try/catch 제거
+  const snap = await getDocs(q);
+
+  console.log("[API] fetchSigItems AFTER getDocs", {
+    docCount: snap.docs.length,
+  });
 
   const list = snap.docs.map((d) => {
     const data = d.data();
@@ -173,6 +169,7 @@ export async function fetchSigItems({
 
   list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
+  console.log("[API] fetchSigItems 최종 결과:", list.length, "개");
   console.log("[API] fetchSigItems first 3 items", list.slice(0, 3));
 
   return list;
@@ -191,26 +188,50 @@ export async function fetchRandomSigItems({
   slotIndex,
   activeOnly = true,
 } = {}) {
-  const baseList = await fetchSigItems({
+  console.log("[API] fetchRandomSigItems 시작:", {
     mode,
     type,
     rarity,
     boardIndex,
     slotIndex,
     activeOnly,
+    count,
   });
 
-  if (!baseList.length) return [];
+  try {
+    const baseList = await fetchSigItems({
+      mode,
+      type,
+      rarity,
+      boardIndex,
+      slotIndex,
+      activeOnly,
+    });
 
-  // ★ 중복 없이 랜덤 섞기 (Fisher-Yates)
-  const shuffled = [...baseList];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    console.log("[API] fetchRandomSigItems baseList 개수:", baseList.length);
+
+    if (!baseList.length) {
+      console.log("[API] fetchRandomSigItems 결과 없음, 빈 배열 반환");
+      return [];
+    }
+
+    // ★ 중복 없이 랜덤 섞기 (Fisher-Yates)
+    const shuffled = [...baseList];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    // count 개수만 잘라서 반환 (baseList 길이보다 크면 전체 반환)
+    const result = shuffled.slice(0, Math.min(count, shuffled.length));
+
+    console.log("[API] fetchRandomSigItems 반환:", result);
+
+    return result;
+  } catch (err) {
+    console.error("[API] fetchRandomSigItems 에러:", err);
+    throw err;
   }
-
-  // count 개수만 잘라서 반환 (baseList 길이보다 크면 전체 반환)
-  return shuffled.slice(0, Math.min(count, shuffled.length));
 }
 
 /**

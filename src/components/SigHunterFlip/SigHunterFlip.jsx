@@ -81,7 +81,8 @@ export default function SigHunterFlip() {
       const mapping = {};
 
       // ✅ 각 칸마다 slotIndex 조건을 걸어서 1장씩 랜덤으로 가져오기
-   const normalPromises = normalCardsArg.map(async (card) => {
+  // ✅ 일반 카드: 각 슬롯별로 병렬 요청
+    const normalPromises = normalCardsArg.map(async (card) => {
       console.log(`[FLIP] 칸 ${card.id} 조회 시작:`, {
         mode,
         type: "sighunter",
@@ -101,11 +102,13 @@ export default function SigHunterFlip() {
       mapping[card.id] = items[0] || null;
     });
 
-    let specialPromise = Promise.resolve();
+    // ✅ 스페셜 카드: 있으면 추가
+    const allPromises = [...normalPromises];
+
     if (specialCardArg) {
-      specialPromise = (async () => {
+      const specialPromise = (async () => {
         console.log(`[FLIP] 스페셜 칸 ${specialCardArg.id} 조회 시작`);
-        
+
         const items = await fetchRandomSigItems({
           mode,
           type: "sighunter",
@@ -117,9 +120,12 @@ export default function SigHunterFlip() {
         console.log(`[FLIP] 스페셜 칸 ${specialCardArg.id} 결과:`, items);
         mapping[specialCardArg.id] = items[0] || null;
       })();
+
+      allPromises.push(specialPromise);
     }
 
-    await Promise.all([...normalPromises, specialPromise]);
+    // ✅ 모든 Promise 완료 대기
+    await Promise.all(allPromises);
 
     console.log("[FLIP] loadSigItems 최종 mapping", mapping);
     setSigItemsByCard(mapping);
