@@ -8,6 +8,7 @@ export default function HpBattle() {
   const battleId = "sig-hp";
 
   return (
+    <div className="hp-battle-root">
    <div className="hp-battle-page">
   <div className="hp-battle-overlay-preview">
     <HpOverlay battleId={battleId} />
@@ -15,6 +16,7 @@ export default function HpBattle() {
   <div className="hp-battle-control-area">
     <HpControl battleId={battleId} />
   </div>
+    </div>
     </div>
   );
 }

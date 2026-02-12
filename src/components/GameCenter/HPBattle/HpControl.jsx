@@ -59,10 +59,12 @@ export default function HpControl({ battleId = "sig-hp" }) {
     setState((prev) => {
       const now = Date.now();
       const fightersCopy = prev.fighters.map((f) => ({ ...f }));
+
       const fromId =
         mode === BATTLE_MODES.TEAM_VS_ONE && actionType === ACTION_TYPES.ATTACK
           ? "team"
           : selectedFrom || null;
+
       const toId = selectedTo || null;
       if (!toId) return prev;
 
@@ -212,10 +214,14 @@ export default function HpControl({ battleId = "sig-hp" }) {
     });
   };
 
+  // PLAYER 1 / PLAYER 2 등 좌우 카드 분리
+  const leftFighter = fighters[0];
+  const rightFighter = fighters[1] || fighters[0]; // 1vs1 기준, 없으면 fallback
+
   return (
     <div className="hpctrl-root">
       <header className="hpctrl-header">
-        <h1>HP Battle Control</h1>
+        <h1 className="hpctrl-title">HP Battle Control</h1>
         <div className="hpctrl-mode-tabs">
           <button
             className={
@@ -247,110 +253,112 @@ export default function HpControl({ battleId = "sig-hp" }) {
         </div>
       </header>
 
-      <section className="hpctrl-main">
-        <div className="hpctrl-fighters">
-          {fighters.map((f) => (
-            <div key={f.id} className="hpctrl-fighter-card">
-              <div className="hpctrl-fighter-header">
-                <span className="hpctrl-fighter-name">{f.name}</span>
-              </div>
-              <div className="hpctrl-row">
-                <label>
-                  Max HP:
-                  <input
-                    type="number"
-                    value={f.maxHp}
-                    onChange={(e) =>
-                      handleSetMaxHp(f.id, e.target.value)
-                    }
-                  />
-                </label>
-              </div>
-              <div className="hpctrl-row">
-                <label>
-                  HP:
-                  <input
-                    type="number"
-                    value={f.hp}
-                    onChange={(e) => handleSetHp(f.id, e.target.value)}
-                  />
-                </label>
-              </div>
-              <div className="hpctrl-row">
-                <label>
-                  Shield:
-                  <input
-                    type="number"
-                    value={f.shield || 0}
-                    onChange={(e) => {
-                      const v = parseInt(e.target.value, 10) || 0;
-                      updateFighters((prev) =>
-                        prev.map((x) =>
-                          x.id === f.id ? { ...x, shield: Math.max(0, v) } : x
-                        )
-                      );
-                    }}
-                  />
-                </label>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="hpctrl-actions">
-          <div className="hpctrl-row">
-            <label>
-              시그 개수:
+      {/* 좌우 플레이어 + 중앙 컨트롤 */}
+      <section className="hpctrl-layout">
+        {/* 왼쪽 플레이어 카드 */}
+        {leftFighter && (
+          <section className="hpctrl-player hpctrl-player--left">
+            <h2 className="hpctrl-player-title">{leftFighter.name}</h2>
+            <label className="hpctrl-player-row">
+              <span>Max HP:</span>
               <input
                 type="number"
-                value={sigValue}
-                min={0}
-                onChange={(e) => setSigValue(e.target.value)}
-                style={{ width: 80, marginLeft: 8 }}
+                value={leftFighter.maxHp}
+                onChange={(e) =>
+                  handleSetMaxHp(leftFighter.id, e.target.value)
+                }
               />
             </label>
-            <span style={{ marginLeft: 8, fontSize: 12 }}>
-              어택: {ATTACK_PER_SIG} / 시그, 힐: {HEAL_PER_SIG} / 시그, 쉴드:{" "}
-              {SHIELD_PER_SIG} / 시그
-            </span>
+            <label className="hpctrl-player-row">
+              <span>HP:</span>
+              <input
+                type="number"
+                value={leftFighter.hp}
+                onChange={(e) =>
+                  handleSetHp(leftFighter.id, e.target.value)
+                }
+              />
+            </label>
+            <label className="hpctrl-player-row">
+              <span>Shield:</span>
+              <input
+                type="number"
+                value={leftFighter.shield || 0}
+                onChange={(e) => {
+                  const v = parseInt(e.target.value, 10) || 0;
+                  updateFighters((prev) =>
+                    prev.map((x) =>
+                      x.id === leftFighter.id
+                        ? { ...x, shield: Math.max(0, v) }
+                        : x
+                    )
+                  );
+                }}
+              />
+            </label>
+          </section>
+        )}
+
+        {/* 중앙 액션 영역 */}
+        <section className="hpctrl-center">
+          <div className="hpctrl-center-row">
+            <div className="hpctrl-center-col">
+              <label className="hpctrl-label-inline">
+                시그 개수:
+                <input
+                  type="number"
+                  value={sigValue}
+                  min={0}
+                  onChange={(e) => setSigValue(e.target.value)}
+                  className="hpctrl-sig-input"
+                />
+              </label>
+              <div className="hpctrl-sig-desc">
+                어택: {ATTACK_PER_SIG} / 시그, 힐: {HEAL_PER_SIG} / 시그, 쉴드:{" "}
+                {SHIELD_PER_SIG} / 시그
+              </div>
+            </div>
           </div>
 
-          <div className="hpctrl-row">
-            <label>
-              From:
-              <select
-                value={selectedFrom}
-                onChange={(e) => setSelectedFrom(e.target.value)}
-              >
-                <option value="">선택</option>
-                {mode === BATTLE_MODES.TEAM_VS_ONE && (
-                  <option value="team">TEAM (단체)</option>
-                )}
-                {fighters.map((f) => (
-                  <option key={f.id} value={f.id}>
-                    {f.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label style={{ marginLeft: 16 }}>
-              To:
-              <select
-                value={selectedTo}
-                onChange={(e) => setSelectedTo(e.target.value)}
-              >
-                <option value="">선택</option>
-                {fighters.map((f) => (
-                  <option key={f.id} value={f.id}>
-                    {f.name}
-                  </option>
-                ))}
-              </select>
-            </label>
+          <div className="hpctrl-center-row">
+            <div className="hpctrl-center-col">
+              <label>
+                From:
+                <select
+                  value={selectedFrom}
+                  onChange={(e) => setSelectedFrom(e.target.value)}
+                >
+                  <option value="">선택</option>
+                  {mode === BATTLE_MODES.TEAM_VS_ONE && (
+                    <option value="team">TEAM (단체)</option>
+                  )}
+                  {fighters.map((f) => (
+                    <option key={f.id} value={f.id}>
+                      {f.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <div className="hpctrl-center-col">
+              <label>
+                To:
+                <select
+                  value={selectedTo}
+                  onChange={(e) => setSelectedTo(e.target.value)}
+                >
+                  <option value="">선택</option>
+                  {fighters.map((f) => (
+                    <option key={f.id} value={f.id}>
+                      {f.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
           </div>
 
-          <div className="hpctrl-row hpctrl-buttons">
+          <div className="hpctrl-buttons">
             <button onClick={() => applyAction(ACTION_TYPES.ATTACK)}>
               어택
             </button>
@@ -362,15 +370,14 @@ export default function HpControl({ battleId = "sig-hp" }) {
             </button>
           </div>
 
-          <div className="hpctrl-row">
-            <h3>아이템 적용</h3>
-            <div style={{ marginTop: 4 }}>
+          <div className="hpctrl-item-block">
+            <h3 className="hpctrl-item-title">아이템 적용</h3>
+            <div className="hpctrl-item-row">
               <label>
                 아이템:
                 <select
                   value={selectedItemId}
                   onChange={(e) => setSelectedItemId(e.target.value)}
-                  style={{ marginLeft: 4 }}
                 >
                   <option value="">선택</option>
                   {ITEMS.map((it) => (
@@ -380,12 +387,54 @@ export default function HpControl({ battleId = "sig-hp" }) {
                   ))}
                 </select>
               </label>
-              <button style={{ marginLeft: 8 }} onClick={applyItem}>
-                적용
-              </button>
+              <button onClick={applyItem}>적용</button>
             </div>
           </div>
-        </div>
+        </section>
+
+        {/* 오른쪽 플레이어 카드 */}
+        {rightFighter && (
+          <section className="hpctrl-player hpctrl-player--right">
+            <h2 className="hpctrl-player-title">{rightFighter.name}</h2>
+            <label className="hpctrl-player-row">
+              <span>Max HP:</span>
+              <input
+                type="number"
+                value={rightFighter.maxHp}
+                onChange={(e) =>
+                  handleSetMaxHp(rightFighter.id, e.target.value)
+                }
+              />
+            </label>
+            <label className="hpctrl-player-row">
+              <span>HP:</span>
+              <input
+                type="number"
+                value={rightFighter.hp}
+                onChange={(e) =>
+                  handleSetHp(rightFighter.id, e.target.value)
+                }
+              />
+            </label>
+            <label className="hpctrl-player-row">
+              <span>Shield:</span>
+              <input
+                type="number"
+                value={rightFighter.shield || 0}
+                onChange={(e) => {
+                  const v = parseInt(e.target.value, 10) || 0;
+                  updateFighters((prev) =>
+                    prev.map((x) =>
+                      x.id === rightFighter.id
+                        ? { ...x, shield: Math.max(0, v) }
+                        : x
+                    )
+                  );
+                }}
+              />
+            </label>
+          </section>
+        )}
       </section>
     </div>
   );
