@@ -1,7 +1,7 @@
 // ⚙️ 자동 생성된 파일 (퀸덤 + 뮤즈)
 export const queendomSigCards = [
   {
-    "id": 1,
+    "id": "1",
     "amount": 1000,
     "frontImages": [
       "/images/queendom/group3/sig_54.webp",
@@ -108,7 +108,7 @@ export const queendomSigCards = [
     "isSpecial": false
   },
   {
-    "id": 2,
+    "id": "2",
     "amount": 2000,
     "frontImages": [
       "/images/queendom/group5/sig_133.webp",
@@ -215,7 +215,7 @@ export const queendomSigCards = [
     "isSpecial": false
   },
   {
-    "id": 3,
+    "id": "3",
     "amount": 3000,
     "frontImages": [
       "/images/queendom/group2/sig_33.webp",
@@ -322,7 +322,7 @@ export const queendomSigCards = [
     "isSpecial": false
   },
   {
-    "id": 4,
+    "id": "4",
     "amount": 4000,
     "frontImages": [
       "/images/queendom/group1/sig_12.webp",
@@ -429,7 +429,7 @@ export const queendomSigCards = [
     "isSpecial": false
   },
   {
-    "id": 5,
+    "id": "5",
     "amount": 5000,
     "frontImages": [
       "/images/queendom/group2/sig_39.webp",
@@ -536,7 +536,7 @@ export const queendomSigCards = [
     "isSpecial": false
   },
   {
-    "id": 6,
+    "id": "6",
     "amount": 6000,
     "frontImages": [
       "/images/queendom/group8/sig_2002.webp",
@@ -643,7 +643,7 @@ export const queendomSigCards = [
     "isSpecial": false
   },
   {
-    "id": 7,
+    "id": "7",
     "amount": 7000,
     "frontImages": [
       "/images/queendom/group3/sig_57.webp",
@@ -750,7 +750,7 @@ export const queendomSigCards = [
     "isSpecial": false
   },
   {
-    "id": 8,
+    "id": "8",
     "amount": 8000,
     "frontImages": [
       "/images/queendom/group2/sig_30.webp",
@@ -857,7 +857,7 @@ export const queendomSigCards = [
     "isSpecial": false
   },
   {
-    "id": 9,
+    "id": "9",
     "amount": 9000,
     "frontImages": [
       "/images/queendom/group3/sig_79.webp",
@@ -964,7 +964,7 @@ export const queendomSigCards = [
     "isSpecial": false
   },
   {
-    "id": 10,
+    "id": "10",
     "amount": 10000,
     "frontImages": [
       "/images/queendom/group2/sig_35.webp",
@@ -1071,7 +1071,7 @@ export const queendomSigCards = [
     "isSpecial": false
   },
   {
-    "id": 11,
+    "id": "11",
     "amount": 50000,
     "frontImages": [
       "/images/queendom/group10/sig_10053.webp",
@@ -1145,7 +1145,7 @@ export const queendomSigCards = [
 ];
 export const museSigCards = [
   {
-    "id": 1,
+    "id": "1",
     "amount": 1000,
     "frontImages": [
       "/images/muse/group1/sig_202.webp",
@@ -1252,7 +1252,7 @@ export const museSigCards = [
     "isSpecial": false
   },
   {
-    "id": 2,
+    "id": "2",
     "amount": 2000,
     "frontImages": [
       "/images/muse/group6/sig_335.webp",
@@ -1359,7 +1359,7 @@ export const museSigCards = [
     "isSpecial": false
   },
   {
-    "id": 3,
+    "id": "3",
     "amount": 3000,
     "frontImages": [
       "/images/muse/group8/sig_1299.webp",
@@ -1466,7 +1466,7 @@ export const museSigCards = [
     "isSpecial": false
   },
   {
-    "id": 4,
+    "id": "4",
     "amount": 4000,
     "frontImages": [
       "/images/muse/group3/sig_254.webp",
@@ -1573,7 +1573,7 @@ export const museSigCards = [
     "isSpecial": false
   },
   {
-    "id": 5,
+    "id": "5",
     "amount": 5000,
     "frontImages": [
       "/images/muse/group8/sig_2332.webp",
@@ -1680,7 +1680,7 @@ export const museSigCards = [
     "isSpecial": false
   },
   {
-    "id": 6,
+    "id": "6",
     "amount": 6000,
     "frontImages": [
       "/images/muse/group4/sig_270.webp",
@@ -1787,7 +1787,7 @@ export const museSigCards = [
     "isSpecial": false
   },
   {
-    "id": 7,
+    "id": "7",
     "amount": 7000,
     "frontImages": [
       "/images/muse/group1/sig_208.webp",
@@ -1894,7 +1894,7 @@ export const museSigCards = [
     "isSpecial": false
   },
   {
-    "id": 8,
+    "id": "8",
     "amount": 8000,
     "frontImages": [
       "/images/muse/group4/sig_268.webp",
@@ -2001,7 +2001,7 @@ export const museSigCards = [
     "isSpecial": false
   },
   {
-    "id": 9,
+    "id": "9",
     "amount": 9000,
     "frontImages": [
       "/images/muse/group1/sig_210.webp",
@@ -2108,7 +2108,7 @@ export const museSigCards = [
     "isSpecial": false
   },
   {
-    "id": 10,
+    "id": "10",
     "amount": 10000,
     "frontImages": [
       "/images/muse/group6/sig_340.webp",
@@ -2215,7 +2215,7 @@ export const museSigCards = [
     "isSpecial": false
   },
   {
-    "id": 11,
+    "id": "11",
     "amount": 50000,
     "frontImages": [
       "/images/muse/group10/sig_10042.webp",
