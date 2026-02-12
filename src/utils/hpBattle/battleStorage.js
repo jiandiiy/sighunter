@@ -1,3 +1,4 @@
+// src/utils/hpBattle/battleStorage.js
 import { rtdb } from "../../firebase";
 import { ref, onValue, set } from "firebase/database";
 

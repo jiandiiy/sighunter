@@ -25,115 +25,172 @@ export default function HpOverlay({ battleId = "sig-hp" }) {
 
   return (
     <div className="hp-overlay-root">
-      {/* 1 vs 1 */}
-      {mode === BATTLE_MODES.ONE_VS_ONE && fighters.length >= 2 && (
-        <div className="hp-overlay-mode-1v1">
-          <div className="hp-overlay-header">
-            <div className="hp-overlay-title">1 VS 1 BATTLE</div>
+      <div className="hp-overlay-inner">
+        {/* ===========================
+            ONE_VS_ONE (기본 이미지 레이아웃)
+        ============================ */}
+        {mode === BATTLE_MODES.ONE_VS_ONE && fighters.length >= 2 && (
+          <>
+            <div className="hp-overlay-top">
+              <div className="hp-overlay-top-inner">
+                {/* 왼쪽 */}
+                <div className="hp-overlay-side hp-overlay-side--left">
+                  <div className="hp-name-label">{fighters[0].name}</div>
+                  <HpBar
+                    fighter={fighters[0]}
+                    lastAction={lastAction}
+                    side="left"
+                  />
+                </div>
+
+                {/* 중앙 ∞ */}
+                <div className="hp-overlay-center-icon">∞</div>
+
+                {/* 오른쪽 */}
+                <div className="hp-overlay-side hp-overlay-side--right">
+                  <div className="hp-name-label">{fighters[1].name}</div>
+                  <HpBar
+                    fighter={fighters[1]}
+                    lastAction={lastAction}
+                    side="right"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 하단 About HP 영역 */}
+            <div className="hp-overlay-bottom">
+              <div className="hp-overlay-bottom-inner">
+                <div className="hp-overlay-bottom-label">About HP</div>
+                <div className="hp-overlay-bottom-text">
+                  Reduce the opponent&apos;s HP to 0
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* ===========================
+            TEAM_VS_ONE
+            - 왼쪽: 팀 여러 명 세로
+            - 중앙: ∞ (또는 BOSS 아이콘)
+            - 오른쪽: 보스 HP 바 한 개
+        ============================ */}
+        {mode === BATTLE_MODES.TEAM_VS_ONE && fighters.length >= 1 && (
+          <>
+            <div className="hp-overlay-top">
+              <div className="hp-overlay-top-inner">
+                {/* 왼쪽: 팀 리스트 */}
+                <div className="hp-overlay-side hp-overlay-side--left">
+                  <div className="hp-name-label">TEAM</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                    {fighters
+                      .filter((f) => f.id !== "boss")
+                      .map((f) => (
+                        <HpBar
+                          key={f.id}
+                          fighter={f}
+                          lastAction={lastAction}
+                          side="left"
+                        />
+                      ))}
+                  </div>
+                </div>
+
+                {/* 중앙 아이콘 (∞ 그대로 사용) */}
+                <div className="hp-overlay-center-icon">∞</div>
+
+                {/* 오른쪽: 보스 (id === "boss" 가정, 없으면 마지막 파이터) */}
+                <div className="hp-overlay-side hp-overlay-side--right">
+                  <div className="hp-name-label">
+                    {fighters.find((f) => f.id === "boss")?.name ||
+                      fighters[fighters.length - 1].name}
+                  </div>
+                  <HpBar
+                    fighter={
+                      fighters.find((f) => f.id === "boss") ||
+                      fighters[fighters.length - 1]
+                    }
+                    lastAction={lastAction}
+                    side="right"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 하단 설명 바 (원하면 문구만 팀전에 맞게 변경 가능) */}
+            <div className="hp-overlay-bottom">
+              <div className="hp-overlay-bottom-inner">
+                <div className="hp-overlay-bottom-label">About HP</div>
+                <div className="hp-overlay-bottom-text">
+                  Reduce the boss&apos;s HP to 0
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* ===========================
+            FFA_3 (1 vs 1 vs 1)
+            - 상단: 1 vs 1 (왼/오른쪽)
+            - 하단 중앙: 3번째 플레이어 HP 바
+        ============================ */}
+        {mode === BATTLE_MODES.FFA_3 && fighters.length >= 3 && (
+          <>
+            <div className="hp-overlay-top">
+              <div className="hp-overlay-top-inner">
+                {/* 왼쪽 */}
+                <div className="hp-overlay-side hp-overlay-side--left">
+                  <div className="hp-name-label">{fighters[0].name}</div>
+                  <HpBar
+                    fighter={fighters[0]}
+                    lastAction={lastAction}
+                    side="left"
+                  />
+                </div>
+
+                {/* 중앙 ∞ (여기서는 단순 VS 뱃지 느낌으로 유지) */}
+                <div className="hp-overlay-center-icon">∞</div>
+
+                {/* 오른쪽 */}
+                <div className="hp-overlay-side hp-overlay-side--right">
+                  <div className="hp-name-label">{fighters[1].name}</div>
+                  <HpBar
+                    fighter={fighters[1]}
+                    lastAction={lastAction}
+                    side="right"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 하단: 3번째 플레이어 */}
+            <div className="hp-overlay-bottom">
+              <div className="hp-overlay-bottom-inner">
+                <div className="hp-overlay-bottom-label">
+                  {fighters[2].name}
+                </div>
+                <div className="hp-overlay-bottom-text">
+                  <HpBar
+                    fighter={fighters[2]}
+                    lastAction={lastAction}
+                    side="left"
+                  />
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* 다른 모드이거나 데이터 부족 시 빈 오버레이 유지 */}
+        {![BATTLE_MODES.ONE_VS_ONE, BATTLE_MODES.TEAM_VS_ONE, BATTLE_MODES.FFA_3].includes(
+          mode
+        ) && (
+          <div className="hp-overlay-top">
+            <div className="hp-overlay-top-inner" />
           </div>
-
-          <div className="hp-overlay-arena">
-            <div className="hp-overlay-side hp-overlay-side--left">
-              <div className="hp-overlay-avatar hp-overlay-avatar--left" />
-              <HpBar fighter={fighters[0]} lastAction={lastAction} side="left" />
-            </div>
-
-            <div className="hp-overlay-center">
-              <div className="hp-overlay-vs-badge">VS</div>
-              <div className="hp-overlay-effects" />
-            </div>
-
-            <div className="hp-overlay-side hp-overlay-side--right">
-              <div className="hp-overlay-avatar hp-overlay-avatar--right" />
-              <HpBar
-                fighter={fighters[1]}
-                lastAction={lastAction}
-                side="right"
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* TEAM vs 1 (보스) */}
-      {mode === BATTLE_MODES.TEAM_VS_ONE && fighters.length >= 1 && (
-        <div className="hp-overlay-mode-team">
-          <div className="hp-overlay-header">
-            <div className="hp-overlay-title">TEAM VS BOSS</div>
-          </div>
-
-          <div className="hp-overlay-arena hp-overlay-arena--team">
-            {/* 왼쪽: 팀(최대 3명 정도 가정) */}
-            <div className="hp-overlay-side hp-overlay-side--left hp-overlay-team-list">
-              {fighters.slice(0, fighters.length - 1).map((f) => (
-                <HpBar
-                  key={f.id}
-                  fighter={f}
-                  lastAction={lastAction}
-                  side="left"
-                />
-              ))}
-            </div>
-
-            {/* 가운데 VS */}
-            <div className="hp-overlay-center">
-              <div className="hp-overlay-vs-badge">VS</div>
-              <div className="hp-overlay-effects" />
-            </div>
-
-            {/* 오른쪽: BOSS (마지막 파이터라고 가정) */}
-            <div className="hp-overlay-side hp-overlay-side--right">
-              <div className="hp-overlay-avatar hp-overlay-avatar--right" />
-              <HpBar
-                fighter={fighters[fighters.length - 1]}
-                lastAction={lastAction}
-                side="right"
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 1 vs 1 vs 1 (FFA_3) */}
-      {mode === BATTLE_MODES.FFA_3 && fighters.length >= 3 && (
-        <div className="hp-overlay-mode-ffa">
-          <div className="hp-overlay-header">
-            <div className="hp-overlay-title">1 VS 1 VS 1</div>
-          </div>
-
-          <div className="hp-overlay-arena hp-overlay-arena--ffa">
-            <div className="hp-overlay-side hp-overlay-side--left">
-              <HpBar
-                fighter={fighters[0]}
-                lastAction={lastAction}
-                side="left"
-              />
-            </div>
-
-            <div className="hp-overlay-center">
-              <div className="hp-overlay-vs-badge">VS</div>
-              <div className="hp-overlay-effects" />
-            </div>
-
-            <div className="hp-overlay-side hp-overlay-side--right">
-              <HpBar
-                fighter={fighters[1]}
-                lastAction={lastAction}
-                side="right"
-              />
-            </div>
-          </div>
-
-          {/* 세 번째 플레이어를 아래에 배치 */}
-          <div className="hp-overlay-ffa-bottom">
-            <HpBar
-              fighter={fighters[2]}
-              lastAction={lastAction}
-              side="left"
-            />
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

@@ -3,12 +3,7 @@ import React from "react";
 import "./HpBattle.css";
 
 export default function HpBar({ fighter, lastAction, side = "left" }) {
-  console.log("💡 HpBar props:", { fighter, lastAction, side });
-
-  if (!fighter) {
-    console.log("⚠️ HpBar: fighter 없음, 렌더 스킵");
-    return null;
-  }
+  if (!fighter) return null;
 
   const {
     id = "unknown",
@@ -45,8 +40,19 @@ export default function HpBar({ fighter, lastAction, side = "left" }) {
           {hp} / {maxHp}
         </span>
       </div>
+
+      {/* ENERGY 스타일 바 */}
       <div className={barClass}>
-        <div className="hpbar-fill" style={{ width: `${ratio * 100}%` }} />
+        <div className="hpbar-frame">
+          {/* 파란 에너지 채움 */}
+          <div
+            className="hpbar-energy-fill"
+            style={{ width: `${ratio * 100}%` }}
+          />
+       
+        </div>
+
+        {/* 버프/디버프/쉴드: 프레임 위에 겹쳐서 표시 */}
         {shield > 0 && <div className="hpbar-shield">🛡 {shield}</div>}
         <div className="hpbar-tags">
           {buffs.map((b) => (

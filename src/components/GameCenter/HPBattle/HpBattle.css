@@ -1,69 +1,95 @@
 /* src/components/HPBattle/HpBattle.css */
 
 /* =============================
-   전체 오버레이 배경
+   페이지 레이아웃 (오버레이 + 컨트롤 분리)
+============================= */
+.hp-battle-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+/* 상단 오버레이 전용 영역 */
+.hp-battle-overlay-preview {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  height: 140px; /* 상단 HP UI 높이 */
+  margin: 0 auto;
+  overflow: visible;
+}
+
+/* 아래 컨트롤 영역 */
+.hp-battle-control-area {
+  position: relative;
+  z-index: 1;
+}
+
+/* =============================
+   전체 오버레이 (배경 투명)
 ============================= */
 .hp-overlay-root {
+  position: relative;
   width: 100%;
   height: 100%;
   box-sizing: border-box;
-  padding: 16px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: radial-gradient(circle at top, #1f2937, #020617);
-  color: #f9fafb;
+  pointer-events: none;
   font-family: YUniverse, system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
+  color: #f9fafb;
 }
 
-/* =============================
-   공통 헤더
-============================= */
-.hp-overlay-header {
-  text-align: center;
-}
-.hp-overlay-title {
-  display: inline-block;
-  padding: 4px 16px;
-  border-radius: 999px;
-  border: 1px solid rgba(248, 250, 252, 0.2);
-  background: linear-gradient(
-    135deg,
-    rgba(148, 163, 184, 0.3),
-    rgba(15, 23, 42, 0.9)
-  );
-  font-weight: 800;
-  letter-spacing: 0.15em;
-  font-size: 14px;
-  text-transform: uppercase;
-}
-
-/* =============================
-   1 vs 1 모드
-============================= */
-.hp-overlay-mode-1v1 {
-  width: 100%;
-  max-width: 900px;
+/* 실제 UI를 담는 래퍼 */
+.hp-overlay-inner {
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding-bottom: 32px;
+  justify-content: space-between;
 }
 
-/* 메인 아레나 영역 (기본형: 1v1/팀/FFA 모두 공통으로 사용) */
-.hp-overlay-arena {
+/* =============================
+   상단 HP 영역 (이미지 상단바)
+============================= */
+.hp-overlay-top {
+  margin-top: 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.hp-overlay-top-inner {
+  width: 92%;
+  max-width: 1280px;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 12px;
+  align-items: flex-start;
 }
 
-/* 좌/우 영역 */
+/* 중앙 아이콘(∞) */
+.hp-overlay-center-icon {
+  width: 72px;
+  height: 72px;
+  margin-top: 4px;
+  border-radius: 999px;
+  border: 4px solid #facc15;
+  background: radial-gradient(circle at 30% 30%, #fbbf24, #7c2d12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fefce8;
+  font-weight: 900;
+  font-size: 26px;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 0 18px rgba(250, 204, 21, 0.9);
+}
+
+/* 왼쪽/오른쪽 상단 HUD 래퍼 */
 .hp-overlay-side {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 .hp-overlay-side--left {
   align-items: flex-start;
@@ -72,196 +98,115 @@
   align-items: flex-end;
 }
 
-/* 아바타 자리 */
-.hp-overlay-avatar {
-  width: 72px;
-  height: 72px;
-  border-radius: 999px;
-  background: radial-gradient(circle at 30% 20%, #facc15, #b91c1c);
-  box-shadow: 0 0 25px rgba(248, 250, 252, 0.25);
-  opacity: 0.5;
+/* 상단 이름 라벨 (캐릭터 이름 박스) */
+.hp-name-label {
+  min-width: 110px;
+  padding: 3px 10px;
+  border-radius: 2px 10px 2px 10px;
+  background: linear-gradient(180deg, #111827, #020617);
+  border: 1px solid rgba(249, 250, 251, 0.25);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
 }
-.hp-overlay-avatar--right {
-  background: radial-gradient(circle at 70% 30%, #38bdf8, #1d4ed8);
-}
-
-/* 중앙 VS */
-.hp-overlay-center {
-  position: relative;
-  width: 80px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-.hp-overlay-vs-badge {
-  width: 56px;
-  height: 56px;
-  border-radius: 999px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: radial-gradient(circle at 30% 30%, #f97316, #b91c1c);
-  color: #fefce8;
-  font-weight: 900;
-  font-size: 18px;
-  letter-spacing: 0.18em;
-  text-shadow: 0 0 12px rgba(0, 0, 0, 0.8);
-  box-shadow: 0 0 25px rgba(248, 113, 113, 0.75);
-  animation: hp-vs-pulse 1.4s ease-in-out infinite;
-}
-
-@keyframes hp-vs-pulse {
-  0% {
-    transform: scale(1);
-    box-shadow: 0 0 14px rgba(248, 113, 113, 0.8);
-  }
-  50% {
-    transform: scale(1.08);
-    box-shadow: 0 0 28px rgba(248, 113, 113, 1);
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 14px rgba(248, 113, 113, 0.8);
-  }
-}
-
-/* 이펙트 레이어(나중에 이펙트 넣을 자리) */
-.hp-overlay-effects {
-  position: relative;
-  width: 80px;
-  height: 40px;
+.hp-overlay-side--right .hp-name-label {
+  border-radius: 10px 2px 10px 2px;
+  text-align: right;
 }
 
 /* =============================
-   TEAM vs 1 모드
-============================= */
-.hp-overlay-mode-team {
-  width: 100%;
-  max-width: 900px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding-bottom: 40px;
-}
-
-/* 팀 모드 아레나: 팀 / VS / 보스(오른쪽) */
-.hp-overlay-arena--team {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: stretch;
-  gap: 12px;
-}
-
-/* 왼쪽 팀 리스트 (여러 바 세로 배치) */
-.hp-overlay-team-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-/* =============================
-   1 vs 1 vs 1 (FFA 3) 모드
-============================= */
-.hp-overlay-mode-ffa {
-  width: 100%;
-  max-width: 900px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-bottom: 40px;
-}
-
-.hp-overlay-arena--ffa {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 4px;
-}
-
-/* 아래쪽 3번 플레이어 바 */
-.hp-overlay-ffa-bottom {
-  display: flex;
-  justify-content: center;
-}
-
-/* =============================
-   HP Bar
+   HP Bar 공통
 ============================= */
 .hpbar-root {
   width: 100%;
-  max-width: 320px;
-}
-.hpbar-root--right {
-  /* 필요하면 오른쪽 정렬용 스타일 추가 */
+  max-width: 420px;
 }
 
+/* 숫자 표시 (게이지 위에 중앙 정렬) */
 .hpbar-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
   font-size: 13px;
 }
 .hpbar-name {
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  visibility: hidden; /* 이름은 위 라벨에서 표시하므로 숨김 */
 }
 .hpbar-value {
-  font-weight: 600;
-  opacity: 0.85;
+  margin: 0 auto;
+  font-weight: 700;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.9);
 }
 
-/* 바 기본 */
+/* =============================
+   ENERGY 스타일 바
+============================= */
+
+/* 전체 바 래퍼: 공통 transform 제거 */
 .hpbar-bar {
   position: relative;
   width: 100%;
   height: 20px;
-  border-radius: 999px;
-  overflow: hidden;
-  background: linear-gradient(
-    135deg,
-    rgba(15, 23, 42, 0.9),
-    rgba(15, 23, 42, 0.8)
-  );
-  box-shadow: 0 0 12px rgba(15, 23, 42, 0.95);
+  margin-top: 2px;
 }
 
-/* 좌/우 방향 차이 */
-.hpbar-bar--left .hpbar-fill {
+/* 왼쪽: 왼쪽 위로 기울이기 (이미지와 비슷한 방향) */
+.hpbar-bar--left {
   transform-origin: left center;
-}
-.hpbar-bar--right .hpbar-fill {
-  transform-origin: right center;
+  transform: skewX(8deg);
 }
 
-/* 체력 채움 */
-.hpbar-fill {
-  position: absolute;
-  inset: 0;
+/* 오른쪽: 반대 방향으로 기울이기 */
+.hpbar-bar--right {
+  transform-origin: right center;
+  transform: skewX(-8deg);
+}
+
+/* 어두운 외곽 프레임 */
+.hpbar-frame {
+  position: relative;
   width: 100%;
-  background: linear-gradient(90deg, #f97316, #dc2626);
-  transition: width 0.3s ease-out;
+  height: 100%;
+  background: #111827;
+  border-radius: 3px;
+  padding: 2px;
+  box-sizing: border-box;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+}
+
+/* 파란 에너지 채움 */
+.hpbar-energy-fill {
+  position: relative;
+  height: 100%;
+  background: linear-gradient(90deg, #1d4ed8, #38bdf8, #a5f3fc);
+  transition: width 0.2s ease-out;
+}
+
+
+/* 오른쪽 플레이어는 색만 살짝 변경 */
+.hpbar-root--right .hpbar-energy-fill {
+  background: linear-gradient(90deg, #f97316, #fb923c, #fee2e2);
 }
 
 /* 쉴드 */
 .hpbar-shield {
   position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 12px;
-  background: rgba(15, 23, 42, 0.8);
+  right: 10px;
+  top: -18px;
+  font-size: 11px;
+  background: rgba(15, 23, 42, 0.95);
   border-radius: 999px;
   padding: 0 6px;
-  border: 1px solid rgba(96, 165, 250, 0.7);
+  border: 1px solid rgba(96, 165, 250, 0.8);
 }
 
 /* 버프/디버프 태그 */
 .hpbar-tags {
   position: absolute;
-  bottom: 2px;
-  left: 6px;
+  bottom: -14px;
+  left: 4px;
   display: flex;
   gap: 4px;
   font-size: 9px;
@@ -273,21 +218,18 @@
   backdrop-filter: blur(3px);
 }
 .hpbar-tag--buff {
-  background: rgba(22, 163, 74, 0.3);
+  background: rgba(22, 163, 74, 0.35);
 }
 .hpbar-tag--debuff {
-  background: rgba(220, 38, 38, 0.3);
+  background: rgba(220, 38, 38, 0.35);
 }
 
 /* =============================
    피격/회복 애니메이션
 ============================= */
-
-/* 공격: 붉은 플래시 + 흔들림 */
 .hpbar-attack {
   animation: hpbar-hit-flash 0.4s ease-out, hpbar-hit-shake 0.4s ease-out;
 }
-
 @keyframes hpbar-hit-flash {
   0% {
     box-shadow: 0 0 0 rgba(239, 68, 68, 0);
@@ -299,7 +241,6 @@
     box-shadow: 0 0 0 rgba(239, 68, 68, 0);
   }
 }
-
 @keyframes hpbar-hit-shake {
   0% {
     transform: translateX(0);
@@ -320,8 +261,6 @@
     transform: translateX(0);
   }
 }
-
-/* 회복: 초록색 플래시 */
 .hpbar-heal {
   animation: hpbar-heal-flash 0.4s ease-out;
 }
@@ -336,8 +275,6 @@
     box-shadow: 0 0 0 rgba(34, 197, 94, 0);
   }
 }
-
-/* 방어 */
 .hpbar-defend {
   animation: hpbar-guard-flash 0.4s ease-out;
 }
@@ -352,8 +289,6 @@
     box-shadow: 0 0 0 rgba(59, 130, 246, 0);
   }
 }
-
-/* 아이템 */
 .hpbar-item {
   animation: hpbar-item-flash 0.4s ease-out;
 }
@@ -367,4 +302,43 @@
   100% {
     box-shadow: 0 0 0 rgba(234, 179, 8, 0);
   }
+}
+
+/* =============================
+   하단 About HP 영역
+============================= */
+.hp-overlay-bottom {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.hp-overlay-bottom-inner {
+  width: 92%;
+  max-width: 960px;
+  display: flex;
+  align-items: stretch;
+  font-size: 18px;
+}
+
+/* 왼쪽: About HP 라벨 */
+.hp-overlay-bottom-label {
+  padding: 6px 16px;
+  background: #000;
+  color: #f97316;
+  font-weight: 800;
+  font-style: italic;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+/* 오른쪽: 설명 텍스트 */
+.hp-overlay-bottom-text {
+  flex: 1;
+  padding: 6px 18px;
+  background: #000;
+  color: #f9fafb;
+  font-weight: 500;
+  border-left: 1px solid #111827;
 }
