@@ -1,4 +1,6 @@
+// React 및 필요한 훅(useState, useEffect, useCallback) 임포트
 import React, { useState, useEffect, useCallback } from "react";
+// 시그 이미지 관련 API 함수들 임포트 (업로드/조회/수정/삭제)
 import {
   uploadSigItem,
   fetchSigItems,
@@ -6,138 +8,184 @@ import {
   deleteSigItem,
 } from "../../../api/sigHunterImageLibraryApi";
 
+// 게임 타입 옵션 정의 (셀렉트 박스용)
 const GAME_TYPES = [
   { value: "meal-bingo", label: "식대전 빙고" },
   { value: "sighunter-bingo", label: "시그헌터 빙고" },
   { value: "sighunter", label: "시그헌터 (카드)" },
 ];
 
+// 모드 옵션 (뮤즈 / 퀸덤)
 const MODES = [
   { value: "muse", label: "뮤즈" },
   { value: "queendom", label: "퀸덤" },
 ];
 
+// 카드 희귀도 옵션
 const RARITIES = [
   { value: "normal", label: "일반 카드" },
   { value: "special", label: "스페셜 카드" },
 ];
 
+// 식대전 빙고판 번호 옵션
 const MEAL_BINGO_BOARDS = [
   { value: "1", label: "1판" },
   { value: "2", label: "2판" },
   { value: "3", label: "3판" },
 ];
 
+// 시그 이미지 어드민 페이지 컴포넌트
 export default function SigImageAdminPage() {
+  // 업로드 폼: 카드 이름
   const [title, setTitle] = useState("");
+  // 업로드 폼: 카드 점수
   const [score, setScore] = useState("");
+  // 업로드 폼: 모드 (뮤즈/퀸덤) - 기본 퀸덤
   const [mode, setMode] = useState("queendom"); // 게임 페이지랑 맞추기
+  // 업로드 폼: 게임 타입 - 기본 시그헌터 (카드)
   const [type, setType] = useState("sighunter"); // 시그헌터 (카드)로 기본
+  // 업로드 폼: 카드 희귀도 - 기본 일반
   const [rarity, setRarity] = useState("normal");
+  // 업로드 폼: 활성 여부 (랜덤 뽑기 포함 여부)
   const [isActive, setIsActive] = useState(true);
+  // 업로드 폼: 빙고 칸 번호 (필수 입력)
   const [slotIndex, setSlotIndex] = useState(""); // 칸 번호(필수)
+  // 업로드 폼: 빙고판 번호 (식대전 전용)
   const [boardIndex, setBoardIndex] = useState("1"); // 빙고판 번호(식대전 전용)
 
+  // 업로드 폼: 선택한 파일 객체 (이미지)
   const [file, setFile] = useState(null);
 
+  // 업로드 중 로딩 상태
   const [submitting, setSubmitting] = useState(false);
+  // 상단에 표시할 성공 메시지 텍스트
   const [message, setMessage] = useState("");
+  // 상단에 표시할 에러 메시지 텍스트
   const [error, setError] = useState("");
+  // 업로드 전 미리보기용 blob URL
   const [previewUrl, setPreviewUrl] = useState("");
 
+  // 테이블에 표시할 카드 목록
   const [items, setItems] = useState([]);
+  // 목록 로딩 중 여부
   const [loadingList, setLoadingList] = useState(false);
+  // 특정 행 저장 중일 때 그 행의 id
   const [savingRowId, setSavingRowId] = useState(null);
+  // 특정 행 삭제 중일 때 그 행의 id
   const [deletingRowId, setDeletingRowId] = useState(null);
 
+  // 방금 업로드된 항목을 하이라이트 하기 위한 id
+  const [highlightId, setHighlightId] = useState(null); // ★ 추가: 방금 업로드한 항목 하이라이트용
+
+  // 현재 type 이 식대전 빙고인지 여부 (조건부 UI 및 쿼리용)
   const isMealBingo = type === "meal-bingo";
 
-  // 메시지 자동 제거
+  // message / error 가 변경되면 3초 뒤 자동으로 사라지도록 하는 효과
   useEffect(() => {
+    // 메시지도 없고 에러도 없으면 아무 것도 안함
     if (!message && !error) return;
+    // 3초 뒤에 message와 error를 초기화하는 타이머 설정
     const t = setTimeout(() => {
       setMessage("");
       setError("");
     }, 3000);
+    // 컴포넌트 언마운트 또는 message/error 변경 시 타이머 클리어
     return () => clearTimeout(t);
   }, [message, error]);
 
+  // 현재 필터(게임 타입, 모드, 희귀도, 빙고판)에 따라 리스트를 불러오는 함수
   const loadList = useCallback(
     async (opts) => {
+      // 기본 쿼리 파라미터
       const params = {
         mode,
         type,
         rarity,
-        activeOnly: false,
-        ...(opts || {}),
+        activeOnly: false, // 어드민에서는 비활성 포함해서 전체 조회
+        ...(opts || {}),   // 추가 옵션이 있으면 덮어씀
       };
 
+      // 식대전 빙고 타입이면 빙고판 번호 조건 추가
       if (type === "meal-bingo") {
         params.boardIndex = boardIndex || "1";
       }
 
+      // 백엔드/파이어스토어에서 조건에 맞는 카드 목록 조회
       const list = await fetchSigItems(params);
+      // 디버깅을 위한 콘솔 로그
       console.log("[ADMIN] fetchSigItems result", params, list);
+      // 상태에 목록 반영
       setItems(list);
     },
     [mode, type, rarity, boardIndex]
   );
 
-  // 현재 필터(게임/모드/카드종류/빙고판)에 맞는 목록 로딩
+  // 컴포넌트 마운트 시(그리고 필터가 바뀔 때마다) 목록 로딩
   useEffect(() => {
     async function load() {
       try {
-        setLoadingList(true);
-        await loadList();
+        setLoadingList(true);   // 목록 로딩 상태 on
+        await loadList();       // 실제 목록 호출
       } catch (e) {
         console.error(e);
         setError("목록을 불러오는데 실패했습니다.");
       } finally {
-        setLoadingList(false);
+        setLoadingList(false);  // 로딩 상태 off
       }
     }
     load();
   }, [loadList]);
 
+  // 파일 인풋 변경 핸들러 (이미지 선택 시 호출)
   const handleFileChange = (e) => {
+    // 첫 번째 선택된 파일 가져오기
     const f = e.target.files && e.target.files[0];
+    // 상태에 파일 저장
     setFile(f || null);
 
     if (f) {
+      // 브라우저의 임시 blob URL 생성하여 미리보기용으로 사용
       const url = URL.createObjectURL(f);
       setPreviewUrl(url);
     } else {
+      // 파일이 없으면 미리보기 URL 초기화
       setPreviewUrl("");
     }
   };
 
+  // 업로드 폼 submit 핸들러
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // 기본 폼 제출 이벤트 막기
 
+    // 파일이 없으면 에러
     if (!file) {
       setError("이미지 파일을 선택하세요.");
       return;
     }
 
+    // 칸 번호 필수
     if (!slotIndex) {
       setError("칸 번호를 입력해주세요.");
       return;
     }
+    // 칸 번호 숫자 검증
     if (isNaN(Number(slotIndex))) {
       setError("칸 번호는 숫자로 입력해주세요.");
       return;
     }
 
+    // 식대전 빙고일 때 빙고판 번호 필수
     if (isMealBingo && !boardIndex) {
       setError("빙고판 번호를 선택해주세요.");
       return;
     }
 
     try {
-      setSubmitting(true);
-      setError("");
+      setSubmitting(true); // 업로드 중 상태 on
+      setError("");        // 이전 에러 초기화
 
-      await uploadSigItem({
+      // 업로드 API 호출, 생성된 카드 정보 반환
+      const created = await uploadSigItem({
         file,
         title,
         score,
@@ -149,8 +197,15 @@ export default function SigImageAdminPage() {
         boardIndex: isMealBingo ? boardIndex : null,
       });
 
+      // 업로드 결과 디버깅 로그 (id, imageUrl 확인용)
+      console.log("[ADMIN] created sig item", created); // ★ 추가: 업로드 결과 확인용
+      // 방금 업로드한 항목의 id를 저장해 테이블에서 하이라이트
+      setHighlightId(created.id); // ★ 추가: 방금 업로드된 항목 id 저장
+
+      // 성공 메시지 표시
       setMessage("업로드 완료! 🎉");
 
+      // 폼 값들 리셋 (필터 값은 유지)
       setTitle("");
       setScore("");
       setMode(mode);
@@ -158,25 +213,32 @@ export default function SigImageAdminPage() {
       setRarity(rarity);
       setIsActive(true);
       setSlotIndex("");
+      // 식대전인데 boardIndex 가 비어 있으면 1판으로 세팅
       if (isMealBingo && !boardIndex) setBoardIndex("1");
+      // 파일 및 미리보기 리셋
       setFile(null);
       setPreviewUrl("");
 
+      // 업로드 후 현재 필터 조건으로 다시 목록 조회
       await loadList();
     } catch (err) {
       console.error(err);
+      // err.message 가 있으면 사용, 없으면 기본 에러 문구
       setError(err.message || "업로드에 실패했습니다.");
     } finally {
+      // 업로드 완료 후 로딩 상태 off
       setSubmitting(false);
     }
   };
 
+  // 테이블의 인풋에서 값이 변경되었을 때, items 상태를 로컬에서 먼저 업데이트
   const handleChangeItemField = (id, field, value) => {
     setItems((prev) =>
       prev.map((it) => (it.id === id ? { ...it, [field]: value } : it))
     );
   };
 
+  // 활성/비활성 토글 버튼 클릭 시 로컬 상태에서 isActive 토글
   const handleToggleItemActive = (id) => {
     setItems((prev) =>
       prev.map((it) =>
@@ -185,12 +247,14 @@ export default function SigImageAdminPage() {
     );
   };
 
+  // 각 행의 "저장" 버튼 클릭 시 서버에 해당 카드 정보 업데이트
   const handleSaveRow = async (item) => {
     try {
-      setSavingRowId(item.id);
+      setSavingRowId(item.id); // 현재 저장 중인 행 표시용
       setError("");
       setMessage("");
 
+      // 수정할 필드들만 전달하여 업데이트
       await updateSigItem(item.id, {
         title: item.title ?? "",
         score: item.score ?? "",
@@ -200,46 +264,57 @@ export default function SigImageAdminPage() {
       });
 
       setMessage("수정이 저장되었습니다.");
+      // 저장 후 다시 목록 새로고침
       await loadList();
     } catch (err) {
       console.error(err);
       setError(err.message || "수정에 실패했습니다.");
     } finally {
+      // 저장 완료 후 savingRowId 초기화
       setSavingRowId(null);
     }
   };
 
+  // 각 행의 "삭제" 버튼 클릭 시 해당 카드 삭제
   const handleDeleteRow = async (item) => {
+    // 브라우저 환경에서만 confirm 사용
     if (
       typeof window !== "undefined" &&
       !window.confirm("이 카드를 삭제할까요?")
     ) {
+      // 사용자가 취소하면 아무 것도 안 함
       return;
     }
     try {
-      setDeletingRowId(item.id);
+      setDeletingRowId(item.id); // 현재 삭제 중인 행 표시용
       setError("");
       setMessage("");
 
+      // 카드 삭제 API 호출 (스토리지 + DB 둘 다 처리)
       await deleteSigItem(item.id);
       setMessage("삭제가 완료되었습니다.");
+      // 삭제 후 목록 새로고침
       await loadList();
     } catch (err) {
       console.error(err);
       setError(err.message || "삭제에 실패했습니다.");
     } finally {
+      // 삭제 완료 후 deletingRowId 초기화
       setDeletingRowId(null);
     }
   };
 
+  // 상단 "게임" 셀렉트 변경 시 호출 (meal-bingo 선택 시 보드 자동 세팅)
   const handleChangeType = (e) => {
     const newType = e.target.value;
     setType(newType);
+    // 새 타입이 식대전인데 boardIndex 가 비어 있으면 기본값 1 세팅
     if (newType === "meal-bingo" && !boardIndex) {
       setBoardIndex("1");
     }
   };
 
+  // 실제 렌더링 부분
   return (
     <div
       style={{
@@ -263,7 +338,7 @@ export default function SigImageAdminPage() {
           color: "#e5e7eb",
         }}
       >
-        {/* 헤더 */}
+        {/* 헤더 영역: 타이틀 및 설명 */}
         <div
           style={{
             display: "flex",
@@ -296,9 +371,9 @@ export default function SigImageAdminPage() {
           </div>
         </div>
 
-        {/* 업로드 폼 영역 */}
+        {/* 업로드 폼 영역 시작 */}
         <form onSubmit={handleSubmit}>
-          {/* 게임 / 모드 / 카드 종류 / 빙고판 */}
+          {/* 게임 / 모드 / 카드 종류 / 빙고판 선택 영역 */}
           <div
             style={{
               display: "grid",
@@ -309,6 +384,7 @@ export default function SigImageAdminPage() {
               marginBottom: 16,
             }}
           >
+            {/* 게임 타입 선택 셀렉트 (식대전/시그헌터 등) */}
             <div>
               <label
                 style={{
@@ -342,6 +418,7 @@ export default function SigImageAdminPage() {
               </select>
             </div>
 
+            {/* 모드 선택 셀렉트 (뮤즈/퀸덤) */}
             <div>
               <label
                 style={{
@@ -375,6 +452,7 @@ export default function SigImageAdminPage() {
               </select>
             </div>
 
+            {/* 카드 희귀도(일반/스페셜) 선택 셀렉트 */}
             <div>
               <label
                 style={{
@@ -408,6 +486,7 @@ export default function SigImageAdminPage() {
               </select>
             </div>
 
+            {/* 식대전 빙고일 때만 빙고판 선택 셀렉트 노출 */}
             {isMealBingo && (
               <div>
                 <label
@@ -444,7 +523,7 @@ export default function SigImageAdminPage() {
             )}
           </div>
 
-          {/* 제목 / 점수 / 칸 번호 */}
+          {/* 제목 / 점수 / 칸 번호 입력 영역 */}
           <div
             style={{
               display: "grid",
@@ -454,6 +533,7 @@ export default function SigImageAdminPage() {
               marginBottom: 14,
             }}
           >
+            {/* 카드 이름 입력 (선택) */}
             <div>
               <label
                 style={{
@@ -483,6 +563,7 @@ export default function SigImageAdminPage() {
               />
             </div>
 
+            {/* 점수 입력 (선택) */}
             <div>
               <label
                 style={{
@@ -512,6 +593,7 @@ export default function SigImageAdminPage() {
               />
             </div>
 
+            {/* 칸 번호 입력 (필수) */}
             <div>
               <label
                 style={{
@@ -544,7 +626,7 @@ export default function SigImageAdminPage() {
             </div>
           </div>
 
-          {/* 파일 + 미리보기 */}
+          {/* 파일 선택 + 미리보기 영역 */}
           <div
             style={{
               display: "grid",
@@ -554,6 +636,7 @@ export default function SigImageAdminPage() {
               alignItems: "stretch",
             }}
           >
+            {/* 파일 선택 및 활성화 체크박스 */}
             <div>
               <label
                 style={{
@@ -566,6 +649,7 @@ export default function SigImageAdminPage() {
                 이미지 파일
               </label>
 
+              {/* 커스텀 파일 선택 버튼 */}
               <label
                 style={{
                   display: "inline-flex",
@@ -581,6 +665,7 @@ export default function SigImageAdminPage() {
                   color: "#e5e7eb",
                 }}
               >
+                {/* + 아이콘 */}
                 <span
                   style={{
                     display: "inline-flex",
@@ -598,6 +683,7 @@ export default function SigImageAdminPage() {
                   +
                 </span>
                 <span>이미지 선택</span>
+                {/* 실제 파일 인풋은 숨기고 label 클릭으로 트리거 */}
                 <input
                   type="file"
                   accept="image/*"
@@ -606,6 +692,7 @@ export default function SigImageAdminPage() {
                 />
               </label>
 
+              {/* 선택된 파일명 또는 안내 문구 표시 */}
               <div
                 style={{
                   marginTop: 6,
@@ -619,6 +706,7 @@ export default function SigImageAdminPage() {
                   : "PNG / JPG / GIF 등 이미지 파일을 선택하세요."}
               </div>
 
+              {/* 활성화 여부 체크박스 */}
               <label
                 style={{
                   display: "inline-flex",
@@ -639,6 +727,7 @@ export default function SigImageAdminPage() {
               </label>
             </div>
 
+            {/* 이미지 미리보기 박스 */}
             <div>
               <label
                 style={{
@@ -663,6 +752,7 @@ export default function SigImageAdminPage() {
                 }}
               >
                 {previewUrl ? (
+                  // 선택한 파일을 브라우저 blob URL 로 미리보기
                   <img
                     src={previewUrl}
                     alt="preview"
@@ -673,6 +763,7 @@ export default function SigImageAdminPage() {
                     }}
                   />
                 ) : (
+                  // 아직 선택한 이미지가 없을 때 안내 문구
                   <span
                     style={{
                       fontSize: 12,
@@ -686,7 +777,7 @@ export default function SigImageAdminPage() {
             </div>
           </div>
 
-          {/* 버튼 + 메시지 */}
+          {/* 업로드 버튼 + 메시지 영역 */}
           <div
             style={{
               display: "flex",
@@ -696,6 +787,7 @@ export default function SigImageAdminPage() {
               marginBottom: 12,
             }}
           >
+            {/* 성공/에러 메시지 표시 */}
             {(message || error) && (
               <div
                 style={{
@@ -709,6 +801,7 @@ export default function SigImageAdminPage() {
               </div>
             )}
 
+            {/* 업로드 버튼 */}
             <button
               type="submit"
               disabled={submitting}
@@ -732,7 +825,7 @@ export default function SigImageAdminPage() {
           </div>
         </form>
 
-        {/* 목록 테이블 */}
+        {/* 하단 등록된 카드 목록 테이블 영역 */}
         <div
           style={{
             marginTop: 16,
@@ -740,6 +833,7 @@ export default function SigImageAdminPage() {
             borderTop: "1px solid rgba(55,65,81,0.8)",
           }}
         >
+          {/* 목록 헤더: 현재 필터 상태 요약 */}
           <div
             style={{
               display: "flex",
@@ -772,6 +866,7 @@ export default function SigImageAdminPage() {
             </span>
           </div>
 
+          {/* 스크롤 가능한 테이블 컨테이너 */}
           <div
             style={{
               maxHeight: 260,
@@ -824,6 +919,7 @@ export default function SigImageAdminPage() {
                 </tr>
               </thead>
               <tbody>
+                {/* 목록 로딩 중 표시 */}
                 {loadingList ? (
                   <tr>
                     <td
@@ -837,7 +933,7 @@ export default function SigImageAdminPage() {
                       불러오는 중...
                     </td>
                   </tr>
-                ) : items.length === 0 ? (
+                ) : items.length === 0 ? ( // 데이터 없을 때 메시지
                   <tr>
                     <td
                       colSpan={8}
@@ -851,13 +947,20 @@ export default function SigImageAdminPage() {
                     </td>
                   </tr>
                 ) : (
+                  // 실제 카드 목록 렌더링
                   items.map((item) => (
                     <tr
                       key={item.id}
                       style={{
                         borderTop: "1px solid rgba(31,41,55,0.9)",
+                        // 방금 업로드된 항목이면 옅은 초록색 배경으로 하이라이트
+                        background:
+                          item.id === highlightId
+                            ? "rgba(34,197,94,0.08)" // ★ 추가: 방금 업로드된 항목 하이라이트
+                            : "transparent",
                       }}
                     >
+                      {/* 이미지 썸네일 셀 */}
                       <td style={{ padding: "4px 6px" }}>
                         <img
                           src={item.imageUrl}
@@ -872,6 +975,7 @@ export default function SigImageAdminPage() {
                         />
                       </td>
 
+                      {/* 카드 이름 수정 인풋 */}
                       <td style={{ padding: "4px 6px", maxWidth: 200 }}>
                         <input
                           type="text"
@@ -896,6 +1000,7 @@ export default function SigImageAdminPage() {
                         />
                       </td>
 
+                      {/* 점수 수정 인풋 */}
                       <td
                         style={{
                           padding: "4px 6px",
@@ -926,6 +1031,7 @@ export default function SigImageAdminPage() {
                         />
                       </td>
 
+                      {/* 빙고판 번호 수정 인풋 */}
                       <td
                         style={{
                           padding: "4px 6px",
@@ -958,6 +1064,7 @@ export default function SigImageAdminPage() {
                         />
                       </td>
 
+                      {/* 칸 번호 수정 인풋 */}
                       <td
                         style={{
                           padding: "4px 6px",
@@ -988,6 +1095,7 @@ export default function SigImageAdminPage() {
                         />
                       </td>
 
+                      {/* 활성/비활성 토글 버튼 */}
                       <td
                         style={{
                           padding: "4px 6px",
@@ -1013,6 +1121,7 @@ export default function SigImageAdminPage() {
                         </button>
                       </td>
 
+                      {/* 각 행의 저장/삭제 버튼 */}
                       <td
                         style={{
                           padding: "4px 6px",
@@ -1026,6 +1135,7 @@ export default function SigImageAdminPage() {
                             gap: 6,
                           }}
                         >
+                          {/* 저장 버튼 */}
                           <button
                             type="button"
                             onClick={() => handleSaveRow(item)}
@@ -1046,6 +1156,7 @@ export default function SigImageAdminPage() {
                           >
                             {savingRowId === item.id ? "저장중" : "저장"}
                           </button>
+                          {/* 삭제 버튼 */}
                           <button
                             type="button"
                             onClick={() => handleDeleteRow(item)}
@@ -1069,6 +1180,7 @@ export default function SigImageAdminPage() {
                         </div>
                       </td>
 
+                      {/* 카드 id 표시 (복사용/디버깅용) */}
                       <td
                         style={{
                           padding: "4px 6px",
@@ -1089,6 +1201,7 @@ export default function SigImageAdminPage() {
               </tbody>
             </table>
           </div>
+          {/* 테이블 하단 안내 문구 */}
           <p
             style={{
               marginTop: 6,

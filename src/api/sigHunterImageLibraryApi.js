@@ -1,3 +1,5 @@
+// 타입 표기 제거 버전 (JS)
+
 import { firestore, storage } from "../firebase";
 
 import {
@@ -10,7 +12,7 @@ import {
   doc,
   query,
   where,
-  orderBy,
+  //orderBy,
 } from "firebase/firestore";
 
 import {
@@ -142,9 +144,9 @@ export async function fetchSigItems({
 
   let q;
   if (conditions.length > 0) {
-    q = query(col, ...conditions, orderBy("createdAt", "desc"));
+    q = query(col, ...conditions);
   } else {
-    q = query(col, orderBy("createdAt", "desc"));
+    q = query(col);
   }
 
   let snap;
@@ -200,15 +202,15 @@ export async function fetchRandomSigItems({
 
   if (!baseList.length) return [];
 
-  const result = [];
-
-  // 중복 허용 랜덤 샘플링
-  for (let i = 0; i < count; i++) {
-    const idx = Math.floor(Math.random() * baseList.length);
-    result.push(baseList[idx]);
+  // ★ 중복 없이 랜덤 섞기 (Fisher-Yates)
+  const shuffled = [...baseList];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
 
-  return result;
+  // count 개수만 잘라서 반환 (baseList 길이보다 크면 전체 반환)
+  return shuffled.slice(0, Math.min(count, shuffled.length));
 }
 
 /**

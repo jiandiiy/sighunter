@@ -80,44 +80,62 @@ export default function SigHunterFlip() {
       const mode = projectKey;
       const mapping = {};
 
-      const normalPromises = normalCardsArg.map(async (card) => {
+      // ✅ 각 칸마다 slotIndex 조건을 걸어서 1장씩 랜덤으로 가져오기
+   const normalPromises = normalCardsArg.map(async (card) => {
+      console.log(`[FLIP] 칸 ${card.id} 조회 시작:`, {
+        mode,
+        type: "sighunter",
+        rarity: "normal",
+        slotIndex: String(card.id),
+      });
+
+      const items = await fetchRandomSigItems({
+        mode,
+        type: "sighunter",
+        rarity: "normal",
+        slotIndex: String(card.id),
+        count: 1,
+      });
+
+      console.log(`[FLIP] 칸 ${card.id} 결과:`, items);
+      mapping[card.id] = items[0] || null;
+    });
+
+    let specialPromise = Promise.resolve();
+    if (specialCardArg) {
+      specialPromise = (async () => {
+        console.log(`[FLIP] 스페셜 칸 ${specialCardArg.id} 조회 시작`);
+        
         const items = await fetchRandomSigItems({
           mode,
           type: "sighunter",
-          rarity: "normal",
-          slotIndex: String(card.id),
+          rarity: "special",
+          slotIndex: String(specialCardArg.id),
           count: 1,
         });
-        mapping[card.id] = items[0] || null;
-      });
 
-      let specialPromise = Promise.resolve();
-      if (specialCardArg) {
-        specialPromise = (async () => {
-          const items = await fetchRandomSigItems({
-            mode,
-            type: "sighunter",
-            rarity: "special",
-            slotIndex: String(specialCardArg.id),
-            count: 1,
-          });
-          mapping[specialCardArg.id] = items[0] || null;
-        })();
-      }
-
-      await Promise.all([...normalPromises, specialPromise]);
-
-      console.log("[FLIP] loadSigItems mapping", mapping);
-      setSigItemsByCard(mapping);
-    } catch (e) {
-      console.error("시그헌터 카드 메타데이터 로딩 실패:", e);
-    } finally {
-      setLoadingSigItems(false);
+        console.log(`[FLIP] 스페셜 칸 ${specialCardArg.id} 결과:`, items);
+        mapping[specialCardArg.id] = items[0] || null;
+      })();
     }
-  };
+
+    await Promise.all([...normalPromises, specialPromise]);
+
+    console.log("[FLIP] loadSigItems 최종 mapping", mapping);
+    setSigItemsByCard(mapping);
+  } catch (e) {
+    console.error("시그헌터 카드 메타데이터 로딩 실패:", e);
+  } finally {
+    setLoadingSigItems(false);
+  }
+};
 
   useEffect(() => {
     if (!loaded) return;
+    
+    console.log("[DEBUG] normalCards IDs:", normalCards.map(c => c.id));
+    console.log("[DEBUG] specialCard ID:", specialCard?.id);
+    
     reshuffleFrontImages(sigCards);
     loadSigItems(project, normalCards, specialCard);
   }, [project, loaded, sigCards, normalCards, specialCard]);
