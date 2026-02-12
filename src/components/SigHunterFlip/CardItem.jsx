@@ -42,6 +42,15 @@ function CardItem({
 
   const newSrc = randomImages?.[id] || baseImage;
 
+  // 🔥 여기 한 줄 추가
+console.log(
+  "[CARD] id, sigItem, randomImage, newSrc",
+  id,
+  sigItem && { id: sigItem.id, slotIndex: sigItem.slotIndex, imageUrl: sigItem.imageUrl },
+  randomImages?.[id],
+  newSrc
+);
+
   const handleFlip = (e) => {
     if (e.target.tagName === "INPUT" && e.target.type === "file") {
       e.stopPropagation();

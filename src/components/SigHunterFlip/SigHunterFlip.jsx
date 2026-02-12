@@ -80,68 +80,73 @@ export default function SigHunterFlip() {
       const mode = projectKey;
       const mapping = {};
 
-      // ✅ 각 칸마다 slotIndex 조건을 걸어서 1장씩 랜덤으로 가져오기
-  // ✅ 일반 카드: 각 슬롯별로 병렬 요청
-    const normalPromises = normalCardsArg.map(async (card) => {
-      console.log(`[FLIP] 칸 ${card.id} 조회 시작:`, {
-        mode,
-        type: "sighunter",
-        rarity: "normal",
-        slotIndex: String(card.id),
-      });
-
-      const items = await fetchRandomSigItems({
-        mode,
-        type: "sighunter",
-        rarity: "normal",
-        slotIndex: String(card.id),
-        count: 1,
-      });
-
-      console.log(`[FLIP] 칸 ${card.id} 결과:`, items);
-      mapping[card.id] = items[0] || null;
-    });
-
-    // ✅ 스페셜 카드: 있으면 추가
-    const allPromises = [...normalPromises];
-
-    if (specialCardArg) {
-      const specialPromise = (async () => {
-        console.log(`[FLIP] 스페셜 칸 ${specialCardArg.id} 조회 시작`);
+      // ✅ 일반 카드: 각 슬롯별로 병렬 요청
+      const normalPromises = normalCardsArg.map(async (card) => {
+        console.log(`[FLIP] 칸 ${card.id} 조회 시작:`, {
+          mode,
+          type: "sighunter",
+          rarity: "normal",
+          slotIndex: String(card.id),
+        });
 
         const items = await fetchRandomSigItems({
           mode,
           type: "sighunter",
-          rarity: "special",
-          slotIndex: String(specialCardArg.id),
+          rarity: "normal",
+          slotIndex: String(card.id),
           count: 1,
         });
 
-        console.log(`[FLIP] 스페셜 칸 ${specialCardArg.id} 결과:`, items);
-        mapping[specialCardArg.id] = items[0] || null;
-      })();
+        console.log(`[FLIP] 칸 ${card.id} 결과:`, items);
+        mapping[card.id] = items[0] || null;
+      });
 
-      allPromises.push(specialPromise);
+      // ✅ 스페셜 카드: 있으면 추가
+      const allPromises = [...normalPromises];
+
+      if (specialCardArg) {
+        const specialPromise = (async () => {
+          console.log(`[FLIP] 스페셜 칸 ${specialCardArg.id} 조회 시작`);
+
+          const items = await fetchRandomSigItems({
+            mode,
+            type: "sighunter",
+            rarity: "special",
+            slotIndex: String(specialCardArg.id),
+            count: 1,
+          });
+
+          console.log(`[FLIP] 스페셜 칸 ${specialCardArg.id} 결과:`, items);
+          mapping[specialCardArg.id] = items[0] || null;
+        })();
+
+        allPromises.push(specialPromise);
+      }
+
+      // ✅ 모든 Promise 완료 대기
+      await Promise.all(allPromises);
+
+      console.log("[FLIP] loadSigItems 최종 mapping", mapping);
+      setSigItemsByCard(mapping);
+    } catch (e) {
+      console.error("시그헌터 카드 메타데이터 로딩 실패:", e);
+    } finally {
+      setLoadingSigItems(false);
     }
+  };
 
-    // ✅ 모든 Promise 완료 대기
-    await Promise.all(allPromises);
-
-    console.log("[FLIP] loadSigItems 최종 mapping", mapping);
-    setSigItemsByCard(mapping);
-  } catch (e) {
-    console.error("시그헌터 카드 메타데이터 로딩 실패:", e);
-  } finally {
-    setLoadingSigItems(false);
-  }
-};
+  // 🔥 보드 재로드 헬퍼 (업로드 직후 / 버튼 리셋 시 재사용)
+  const reloadBoardSigItems = async () => {
+    await loadSigItems(project, normalCards, specialCard);
+    reshuffleFrontImages(sigCards);
+  };
 
   useEffect(() => {
     if (!loaded) return;
-    
-    console.log("[DEBUG] normalCards IDs:", normalCards.map(c => c.id));
+
+    console.log("[DEBUG] normalCards IDs:", normalCards.map((c) => c.id));
     console.log("[DEBUG] specialCard ID:", specialCard?.id);
-    
+
     reshuffleFrontImages(sigCards);
     loadSigItems(project, normalCards, specialCard);
   }, [project, loaded, sigCards, normalCards, specialCard]);
@@ -215,16 +220,20 @@ export default function SigHunterFlip() {
     input.click();
   };
 
-  const handleImageChange = (e, id) => {
+  // 🔥 로컬 이미지 업로드 후 → 보드 다시 섞기
+  const handleImageChange = async (e, id) => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (ev) => {
+    reader.onload = async (ev) => {
       const url = ev && ev.target && ev.target.result;
       setRandomImages((p) => ({ ...p, [id]: url }));
       setFlipped((p) => ({ ...p, [id]: false }));
       setLocked((p) => ({ ...p, [id]: false }));
+
+      // 🔥 이미지 변경 완료 후 → Firestore에서 다시 뽑기
+      await reloadBoardSigItems();
     };
     reader.readAsDataURL(file);
   };
@@ -278,26 +287,57 @@ export default function SigHunterFlip() {
     ["sigFlipped", "sigLocked", "sigRevealed", "sigImages", "cardWeights"].forEach(
       (key) => localStorage.removeItem(key)
     );
+     // 🔥 모든 업로드 이미지 제거
+  setRandomImages({});
 
     resetCards(sigCards);
     reshuffleFrontImages(sigCards);
 
+    // 🔥 Firestore 재조회
     await loadSigItems(project, normalCards, specialCard);
   };
 
-  const resetNormal = async () => {
-    resetCards(normalCards);
-    reshuffleFrontImages(normalCards);
+ const resetNormal = async () => {
+  console.log("🔍 [resetNormal] 시작");
+  console.log("🔍 normalCards IDs:", normalCards.map(c => c.id));
+  console.log("🔍 현재 randomImages:", randomImages);
 
-    await loadSigItems(project, normalCards, specialCard);
-  };
+  // 🔥 일반 카드 업로드 이미지 제거
+  setRandomImages((prev) => {
+    const next = { ...prev };
+    console.log("🔍 setRandomImages 이전:", prev);
+    
+    normalCards.forEach((c) => {
+      console.log(`🔍 삭제 시도: randomImages[${c.id}]`);
+      delete next[c.id];
+    });
+    
+    console.log("🔍 setRandomImages 이후:", next);
+    return next;
+  });
+
+  resetCards(normalCards);
+  reshuffleFrontImages(normalCards);
+
+  console.log("🔍 loadSigItems 호출 직전");
+  await loadSigItems(project, normalCards, specialCard);
+  console.log("🔍 loadSigItems 완료");
+};
 
   const resetSpecial = async () => {
     if (!specialCard) return;
 
+    // 🔥 스페셜 카드 업로드 이미지 제거
+  setRandomImages((prev) => {
+    const next = { ...prev };
+    delete next[specialCard.id];
+    return next;
+  });
+
     resetCards([specialCard]);
     reshuffleFrontImages([specialCard]);
 
+    // 🔥 Firestore 재조회
     await loadSigItems(project, normalCards, specialCard);
   };
 
@@ -449,6 +489,8 @@ export default function SigHunterFlip() {
               setMessages(updatedMessages);
             }
           }}
+          // 🔥 AdminPopup에서 Firestore 업로드 완료 후 호출될 콜백
+          onUploadComplete={reloadBoardSigItems}
         />
       )}
     </div>

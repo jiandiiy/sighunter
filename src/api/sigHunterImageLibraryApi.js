@@ -12,7 +12,6 @@ import {
   doc,
   query,
   where,
-  //orderBy,
 } from "firebase/firestore";
 
 import {
@@ -130,17 +129,7 @@ export async function fetchSigItems({
   if (type) conditions.push(where("type", "==", type));
   if (rarity) conditions.push(where("rarity", "==", rarity));
 
-  if (boardIndex !== undefined && boardIndex !== null && boardIndex !== "") {
-    conditions.push(where("boardIndex", "==", String(boardIndex)));
-  }
-
-  if (slotIndex !== undefined && slotIndex !== null && slotIndex !== "") {
-    conditions.push(where("slotIndex", "==", String(slotIndex)));
-  }
-
-  if (activeOnly) {
-    conditions.push(where("isActive", "==", true));
-  }
+  // Firestore 쿼리는 여기까지만 (인덱스 부담 줄이기)
 
   let q;
   if (conditions.length > 0) {
@@ -150,8 +139,6 @@ export async function fetchSigItems({
   }
 
   console.log("[API] fetchSigItems 쿼리 생성 완료, getDocs 시작");
-
-   // ⬇️ 여기 try/catch 제거
   const snap = await getDocs(q);
 
   console.log("[API] fetchSigItems AFTER getDocs", {
@@ -167,12 +154,31 @@ export async function fetchSigItems({
     };
   });
 
-  list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  // 🔽 나머지 조건은 클라이언트에서 필터링
+  let filtered = list;
 
-  console.log("[API] fetchSigItems 최종 결과:", list.length, "개");
-  console.log("[API] fetchSigItems first 3 items", list.slice(0, 3));
+  if (boardIndex !== undefined && boardIndex !== null && boardIndex !== "") {
+    filtered = filtered.filter(
+      (item) => String(item.boardIndex) === String(boardIndex)
+    );
+  }
 
-  return list;
+  if (slotIndex !== undefined && slotIndex !== null && slotIndex !== "") {
+    filtered = filtered.filter(
+      (item) => String(item.slotIndex) === String(slotIndex)
+    );
+  }
+
+  if (activeOnly) {
+    filtered = filtered.filter((item) => item.isActive === true);
+  }
+
+  filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+  console.log("[API] fetchSigItems 최종 결과:", filtered.length, "개");
+  console.log("[API] fetchSigItems first 3 items", filtered.slice(0, 3));
+
+  return filtered;
 }
 
 /**
