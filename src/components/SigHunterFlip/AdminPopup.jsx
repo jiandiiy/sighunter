@@ -1,4 +1,3 @@
-// src/components/SigHunterFlip/AdminPopup.jsx
 import React, { useState, useEffect, useRef } from "react";
 import {
   queendomSigCards,
@@ -13,12 +12,13 @@ export default function AdminPopup({
   cardId,
   messages, // { normal: [...], special: [...] }
   onClose,
-  onUpdate, // (weightsForThisCard, cardId, updatedMessagesWholeSet)
+  // (weightsForThisCard, cardId, updatedMessagesWholeSet, allWeightsForAllCards?)
+  onUpdate,
 }) {
   const id = String(cardId); // 문자열 ID
   const numId = Number(cardId); // 카드 검색용 숫자
 
-  // 🔹 프로젝트별 카드 세트 선택
+  // 프로젝트별 카드 세트 선택
   const projectCardSets = {
     queendom: queendomSigCards,
     muse: museSigCards,
@@ -123,7 +123,7 @@ export default function AdminPopup({
     setWeights((prev) => prev.filter((_, i) => i !== index));
   };
 
-  /** 적용 버튼 */
+  /** 이 카드에만 적용 */
   const applyWeights = () => {
     if (!card) return;
 
@@ -149,8 +149,63 @@ export default function AdminPopup({
     all[id] = mergedMessages.map((m) => m.weight ?? 0);
     localStorage.setItem("cardWeights", JSON.stringify(all));
 
-    // 4) 상위로 전달 → useSigStorage / Firestore까지 동기화
-    onUpdate?.(all[id], id, updatedAll);
+    // 4) 상위로 전달 → 이 카드만 갱신
+    onUpdate?.(all[id], id, updatedAll, undefined);
+    setIsApplied(true);
+  };
+
+  /** 이 타입(일반/스페셜) 현재 설정을 같은 타입 전체 카드에 복사 */
+  const applyToAllCardsOfThisType = () => {
+    if (!card) return;
+
+    if (
+      !window.confirm(
+        `지금 설정한 ${
+          isSpecial ? "스페셜" : "일반"
+        } 메시지/확률을 같은 타입의 모든 카드에 동일하게 적용할까요?`
+      )
+    ) {
+      return;
+    }
+
+    // 1) 현재 로컬 편집 상태 기준 메시지 세트
+    const mergedMessages = localMessages.map((m, i) => ({
+      ...m,
+      weight: weights[i] ?? 0,
+    }));
+
+    // 2) 전체 메시지 세트 갱신
+    const currentAll =
+      messages && messages.normal && messages.special
+        ? messages
+        : { normal: defaultNormalMessages, special: defaultSpecialMessages };
+
+    const updatedAll = {
+      normal: isSpecial ? currentAll.normal : mergedMessages,
+      special: isSpecial ? mergedMessages : currentAll.special,
+    };
+
+    // 3) cardWeights: 같은 타입 카드 모두에 동일 weight 세트 적용
+    const allWeights =
+      JSON.parse(localStorage.getItem("cardWeights") || "{}") || {};
+
+    sigCards.forEach((c) => {
+      const key = String(c.id);
+      if (!!c.isSpecial === isSpecial) {
+        // 같은 타입(일반 / 스페셜)인 카드들만
+        allWeights[key] = mergedMessages.map((m) => m.weight ?? 0);
+      }
+    });
+
+    localStorage.setItem("cardWeights", JSON.stringify(allWeights));
+
+    // 4) 상위로 전달 → 전체 cardWeights도 함께 전달
+    onUpdate?.(
+      allWeights[id], // 현재 카드용 배열
+      id,
+      updatedAll, // 전체 메시지 세트
+      allWeights // 전체 카드 가중치
+    );
     setIsApplied(true);
   };
 
@@ -188,7 +243,7 @@ export default function AdminPopup({
       setWeights(init);
       setIsApplied(false);
 
-      onUpdate?.(init, id, updatedAll);
+      onUpdate?.(init, id, updatedAll, undefined);
 
       alert("✅ 메시지와 확률이 기본값으로 복원되었습니다.");
     }
@@ -223,7 +278,7 @@ export default function AdminPopup({
       setWeights(selfWeights);
       setIsApplied(false);
 
-      onUpdate?.(selfWeights, id, updatedAll);
+      onUpdate?.(selfWeights, id, updatedAll, all);
 
       alert("✅ 모든 메시지와 확률이 기본값으로 복원되었습니다!");
     }
@@ -328,8 +383,16 @@ export default function AdminPopup({
               🔄 전체 메시지/확률 초기화
             </button>
 
+            <button
+              className="apply-btn"
+              type="button"
+              onClick={applyToAllCardsOfThisType}
+            >
+              📦 이 타입 전체 카드에 동일 적용
+            </button>
+
             <button className="apply-btn" onClick={applyWeights}>
-              적용
+              적용 (이 카드만)
             </button>
             <button className="close-btn" onClick={onClose}>
               닫기
