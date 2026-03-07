@@ -32,7 +32,6 @@ export default function SigHunterFlip() {
 
   const [sigItemsByCard, setSigItemsByCard] = useState({});
   const [loadingSigItems, setLoadingSigItems] = useState(false);
-
   const [frontImageIndexByCard, setFrontImageIndexByCard] = useState({});
 
   const fileInputRefs = useRef({});
@@ -57,6 +56,12 @@ export default function SigHunterFlip() {
 
   // 🔢 번호로 칸 지정해서 뒤집기용 입력 상태
   const [targetCardId, setTargetCardId] = useState("");
+
+  // 🔧 단축키용: 마지막으로 액션한 카드 ID 기억
+  const [lastActiveCardId, setLastActiveCardId] = useState(1);
+
+  // ⌨️ 칸 번호 input에 포커스 주기 위한 ref
+  const cardNumberInputRef = useRef(null);
 
   const reshuffleFrontImages = (cards) => {
     setFrontImageIndexByCard((prev) => {
@@ -132,12 +137,45 @@ export default function SigHunterFlip() {
     reshuffleFrontImages(sigCards);
   };
 
+  // 🔁 초기 로딩 / 프로젝트 변경 시 카드 이미지·메타 로딩
   useEffect(() => {
     if (!loaded) return;
 
     reshuffleFrontImages(sigCards);
     loadSigItems(project, normalCards, specialCard);
   }, [project, loaded, sigCards, normalCards, specialCard]);
+
+  // 🔑 전역 단축키
+  // - Ctrl+Shift+A : 마지막 카드 기준 AdminPopup 열기/닫기
+  // - Ctrl+Shift+F : 칸 번호 입력창에 포커스(+선택)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // AdminPopup 토글
+      if (e.altKey && e.shiftKey && e.code === "KeyA") {
+        e.preventDefault();
+
+        setModal((prev) => {
+          if (prev && prev.type === "admin") {
+            return null;
+          }
+          return { type: "admin", id: lastActiveCardId || 1 };
+        });
+        return;
+      }
+
+      // 칸 번호 입력창 포커스
+      if (e.altKey && e.shiftKey && e.code === "KeyF") {
+        e.preventDefault();
+        if (cardNumberInputRef.current) {
+          cardNumberInputRef.current.focus();
+          cardNumberInputRef.current.select?.();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [lastActiveCardId]);
 
   if (!loaded) {
     return (
@@ -187,18 +225,21 @@ export default function SigHunterFlip() {
     }
 
     setFlipped((prev) => ({ ...prev, [card.id]: next }));
+    setLastActiveCardId(card.id);
   };
 
   const handleAdminClick = (e, cardId) => {
     e.stopPropagation();
     e.preventDefault();
     setModal({ type: "admin", id: cardId });
+    setLastActiveCardId(cardId);
   };
 
   const handleEditClick = (e, cardId) => {
     e.stopPropagation();
     e.preventDefault();
     setModal({ type: "edit", id: cardId });
+    setLastActiveCardId(cardId);
   };
 
   const handleUploadClick = (e, id) => {
@@ -206,6 +247,7 @@ export default function SigHunterFlip() {
     const input = fileInputRefs.current[id];
     if (!input) return;
     input.click();
+    setLastActiveCardId(id);
   };
 
   // 로컬 이미지 업로드 후 → 보드 다시 섞기
@@ -275,7 +317,6 @@ export default function SigHunterFlip() {
       (key) => localStorage.removeItem(key)
     );
 
-    // 모든 업로드 이미지 제거
     setRandomImages({});
 
     resetCards(sigCards);
@@ -285,7 +326,6 @@ export default function SigHunterFlip() {
   };
 
   const resetNormal = async () => {
-    // 일반 카드 업로드 이미지 제거
     setRandomImages((prev) => {
       const next = { ...prev };
       normalCards.forEach((c) => {
@@ -326,7 +366,6 @@ export default function SigHunterFlip() {
 
     if (!card) return;
 
-    // 클릭 이벤트가 아니므로 최소한의 fake event
     const fakeEvent = {
       target: { tagName: "DIV" },
     };
@@ -338,6 +377,7 @@ export default function SigHunterFlip() {
     <div className="natural-container">
       <h2>💖 시그헌터 💖</h2>
 
+      {/* 프로젝트 탭 */}
       <div
         style={{
           display: "flex",
@@ -383,101 +423,100 @@ export default function SigHunterFlip() {
         })}
       </div>
 
+      {/* 🔄 초기화 + 뒤집기 줄 */}
+      <div
+        style={{
+          display: "flex",
+          gap: "8px",
+          justifyContent: "center",
+          marginBottom: "8px",
+          alignItems: "center",
+        }}
+      >
+        <button className="reset-btn" onClick={resetAll}>
+          🔄 전체 초기화
+        </button>
 
+        <button className="reset-btn" onClick={resetNormal}>
+          🔄 일반 카드만 초기화
+        </button>
 
-{/* 🔄 초기화 + 뒤집기 줄 */}
-<div
-  style={{
-    display: "flex",
-    gap: "8px",
-    justifyContent: "center",
-    marginBottom: "8px",
-    alignItems: "center", // 버튼 라인을 기준으로 정렬
-  }}
->
-  <button className="reset-btn" onClick={resetAll}>
-    🔄 전체 초기화
-  </button>
+        {specialCard && (
+          <button className="reset-btn" onClick={resetSpecial}>
+            🔄 스페셜 카드만 초기화
+          </button>
+        )}
 
-  <button className="reset-btn" onClick={resetNormal}>
-    🔄 일반 카드만 초기화
-  </button>
+        {/* 🔢 입력창은 위에, 뒤집기 버튼은 옆 버튼들과 같은 라인에 */}
+        <div
+          className="card-number-wrapper"
+          style={{
+            position: "relative",
+            display: "flex",
+            alignItems: "center",
+            height: "100%",
+          }}
+        >
+          {/* hover 시 위로 올라갈 라벨 */}
+          <span
+            className="card-number-label"
+            style={{
+              position: "absolute",
+              bottom: "100%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              fontSize: "14px",
+              background: "white",
+              padding: "0 4px",
+              borderRadius: "4px",
+              pointerEvents: "none",
+              whiteSpace: "nowrap",
+            }}
+          >
+            칸 번호
+          </span>
 
-  {specialCard && (
-    <button className="reset-btn" onClick={resetSpecial}>
-      🔄 스페셜 카드만 초기화
-    </button>
-  )}
+          {/* 입력창: 절대 위치로 위에 띄우기 */}
+          <input
+            type="number"
+            min="1"
+            max={sigCards.length}
+            value={targetCardId}
+            onChange={(e) => setTargetCardId(e.target.value)}
+            placeholder="칸 번호"
+            className="card-number-input"
+            ref={cardNumberInputRef}
+            style={{
+              position: "absolute",
+              bottom: "100%",
+              left: "50%",
+              transform: "translateX(-50%) translateY(-6px)",
+              width: "90px",
+              padding: "6px 1px",
+              borderRadius: "6px",
+              border: "1px solid #aaa",
+              fontSize: "20px",
+              textAlign: "center",
+              background: "#fff",
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                flipCardById(targetCardId);
+              }
+            }}
+          />
 
-  {/* 🔢 입력창은 위에, 뒤집기 버튼은 옆 버튼들과 같은 라인에 */}
-  <div
-    className="card-number-wrapper"
-    style={{
-      position: "relative",
-      display: "flex",
-      alignItems: "center",   // 이 div의 기준은 '뒤집기 버튼'
-      height: "100%",         // 부모 flex 라인의 높이를 그대로 사용
-    }}
-  >
-    {/* hover 시 위로 올라갈 라벨 */}
-    <span
-      className="card-number-label"
-      style={{
-        position: "absolute",
-        bottom: "100%",
-        left: "50%",
-        transform: "translateX(-50%)",
-        fontSize: "14px",
-        background: "white",
-        padding: "0 4px",
-        borderRadius: "4px",
-        pointerEvents: "none", // 클릭은 input으로
-        whiteSpace: "nowrap",
-      }}
-    >
-      칸 번호
-    </span>
-
-    {/* 입력창: 절대 위치로 위에 띄우기 */}
-   <input
-  type="number"
-  min="1"
-  max={sigCards.length}
-  value={targetCardId}
-  onChange={(e) => setTargetCardId(e.target.value)}
-  placeholder="칸 번호"
-  className="card-number-input"  // 👈 클래스 하나만 추가
-  style={{
-    position: "absolute",
-    bottom: "100%",
-    left: "50%",
-    transform: "translateX(-50%) translateY(-6px)",
-    width: "90px",
-    padding: "6px 1px",
-    borderRadius: "6px",
-    border: "1px solid #aaa",
-    fontSize: "20px",
-    textAlign: "center",
-    background: "#fff",
-  }}
-  onKeyDown={(e) => {
-    if (e.key === "Enter") {
-      flipCardById(targetCardId);
-    }
-  }}
-/>
-
-    {/* 이 버튼이 라인의 기준점이 됨 → 다른 초기화 버튼과 수평 정렬 */}
-    <button
-      type="button"
-      className="reset-btn"
-      onClick={() => flipCardById(targetCardId)}
-      style={{ whiteSpace: "nowrap" }}
-    >
-      🎴 뒤집기
-    </button>
-  </div>
-</div>
+          {/* 이 버튼이 라인의 기준점이 됨 → 다른 초기화 버튼과 수평 정렬 */}
+          <button
+            type="button"
+            className="reset-btn"
+            onClick={() => flipCardById(targetCardId)}
+            style={{ whiteSpace: "nowrap" }}
+          >
+            🎴 뒤집기
+          </button>
+        </div>
+      </div>
 
       {loadingSigItems && (
         <p style={{ textAlign: "center", fontSize: 12, color: "#ddd" }}>
@@ -542,7 +581,12 @@ export default function SigHunterFlip() {
           cardId={modal.id}
           messages={messages}
           onClose={() => setModal(null)}
-          onUpdate={(weights, id, updatedMessages, allWeightsFromPopup) => {
+          onUpdate={(
+            weights,
+            id,
+            updatedMessages,
+            allWeightsFromPopup
+          ) => {
             const key = String(id);
 
             setCardWeights((prev) => {
