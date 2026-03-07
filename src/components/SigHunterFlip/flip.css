@@ -374,3 +374,15 @@
     font-size: 0.9rem;
   }
 }
+
+/* 평소엔 placeholder 보임 */
+.card-number-input::placeholder {
+  color: #888;
+  transition: color 0.15s ease;
+}
+
+/* 마우스 커서(input hover/focus) 시 placeholder 안 보이게 */
+.card-number-input:hover::placeholder,
+.card-number-input:focus::placeholder {
+  color: transparent;
+}
