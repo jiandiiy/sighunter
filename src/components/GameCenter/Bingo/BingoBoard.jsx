@@ -1,5 +1,5 @@
 // src/components/GameCenter/Bingo/BingoBoard.jsx
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "./BingoBoard.css";
 
@@ -67,7 +67,7 @@ export default function BingoBoard({
   /* -------------------------------------------------------------------------- */
   /* 🔧 Firestore: 관리자가 등록한 식대전 빙고 카드 로드 (슬롯별)                  */
   /* -------------------------------------------------------------------------- */
-  const loadSlotPoolsForBoard = async (targetMode, boardNo) => {
+  const loadSlotPoolsForBoard = useCallback(async (targetMode, boardNo) => {
     try {
       const list = await fetchSigItems({
         mode: targetMode,
@@ -108,143 +108,140 @@ export default function BingoBoard({
       console.error("[BINGO] 슬롯별 카드 로드 실패:", error);
       return Array.from({ length: CELL_COUNT }, () => []);
     }
-  };
+  }, []);
 
   /* -------------------------------------------------------------------------- */
   /* 🔧 히스토리 기반 중복 방지 카드 선택                                          */
   /* -------------------------------------------------------------------------- */
-  const pickCardFromPoolWithGuarantee = (
-    pool,
-    targetMode,
-    cellIndex,
-    history
-  ) => {
-    if (!pool || !pool.length) {
-      return { card: null, history };
-    }
+  const pickCardFromPoolWithGuarantee = useCallback(
+    (pool, targetMode, cellIndex, history) => {
+      if (!pool || !pool.length) {
+        return { card: null, history };
+      }
 
-    const modeKey = targetMode;
-    const cellKey = String(cellIndex);
+      const modeKey = targetMode;
+      const cellKey = String(cellIndex);
 
-    // 이미 나온 ID 목록
-    const modeHistory = history[modeKey] || {};
-    const seenIds = new Set(modeHistory[cellKey] || []);
+      // 이미 나온 ID 목록
+      const modeHistory = history[modeKey] || {};
+      const seenIds = new Set(modeHistory[cellKey] || []);
 
-    // 아직 안 나온 카드 우선 선택
-    const unseen = pool.filter((item) => {
-      if (!item) return false;
-      const id = item.id || item.imageUrl;
-      if (!id) return false;
-      return !seenIds.has(id);
-    });
+      // 아직 안 나온 카드 우선 선택
+      const unseen = pool.filter((item) => {
+        if (!item) return false;
+        const id = item.id || item.imageUrl;
+        if (!id) return false;
+        return !seenIds.has(id);
+      });
 
-    const candidates = unseen.length > 0 ? unseen : pool;
-    const chosen =
-      candidates[Math.floor(Math.random() * candidates.length)] || null;
+      const candidates = unseen.length > 0 ? unseen : pool;
+      const chosen =
+        candidates[Math.floor(Math.random() * candidates.length)] || null;
 
-    if (!chosen) return { card: null, history };
+      if (!chosen) return { card: null, history };
 
-    // 히스토리 업데이트
-    const chosenId = chosen.id || chosen.imageUrl;
-    if (!chosenId) return { card: chosen, history };
+      // 히스토리 업데이트
+      const chosenId = chosen.id || chosen.imageUrl;
+      if (!chosenId) return { card: chosen, history };
 
-    const nextHistory = { ...history };
-    const nextModeHistory = { ...(nextHistory[modeKey] || {}) };
-    const prevArr = nextModeHistory[cellKey] || [];
-    if (!prevArr.includes(chosenId)) {
-      nextModeHistory[cellKey] = [...prevArr, chosenId];
-    }
-    nextHistory[modeKey] = nextModeHistory;
+      const nextHistory = { ...history };
+      const nextModeHistory = { ...(nextHistory[modeKey] || {}) };
+      const prevArr = nextModeHistory[cellKey] || [];
+      if (!prevArr.includes(chosenId)) {
+        nextModeHistory[cellKey] = [...prevArr, chosenId];
+      }
+      nextHistory[modeKey] = nextModeHistory;
 
-    return { card: chosen, history: nextHistory };
-  };
+      return { card: chosen, history: nextHistory };
+    },
+    []
+  );
 
   /* -------------------------------------------------------------------------- */
   /* 🎲 빙고판 한 장 구성 (랜덤 + Firestore 슬롯별 카드 혼합)                      */
   /* -------------------------------------------------------------------------- */
-  const buildBoardWithRandomAndFixed = async (
-    targetMode,
-    boardNo,
-    baseHistory
-  ) => {
-    try {
-      console.log("[BINGO] 빙고판 구성 시작", {
-        mode: targetMode,
-        boardNo,
-      });
-
-      // 🔥 1) 기본 랜덤 카드 9장 (로컬 이미지 풀)
-      const baseRandom = await getRandomBingoImages(targetMode, CELL_COUNT, {
-        rarity: "normal",
-      });
-
-      console.log("[BINGO] 로컬 랜덤 카드 로드", {
-        count: baseRandom.length,
-      });
-
-      // 🔥 2) 슬롯별 관리자 등록 카드 (Firestore)
-      const slotPools = await loadSlotPoolsForBoard(targetMode, boardNo);
-
-      console.log("[BINGO] Firestore 슬롯 풀 로드 완료");
-
-      const combined = Array(CELL_COUNT).fill(null);
-      let nextHistory = { ...baseHistory };
-
-      // 🔥 3) 각 칸마다 랜덤 + 관리자 카드 합쳐서 선택
-      for (let i = 0; i < CELL_COUNT; i++) {
-        const pool = [];
-
-        // 기본 랜덤 1장
-        if (baseRandom[i]) pool.push(baseRandom[i]);
-
-        // 이 칸 전용 관리자 이미지들
-        if (slotPools[i]?.length) {
-          pool.push(...slotPools[i]);
-        }
-
-        // 🔥 ID 중복 제거 (같은 이미지 여러 번 등록된 경우 대비)
-        const uniqueMap = new Map();
-        pool.forEach((item) => {
-          if (!item) return;
-          const key = item.id || item.imageUrl;
-          if (!key) return;
-          if (!uniqueMap.has(key)) uniqueMap.set(key, item);
+  const buildBoardWithRandomAndFixed = useCallback(
+    async (targetMode, boardNo, baseHistory) => {
+      try {
+        console.log("[BINGO] 빙고판 구성 시작", {
+          mode: targetMode,
+          boardNo,
         });
-        const finalPool = Array.from(uniqueMap.values());
 
-        if (!finalPool.length) {
-          console.warn(`[BINGO] 칸 ${i + 1} 풀이 비어있음`);
-          combined[i] = null;
-          continue;
+        // 🔥 1) 기본 랜덤 카드 9장 (로컬 이미지 풀)
+        const baseRandom = await getRandomBingoImages(targetMode, CELL_COUNT, {
+          rarity: "normal",
+        });
+
+        console.log("[BINGO] 로컬 랜덤 카드 로드", {
+          count: baseRandom.length,
+        });
+
+        // 🔥 2) 슬롯별 관리자 등록 카드 (Firestore)
+        const slotPools = await loadSlotPoolsForBoard(targetMode, boardNo);
+
+        console.log("[BINGO] Firestore 슬롯 풀 로드 완료");
+
+        const combined = Array(CELL_COUNT).fill(null);
+        let nextHistory = { ...baseHistory };
+
+        // 🔥 3) 각 칸마다 랜덤 + 관리자 카드 합쳐서 선택
+        for (let i = 0; i < CELL_COUNT; i++) {
+          const pool = [];
+
+          // 기본 랜덤 1장
+          if (baseRandom[i]) pool.push(baseRandom[i]);
+
+          // 이 칸 전용 관리자 이미지들
+          if (slotPools[i]?.length) {
+            pool.push(...slotPools[i]);
+          }
+
+          // 🔥 ID 중복 제거 (같은 이미지 여러 번 등록된 경우 대비)
+          const uniqueMap = new Map();
+          pool.forEach((item) => {
+            if (!item) return;
+            const key = item.id || item.imageUrl;
+            if (!key) return;
+            if (!uniqueMap.has(key)) uniqueMap.set(key, item);
+          });
+          const finalPool = Array.from(uniqueMap.values());
+
+          if (!finalPool.length) {
+            console.warn(`[BINGO] 칸 ${i + 1} 풀이 비어있음`);
+            combined[i] = null;
+            continue;
+          }
+
+          // 🔥 히스토리 기반 중복 방지 선택
+          const picked = pickCardFromPoolWithGuarantee(
+            finalPool,
+            targetMode,
+            i,
+            nextHistory
+          );
+
+          combined[i] = picked.card;
+          nextHistory = picked.history;
         }
 
-        // 🔥 히스토리 기반 중복 방지 선택
-        const picked = pickCardFromPoolWithGuarantee(
-          finalPool,
-          targetMode,
-          i,
-          nextHistory
-        );
+        console.log("[BINGO] 빙고판 구성 완료", {
+          mode: targetMode,
+          boardNo,
+          nonNull: combined.filter(Boolean).length,
+        });
 
-        combined[i] = picked.card;
-        nextHistory = picked.history;
+        return { cards: combined, history: nextHistory };
+      } catch (error) {
+        console.error("[BINGO] 빙고판 구성 에러:", error);
+        return {
+          cards: Array(CELL_COUNT).fill(null),
+          history: baseHistory || {},
+        };
       }
-
-      console.log("[BINGO] 빙고판 구성 완료", {
-        mode: targetMode,
-        boardNo,
-        nonNull: combined.filter(Boolean).length,
-      });
-
-      return { cards: combined, history: nextHistory };
-    } catch (error) {
-      console.error("[BINGO] 빙고판 구성 에러:", error);
-      return {
-        cards: Array(CELL_COUNT).fill(null),
-        history: baseHistory || {},
-      };
-    }
-  };
+    },
+    [loadSlotPoolsForBoard, pickCardFromPoolWithGuarantee]
+  );
 
   /* -------------------------------------------------------------------------- */
   /* 🔧 디버그: 랜덤 이미지 API 테스트                                             */
@@ -340,7 +337,7 @@ export default function BingoBoard({
     }
 
     init();
-  }, [boardId, currentBoardNo]);
+  }, [boardId, currentBoardNo, buildBoardWithRandomAndFixed]);
 
   /* -------------------------------------------------------------------------- */
   /* 🔧 Alt+Shift+F 단축키로 칸 번호 입력창으로 포커스 이동                        */
