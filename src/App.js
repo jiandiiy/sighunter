@@ -1,6 +1,8 @@
 // src/App.js
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+// ── 기존 컴포넌트들 ──────────────────────────────────────────
 import SigHunterFlip from "./components/SigHunterFlip/SigHunterFlip";
 import AdminPopup from "./components/SigHunterFlip/AdminPopup";
 import EditMessageModal from "./components/SigHunterFlip/EditMessageModal";
@@ -13,17 +15,33 @@ import SigHunterBingoBoard from "./components/GameCenter/SigHunterBingo/SigHunte
 import SigHunterBingoControl from "./components/GameCenter/SigHunterBingo/SigHunterBingoControl";
 import SigImageAdminPage from "./components/GameCenter/Admin/SigImageAdminPage";
 
-// HP 배틀 관련
+// ── HP 배틀 ──────────────────────────────────────────────────
 import HpBattle from "./components/GameCenter/HPBattle/HpBattle";
 import HpControl from "./components/GameCenter/HPBattle/HpControl";
 import HpOverlay from "./components/GameCenter/HPBattle/HpOverlay";
+
+// ── 신규: 보드 조정실 (Admin, GameHub 안) ────────────────────
+import SigHunterBoardControl from "./components/GameCenter/Admin/SigHunterBoardControl";
+import SigHunterFlipControl from "./components/GameCenter/Admin/SigHunterFlipControl";
+
+// ── 신규: OBS 뷰어 (GameHub 밖, 독립 라우트) ─────────────────
+import {
+  SigHunterBingoView,
+  BingoView,
+  SigHunterFlipView,
+} from "./components/GameCenter/OBSViewer";
 
 export default function App() {
   return (
     <Router>
       <Routes>
-        {/* 메인 게임 허브 */}
+
+        {/* ═══════════════════════════════════════════════════
+            GameHub 레이아웃 안 (네비게이션 포함)
+        ═══════════════════════════════════════════════════ */}
         <Route element={<GameHub />}>
+
+          {/* 메인 게임들 */}
           <Route path="/" element={<SigHunterFlip />} />
           <Route path="/sig" element={<SigHunterFlip />} />
           <Route path="/mines" element={<MinesGame />} />
@@ -44,29 +62,50 @@ export default function App() {
             element={<BingoBoard key="bingo3" boardId="bingo3" currentBoardNo="3" />}
           />
 
-          {/* 시그헌터 빙고 보드(OBS/시청자용) */}
+          {/* 시그헌터 빙고 보드 (기존 OBS/시청자용) */}
           <Route
             path="/hunter-bingo"
             element={<SigHunterBingoBoard boardId="hunter-main" />}
           />
 
-          {/* 시그헌터 빙고 설정 페이지(관리자용) */}
+          {/* 시그헌터 빙고 설정 (기존 관리자용) */}
           <Route
             path="/hunter-bingo/control"
             element={<SigHunterBingoControl boardId="hunter-main" />}
           />
 
-          {/* HP 배틀 전체 페이지 */}
+          {/* HP 배틀 */}
           <Route path="/hp-battle" element={<HpBattle />} />
-
-          {/* HP 배틀 컨트롤 */}
           <Route path="/hp-control" element={<HpControl battleId="sig-hp" />} />
 
-          {/* 시그 이미지 업로드/관리 페이지 */}
-          <Route path="/admin/sig" element={<SigImageAdminPage />} />
-        </Route>
+          {/* ─────────────────────────────────────────────────
+              Admin (관리자 전용)
+          ───────────────────────────────────────────────── */}
 
-        {/* 팝업 라우트들 */}
+          {/* 이미지 라이브러리 CRUD */}
+          <Route path="/admin/sig" element={<SigImageAdminPage />} />
+
+          {/* 시그헌터 빙고 보드 조정실
+              ex) /admin/sig-hunter-bingo/hunter-main */}
+          <Route
+            path="/admin/sig-hunter-bingo/:boardId"
+            element={<SigHunterBoardControl />}
+          />
+
+          {/* 시그헌터 플립 조정실
+              ex) /admin/sig-hunter-flip/flip-main */}
+          <Route
+            path="/admin/sig-hunter-flip/:boardId"
+            element={<SigHunterFlipControl />}
+          />
+
+        </Route>
+        {/* ═══ GameHub 끝 ═══════════════════════════════════ */}
+
+
+        {/* ═══════════════════════════════════════════════════
+            팝업 라우트 (독립 창)
+        ═══════════════════════════════════════════════════ */}
         <Route
           path="/edit-message"
           element={<EditMessageModal onClose={() => window.close()} />}
@@ -76,8 +115,37 @@ export default function App() {
           element={<AdminPopup onClose={() => window.close()} />}
         />
 
-        {/* OBS용 HP 오버레이 */}
+
+        {/* ═══════════════════════════════════════════════════
+            OBS 전용 라우트 (GameHub 밖, 순수 뷰어)
+            → OBS 브라우저 소스 URL로 직접 사용
+            → /hp-overlay 와 동일한 패턴
+        ═══════════════════════════════════════════════════ */}
+
+        {/* HP 오버레이 (기존) */}
         <Route path="/hp-overlay" element={<HpOverlay battleId="sig-hp" />} />
+
+        {/* 시그헌터 빙고 OBS 뷰어
+            OBS URL: /obs/sig-hunter-bingo/hunter-main */}
+        <Route
+          path="/obs/sig-hunter-bingo/:boardId"
+          element={<SigHunterBingoView />}
+        />
+
+        {/* 식대전 빙고 OBS 뷰어
+            OBS URL: /obs/meal-bingo/bingo1 */}
+        <Route
+          path="/obs/bingo/:boardId"
+          element={<BingoView />}
+        />
+
+        {/* 시그헌터 플립 OBS 뷰어
+            OBS URL: /obs/sig-hunter-flip/flip-main */}
+        <Route
+          path="/obs/sig-hunter-flip/:boardId"
+          element={<SigHunterFlipView />}
+        />
+
       </Routes>
     </Router>
   );

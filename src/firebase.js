@@ -14,15 +14,15 @@ const firebaseConfig = {
   measurementId: "G-3VDF4EWY40",
 };
 
+// ✅ Firebase 앱 초기화
 const app = initializeApp(firebaseConfig);
 
-// ✅ Realtime Database (HP 배틀 등)
-const rtdb = getDatabase(app);
+// ✅ 인스턴스 생성 (순서 중요 X, 하지만 db 별칭은 밑에서)
+const firestore = getFirestore(app);   // Firestore
+const rtdb = getDatabase(app);         // Realtime DB
+const storage = getStorage(app);       // Storage
 
-// ✅ Firestore (시그 카드 / 빙고 상태 저장용)
-const firestore = getFirestore(app);
+// ✅ db 별칭은 firestore 생성 *이후*에
+const db = firestore;
 
-// ✅ Storage (이미지 업로드용)
-const storage = getStorage(app);
-
-export { app, rtdb, firestore, storage };
+export { app, firestore, rtdb, storage, db };
