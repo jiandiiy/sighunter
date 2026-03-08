@@ -113,84 +113,84 @@ function distributeImages(images, numCards, perCard) {
 
 const normalMessagePool = [
   { text: "화장실\n1개", color: "#ffffff", bgColor: "#4a5568", weight: 0 },
-  { text: "레전드 ✨", color: "#2d3748", bgColor: "#fbd38d", weight: 0 },
+  { text: "레전드 ✨", color: "#1f2937", bgColor: "#fcd34d", weight: 0 },
 
-  { text: "기여도\n두배", color: "#1a202c", bgColor: "#9ae6b4", weight: 60 },
-  { text: "기여도\n세배", color: "#1a202c", bgColor: "#68d391", weight: 30 },
-  { text: "기여도\n네배", color: "#1a202c", bgColor: "#48bb78", weight: 5 },
+  { text: "기여도\n두배", color: "#ffffff", bgColor: "#6366f1", weight: 60 },
+  { text: "기여도\n세배", color: "#ffffff", bgColor: "#7c3aed", weight: 30 },
+  { text: "기여도\n네배", color: "#ffffff", bgColor: "#9333ea", weight: 5 },
 
-  { text: "1000원\n당첨!", color: "#1a202c", bgColor: "#f6e05e", weight: 0 },
-  { text: "전설 🏆", color: "#2d3748", bgColor: "#ed8936", weight: 0 },
-  { text: "10000\n원당첨!", color: "#1a202c", bgColor: "#f56565", weight: 0 },
-  { text: "퇴근!🏠", color: "#1a202c", bgColor: "#f56565", weight: 0 },
+  { text: "1000원\n당첨!", color: "#1f2937", bgColor: "#fbbf24", weight: 0 },
+  { text: "전설 🏆", color: "#ffffff", bgColor: "#f97316", weight: 0 },
+  { text: "10000\n원당첨!", color: "#ffffff", bgColor: "#ef4444", weight: 0 },
+  { text: "퇴근!🏠", color: "#ffffff", bgColor: "#ec4899", weight: 0 },
 
-  { text: "꽝 🤡", color: "#ffffff", bgColor: "#2d3748", weight: 5 },
+  { text: "꽝 🤡", color: "#ffffff", bgColor: "#1f2937", weight: 5 },
 ];
 
 const specialMessagePool = [
   // 기여도
   {
     text: "기여도 두배 🎁",
-    color: "#2f1410",
-    bgColor: "linear-gradient(90deg, #ffd1a1, #ff9f7b)",
+    color: "#ffffff",
+    bgColor: "linear-gradient(90deg, #6366f1, #8b5cf6)",
     weight: 60,
   },
   {
     text: "기여도 세배 🌟",
-    color: "#231942",
-    bgColor: "linear-gradient(90deg, #c4b5fd, #7c3aed)",
+    color: "#ffffff",
+    bgColor: "linear-gradient(90deg, #7c3aed, #ec4899)",
     weight: 35,
   },
   {
     text: "기여도 네배 🔥",
-    color: "#1f2933",
-    bgColor: "linear-gradient(90deg, #f97373, #fb923c)",
+    color: "#ffffff",
+    bgColor: "linear-gradient(90deg, #f97316, #ef4444)",
     weight: 5,
   },
-  
-  // 금액 보상 (0%)
+
+  // 금액 보상
   {
     text: "💰 30,000원\n당첨!",
-    color: "#14532d",
-    bgColor: "linear-gradient(90deg, #bbf7d0, #4ade80)",
+    color: "#1f2937",
+    bgColor: "linear-gradient(90deg, #fde68a, #fbbf24)",
     weight: 0,
   },
   {
     text: "💎 50,000원\n당첨!",
-    color: "#1d2833",
-    bgColor: "linear-gradient(90deg, #a5f3fc, #38bdf8)",
+    color: "#ffffff",
+    bgColor: "linear-gradient(90deg, #38bdf8, #6366f1)",
     weight: 0,
   },
   {
     text: "🎊 100,000원\n당첨!",
-    color: "#3f1f0f",
-    bgColor: "linear-gradient(90deg, #fde68a, #facc15)",
+    color: "#1f2937",
+    bgColor: "linear-gradient(90deg, #facc15, #f97316)",
     weight: 0,
   },
-  
-  // 기타 효과 (0%)
+
+  // 기타 효과
   {
     text: "퇴근 🏠",
-    color: "#1f2933",
-    bgColor: "linear-gradient(90deg, #f97373, #fb923c)",
+    color: "#ffffff",
+    bgColor: "linear-gradient(90deg, #ef4444, #ec4899)",
     weight: 0,
   },
   {
     text: "화장실 무제한 ♾️",
-    color: "#064e3b",
-    bgColor: "linear-gradient(90deg, #6ee7b7, #34d399)",
+    color: "#ffffff",
+    bgColor: "linear-gradient(90deg, #60a5fa, #3b82f6)",
     weight: 0,
   },
   {
     text: "레전드 💠",
-    color: "#0f172a",
-    bgColor: "linear-gradient(90deg, #e0f2fe, #60a5fa)",
+    color: "#ffffff",
+    bgColor: "linear-gradient(90deg, #a78bfa, #7c3aed)",
     weight: 0,
   },
   {
     text: "전설 🔱",
-    color: "#1a1033",
-    bgColor: "linear-gradient(90deg, #f5d0fe, #e879f9)",
+    color: "#ffffff",
+    bgColor: "linear-gradient(90deg, #f472b6, #ec4899)",
     weight: 0,
   },
 ];
