@@ -658,6 +658,19 @@ export default function BingoBoard({
             🎴 뒤집기
           </button>
         </div>
+        
+         {/* 🔹 단축키 안내 문구 */}
+        <span
+          style={{
+            fontSize: 16,
+            color: "#4b5563",
+            lineHeight: 1.4,
+            textAlign: "left",
+          }}
+        >
+          *Alt+Shift+F → 칸번호
+        </span>
+
 
         {/* 제목 */}
         <h2 className="bingo-title-text">🍽️ 식사대전 빙고 🍽️</h2>

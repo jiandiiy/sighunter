@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+// src/components/GameCenter/SigHunterBingo/SigHunterBingoBoard.jsx
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import "./SigHunterBingoBoard.css";
 import {
   useSigHunterBingoState,
@@ -27,9 +28,39 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
   } = useSigHunterBingoState(boardId);
 
   const [currentPlayer, setCurrentPlayer] = useState("");
+  const [targetCellNo, setTargetCellNo] = useState(""); // 🔹 칸 번호 입력 상태
+
+  // 🔹 입력창 포커스용 ref
+  const playerInputRef = useRef(null);
+  const cellNumberInputRef = useRef(null);
+
+  // 🔹 Alt+Shift+D → 플레이어 닉네임 입력창 포커스
+  //    Alt+Shift+F → 칸 번호 입력창 포커스
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // 플레이어 닉네임 포커스
+      if (e.altKey && e.shiftKey && (e.key === "d" || e.key === "D")) {
+        e.preventDefault();
+        if (playerInputRef.current) {
+          playerInputRef.current.focus();
+        }
+      }
+
+      // 칸 번호 입력창 포커스
+      if (e.altKey && e.shiftKey && (e.key === "f" || e.key === "F")) {
+        e.preventDefault();
+        if (cellNumberInputRef.current) {
+          cellNumberInputRef.current.focus();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   // 🔹 플레이어별 점령 칸 수 집계
-  const playerTerritoryCounts = React.useMemo(() => {
+  const playerTerritoryCounts = useMemo(() => {
     const counts = {};
     cells.forEach((cell) => {
       if (!cell.owner) return;
@@ -38,6 +69,18 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
     });
     return counts;
   }, [cells]);
+
+  // 🔹 번호(1~N)로 칸 찾아서 현재 플레이어로 클릭 처리
+  const flipCellByNumber = (noStr) => {
+    const n = Number(noStr);
+    if (!Number.isFinite(n)) return;
+    if (n < 1 || n > cellCount) return;
+
+    const cell = cells[n - 1];
+    if (!cell) return;
+
+    handleClickCell(cell.id, currentPlayer);
+  };
 
   if (loading) {
     return <div style={{ color: "#fff" }}>로딩 중...</div>;
@@ -81,20 +124,42 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
         <h2 className="hunter-title-text">🎯 시그 땅따먹기 🎯</h2>
       </header>
 
-      <div className="hunter-main">
+       <div className="hunter-main">
         {/* 좌측: 보드 */}
         <div className="hunter-main-left">
           <div className="hunter-line-count-under-board">
             <div>
               현재 점령된 줄: <span>{completedLineCount}</span> 줄
             </div>
-            <button
-              type="button"
-              className="hunter-reset-btn"
-              onClick={handleResetBoard}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                flexWrap: "wrap",
+              }}
             >
-              초기화
-            </button>
+              <button
+                type="button"
+                className="hunter-reset-btn"
+                onClick={handleResetBoard}
+              >
+                초기화
+              </button>
+
+              {/* 🔹 단축키 안내 문구 */}
+              <span
+                style={{
+                  fontSize: 16,
+                  color: "#000",
+                  lineHeight: 1.4,
+                }}
+              >
+                 *Alt+Shift+D → 닉네임
+  <br />
+ *Alt+Shift+F → 칸번호
+              </span>
+            </div>
           </div>
 
           <div
@@ -138,7 +203,6 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                           />
                         </div>
                       )}
-                      {/* 앞면 이름/점수/뱃지 영역은 모두 제거 */}
                     </div>
 
                     {/* 뒷면: 소유자 / 점수 */}
@@ -167,7 +231,7 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
           </div>
         </div>
 
-        {/* 우측: 닉네임, 플레이어 점령 현황, 줄 미니맵, 로그 */}
+        {/* 우측: 닉네임, 칸 번호 입력, 플레이어 점령 현황, 줄 미니맵, 로그 */}
         <aside className="hunter-main-right">
           <div className="hunter-sidebar-top">
             <div className="hunter-player-input-row">
@@ -178,12 +242,90 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                   className="hunter-player-input"
                   value={currentPlayer}
                   onChange={(e) => setCurrentPlayer(e.target.value)}
-                  placeholder="닉네임 입력"
+                  placeholder="닉네임"
+                  ref={playerInputRef} // 🔹 단축키 포커스용 ref
                 />
               </label>
               <div className="hunter-line-count">
                 현재 <span>{completedLineCount}</span> 줄 점령 중
               </div>
+            </div>
+
+            {/* 🔹 플레이어 닉네임 아래: 칸 번호 입력 + 뒤집기 버튼 */}
+            <div
+              className="hunter-cellno-row"
+              style={{
+                marginTop: 8,
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
+              <label
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4,
+                  color: "#e5e7eb",
+                  fontSize: 13,
+                }}
+              >
+                <span>칸 번호:</span>
+
+                {/* 🔹 칸 번호 입력 래퍼 (시그헌터 스타일 라벨) */}
+                <div
+                  className={
+                    "hunter-cellno-wrapper" +
+                    (targetCellNo ? " hunter-cellno-wrapper--filled" : "")
+                  }
+                  style={{ position: "relative", width: 70 }}
+                >
+                  <input
+                    type="number"
+                    min="1"
+                    max={cellCount}
+                    value={targetCellNo}
+                    onChange={(e) => setTargetCellNo(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        flipCellByNumber(targetCellNo);
+                      }
+                    }}
+                    className="hunter-cellno-input"
+                    style={{
+                      width: "100%",
+                      padding: "4px 6px",
+                      borderRadius: 4,
+                      border: "1px solid #e5e7eb",
+                      fontSize: 18,
+                      textAlign: "center",
+                      backgroundColor: "#fff",
+                      color: "#000",
+                    }}
+                    ref={cellNumberInputRef} // 🔹 단축키 포커스용 ref
+                  />
+                  {/* 🔹 라벨: 값 없고 포커스 없을 때만 보이게 CSS로 제어 */}
+                  <span className="hunter-cellno-label">번호</span>
+                </div>
+              </label>
+
+              <button
+                type="button"
+                onClick={() => flipCellByNumber(targetCellNo)}
+                style={{
+                  padding: "4px 10px",
+                  borderRadius: 10,
+                  border: "1px solid #f97316",
+                  background: "#111827",
+                  color: "#f9fafb",
+                  fontSize: 16,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                🎴 뒤집기
+              </button>
             </div>
           </div>
 
@@ -200,10 +342,10 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
             ) : (
               <ul className="hunter-player-territory-list">
                 {Object.entries(playerTerritoryCounts)
-                  .sort((a, b) => b[1] - a[1]) // 많이 점령한 순
+                  .sort((a, b) => b[1] - a[1])
                   .map(([player, count], index) => {
                     const color = getColorForPlayer(player);
-                    const rank = index + 1; // 1위, 2위, 3위 ...
+                    const rank = index + 1;
 
                     return (
                       <li

@@ -146,10 +146,20 @@ export default function SigHunterFlip() {
   }, [project, loaded, sigCards, normalCards, specialCard]);
 
   // 🔑 전역 단축키
-  // - Ctrl+Shift+A : 마지막 카드 기준 AdminPopup 열기/닫기
-  // - Ctrl+Shift+F : 칸 번호 입력창에 포커스(+선택)
+  // - Alt+Shift+A : 마지막 카드 기준 AdminPopup 열기/닫기
+  // - Alt+Shift+F : 칸 번호 입력창에 포커스(+선택)
+  // - Esc         : 열려 있는 모달(어드민/에디트) 닫기
   useEffect(() => {
     const handleKeyDown = (e) => {
+      // Esc로 모달 닫기
+      if (e.key === "Escape" || e.code === "Escape") {
+        if (modal) {
+          e.preventDefault();
+          setModal(null);
+        }
+        return;
+      }
+
       // AdminPopup 토글
       if (e.altKey && e.shiftKey && e.code === "KeyA") {
         e.preventDefault();
@@ -175,7 +185,7 @@ export default function SigHunterFlip() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [lastActiveCardId]);
+  }, [lastActiveCardId, modal]);
 
   if (!loaded) {
     return (
@@ -377,50 +387,74 @@ export default function SigHunterFlip() {
     <div className="natural-container">
       <h2>💖 시그헌터 💖</h2>
 
-      {/* 프로젝트 탭 */}
+      {/* 프로젝트 탭 + 단축키 안내 */}
       <div
         style={{
           display: "flex",
           justifyContent: "center",
-          gap: "8px",
+          alignItems: "center",
+          gap: "12px",
           margin: "0 auto 12px auto",
+          flexWrap: "wrap",
         }}
       >
-        {["queendom", "muse"].map((key) => {
-          const label = key === "queendom" ? "퀸덤" : "뮤즈";
-          const isActive = project === key;
+        {/* 탭 버튼들 */}
+        <div
+          style={{
+            display: "flex",
+            gap: "8px",
+          }}
+        >
+          {["queendom", "muse"].map((key) => {
+            const label = key === "queendom" ? "퀸덤" : "뮤즈";
+            const isActive = project === key;
 
-          return (
-            <button
-              key={key}
-              type="button"
-              onClick={() => {
-                setProject(key);
-                resetCards(sigCards);
-              }}
-              style={{
-                padding: "6px 14px",
-                borderRadius: "999px",
-                border: isActive ? "2px solid #ffe4f0" : "1px solid #888",
-                background: isActive
-                  ? "linear-gradient(135deg, #ff7eb3, #ffb6c1)"
-                  : "linear-gradient(135deg, #444, #222)",
-                color: "#ffffff",
-                cursor: "pointer",
-                fontSize: "14px",
-                minWidth: "70px",
-                fontFamily: "Cafe24ClassicType",
-                fontWeight: 600,
-                boxShadow: isActive
-                  ? "0 0 8px rgba(255, 126, 179, 0.7)"
-                  : "0 0 4px rgba(0, 0, 0, 0.4)",
-                transition: "all 0.15s ease-in-out",
-              }}
-            >
-              {label}
-            </button>
-          );
-        })}
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => {
+                  setProject(key);
+                  resetCards(sigCards);
+                }}
+                style={{
+                  padding: "6px 14px",
+                  borderRadius: "999px",
+                  border: isActive ? "2px solid #ffe4f0" : "1px solid #888",
+                  background: isActive
+                    ? "linear-gradient(135deg, #ff7eb3, #ffb6c1)"
+                    : "linear-gradient(135deg, #444, #222)",
+                  color: "#ffffff",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  minWidth: "70px",
+                  fontFamily: "Cafe24ClassicType",
+                  fontWeight: 600,
+                  boxShadow: isActive
+                    ? "0 0 8px rgba(255, 126, 179, 0.7)"
+                    : "0 0 4px rgba(0, 0, 0, 0.4)",
+                  transition: "all 0.15s ease-in-out",
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* 🔹 단축키 안내 문구 */}
+        <span
+          style={{
+            fontSize: 16,
+            color: "#4b5563",
+            lineHeight: 1.4,
+            textAlign: "left",
+          }}
+        >
+          *Alt+Shift+A → 확률조절
+          <br />
+          *Alt+Shift+F → 칸번호
+        </span>
       </div>
 
       {/* 🔄 초기화 + 뒤집기 줄 */}
@@ -604,4 +638,4 @@ export default function SigHunterFlip() {
       )}
     </div>
   );
-} 
+}

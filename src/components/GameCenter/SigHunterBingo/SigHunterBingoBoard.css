@@ -576,3 +576,37 @@
   font-weight: 700;
   color: #e5e7eb;
 }
+
+/* 🔢 칸 번호 입력 래퍼 */
+.hunter-cellno-wrapper {
+  position: relative;
+}
+
+/* 입력창 */
+.hunter-cellno-input {
+  background-color: #020617;
+  color: #f9fafb;
+  box-sizing: border-box;
+}
+
+/* 기본 상태: 라벨 보임 (input 위에 얇게 얹힘) */
+.hunter-cellno-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 16px;
+  color: #9ca3af;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* 포커스되면 라벨 숨김 */
+.hunter-cellno-input:focus + .hunter-cellno-label {
+  display: none;
+}
+
+/* 값이 있을 때도 라벨 숨김 */
+.hunter-cellno-wrapper--filled .hunter-cellno-label {
+  display: none;
+}
