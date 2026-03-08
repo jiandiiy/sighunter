@@ -1,5 +1,5 @@
 // src/components/GameCenter/Bingo/BingoBoard.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./BingoBoard.css";
 
@@ -46,6 +46,12 @@ export default function BingoBoard({
   const [completedLines, setCompletedLines] = useState([]);
   // { [mode]: { [cellIndex]: string[] } } 형태로 이미 나온 이미지 ID 기록
   const [shownHistory, setShownHistory] = useState({});
+
+  // 🔢 번호로 칸 지정해서 뒤집기용 입력 상태
+  const [targetCellNo, setTargetCellNo] = useState("");
+
+  // 🔢 칸 번호 입력창 DOM 접근용 ref (단축키 포커스용)
+  const cellNumberInputRef = useRef(null);
 
   /* -------------------------------------------------------------------------- */
   /* 🔧 유틸: 완성된 라인 계산                                                    */
@@ -334,8 +340,27 @@ export default function BingoBoard({
     }
 
     init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [boardId, currentBoardNo]);
+
+  /* -------------------------------------------------------------------------- */
+  /* 🔧 Alt+Shift+F 단축키로 칸 번호 입력창으로 포커스 이동                        */
+  /* -------------------------------------------------------------------------- */
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Alt + Shift + F 조합인지 확인
+      if (e.altKey && e.shiftKey && (e.key === "f" || e.key === "F")) {
+        e.preventDefault();
+        if (cellNumberInputRef.current) {
+          cellNumberInputRef.current.focus();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   /* -------------------------------------------------------------------------- */
   /* 🔧 Firestore 동기화                                                         */
@@ -400,6 +425,18 @@ export default function BingoBoard({
     } catch (error) {
       console.error("[BINGO] 칸 클릭 에러:", error);
     }
+  };
+
+  /* -------------------------------------------------------------------------- */
+  /* 🔹 번호(1~9)로 칸 찾아서 토글                                               */
+  /* -------------------------------------------------------------------------- */
+  const flipCellByNumber = (noStr) => {
+    const n = Number(noStr);
+    if (!Number.isFinite(n)) return;
+    if (n < 1 || n > CELL_COUNT) return;
+
+    const idx = n - 1;
+    handleToggleCell(idx);
   };
 
   /* -------------------------------------------------------------------------- */
@@ -511,7 +548,7 @@ export default function BingoBoard({
 
   return (
     <div className="bingo-root">
-      {/* 헤더: 모드 탭 + 초기화 버튼 */}
+      {/* 헤더: 모드 탭 + 초기화 버튼 + 칸 번호 입력 */}
       <header className="bingo-header">
         <div className="bingo-header-row">
           {/* 모드 선택 탭 */}
@@ -529,23 +566,57 @@ export default function BingoBoard({
             ))}
           </div>
 
-          {/* 초기화 버튼 */}
-          <button
-            type="button"
-            className="bingo-reset-btn"
-            onClick={handleResetBoard}
-          >
-            초기화
-          </button>
+          {/* 우측: 초기화 + 칸 번호 입력 */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <button
+              type="button"
+              className="bingo-reset-btn"
+              onClick={handleResetBoard}
+            >
+              초기화
+            </button>
+
+            {/* 🔢 칸 번호 입력 (시그헌터 스타일 라벨) */}
+            <div
+              className="bingo-cellno-wrapper"
+              style={{ position: "relative", width: 70 }}
+            >
+              <input
+                type="number"
+                min="1"
+                max={CELL_COUNT}
+                value={targetCellNo}
+                onChange={(e) => setTargetCellNo(e.target.value)}
+                className="bingo-cellno-input"
+                ref={cellNumberInputRef}
+                style={{
+                  width: "100%",
+                  padding: "8px 2px",
+                  borderRadius: 6,
+                  border: "1px solid #e5e7eb",
+                  fontSize: 20,
+                  textAlign: "center",
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    flipCellByNumber(targetCellNo);
+                  }
+                }}
+              />
+              {/* 라벨: 포커스 없을 때만 보이게 CSS로 제어 */}
+              <span className="bingo-cellno-label">칸 번호</span>
+            </div>
+          </div>
         </div>
 
-        {/* 빙고 보드 선택 (1/2/3) */}
+        {/* 빙고 보드 선택 (1/2/3) + 번호로 뒤집기 버튼 */}
         <div
           style={{
             marginTop: 8,
             display: "flex",
             gap: 8,
             justifyContent: "center",
+            alignItems: "flex-end",
           }}
         >
           {["1", "2", "3"].map((no) => {
@@ -570,6 +641,25 @@ export default function BingoBoard({
               </button>
             );
           })}
+
+          {/* 🎴 번호로 뒤집기 버튼 (빙고 버튼 오른쪽) */}
+          <button
+            type="button"
+            onClick={() => flipCellByNumber(targetCellNo)}
+            style={{
+              padding: "4px 10px",
+              borderRadius: 999,
+              border: "1px solid #f97316",
+              background: "#111827",
+              color: "#f9fafb",
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+              marginLeft: 4,
+            }}
+          >
+            🎴 뒤집기
+          </button>
         </div>
 
         {/* 제목 */}
@@ -599,7 +689,9 @@ export default function BingoBoard({
                       src={card.imageUrl}
                       alt={card.title || `bingo-${idx}`}
                       onError={(e) => {
-                        console.error(`[BINGO] 이미지 로드 실패: ${card.imageUrl}`);
+                        console.error(
+                          `[BINGO] 이미지 로드 실패: ${card.imageUrl}`
+                        );
                         e.target.style.display = "none";
                       }}
                     />
@@ -609,9 +701,9 @@ export default function BingoBoard({
                   <span className="bingo-cell-number">{idx + 1}</span>
                 </div>
 
-                {/* 뒷면: 체크 표시 */}
+                {/* 뒷면: 체크 표시 (O) */}
                 <div className="bingo-cell-back">
-                  <span className="bingo-check-icon">✓</span>
+                  <span className="bingo-check-icon">O</span>
                 </div>
               </div>
             </div>
