@@ -52,7 +52,7 @@ export default function GameHub() {
     <div
       style={{
         minHeight: "100%",
-        background: "transparent",
+        background: "#00ff00",
         color: "#000",
         display: "flex",
         flexDirection: "column",
