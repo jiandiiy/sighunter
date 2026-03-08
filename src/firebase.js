@@ -1,6 +1,6 @@
 // src/firebase.js
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { initializeFirestore } from "firebase/firestore";
 import { getDatabase } from "firebase/database";
 import { getStorage } from "firebase/storage";
 
@@ -18,7 +18,10 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // ✅ 인스턴스 생성 (순서 중요 X, 하지만 db 별칭은 밑에서)
-const firestore = getFirestore(app);   // Firestore
+const firestore = initializeFirestore(app, {
+  experimentalForceLongPolling: true,
+  useFetchStreams: false,
+});
 const rtdb = getDatabase(app);         // Realtime DB
 const storage = getStorage(app);       // Storage
 
