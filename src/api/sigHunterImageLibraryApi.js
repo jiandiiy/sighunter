@@ -1,6 +1,6 @@
 // 타입 표기 제거 버전 (JS)
 
-import { firestore, storage } from "../firebase";
+import { firestore, storage } from "../core/firebase";
 
 import {
   collection,

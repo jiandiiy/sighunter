@@ -5,7 +5,7 @@ import {
   museSigCards,
 } from "../../data/sigData";
 import { useSigStorage } from "./FlipHooks";
-import { fireConfetti, weightedPick } from "../common/confettiUtils";
+import { fireConfetti, weightedPick } from "../../../src/components/common/confettiUtils";
 import { fetchRandomSigItems } from "../../api/sigHunterImageLibraryApi";
 import CardGrid from "./CardGrid";
 import EditMessageModal from "./EditMessageModal";

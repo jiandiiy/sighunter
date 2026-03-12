@@ -1,6 +1,8 @@
+
 // src/utils/sigHunterBingoData.js
 
 import { sigHunterImagePool } from "../data/sigHunterImagePool";
+import { toStorageUrl } from "../core/storageUrl"; // ✅ 추가
 
 export const HUNTER_MODES = ["muse", "queendom"];
 export const HUNTER_SIZES = [3, 5];
@@ -75,8 +77,8 @@ export function createRandomHunterCell(mode, size, idx) {
     throw new Error(`Invalid size: ${size}`);
   }
 
-  const centerIndex = getCenterIndex(size);
-  const cfg = GROUPS_BY_MODE_AND_SIZE[mode] || {};
+  const centerIndex  = getCenterIndex(size);
+  const cfg          = GROUPS_BY_MODE_AND_SIZE[mode] || {};
   const normalGroups = cfg.normal?.[size] || [];
   const centerGroups = cfg.center?.[size] || [];
 
@@ -86,17 +88,17 @@ export function createRandomHunterCell(mode, size, idx) {
     ? getRandomImagesFromGroups(mode, centerGroups, IMAGES_PER_CELL)
     : getRandomImagesFromGroups(mode, normalGroups, IMAGES_PER_CELL);
 
-  const first = images[0] || {};
+  const first    = images[0] || {};
   const sigCount = first.count ?? 0;
-  const prefix = mode === "queendom" ? "퀸덤 시그" : "뮤즈 시그";
+  const prefix   = mode === "queendom" ? "퀸덤 시그" : "뮤즈 시그";
 
   return {
-    id: idx,
-    sigName: `${prefix} ${idx + 1}`,
+    id:         idx,
+    sigName:    `${prefix} ${idx + 1}`,
     sigCount,
-    owner: null,
-    images: images.map((img) => img.path),
-    counts: images.map((img) => img.count),
+    owner:      null,
+    images:     images.map((img) => toStorageUrl(img.path)), // ✅ 변환
+    counts:     images.map((img) => img.count),
     imageIndex: 0,
   };
 }

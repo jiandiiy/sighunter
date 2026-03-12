@@ -1,4 +1,6 @@
+
 import React, { useState } from "react";
+import { toStorageUrl } from "../../core/storageUrl"; // ✅ 추가
 
 function CardItem({
   card = {},
@@ -19,12 +21,11 @@ function CardItem({
 
   const [imageError, setImageError] = useState(false);
 
-  const msg = revealed?.[id] || null;
+  const msg      = revealed?.[id] || null;
   const isFlipped = flipped?.[id] || false;
-  const isLocked = locked?.[id] || false;
+  const isLocked  = locked?.[id] || false;
 
-  const rarity =
-    sigItem?.rarity || (card.isSpecial ? "special" : "normal");
+  const rarity    = sigItem?.rarity || (card.isSpecial ? "special" : "normal");
   const isSpecial = rarity === "special";
 
   const title =
@@ -40,28 +41,18 @@ function CardItem({
     baseFront ||
     "https://via.placeholder.com/200/CCCCCC/FFFFFF?text=No+Image";
 
-  const newSrc = randomImages?.[id] || baseImage;
-
-  // 🔥 여기 한 줄 추가
-console.log(
-  "[CARD] id, sigItem, randomImage, newSrc",
-  id,
-  sigItem && { id: sigItem.id, slotIndex: sigItem.slotIndex, imageUrl: sigItem.imageUrl },
-  randomImages?.[id],
-  newSrc
-);
+  // ✅ 어떤 경로가 와도 Storage URL로 변환
+  const newSrc = toStorageUrl(randomImages?.[id] || baseImage);
 
   const handleFlip = (e) => {
     if (e.target.tagName === "INPUT" && e.target.type === "file") {
       e.stopPropagation();
       return;
     }
-
     if (isLocked) {
       e.stopPropagation();
       return;
     }
-
     onFlip(card, e);
   };
 
@@ -69,8 +60,7 @@ console.log(
     console.error("❌ 이미지 렌더 실패:", e.target.src);
     if (!imageError) {
       setImageError(true);
-      e.target.src =
-        "https://via.placeholder.com/200/FF6B6B/FFFFFF?text=Error";
+      e.target.src = "https://via.placeholder.com/200/FF6B6B/FFFFFF?text=Error";
     }
   };
 

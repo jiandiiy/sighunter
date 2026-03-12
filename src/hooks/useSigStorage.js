@@ -9,7 +9,7 @@ import {
 
 // ✅ Firestore 실시간 구독/저장
 import { doc, onSnapshot, setDoc } from "firebase/firestore";
-import { firestore } from "../firebase";
+import { firestore } from "../core/firebase";
 
 export function useSigStorage() {
   const [flipped, setFlippedState] = useState({});

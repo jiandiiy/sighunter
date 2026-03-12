@@ -11,8 +11,8 @@ import {
   updateDoc,
   writeBatch,
 } from "firebase/firestore";
-import { db } from "../../../firebase";
-import { fetchSigItems } from "../../../api/sigHunterImageLibraryApi";
+import { db } from "../../core/firebase";
+import { fetchSigItems } from "../../api/sigHunterImageLibraryApi";
 
 const DEFAULT_CONFIG = {
   rows: 4,

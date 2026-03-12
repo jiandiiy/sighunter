@@ -1,5 +1,7 @@
+
 // src/utils/sigBingoImagePool.js
 import { bingoImagePool } from "../data/sigBingoImagePool";
+import { toStorageUrl } from "../core/storageUrl"; // ✅ 추가
 // import { fetchRandomSigItems } from "../api/sigHunterImageLibraryApi"; // 🔴 임시로 주석
 
 function shuffle(arr) {
@@ -11,30 +13,31 @@ function shuffle(arr) {
   return a;
 }
 
+// ✅ imageUrl 생성 시 toStorageUrl() 로 변환
 function normalizeItem(raw, { mode, rarity = "normal", idx }) {
   if (!raw) return null;
 
   if (typeof raw === "object") {
     return {
-      id: raw.id ?? `${mode}-${rarity}-${idx}`,
-      title: raw.title ?? "",
-      score: raw.score ?? 0,
-      mode: raw.mode ?? mode,
-      type: raw.type ?? "meal-bingo",
-      rarity: raw.rarity ?? rarity,
-      imageUrl: raw.imageUrl ?? raw.src ?? raw.url ?? "",
+      id:       raw.id ?? `${mode}-${rarity}-${idx}`,
+      title:    raw.title ?? "",
+      score:    raw.score ?? 0,
+      mode:     raw.mode ?? mode,
+      type:     raw.type ?? "meal-bingo",
+      rarity:   raw.rarity ?? rarity,
+      imageUrl: toStorageUrl(raw.imageUrl ?? raw.src ?? raw.url ?? ""), // ✅
     };
   }
 
   if (typeof raw === "string") {
     return {
-      id: `${mode}-${rarity}-${idx}`,
-      title: "",
-      score: 0,
+      id:       `${mode}-${rarity}-${idx}`,
+      title:    "",
+      score:    0,
       mode,
-      type: "meal-bingo",
+      type:     "meal-bingo",
       rarity,
-      imageUrl: raw,
+      imageUrl: toStorageUrl(raw), // ✅
     };
   }
 
@@ -44,24 +47,19 @@ function normalizeItem(raw, { mode, rarity = "normal", idx }) {
 function getLocalPools(mode) {
   const modePool = bingoImagePool?.[mode];
 
-  const defaultList = Array.isArray(modePool) ? modePool : [];
-  const defaultList2 = Array.isArray(modePool?.default)
-    ? modePool.default
-    : [];
-  const normalRaw = defaultList.length ? defaultList : defaultList2;
+  const defaultList  = Array.isArray(modePool)          ? modePool          : [];
+  const defaultList2 = Array.isArray(modePool?.default) ? modePool.default  : [];
+  const normalRaw    = defaultList.length ? defaultList : defaultList2;
 
-  return {
-    modePool,
-    normalRaw,
-  };
+  return { modePool, normalRaw };
 }
 
 function getLocalRandomBingoImages(mode, count, opts = {}) {
   const {
-    centerIndex = 4,
-    centerPoolKey = "specialCenter",
-    useCenterPool = false,
-    rarity = "normal",
+    centerIndex    = 4,
+    centerPoolKey  = "specialCenter",
+    useCenterPool  = false,
+    rarity         = "normal",
   } = opts;
 
   const { modePool, normalRaw } = getLocalPools(mode);

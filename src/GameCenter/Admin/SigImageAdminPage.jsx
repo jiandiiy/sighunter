@@ -6,7 +6,7 @@ import {
   fetchSigItems,
   updateSigItem,
   deleteSigItem,
-} from "../../../api/sigHunterImageLibraryApi";
+} from "../../api/sigHunterImageLibraryApi";
 
 // 게임 타입 옵션 정의 (셀렉트 박스용)
 const GAME_TYPES = [

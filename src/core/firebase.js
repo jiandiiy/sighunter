@@ -1,9 +1,10 @@
-// src/firebase.js
+// src/core/firebase.js
 import { initializeApp } from "firebase/app";
 import { initializeFirestore } from "firebase/firestore";
 import { getDatabase } from "firebase/database";
 import { getStorage } from "firebase/storage";
 
+// ✅ Firebase 설정 (한 곳에서만 관리)
 const firebaseConfig = {
   apiKey: "AIzaSyDtSFww9PH2CEMJz9caYvN__C_SXmyxr0w",
   authDomain: "sig-hunter.firebaseapp.com",
@@ -14,18 +15,22 @@ const firebaseConfig = {
   measurementId: "G-3VDF4EWY40",
 };
 
-// ✅ Firebase 앱 초기화
+// ✅ 앱 초기화 (딱 1번만)
 const app = initializeApp(firebaseConfig);
 
-// ✅ 인스턴스 생성 (순서 중요 X, 하지만 db 별칭은 밑에서)
+// ✅ Firestore (LongPolling 옵션 유지 - 기존 firebase.js 방식)
 const firestore = initializeFirestore(app, {
   experimentalForceLongPolling: true,
   useFetchStreams: false,
 });
-const rtdb = getDatabase(app);         // Realtime DB
-const storage = getStorage(app);       // Storage
 
-// ✅ db 별칭은 firestore 생성 *이후*에
+// ✅ Realtime DB
+const rtdb = getDatabase(app);
+
+// ✅ Storage
+const storage = getStorage(app);
+
+// ✅ db 별칭 (기존 코드 호환용 - db로 import 하는 곳도 있을 수 있어서)
 const db = firestore;
 
-export { app, firestore, rtdb, storage, db };
+export { app, firestore, db, rtdb, storage };

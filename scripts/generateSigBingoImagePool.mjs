@@ -14,20 +14,20 @@ const PUBLIC_IMAGES_ROOT = path.join(PROJECT_ROOT, "public", "images");
 // 예시1: muse/queendom 구조 그대로 쓴다면
 const bingoConfig = {
   muse: [
-    "muse/group1",
-    "muse/group2",
-    "muse/group3",
-    "muse/group4",
-    "muse/group5",
-    "muse/group6",
+    "muse/group01",
+    "muse/group02",
+    "muse/group03",
+    "muse/group04",
+    "muse/group05",
+    "muse/group06",
   ],
   queendom: [
-    "queendom/group1",
-    "queendom/group2",
-    "queendom/group3",
-    "queendom/group4",
-    "queendom/group5",
-    "queendom/group6",
+    "queendom/group01",
+    "queendom/group02",
+    "queendom/group03",
+    "queendom/group04",
+    "queendom/group05",
+    "queendom/group06",
   ],
 
 };

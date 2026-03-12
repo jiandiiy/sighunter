@@ -1,6 +1,6 @@
 // src/api/sigHunterBingoStorage.js
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { storage } from "../firebase";
+import { storage } from "../core/firebase";
 
 /**
  * 특정 보드/셀에 대한 이미지 파일 업로드

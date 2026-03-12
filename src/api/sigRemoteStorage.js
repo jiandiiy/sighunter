@@ -1,6 +1,6 @@
 // src/api/sigRemoteStorage.js
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { db } from "../firebase";
+import { db } from "../core/firebase";
 
 const SIG_COLLECTION = "sigHunter";   // 컬렉션 이름
 const SIG_DOC_ID = "sharedState";     // 모두가 공유하는 하나의 문서

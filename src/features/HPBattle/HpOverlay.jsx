@@ -4,8 +4,8 @@ import HpBar from "./HpBar";
 import {
   BATTLE_MODES,
   createInitialBattleState,
-} from "../../../utils/hpBattle/battleTypes";
-import { subscribeBattleState } from "../../../utils/hpBattle/battleStorage";
+} from "../../utils/hpBattle/battleTypes";
+import { subscribeBattleState } from "../../utils/hpBattle/battleStorage";
 import "./HpBattle.css";
 
 export default function HpOverlay({ battleId = "sig-hp" }) {

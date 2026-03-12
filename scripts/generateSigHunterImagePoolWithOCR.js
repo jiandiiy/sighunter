@@ -21,14 +21,14 @@ const MODES = ["muse", "queendom"];
  * 실제 사용하는 그룹 키에 맞게 이 배열만 조정하면 됩니다.
  */
 const GROUPS = [
-  "group1",
-  "group2",
-  "group3",
-  "group4",
-  "group5",
-  "group6",
-  "group7",
-  "group9",
+  "group01",
+  "group02",
+  "group03",
+  "group04",
+  "group05",
+  "group06",
+  "group07",
+  "group09",
   "group10",
   "group11",
   "group12",

@@ -1,6 +1,6 @@
 // src/api/sigBingoStorage.js
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { firestore as db } from "../firebaseConfig"; // 🔥 firestore → db로 변경
+import { firestore as db } from "../core/firebase"; // 🔥 firestore → db로 변경
 
 const BINGO_COLLECTION = "sigBingoStates"; // 🔥 컬렉션명 통일
 

@@ -5,16 +5,16 @@ import {
   getInitialHunterCells,
   HUNTER_MODES,
   createRandomHunterCell,
-} from "../../../utils/sigHunterBingoData";
+} from "../../utils/sigHunterBingoData";
 import {
   loadSigHunterBingoState,
   saveSigHunterBingoState,
-} from "../../../api/sigHunterBingoApi";
+} from "../../api/sigHunterBingoApi";
 import {
   loadAllCells,
   updateCell as updateCellDoc,
-} from "../../../api/sigHunterBingoCellsApi";
-import { uploadCellImage } from "../../../api/sigHunterBingoStorage";
+} from "../../api/sigHunterBingoCellsApi";
+import { uploadCellImage } from "../../api/sigHunterBingoStorage";
 
 export const AVAILABLE_SIZES = [3, 5];
 

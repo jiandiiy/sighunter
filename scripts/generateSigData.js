@@ -204,15 +204,15 @@ function generateProjectSigCards(projectDir) {
 
   // ✅ 둘 다 일반카드는 group1~group9
   const normalGroups = [
-    "group1",
-    "group2",
-    "group3",
-    "group4",
-    "group5",
-    "group6",
-    "group7",
-    "group8",
-    "group9",
+    "group01",
+    "group02",
+    "group03",
+    "group04",
+    "group05",
+    "group06",
+    "group07",
+    "group08",
+    "group09",
   ];
 
   // ✅ 특별카드는

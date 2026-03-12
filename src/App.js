@@ -3,42 +3,42 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // ── 기존 컴포넌트들 ──────────────────────────────────────────
-import SigHunterFlip from "./components/SigHunterFlip/SigHunterFlip";
-import AdminPopup from "./components/SigHunterFlip/AdminPopup";
-import EditMessageModal from "./components/SigHunterFlip/EditMessageModal";
-import GameHub from "./components/GameCenter/GameHub";
-import MinesGame from "./components/GameCenter/MinesGame";
-import BoardGame from "./components/GameCenter/BoardGame/BoardGame";
-import CasinoWheelHuge from "./components/GameCenter/BigWheel/CasinoWheelHuge";
-import BingoBoard from "./components/GameCenter/Bingo/BingoBoard";
-import SigHunterBingoBoard from "./components/GameCenter/SigHunterBingo/SigHunterBingoBoard";
-import SigHunterBingoControl from "./components/GameCenter/SigHunterBingo/SigHunterBingoControl";
-import SigImageAdminPage from "./components/GameCenter/Admin/SigImageAdminPage";
+import SigHunterFlip from "./features/SigHunterFlip/SigHunterFlip";
+import AdminPopup from "./features/SigHunterFlip/AdminPopup";
+import EditMessageModal from "./features/SigHunterFlip/EditMessageModal";
+import GameHub from "./GameCenter/GameHub";
+import MinesGame from "./features/MinesGame";
+import BoardGame from "./features/BoardGame/BoardGame";
+import CasinoWheelHuge from "./features/BigWheel/CasinoWheelHuge";
+import BingoBoard from "./features/Bingo/BingoBoard";
+import SigHunterBingoBoard from "./features/SigHunterBingo/SigHunterBingoBoard";
+import SigHunterBingoControl from "./features/SigHunterBingo/SigHunterBingoControl";
+import SigImageAdminPage from "./GameCenter/Admin/SigImageAdminPage";
 
 // ── HP 배틀 ──────────────────────────────────────────────────
-import HpBattle from "./components/GameCenter/HPBattle/HpBattle";
-import HpControl from "./components/GameCenter/HPBattle/HpControl";
-import HpOverlay from "./components/GameCenter/HPBattle/HpOverlay";
+import HpBattle from "./features/HPBattle/HpBattle";
+import HpControl from "./features/HPBattle/HpControl";
+import HpOverlay from "./features/HPBattle/HpOverlay";
 
 // ── 신규: 보드 조정실 (Admin, GameHub 안) ────────────────────
-import SigHunterBoardControl from "./components/GameCenter/Admin/SigHunterBoardControl";
-import SigHunterFlipControl from "./components/GameCenter/Admin/SigHunterFlipControl";
+import SigHunterBoardControl from "./GameCenter/Admin/SigHunterBoardControl";
+import SigHunterFlipControl from "./GameCenter/Admin/SigHunterFlipControl";
 
 // ── 신규: OBS 뷰어 (GameHub 밖, 독립 라우트) ─────────────────
 import {
   SigHunterBingoView,
   BingoView,
   SigHunterFlipView,
-} from "./components/GameCenter/OBSViewer";
+} from "./GameCenter/OBSViewer";
+
 
 export default function App() {
   return (
     <Router>
       <Routes>
-
         {/* ═══════════════════════════════════════════════════
             GameHub 레이아웃 안 (네비게이션 포함)
-        ═══════════════════════════════════════════════════ */}
+            ═══════════════════════════════════════════════════ */}
         <Route element={<GameHub />}>
 
           {/* 메인 게임들 */}

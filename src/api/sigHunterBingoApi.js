@@ -1,6 +1,6 @@
 // src/api/sigHunterBingoApi.js
 import { doc, onSnapshot, setDoc, getDoc } from "firebase/firestore";
-import { firestore } from "../firebase";
+import { firestore } from "../core/firebase";
 
 const COLLECTION = "sigHunterBingo";
 
