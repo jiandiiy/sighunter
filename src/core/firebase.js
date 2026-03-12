@@ -6,13 +6,13 @@ import { getStorage } from "firebase/storage";
 
 // ✅ Firebase 설정 (한 곳에서만 관리)
 const firebaseConfig = {
-  apiKey: "AIzaSyDtSFww9PH2CEMJz9caYvN__C_SXmyxr0w",
-  authDomain: "sig-hunter.firebaseapp.com",
-  projectId: "sig-hunter",
-  storageBucket: "sig-hunter.firebasestorage.app",
-  messagingSenderId: "702524786134",
-  appId: "1:702524786134:web:259a88e3cd473531571077",
-  measurementId: "G-3VDF4EWY40",
+   apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain:        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId:         import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket:     import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId:             import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId:     import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 // ✅ 앱 초기화 (딱 1번만)
