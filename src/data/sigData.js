@@ -1,5 +1,6 @@
+import { toStorageUrl } from "../core/storageUrl";
 // ⚙️ 자동 생성된 파일 (퀸덤 + 뮤즈)
-export const queendomSigCards = [
+const _queendomSigCardsRaw = [
   {
     "id": 1,
     "amount": 1000,
@@ -1153,7 +1154,12 @@ export const queendomSigCards = [
     "isSpecial": true
   }
 ];
-export const museSigCards = [
+export const queendomSigCards = _queendomSigCardsRaw.map(card => ({
+  ...card,
+  frontImages: card.frontImages.map(toStorageUrl),
+}));
+
+const _museSigCardsRaw = [
   {
     "id": 1,
     "amount": 1000,
@@ -2250,6 +2256,11 @@ export const museSigCards = [
     "isSpecial": true
   }
 ];
+
+export const museSigCards = _museSigCardsRaw.map(card => ({
+  ...card,
+  frontImages: card.frontImages.map(toStorageUrl),
+}));
 
 export const normalMessages = [
   {

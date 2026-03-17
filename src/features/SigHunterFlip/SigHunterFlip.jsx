@@ -4,7 +4,7 @@ import {
   queendomSigCards,
   museSigCards,
 } from "../../data/sigData";
-import { useSigStorage } from "./FlipHooks";
+import { useSigStorage } from "../../hooks/useSigStorage";
 import { fireConfetti, weightedPick } from "../../../src/components/common/confettiUtils";
 import { fetchRandomSigItems } from "../../api/sigHunterImageLibraryApi";
 import CardGrid from "./CardGrid";
