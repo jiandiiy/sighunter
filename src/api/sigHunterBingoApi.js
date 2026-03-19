@@ -70,11 +70,7 @@ export function subscribeSigHunterBingoState(
 export async function saveSigHunterBingoState(boardId, mode, size, state) {
   const ref = getBingoDocRef(boardId, mode, size);
   try {
-    const raw = { mode, size, ...state };
-
-    // undefined, 함수, 클래스 인스턴스 등 Firestore 비호환 값을 모두 제거
-    const cleaned = JSON.parse(JSON.stringify(raw));
-
+    const cleaned = removeUndefined({ mode, size, ...state }); // ← undefined 제거 후 저장
     await setDoc(ref, cleaned, { merge: true });
   } catch (e) {
     console.error("saveSigHunterBingoState failed", e);

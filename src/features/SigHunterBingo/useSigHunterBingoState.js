@@ -1,6 +1,6 @@
 // src/components/GameCenter/SigHunterBingo/useSigHunterBingoState.js
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   getInitialHunterCells,
   HUNTER_MODES,
@@ -10,12 +10,8 @@ import {
   loadSigHunterBingoState,
   saveSigHunterBingoState,
 } from "../../api/sigHunterBingoApi";
-import {
-  loadAllCells,
-  updateCell as updateCellDoc,
-} from "../../api/sigHunterBingoCellsApi";
-import { uploadCellImage } from "../../api/sigHunterBingoStorage";
-import { toStorageUrl } from "../../core/storageUrl"; // ✅ 추가
+import { loadAllCells } from "../../api/sigHunterBingoCellsApi";
+import { toStorageUrl } from "../../core/storageUrl";
 
 export const AVAILABLE_SIZES = [3, 5];
 
@@ -82,9 +78,6 @@ export function useSigHunterBingoState(boardId = "hunter1") {
   const [playerColors, setPlayerColors] = useState({});
   const [modeStates, setModeStates] = useState({});
 
-  // 셀별 파일 input 참조 (설정 페이지에서 사용)
-  const fileInputRefs = useRef({});
-
   // 팔레트 셔플
   const [shuffledPalette] = useState(() => {
     const arr = [...PLAYER_COLOR_PALETTE];
@@ -139,12 +132,26 @@ export function useSigHunterBingoState(boardId = "hunter1") {
     return nextLineOwners;
   };
 
-  // ✅ Firestore 저장: (nextMode, nextSize, nextState) 로 통일
-  const sync = (nextMode, nextSize, nextState) => {
-    saveSigHunterBingoState(boardId, nextMode, nextSize, nextState).catch((e) =>
-      console.error("saveSigHunterBingoState failed", e)
-    );
-  };
+  // Firestore 저장: 현재 상태 기준
+  const sync = useCallback(
+    async (overrideState) => {
+      const stateToSave =
+        overrideState ??
+        {
+          cells,
+          logs,
+          lineOwners,
+          playerColors,
+        };
+
+      try {
+        await saveSigHunterBingoState(boardId, mode, size, stateToSave);
+      } catch (e) {
+        console.error("saveSigHunterBingoState failed", e);
+      }
+    },
+    [boardId, mode, size, cells, logs, lineOwners, playerColors]
+  );
 
   // 최초/모드/사이즈 변경 시 로드
   useEffect(() => {
@@ -153,7 +160,6 @@ export function useSigHunterBingoState(boardId = "hunter1") {
     async function init() {
       setLoading(true);
 
-      // ✅ (boardId, mode, size) 로 호출
       const stored = await loadSigHunterBingoState(boardId, mode, size);
 
       const initCells = getInitialHunterCells(mode, size);
@@ -247,8 +253,7 @@ export function useSigHunterBingoState(boardId = "hunter1") {
           },
         }));
 
-        // ✅ sync(mode, size, state) 로 호출
-        sync(mode, size, {
+        await saveSigHunterBingoState(boardId, mode, size, {
           cells: nextCells,
           logs: [],
           lineOwners: initLineOwners,
@@ -264,7 +269,7 @@ export function useSigHunterBingoState(boardId = "hunter1") {
     return () => {
       alive = false;
     };
-  }, [storageKey, mode, size, cellCount, lines, stateKey, boardId]);
+  }, [boardId, mode, size, cellCount, lines, stateKey, storageKey]);
 
   // 모드 변경
   const handleChangeMode = (nextMode) => {
@@ -289,8 +294,7 @@ export function useSigHunterBingoState(boardId = "hunter1") {
       setLineOwners(saved.lineOwners);
       setPlayerColors(saved.playerColors);
 
-      // ✅ sync(nextMode, size, state) 로 호출
-      sync(nextMode, size, {
+      sync({
         cells: saved.cells,
         logs: saved.logs,
         lineOwners: saved.lineOwners,
@@ -314,8 +318,7 @@ export function useSigHunterBingoState(boardId = "hunter1") {
         },
       }));
 
-      // ✅ sync(nextMode, size, state) 로 호출
-      sync(nextMode, size, {
+      sync({
         cells: initCells,
         logs: [],
         lineOwners: initLineOwners,
@@ -347,8 +350,7 @@ export function useSigHunterBingoState(boardId = "hunter1") {
       setLineOwners(saved.lineOwners);
       setPlayerColors(saved.playerColors);
 
-      // ✅ sync(mode, nextSize, state) 로 호출
-      sync(mode, nextSize, {
+      sync({
         cells: saved.cells,
         logs: saved.logs,
         lineOwners: saved.lineOwners,
@@ -372,8 +374,7 @@ export function useSigHunterBingoState(boardId = "hunter1") {
         },
       }));
 
-      // ✅ sync(mode, nextSize, state) 로 호출
-      sync(mode, nextSize, {
+      sync({
         cells: initCells,
         logs: [],
         lineOwners: initLineOwners,
@@ -402,8 +403,7 @@ export function useSigHunterBingoState(boardId = "hunter1") {
       },
     }));
 
-    // ✅ stale 클로저 방지: initCells / initLineOwners 사용
-    sync(mode, size, {
+    sync({
       cells: initCells,
       logs: [],
       lineOwners: initLineOwners,
@@ -411,42 +411,42 @@ export function useSigHunterBingoState(boardId = "hunter1") {
     });
   };
 
-  // ✅ 현재 이미지: 로컬 경로는 toStorageUrl로 변환
-const getCurrentImage = (cell) => {
-  // 1) Firestore에 완성 URL(https://...) 이 저장된 경우 → 그대로 사용
-  if (cell?.imageUrl?.startsWith("https://")) {
-    console.log("[SIG] full url from Firestore =", cell.imageUrl);
-    return cell.imageUrl;
-  }
+  // 현재 이미지: 로컬 경로는 toStorageUrl로 변환
+  const getCurrentImage = (cell) => {
+    // 1) Firestore에 완성 URL(https://...) 이 저장된 경우 → 그대로 사용
+    if (cell?.imageUrl?.startsWith("https://")) {
+      console.log("[SIG] full url from Firestore =", cell.imageUrl);
+      return cell.imageUrl;
+    }
 
-  // 2) Firestore에 상대 경로(/images/..., sigHunterBingo/...)인 경우 → toStorageUrl
-  if (cell?.imageUrl) {
-    const url = toStorageUrl(cell.imageUrl);
-    console.log("[SIG] from imageUrl via toStorageUrl =", {
+    // 2) Firestore에 상대 경로(/images/..., sigHunterBingo/...)인 경우 → toStorageUrl
+    if (cell?.imageUrl) {
+      const url = toStorageUrl(cell.imageUrl);
+      console.log("[SIG] from imageUrl via toStorageUrl =", {
+        src: url,
+        imageUrl: cell.imageUrl,
+      });
+      return url;
+    }
+
+    // 3) fallback: 초기 데이터의 images 배열
+    if (!cell?.images || cell.images.length === 0) {
+      console.log("[SIG] no image for cell", cell);
+      return null;
+    }
+
+    const idx =
+      typeof cell.imageIndex === "number"
+        ? cell.imageIndex % cell.images.length
+        : 0;
+
+    const url = toStorageUrl(cell.images[idx]);
+    console.log("[SIG] from images[] via toStorageUrl =", {
       src: url,
-      imageUrl: cell.imageUrl,
+      image: cell.images[idx],
     });
     return url;
-  }
-
-  // 3) fallback: 초기 데이터의 images 배열
-  if (!cell?.images || cell.images.length === 0) {
-    console.log("[SIG] no image for cell", cell);
-    return null;
-  }
-
-  const idx =
-    typeof cell.imageIndex === "number"
-      ? cell.imageIndex % cell.images.length
-      : 0;
-
-  const url = toStorageUrl(cell.images[idx]);
-  console.log("[SIG] from images[] via toStorageUrl =", {
-    src: url,
-    image: cell.images[idx],
-  });
-  return url;
-};
+  };
 
   const getCurrentCount = (cell) => {
     if (cell?.counts && cell.counts.length > 0) {
@@ -458,63 +458,6 @@ const getCurrentImage = (cell) => {
       if (value != null) return value;
     }
     return cell.sigCount ?? 0;
-  };
-
-  // 설정 페이지: 셀 이미지 변경 (Storage + Firestore)
-  const handleChangeCellImage = async (e, cellId) => {
-    const file = e.target.files && e.target.files[0];
-    if (!file) return;
-
-    try {
-      const input = window.prompt(
-        "이 이미지의 시그 개수를 입력하세요 (숫자만, 생략 가능)",
-        ""
-      );
-      const parsed = input != null ? parseInt(input, 10) : null;
-      const sigCount = Number.isFinite(parsed) ? parsed : null;
-
-      const url = await uploadCellImage(
-        boardId,
-        mode,
-        size,
-        String(cellId),
-        file
-      );
-
-      await updateCellDoc(boardId, mode, size, String(cellId), {
-        imageUrl: url,
-        ...(sigCount != null ? { sigCount } : {}),
-      });
-
-      setCells((prev) => {
-        const next = prev.map((c, idx) => {
-          if (idx !== cellId) return c;
-          const updated = { ...c, imageUrl: url };
-          if (sigCount != null) updated.sigCount = sigCount;
-          return updated;
-        });
-
-        // ✅ sync(mode, size, state) 로 호출
-        sync(mode, size, {
-          cells: next,
-          logs,
-          lineOwners,
-          playerColors,
-        });
-
-        setModeStates((prevStates) => ({
-          ...prevStates,
-          [stateKey]: { cells: next, logs, lineOwners, playerColors },
-        }));
-
-        return next;
-      });
-    } catch (err) {
-      console.error("handleChangeCellImage error", err);
-      alert("이미지 업로드 중 오류가 발생했습니다.");
-    } finally {
-      e.target.value = "";
-    }
   };
 
   // 보드 페이지: 칸 클릭(점령/쟁탈)
@@ -580,8 +523,7 @@ const getCurrentImage = (cell) => {
           },
         }));
 
-        // ✅ sync(mode, size, state) 로 호출
-        sync(mode, size, {
+        sync({
           cells: nextCells,
           logs: updatedLogs,
           lineOwners: nextLineOwners,
@@ -608,7 +550,6 @@ const getCurrentImage = (cell) => {
     logs,
     lineOwners,
     playerColors,
-    fileInputRefs,
     completedLineCount,
     // 상수
     HUNTER_MODES,
@@ -623,7 +564,6 @@ const getCurrentImage = (cell) => {
     handleChangeMode,
     handleChangeSize,
     handleResetBoard,
-    handleChangeCellImage,
     handleClickCell,
     getCurrentImage,
     getCurrentCount,
