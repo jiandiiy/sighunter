@@ -1,10 +1,9 @@
-
 // src/utils/sigHunterBingoData.js
 
 import { sigHunterImagePool } from "../data/sigHunterImagePool";
-import { toStorageUrl } from "../core/storageUrl"; // ✅ 추가
+import { toStorageUrl } from "../core/storageUrl";
 
-export const HUNTER_MODES = ["muse", "queendom"];
+export const HUNTER_MODES = ["muse", "queendom", "holic"];
 export const HUNTER_SIZES = [3, 5];
 
 const IMAGES_PER_CELL = 10;
@@ -17,30 +16,25 @@ function pickOne(list) {
 }
 
 // 모드 + 그룹 목록에서 N장 랜덤 뽑기 (중복 허용)
-// 반환값: { path, rawText, count } 의 배열
+// 반환값: 문자열 경로 배열 (e.g. "/images/holic/group01/sig_01.webp")
 function getRandomImagesFromGroups(mode, groups, countPerCell) {
   const poolForMode = sigHunterImagePool[mode] || {};
   const result = [];
 
   for (let i = 0; i < countPerCell; i++) {
     const gIdx = Math.floor(Math.random() * groups.length);
-    const group = groups[gIdx];
+    // "group1" → "group01" 로 패딩 (imagePool 키가 "group01" 형식)
+    const rawGroup = groups[gIdx];
+    const group = rawGroup.replace(/^group(\d)$/, "group0$1");
     const list = poolForMode[group];
 
-    const img = pickOne(list);
+    const img = pickOne(list); // img는 "/images/holic/..." 문자열
     if (img) result.push(img);
   }
 
-  return result;
+  return result; // string[]
 }
 
-/**
- * ✅ size별 그룹 정의
- * - 5x5: 중앙만 특수(group9/10), 나머지 group1~7
- * - 3x3: 중앙만 모드별 전용 그룹 사용
- *   - muse: group11
- *   - queendom: group12
- */
 const GROUPS_BY_MODE_AND_SIZE = {
   muse: {
     normal: {
@@ -49,7 +43,7 @@ const GROUPS_BY_MODE_AND_SIZE = {
     },
     center: {
       5: ["group9", "group10"],
-      3: ["group11"], // 뮤즈 3x3 중앙
+      3: ["group11"],
     },
   },
   queendom: {
@@ -59,16 +53,23 @@ const GROUPS_BY_MODE_AND_SIZE = {
     },
     center: {
       5: ["group9", "group10"],
-      3: ["group12"], // 퀸덤 3x3 중앙
+      3: ["group12"],
+    },
+  },
+  holic: {
+    normal: {
+      5: ["group1", "group2", "group3", "group4", "group5", "group6", "group7"],
+      3: ["group1", "group2", "group3", "group4", "group5", "group6", "group7"],
+    },
+    center: {
+      5: ["group9", "group10"],
+      3: ["group11"],
     },
   },
 };
 
 const getCenterIndex = (size) => Math.floor((size * size) / 2);
 
-/**
- * 셀 하나를 새로 생성 (초기 생성/점령·쟁탈 시 공용)
- */
 export function createRandomHunterCell(mode, size, idx) {
   if (!HUNTER_MODES.includes(mode)) {
     throw new Error(`Invalid mode: ${mode}`);
@@ -84,28 +85,27 @@ export function createRandomHunterCell(mode, size, idx) {
 
   const isCenter = idx === centerIndex;
 
+  // images: string[] — 로컬 public 경로 문자열 배열
   const images = isCenter
     ? getRandomImagesFromGroups(mode, centerGroups, IMAGES_PER_CELL)
     : getRandomImagesFromGroups(mode, normalGroups, IMAGES_PER_CELL);
 
-  const first    = images[0] || {};
-  const sigCount = first.count ?? 0;
-  const prefix   = mode === "queendom" ? "퀸덤 시그" : "뮤즈 시그";
+  const prefix =
+    mode === "queendom" ? "퀸덤 시그" :
+    mode === "holic"    ? "홀릭 시그" :
+                          "뮤즈 시그";
 
   return {
     id:         idx,
     sigName:    `${prefix} ${idx + 1}`,
-    sigCount,
+    sigCount:   0,                              // ✅ count 정보 없으므로 0으로 초기화
     owner:      null,
-    images:     images.map((img) => toStorageUrl(img.path)), // ✅ 변환
-    counts:     images.map((img) => img.count),
+    images:     images.map((img) => toStorageUrl(img)), // ✅ img가 문자열이므로 그대로 전달
+    counts:     images.map(() => null),         // ✅ count 정보 없으므로 null로 초기화
     imageIndex: 0,
   };
 }
 
-/**
- * ✅ 주어진 모드/사이즈(3 또는 5)에 맞는 시그헌터 빙고 셀 초기값 반환
- */
 export function getInitialHunterCells(mode = "muse", size = 5) {
   if (!HUNTER_MODES.includes(mode)) {
     throw new Error(`Invalid mode: ${mode}`);

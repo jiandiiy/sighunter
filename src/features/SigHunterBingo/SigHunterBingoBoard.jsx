@@ -6,6 +6,13 @@ import {
   AVAILABLE_SIZES,
 } from "./useSigHunterBingoState";
 
+// ✅ 모드 탭 이름 매핑 (컴포넌트 밖에 선언 → 렌더링마다 재생성 방지)  
+const MODE_LABELS = {  
+  queendom: "퀸덤",  
+  muse: "뮤즈",  
+  holic: "홀릭",  
+};  
+
 export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
   const {
     loading,
@@ -90,8 +97,8 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
     <div className="hunter-root">
       <header className="hunter-header">
         <div className="hunter-header-row">
-          {/* 모드 탭 */}
-          <div className="hunter-mode-tabs">
+           {/* ✅ 모드 탭: MODE_LABELS 객체로 매핑, 폴백은 키값 그대로 */}
+         <div className="hunter-mode-tabs">
             {HUNTER_MODES.map((m) => (
               <button
                 key={m}
@@ -100,7 +107,7 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                 }
                 onClick={() => handleChangeMode(m)}
               >
-                {m === "muse" ? "뮤즈" : "퀸덤"}
+                {MODE_LABELS[m] ?? m}
               </button>
             ))}
           </div>

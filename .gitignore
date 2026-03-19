@@ -25,4 +25,4 @@ yarn-error.log*
 sighunter-desktop/dist/
 sighunter-desktop/node_modules/sighunter-desktop/dist/
 sighunter-desktop/node_modules/
-public/images/serviceAccountKey.json
+serviceAccountKey.json

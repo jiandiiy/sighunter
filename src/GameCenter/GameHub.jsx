@@ -168,25 +168,6 @@ export default function GameHub() {
           🎯 시그 땅따먹기
         </button>
 
-        {/* 시그 땅따먹기 설정 페이지로 이동 버튼 */}
-        <button
-          type="button"
-          onClick={() => navigate("/hunter-bingo/control")}
-          style={{
-            padding: "6px 14px",
-            borderRadius: 999,
-            border: "1px solid #4b5563",
-            background: "linear-gradient(135deg, #111827, #020617)",
-            color: "#a5b4fc",
-            fontWeight: 800,
-            cursor: "pointer",
-            fontSize: 13,
-            fontFamily:
-              "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-          }}
-        >
-          ⚙️ 시그 땅따먹기 설정
-        </button>
 
         {/* 시그 이미지 관리(업로드) 버튼 */}
         <button

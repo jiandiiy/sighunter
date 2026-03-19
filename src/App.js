@@ -13,7 +13,6 @@ import BoardGame          from "./features/BoardGame/BoardGame";
 import CasinoWheelHuge    from "./features/BigWheel/CasinoWheelHuge";
 import BingoBoard         from "./features/Bingo/BingoBoard";
 import SigHunterBingoBoard   from "./features/SigHunterBingo/SigHunterBingoBoard";
-import SigHunterBingoControl from "./features/SigHunterBingo/SigHunterBingoControl";
 import SigImageAdminPage  from "./GameCenter/Admin/SigImageAdminPage";
 
 // ── HP 배틀 ──────────────────────────────────────────────────
@@ -84,10 +83,6 @@ export default function App() {
           <Route
             path="/hunter-bingo"
             element={<SigHunterBingoBoard boardId="hunter-main" />}
-          />
-          <Route
-            path="/hunter-bingo/control"
-            element={<SigHunterBingoControl boardId="hunter-main" />}
           />
 
           {/* HP 배틀 */}

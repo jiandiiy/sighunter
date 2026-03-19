@@ -9,7 +9,7 @@ const rootDir = path.resolve(__dirname, "..");
 const baseDir = path.join(rootDir, "public/images");
 const outputFile = path.join(rootDir, "src/data/sigHunterImagePool.js");
 
-const MODES = ["muse", "queendom"];
+const MODES = ["muse", "queendom", "holic"];
 
 /**
  * ✅ 이미지 풀에 포함할 그룹들

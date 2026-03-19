@@ -10,6 +10,7 @@ const outputFile = path.join(rootDir, "src/data/sigHunterImagePool.js");
 const GROUPS_BY_MODE = {
   muse: ["group01", "group02", "group03", "group04", "group05", "group06", "group07", "group09","group10"],
   queendom: ["group01", "group02", "group03", "group04", "group05", "group06", "group07", "group09", "group10"],
+   holic: ["group01", "group02", "group03", "group04", "group05", "group06", "group07", "group08", "group09"],
 };
 
 function readImagesForMode(mode) {
@@ -46,11 +47,13 @@ if (!fs.existsSync(baseDir)) {
 
 const muse = readImagesForMode("muse");
 const queendom = readImagesForMode("queendom");
+const holic = readImagesForMode("holic");
 
 const output = `// ⚙️ 자동 생성된 시그헌터 빙고 이미지 풀 (그룹별)
 export const sigHunterImagePool = {
   muse: ${JSON.stringify(muse, null, 2)},
   queendom: ${JSON.stringify(queendom, null, 2)},
+   holic: ${JSON.stringify(holic, null, 2)},
 };
 `;
 

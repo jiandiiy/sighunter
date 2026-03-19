@@ -64,10 +64,12 @@ async function uploadDir(localDir, remoteDir) {
 }
 
 async function main() {
-  console.log("🚀 업로드 시작...\n");
+  console.log("🚀 전체 이미지 업로드 시작...\n");
+
   console.log(`📁 로컬 경로: ${baseDir}`);
   console.log(`☁️  Storage 경로: gs://sig-hunter.firebasestorage.app/${remotePrefix}/\n`);
 
+  // ✅ baseDir 전체 업로드 (holic, muse 등 모든 폴더)
   await uploadDir(baseDir, remotePrefix);
 
   console.log("\n=============================");
@@ -76,8 +78,4 @@ async function main() {
   console.log(`❌ 실패: ${failCount}개`);
   console.log("=============================");
 }
-
-main().catch((e) => {
-  console.error("💥 치명적 오류:", e);
-  process.exit(1);
-});
+main().catch(console.error);
