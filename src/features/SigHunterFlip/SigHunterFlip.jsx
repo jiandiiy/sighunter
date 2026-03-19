@@ -3,6 +3,7 @@ import React, { useRef, useState, useEffect, useMemo } from "react";
 import {
   queendomSigCards,
   museSigCards,
+  holicSigCards, // ← 추가
 } from "../../data/sigData";
 import { useSigStorage } from "../../hooks/useSigStorage";
 import { fireConfetti, weightedPick } from "../../../src/components/common/confettiUtils";
@@ -12,9 +13,11 @@ import EditMessageModal from "./EditMessageModal";
 import AdminPopup from "./AdminPopup";
 import "./flip.css";
 
+// ✅ holic 추가
 const projectCardSets = {
   queendom: queendomSigCards,
   muse: museSigCards,
+  holic: holicSigCards,
 };
 
 export default function SigHunterFlip() {
@@ -398,15 +401,10 @@ export default function SigHunterFlip() {
           flexWrap: "wrap",
         }}
       >
-        {/* 탭 버튼들 */}
-        <div
-          style={{
-            display: "flex",
-            gap: "8px",
-          }}
-        >
-          {["queendom", "muse"].map((key) => {
-            const label = key === "queendom" ? "퀸덤" : "뮤즈";
+        {/* ✅ 탭 버튼: holic 추가, labelMap 객체로 처리 */}
+        <div style={{ display: "flex", gap: "8px" }}>
+          {["queendom", "muse", "holic"].map((key) => {
+            const labelMap = { queendom: "퀸덤", muse: "뮤즈", holic: "홀릭" };
             const isActive = project === key;
 
             return (
@@ -436,7 +434,7 @@ export default function SigHunterFlip() {
                   transition: "all 0.15s ease-in-out",
                 }}
               >
-                {label}
+                {labelMap[key]}
               </button>
             );
           })}

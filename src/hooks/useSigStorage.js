@@ -1,4 +1,3 @@
-
 // src/hooks/useSigStorage.js
 // 💾 시그헌터 공통 - Firestore 실시간 구독 + localStorage 동기화 통합 훅
 
@@ -6,6 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import {
   queendomSigCards,
   museSigCards,
+  holicSigCards,
   normalMessages as defaultNormalMessages,
   specialMessages as defaultSpecialMessages,
 } from "../data/sigData";
@@ -24,7 +24,8 @@ export function useSigStorage() {
   });
   const [loaded, setLoaded] = useState(false);
 
-  const allSigCards = [...queendomSigCards, ...museSigCards];
+  // ✅ holicSigCards 추가
+  const allSigCards = [...queendomSigCards, ...museSigCards, ...holicSigCards];
   const docRef = doc(firestore, "sigHunter", "main");
 
   // 원격 스냅샷으로 인한 setState 여부 표시 (무한 루프 방지)
@@ -114,9 +115,9 @@ export function useSigStorage() {
         const fallback = {
           flipped:      tryParse("sigFlipped", {}),
           locked:       tryParse("sigLocked",  {}),
-          revealed:     tryParse("sigRevealed",{}),
+          revealed:     tryParse("sigRevealed", {}),
           randomImages: tryParse("sigImages",  {}),
-          cardWeights:  tryParse("cardWeights",{}),
+          cardWeights:  tryParse("cardWeights", {}),
           messages: {
             normal:  defaultNormalMessages,
             special: defaultSpecialMessages,
@@ -138,8 +139,7 @@ export function useSigStorage() {
   }, []);
 
   // ─────────────────────────────────────────
-  // 🔹 2) localStorage 동기화 (FlipHooks.js 로직 통합)
-  //    Firestore 구독과 별개로 로컬도 항상 최신 상태 유지
+  // 🔹 2) localStorage 동기화
   // ─────────────────────────────────────────
   useEffect(() => {
     localStorage.setItem("sigFlipped", JSON.stringify(flipped));
@@ -186,10 +186,10 @@ export function useSigStorage() {
       fromRemoteRef.current = false;
     };
 
-  const setFlipped      = wrapSetter(setFlippedState, "flipped");
-  const setLocked       = wrapSetter(setLockedState,  "locked");
+  const setFlipped      = wrapSetter(setFlippedState,      "flipped");
+  const setLocked       = wrapSetter(setLockedState,       "locked");
   const setRandomImages = wrapSetter(setRandomImagesState, "randomImages");
-  const setMessages     = wrapSetter(setMessagesState, "messages");
+  const setMessages     = wrapSetter(setMessagesState,     "messages");
 
   // cardWeights: Firestore + localStorage 동시 저장
   const setCardWeights = (updater) => {
