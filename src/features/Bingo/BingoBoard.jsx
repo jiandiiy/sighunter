@@ -15,7 +15,16 @@ import {
 
 console.log("[BINGO] *** BingoBoard.jsx 로드 완료 ***");
 
-const MODES = ["muse", "queendom"];
+// ✅ 변경 1: holic 추가  
+const MODES = ["muse", "queendom", "holic"]; 
+
+// ✅ 변경 2: 탭 라벨 객체 맵으로 교체 (이진 삼항식 제거)  
+const MODE_LABELS = {  
+  muse: "뮤즈",  
+  queendom: "퀸덤",  
+  holic: "홀릭",  
+};  
+
 const GLOBAL_MODE_KEY = "sigBingo-global-mode";
 
 const ROWS = 3;
@@ -278,7 +287,7 @@ export default function BingoBoard({
         let globalMode = "muse";
         if (typeof window !== "undefined") {
           const v = window.localStorage.getItem(GLOBAL_MODE_KEY);
-          if (v === "queendom") globalMode = "queendom";
+          if (v && MODES.includes(v)) globalMode = v;  // "holic" 포함 모든 유효 모드 허용
         }
 
         // 🔥 Firestore에서 저장된 상태 로드
@@ -558,7 +567,8 @@ export default function BingoBoard({
                 }
                 onClick={() => handleChangeMode(m)}
               >
-                {m === "muse" ? "뮤즈" : "퀸덤"}
+               {/* ✅ 변경 2 적용: MODE_LABELS 맵으로 라벨 출력 */}
+                {MODE_LABELS[m]}
               </button>
             ))}
           </div>

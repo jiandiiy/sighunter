@@ -29,6 +29,14 @@ const bingoConfig = {
     "queendom/group05",
     "queendom/group06",
   ],
+  holic: [
+    "holic/group01",
+    "holic/group02",
+    "holic/group03",
+    "holic/group04",
+    "holic/group05",
+    "holic/group06",
+  ],
 
 };
 
