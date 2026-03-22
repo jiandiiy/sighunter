@@ -1,7 +1,8 @@
 // src/utils/sigHunterBingoData.js
 
 import { sigHunterImagePool } from "../data/sigHunterImagePool";
-import { toStorageUrl } from "../core/storageUrl";
+// ❌ 여기서는 더 이상 toStorageUrl을 사용하지 않습니다.
+// import { toStorageUrl } from "../core/storageUrl";
 
 export const HUNTER_MODES = ["muse", "queendom", "holic"];
 export const HUNTER_SIZES = [3, 5];
@@ -19,20 +20,35 @@ function pickOne(list) {
 // 반환값: 문자열 경로 배열 (e.g. "/images/holic/group01/sig_01.webp")
 function getRandomImagesFromGroups(mode, groups, countPerCell) {
   const poolForMode = sigHunterImagePool[mode] || {};
+
+   // ✅ 유효한 그룹만 필터링 (pool에 실제로 존재하고 비어있지 않은 것만)
+  const validGroups = groups.filter((rawGroup) => {
+    const group = rawGroup.replace(/^group(\d)$/, "group0$1");
+    return poolForMode[group] && poolForMode[group].length > 0;
+  });
+
+  // ✅ 유효한 그룹이 없으면 해당 모드의 전체 그룹으로 fallback
+  const resolvedGroups =
+    validGroups.length > 0
+      ? validGroups
+      : Object.keys(poolForMode).filter(
+          (k) => poolForMode[k] && poolForMode[k].length > 0
+        );
+
   const result = [];
 
   for (let i = 0; i < countPerCell; i++) {
-    const gIdx = Math.floor(Math.random() * groups.length);
-    // "group1" → "group01" 로 패딩 (imagePool 키가 "group01" 형식)
-    const rawGroup = groups[gIdx];
+    // ✅ groups → resolvedGroups 로 변경
+    const gIdx = Math.floor(Math.random() * resolvedGroups.length);
+    const rawGroup = resolvedGroups[gIdx];
     const group = rawGroup.replace(/^group(\d)$/, "group0$1");
     const list = poolForMode[group];
 
-    const img = pickOne(list); // img는 "/images/holic/..." 문자열
+    const img = pickOne(list);
     if (img) result.push(img);
   }
 
-  return result; // string[]
+  return result;
 }
 
 const GROUPS_BY_MODE_AND_SIZE = {
@@ -78,8 +94,8 @@ export function createRandomHunterCell(mode, size, idx) {
     throw new Error(`Invalid size: ${size}`);
   }
 
-  const centerIndex  = getCenterIndex(size);
-  const cfg          = GROUPS_BY_MODE_AND_SIZE[mode] || {};
+  const centerIndex = getCenterIndex(size);
+  const cfg = GROUPS_BY_MODE_AND_SIZE[mode] || {};
   const normalGroups = cfg.normal?.[size] || [];
   const centerGroups = cfg.center?.[size] || [];
 
@@ -91,17 +107,20 @@ export function createRandomHunterCell(mode, size, idx) {
     : getRandomImagesFromGroups(mode, normalGroups, IMAGES_PER_CELL);
 
   const prefix =
-    mode === "queendom" ? "퀸덤 시그" :
-    mode === "holic"    ? "홀릭 시그" :
-                          "뮤즈 시그";
+    mode === "queendom"
+      ? "퀸덤 시그"
+      : mode === "holic"
+      ? "홀릭 시그"
+      : "뮤즈 시그";
 
   return {
-    id:         idx,
-    sigName:    `${prefix} ${idx + 1}`,
-    sigCount:   0,                              // ✅ count 정보 없으므로 0으로 초기화
-    owner:      null,
-    images:     images.map((img) => toStorageUrl(img)), // ✅ img가 문자열이므로 그대로 전달
-    counts:     images.map(() => null),         // ✅ count 정보 없으므로 null로 초기화
+    id: idx,
+    sigName: `${prefix} ${idx + 1}`,
+    sigCount: 0, // count 정보 없으므로 0으로 초기화
+    owner: null,
+    // ✅ 경로 문자열 그대로 보관 (toStorageUrl 적용 안 함)
+    images,
+    counts: images.map(() => null), // count 정보 없으므로 null로 초기화
     imageIndex: 0,
   };
 }

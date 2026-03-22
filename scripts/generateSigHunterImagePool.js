@@ -8,9 +8,9 @@ const outputFile = path.join(rootDir, "src/data/sigHunterImagePool.js");
 
 // 모드별로 사용할 그룹 목록 (group8을 쓰고 싶으면 배열에 추가)
 const GROUPS_BY_MODE = {
-  muse: ["group01", "group02", "group03", "group04", "group05", "group06", "group07", "group09","group10"],
-  queendom: ["group01", "group02", "group03", "group04", "group05", "group06", "group07", "group09", "group10"],
-   holic: ["group01", "group02", "group03", "group04", "group05", "group06", "group07", "group08", "group09"],
+  muse: ["group01", "group02", "group03", "group04", "group05", "group06", "group07", "group09", "group10", "group11", "group12"],
+  queendom: ["group01", "group02", "group03", "group04", "group05", "group06", "group07", "group09", "group10", "group11", "group12"],
+  holic: ["group01", "group02", "group03", "group04", "group05", "group06", "group07", "group09", "group10", "group11", "group12"],
 };
 
 function readImagesForMode(mode) {

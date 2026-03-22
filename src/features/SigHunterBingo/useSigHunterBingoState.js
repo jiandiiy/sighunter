@@ -56,12 +56,26 @@ const PLAYER_COLOR_PALETTE = [
   "#00CEC9",
 ];
 
+// ✅ URL 쿼리에서 초기 mode 읽기 (없으면 "muse")
+const getInitialMode = () => {
+  const params = new URLSearchParams(window.location.search);
+  const m = params.get("mode");
+  return ["muse", "queendom", "holic"].includes(m) ? m : "muse";
+};
+
+// ✅ URL 쿼리에서 초기 size 읽기 (없으면 5)
+const getInitialSize = () => {
+  const params = new URLSearchParams(window.location.search);
+  const s = Number(params.get("size"));
+  return [3, 5].includes(s) ? s : 5;
+};
+
 export function useSigHunterBingoState(boardId = "hunter1") {
   const [loading, setLoading] = useState(true);
 
-  // 모드 / 사이즈
-  const [mode, setMode] = useState("muse"); // "muse" | "queendom" | "holic"
-  const [size, setSize] = useState(5); // 3 | 5
+  // 모드 / 사이즈 — ✅ 초기값을 URL 쿼리에서 읽음
+  const [mode, setMode] = useState(getInitialMode); // "muse" | "queendom" | "holic"
+  const [size, setSize] = useState(getInitialSize); // 3 | 5
 
   const cellCount = size * size;
   const lines = useMemo(() => makeLines(size), [size]);
@@ -76,7 +90,7 @@ export function useSigHunterBingoState(boardId = "hunter1") {
     makeLines(5).map(() => ({ owner: null }))
   );
   const [playerColors, setPlayerColors] = useState({});
-  const [modeStates, setModeStates] = useState({});
+  // ✅ modeStates 제거 — 현재 읽는 곳 없음. 캐시 최적화 시 useRef로 재도입 예정
 
   // 팔레트 셔플
   const [shuffledPalette] = useState(() => {
@@ -133,8 +147,9 @@ export function useSigHunterBingoState(boardId = "hunter1") {
   };
 
   // Firestore 저장: 현재 상태 기준
+  // ✅ overrideMode, overrideSize 추가 — 클로저로 이전 mode/size가 캡처되는 버그 방지
   const sync = useCallback(
-    async (overrideState) => {
+    async (overrideState, overrideMode, overrideSize) => {
       const stateToSave =
         overrideState ??
         {
@@ -144,8 +159,11 @@ export function useSigHunterBingoState(boardId = "hunter1") {
           playerColors,
         };
 
+      const targetMode = overrideMode ?? mode; // ✅ 명시적으로 받아서 사용
+      const targetSize = overrideSize ?? size; // ✅ 명시적으로 받아서 사용
+
       try {
-        await saveSigHunterBingoState(boardId, mode, size, stateToSave);
+        await saveSigHunterBingoState(boardId, targetMode, targetSize, stateToSave);
       } catch (e) {
         console.error("saveSigHunterBingoState failed", e);
       }
@@ -159,6 +177,8 @@ export function useSigHunterBingoState(boardId = "hunter1") {
 
     async function init() {
       setLoading(true);
+
+      let nextCells; // ← 스코프 최상단에 선언 (if/else 모두 공유)
 
       const stored = await loadSigHunterBingoState(boardId, mode, size);
 
@@ -178,7 +198,7 @@ export function useSigHunterBingoState(boardId = "hunter1") {
       if (!alive) return;
 
       if (stored) {
-        let nextCells;
+        // ← let nextCells 제거, 상단 선언 변수 사용
         if (Array.isArray(stored.cells) && stored.cells.length === cellCount) {
           nextCells = stored.cells.map((c, idx) => {
             const base = initCells[idx];
@@ -197,17 +217,52 @@ export function useSigHunterBingoState(boardId = "hunter1") {
                   : base.isSpecial ?? false,
             };
 
+            // ✅ 수정 (유효한 URL만 주입)
             if (imageUrlByIndex[idx]) {
-              merged.imageUrl = imageUrlByIndex[idx];
+              const url = imageUrlByIndex[idx];
+              const isValid =
+                url.startsWith("https://") && url.includes("sig-hunter%2Fimages%2F");
+              if (isValid) {
+                merged.imageUrl = url;
+              }
+            }
+
+            // ✅ 이미지 없으면 랜덤 보충 (관리 페이지 없이도 이미지 표시)
+            const hasImage =
+              merged.imageUrl ||
+              (Array.isArray(merged.images) && merged.images.length > 0);
+
+            if (!hasImage) {
+              const fresh = createRandomHunterCell(mode, size, idx);
+              merged.images = fresh.images;
+              merged.counts = fresh.counts;
+              merged.imageIndex = fresh.imageIndex;
             }
 
             return merged;
           });
         } else {
-          nextCells = initCells.map((base, idx) => ({
-            ...base,
-            imageUrl: imageUrlByIndex[idx] || null,
-          }));
+          nextCells = initCells.map((base, idx) => {
+            const cell = { ...base };
+
+            if (imageUrlByIndex[idx]) {
+              cell.imageUrl = imageUrlByIndex[idx];
+            }
+
+            // ✅ 이미지 없으면 랜덤 보충 (방어 코드)
+            const hasImage =
+              cell.imageUrl ||
+              (Array.isArray(cell.images) && cell.images.length > 0);
+
+            if (!hasImage) {
+              const fresh = createRandomHunterCell(mode, size, idx);
+              cell.images = fresh.images;
+              cell.counts = fresh.counts;
+              cell.imageIndex = fresh.imageIndex;
+            }
+
+            return cell;
+          });
         }
 
         const restoredLineOwners =
@@ -222,36 +277,36 @@ export function useSigHunterBingoState(boardId = "hunter1") {
         setLogs(stored.logs || []);
         setLineOwners(restoredLineOwners);
         setPlayerColors(restoredPlayerColors);
-
-        setModeStates((prev) => ({
-          ...prev,
-          [stateKey]: {
-            cells: nextCells,
-            logs: stored.logs || [],
-            lineOwners: restoredLineOwners,
-            playerColors: restoredPlayerColors,
-          },
-        }));
+        // ✅ setModeStates 제거
       } else {
-        const nextCells = initCells.map((base, idx) => ({
-          ...base,
-          imageUrl: imageUrlByIndex[idx] || null,
-        }));
+        // ← const nextCells 제거, 상단 선언 변수 사용
+        nextCells = initCells.map((base, idx) => {
+          const cell = { ...base };
+
+          if (imageUrlByIndex[idx]) {
+            cell.imageUrl = imageUrlByIndex[idx];
+          }
+
+          // ✅ 이미지 없으면 랜덤 보충 (방어 코드)
+          const hasImage =
+            cell.imageUrl ||
+            (Array.isArray(cell.images) && cell.images.length > 0);
+
+          if (!hasImage) {
+            const fresh = createRandomHunterCell(mode, size, idx);
+            cell.images = fresh.images;
+            cell.counts = fresh.counts;
+            cell.imageIndex = fresh.imageIndex;
+          }
+
+          return cell;
+        });
 
         setCells(nextCells);
         setLogs([]);
         setLineOwners(initLineOwners);
         setPlayerColors({});
-
-        setModeStates((prev) => ({
-          ...prev,
-          [stateKey]: {
-            cells: nextCells,
-            logs: [],
-            lineOwners: initLineOwners,
-            playerColors: {},
-          },
-        }));
+        // ✅ setModeStates 제거
 
         await saveSigHunterBingoState(boardId, mode, size, {
           cells: nextCells,
@@ -260,6 +315,15 @@ export function useSigHunterBingoState(boardId = "hunter1") {
           playerColors: {},
         });
       }
+
+      // 임시 디버그 ← 확인 후 삭제
+      console.log("=== CELLS imageUrl 체크 ===");
+      nextCells.forEach((c, i) => {
+        console.log(i, c.id, c.imageUrl ? "✅" : "❌ EMPTY", c.imageUrl?.slice(0, 60));
+      });
+
+      // ✅ 추가: index 4 상세 확인 ← 확인 후 삭제
+console.log("=== index 4 상세 ===", JSON.stringify(nextCells[4], null, 2));
 
       if (!alive) return;
       setLoading(false);
@@ -275,112 +339,30 @@ export function useSigHunterBingoState(boardId = "hunter1") {
   const handleChangeMode = (nextMode) => {
     if (mode === nextMode) return;
 
-    setModeStates((prev) => ({
-      ...prev,
-      [`${mode}-${size}`]: { cells, logs, lineOwners, playerColors },
-    }));
+    // ✅ URL 쿼리 동기화 (replaceState: 히스토리 쌓지 않음)
+    const params = new URLSearchParams(window.location.search);
+    params.set("mode", nextMode);
+    window.history.replaceState(null, "", "?" + params.toString());
 
-    const nextKey = `${nextMode}-${size}`;
-    const saved = modeStates[nextKey];
-
-    const nextLines = makeLines(size);
-    const initLineOwners = nextLines.map(() => ({ owner: null }));
-
+    // ✅ setMode만 호출 — useEffect가 Firestore 로드 및 setCells를 처리함
+    // ✅ 여기서 setCells / sync를 직접 호출하지 않음 (클로저 버그 + 덮어쓰기 방지)
+    // ✅ setModeStates 제거 — 캐시 최적화 시 useRef로 재도입 예정
     setMode(nextMode);
-
-    if (saved) {
-      setCells(saved.cells);
-      setLogs(saved.logs);
-      setLineOwners(saved.lineOwners);
-      setPlayerColors(saved.playerColors);
-
-      sync({
-        cells: saved.cells,
-        logs: saved.logs,
-        lineOwners: saved.lineOwners,
-        playerColors: saved.playerColors,
-      });
-    } else {
-      const initCells = getInitialHunterCells(nextMode, size);
-
-      setCells(initCells);
-      setLogs([]);
-      setLineOwners(initLineOwners);
-      setPlayerColors({});
-
-      setModeStates((prev) => ({
-        ...prev,
-        [nextKey]: {
-          cells: initCells,
-          logs: [],
-          lineOwners: initLineOwners,
-          playerColors: {},
-        },
-      }));
-
-      sync({
-        cells: initCells,
-        logs: [],
-        lineOwners: initLineOwners,
-        playerColors: {},
-      });
-    }
   };
 
   // 사이즈 변경
   const handleChangeSize = (nextSize) => {
     if (size === nextSize) return;
 
-    setModeStates((prev) => ({
-      ...prev,
-      [`${mode}-${size}`]: { cells, logs, lineOwners, playerColors },
-    }));
+    // ✅ URL 쿼리 동기화 (replaceState: 히스토리 쌓지 않음)
+    const params = new URLSearchParams(window.location.search);
+    params.set("size", nextSize);
+    window.history.replaceState(null, "", "?" + params.toString());
 
-    const nextKey = `${mode}-${nextSize}`;
-    const saved = modeStates[nextKey];
-
-    const nextLines = makeLines(nextSize);
-    const initLineOwners = nextLines.map(() => ({ owner: null }));
-
+    // ✅ setSize만 호출 — useEffect가 Firestore 로드 및 setCells를 처리함
+    // ✅ 여기서 setCells / sync를 직접 호출하지 않음 (클로저 버그 + 덮어쓰기 방지)
+    // ✅ setModeStates 제거 — 캐시 최적화 시 useRef로 재도입 예정
     setSize(nextSize);
-
-    if (saved) {
-      setCells(saved.cells);
-      setLogs(saved.logs);
-      setLineOwners(saved.lineOwners);
-      setPlayerColors(saved.playerColors);
-
-      sync({
-        cells: saved.cells,
-        logs: saved.logs,
-        lineOwners: saved.lineOwners,
-        playerColors: saved.playerColors,
-      });
-    } else {
-      const initCells = getInitialHunterCells(mode, nextSize);
-
-      setCells(initCells);
-      setLogs([]);
-      setLineOwners(initLineOwners);
-      setPlayerColors({});
-
-      setModeStates((prev) => ({
-        ...prev,
-        [nextKey]: {
-          cells: initCells,
-          logs: [],
-          lineOwners: initLineOwners,
-          playerColors: {},
-        },
-      }));
-
-      sync({
-        cells: initCells,
-        logs: [],
-        lineOwners: initLineOwners,
-        playerColors: {},
-      });
-    }
   };
 
   // 현재 모드/사이즈 초기화
@@ -392,16 +374,7 @@ export function useSigHunterBingoState(boardId = "hunter1") {
     setLogs([]);
     setLineOwners(initLineOwners);
     setPlayerColors({});
-
-    setModeStates((prev) => ({
-      ...prev,
-      [stateKey]: {
-        cells: initCells,
-        logs: [],
-        lineOwners: initLineOwners,
-        playerColors: {},
-      },
-    }));
+    // ✅ setModeStates 제거
 
     sync({
       cells: initCells,
@@ -411,27 +384,24 @@ export function useSigHunterBingoState(boardId = "hunter1") {
     });
   };
 
-  // 현재 이미지: 로컬 경로는 toStorageUrl로 변환
   const getCurrentImage = (cell) => {
-    // 1) Firestore에 완성 URL(https://...) 이 저장된 경우 → 그대로 사용
     if (cell?.imageUrl?.startsWith("https://")) {
-      console.log("[SIG] full url from Firestore =", cell.imageUrl);
-      return cell.imageUrl;
+      // ✅ 올바른 경로만 통과: "sig-hunter/images/" 포함 여부로 판단
+      // ❌ "sigHunterBingo/hunter-main-..." 패턴은 fallback으로 떨어짐
+      if (cell.imageUrl.includes("sig-hunter%2Fimages%2F")) {
+        return cell.imageUrl;
+      }
+      // 잘못된 URL → 아래 fallback으로 계속 진행
     }
 
-    // 2) Firestore에 상대 경로(/images/..., sigHunterBingo/...)인 경우 → toStorageUrl
+    // 상대경로 imageUrl → toStorageUrl 변환
     if (cell?.imageUrl) {
-      const url = toStorageUrl(cell.imageUrl);
-      console.log("[SIG] from imageUrl via toStorageUrl =", {
-        src: url,
-        imageUrl: cell.imageUrl,
-      });
-      return url;
+      return toStorageUrl(cell.imageUrl);
     }
 
-    // 3) fallback: 초기 데이터의 images 배열
+    // fallback: images[] 배열 (로컬 public 경로 → toStorageUrl)
     if (!cell?.images || cell.images.length === 0) {
-      console.log("[SIG] no image for cell", cell);
+      console.warn("[SIG] no image for cell", cell?.id);
       return null;
     }
 
@@ -440,12 +410,7 @@ export function useSigHunterBingoState(boardId = "hunter1") {
         ? cell.imageIndex % cell.images.length
         : 0;
 
-    const url = toStorageUrl(cell.images[idx]);
-    console.log("[SIG] from images[] via toStorageUrl =", {
-      src: url,
-      image: cell.images[idx],
-    });
-    return url;
+    return toStorageUrl(cell.images[idx]);
   };
 
   const getCurrentCount = (cell) => {
@@ -513,15 +478,7 @@ export function useSigHunterBingoState(boardId = "hunter1") {
 
         const updatedLogs = [...prevLogs, newLog];
 
-        setModeStates((prev) => ({
-          ...prev,
-          [stateKey]: {
-            cells: nextCells,
-            logs: updatedLogs,
-            lineOwners: nextLineOwners,
-            playerColors,
-          },
-        }));
+        // ✅ setModeStates 제거
 
         sync({
           cells: nextCells,

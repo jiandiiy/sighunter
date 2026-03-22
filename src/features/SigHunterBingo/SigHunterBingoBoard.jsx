@@ -207,6 +207,7 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                             src={currentImage}
                             alt={cell.sigName}
                             className="hunter-sig-image"
+                        crossOrigin="anonymous"
                           />
                         </div>
                       )}
