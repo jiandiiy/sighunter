@@ -4,10 +4,10 @@ import {
   queendomSigCards,
   museSigCards,
   holicSigCards, // ← 추가
-} from "../../data/sigData";
-import { useSigStorage } from "../../hooks/useSigStorage";
+} from "../../shared/data/sigData";
+import { useSigStorage } from "../../shared/hooks/useSigStorage";
 import { fireConfetti, weightedPick } from "../../../src/components/common/confettiUtils";
-import { fetchRandomSigItems } from "../../api/sigHunterImageLibraryApi";
+import { fetchRandomSigItems } from "../../shared/api/sigHunterImageLibraryApi";
 import CardGrid from "./CardGrid";
 import EditMessageModal from "./EditMessageModal";
 import AdminPopup from "./AdminPopup";

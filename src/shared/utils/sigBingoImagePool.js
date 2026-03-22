@@ -1,7 +1,7 @@
 
 // src/utils/sigBingoImagePool.js
-import { bingoImagePool } from "../data/sigBingoImagePool";
-import { toStorageUrl } from "../core/storageUrl"; // ✅ 추가
+import { bingoImagePool } from "../../shared/data/sigBingoImagePool";
+import { toStorageUrl } from "../../shared/core/storageUrl"; // ✅ 추가
 // import { fetchRandomSigItems } from "../api/sigHunterImageLibraryApi"; // 🔴 임시로 주석
 
 function shuffle(arr) {

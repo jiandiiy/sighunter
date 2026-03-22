@@ -7,7 +7,7 @@ import {
   collection,
   getDoc,
 } from "firebase/firestore";
-import { db } from "../../core/firebase";
+import { db } from "../../shared/core/firebase";
 import ObsCell from "./ObsCell";
 import "./obs.css";
 

@@ -8,8 +8,8 @@ import {
   makeDefaultCellStyles,
   makeToken,
 } from "./constants";
-import { useDice } from "../../hooks/useDice";
-import { useBoardEffects } from "../../hooks/useBoardEffects";
+import { useDice } from "../../shared/hooks/useDice";
+import { useBoardEffects } from "../../shared/hooks/useBoardEffects";
 
 export default function BoardGame() {
   const [rows, setRows] = useState(9);
