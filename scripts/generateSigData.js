@@ -46,7 +46,7 @@ const PROJECT_CONFIG = {
   },
   holic: {
     normalGroupCount: 8,   // group01~08
-    specialGroups: ["group09"],
+    specialGroups: ["group10"],
     totalNormalCards: 10,
     startId: 23,
   },
@@ -328,7 +328,7 @@ console.log("   • holic:   23~33  (일반 10장 + 스페셜 1장)");
 console.log("\n📊 그룹 → 카드 분배 방식:");
 console.log("   • queendom: group01~09 (9그룹) → 10장 재분배");
 console.log("   • muse:     group01~09 (9그룹) → 10장 재분배");
-console.log("   • holic:    group01~08 (8그룹) → 10장 재분배");
+console.log("   • holic:    group01~09 (9그룹) → 10장 재분배");
 console.log("\n✅ 확률 설정:");
 console.log("📇 일반 카드 — 기여도 두배: 60 / 세배: 30 / 네배: 5 / 꽝: 5");
 console.log("🌟 특별 카드 — 기여도 두배: 60 / 세배: 35 / 네배: 5");
