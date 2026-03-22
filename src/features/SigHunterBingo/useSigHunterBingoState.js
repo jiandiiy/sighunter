@@ -405,12 +405,23 @@ console.log("=== index 4 상세 ===", JSON.stringify(nextCells[4], null, 2));
       return null;
     }
 
+    
     const idx =
       typeof cell.imageIndex === "number"
         ? cell.imageIndex % cell.images.length
         : 0;
 
-    return toStorageUrl(cell.images[idx]);
+    const raw = cell.images[idx];
+
+    // ✅ 객체 형태 { path, count, rawText } 방어 처리
+    const imagePath = typeof raw === "string" ? raw : raw?.path ?? null;
+
+    if (!imagePath) {
+      console.warn("[SIG] images[idx] has no valid path — raw:", raw, "cell:", cell?.id);
+      return null;
+    }
+
+    return toStorageUrl(imagePath);
   };
 
   const getCurrentCount = (cell) => {

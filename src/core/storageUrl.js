@@ -4,6 +4,12 @@ const STORAGE_BASE =
 export function toStorageUrl(localPath) {
   if (!localPath) return "";
 
+  // ✅ string이 아니면 경고 후 빈 문자열 반환
+  if (typeof localPath !== "string") {
+    console.warn("[toStorageUrl] expected string, got:", typeof localPath, localPath);
+    return "";
+  }
+
   // 완성 URL은 건드리지 않음
   if (localPath.startsWith("https://")) return localPath;
 
@@ -25,5 +31,6 @@ export function toStorageUrl(localPath) {
   // "sig-hunter%2Fimages%2Fholic%2Fgroup01%2Fsig_01.webp"
   const encoded = withPrefix.split("/").map(encodeURIComponent).join("%2F");
 
-  return `${STORAGE_BASE}/${encoded}?alt=media`;
+ // 변경 — 개발 중 캐시 무력화용
+return `${STORAGE_BASE}/${encoded}?alt=media&t=${Date.now()}`;
 }
