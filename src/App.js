@@ -7,7 +7,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import SigHunterFlip      from "./features/SigHunterFlip/SigHunterFlip";
 import AdminPopup         from "./features/SigHunterFlip/AdminPopup";
 import EditMessageModal   from "./features/SigHunterFlip/EditMessageModal";
-import GameHub            from "./GameCenter/GameHub";
+import GameHub            from "./layout/GameHub";
 import MinesGame          from "./features/MinesGame";
 import BoardGame          from "./features/BoardGame/BoardGame";
 import CasinoWheelHuge    from "./features/BigWheel/CasinoWheelHuge";
