@@ -4,21 +4,21 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 // ── 기존 컴포넌트들 ──────────────────────────────────────────
-import SigHunterFlip      from "./features/SigHunterFlip/SigHunterFlip";
-import AdminPopup         from "./features/SigHunterFlip/AdminPopup";
-import EditMessageModal   from "./features/SigHunterFlip/EditMessageModal";
+import SigHunterFlip      from "./games/SigHunterFlip/SigHunterFlip";
+import AdminPopup         from "./games/SigHunterFlip/AdminPopup";
+import EditMessageModal   from "./games/SigHunterFlip/EditMessageModal";
 import GameHub            from "./layout/GameHub";
-import MinesGame          from "./features/MinesGame";
-import BoardGame          from "./features/BoardGame/BoardGame";
-import CasinoWheelHuge    from "./features/BigWheel/CasinoWheelHuge";
-import BingoBoard         from "./features/Bingo/BingoBoard";
-import SigHunterBingoBoard   from "./features/SigHunterBingo/SigHunterBingoBoard";
+import MinesGame          from "./games/MinesGame";
+import BoardGame          from "./games/BoardGame/BoardGame";
+import CasinoWheelHuge    from "./games/BigWheel/CasinoWheelHuge";
+import BingoBoard         from "./games/Bingo/BingoBoard";
+import SigHunterBingoBoard   from "./games/SigHunterBingo/SigHunterBingoBoard";
 import SigImageAdminPage  from "./Admin/SigImageAdminPage";
 
 // ── HP 배틀 ──────────────────────────────────────────────────
-import HpBattle   from "./features/HPBattle/HpBattle";
-import HpControl  from "./features/HPBattle/HpControl";
-import HpOverlay  from "./features/HPBattle/HpOverlay";
+import HpBattle   from "./games/HPBattle/HpBattle";
+import HpControl  from "./games/HPBattle/HpControl";
+import HpOverlay  from "./games/HPBattle/HpOverlay";
 
 // ── Admin ────────────────────────────────────────────────────
 import SigHunterBoardControl from "./Admin/SigHunterBoardControl";
