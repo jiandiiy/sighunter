@@ -7,7 +7,7 @@ import {
   collection,
   getDoc,
 } from "firebase/firestore";
-import { db } from "../../shared/core/firebase";
+import { db } from "../shared/core/firebase";
 import ObsFlipCard from "./ObsFlipCard";
 import "./obs.css";
 

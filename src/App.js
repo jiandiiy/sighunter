@@ -29,7 +29,7 @@ import {
   SigHunterBingoView,
   BingoView,
   SigHunterFlipView,
-} from "./GameCenter/OBSViewer";
+} from "./obs";
 
 // ──────────────────────────────────────────────────────────────
 // ★ Vercel 프로젝트별 기본 진입 경로

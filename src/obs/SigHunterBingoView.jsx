@@ -1,5 +1,4 @@
-// src/components/GameCenter/OBSViewer/BingoView.jsx
-// Firestore 컬렉션명만 다르고 나머지 구조는 SigHunterBingoBoardView와 동일
+// src/components/GameCenter/OBSViewer/SigHunterBingoView.jsx
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
@@ -8,39 +7,44 @@ import {
   collection,
   getDoc,
 } from "firebase/firestore";
-import { db } from "../../shared/core/firebase";
+import { db } from "../shared/core/firebase";
 import ObsCell from "./ObsCell";
 import "./obs.css";
 
 const DEFAULT_CONFIG = {
   rows: 5,
   cols: 5,
-  name: "식대전 빙고",
+  name: "시그헌터 빙고",
 };
 
-export default function BingoView() {
+export default function SigHunterBingoView() {
   const { boardId } = useParams();
 
   const [config, setConfig] = useState(DEFAULT_CONFIG);
   const [cells, setCells] = useState({});
   const [loading, setLoading] = useState(true);
 
+  // Firestore 실시간 구독
   useEffect(() => {
     if (!boardId) return;
 
-    // ← 컬렉션명만 다름: "mealBingoBoards"
-    const boardRef = doc(db, "Bingos", boardId);
+    const boardRef = doc(db, "sigHunterBingos", boardId);
     const cellsRef = collection(boardRef, "cells");
     let unsubCells;
 
     (async () => {
       try {
         setLoading(true);
+
+        // config 읽기
         const snap = await getDoc(boardRef);
         if (snap.exists() && snap.data()?.config) {
           setConfig({ ...DEFAULT_CONFIG, ...snap.data().config });
+        } else {
+          setConfig(DEFAULT_CONFIG);
         }
 
+        // cells 실시간 구독
         unsubCells = onSnapshot(cellsRef, (qs) => {
           const map = {};
           qs.forEach((d) => {
@@ -50,7 +54,7 @@ export default function BingoView() {
           setLoading(false);
         });
       } catch (e) {
-        console.error("[BingoView] error", e);
+        console.error("[SigHunterBingoView] error", e);
         setLoading(false);
       }
     })();
@@ -69,7 +73,7 @@ export default function BingoView() {
       const rowCells = [];
 
       for (let c = 0; c < cols; c++) {
-        const cellId = String(r * cols + c + 1);
+        const cellId = String(r * cols + c + 1); // 1 ~ rows*cols
         const cellData = cells[cellId];
 
         rowCells.push(
@@ -109,14 +113,16 @@ export default function BingoView() {
 
   return (
     <div className="obs-root">
+      {/* 타이틀 (OBS에서 안 보이게 하고 싶으면 삭제) */}
       <div className="obs-header">
-        <h1>식대전 BINGO</h1>
+        <h1>SIG HUNTER BINGO</h1>
         <p>
           {boardId}
           {config.name ? ` · ${config.name}` : ""}
         </p>
       </div>
 
+      {/* 그리드 영역 */}
       <div className="obs-grid-wrapper">
         {loading ? (
           <div className="obs-loading">
