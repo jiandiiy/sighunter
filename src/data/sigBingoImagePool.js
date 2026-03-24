@@ -209,6 +209,7 @@ export const bingoImagePool = {
     "/images/queendom/group04/sig_101.webp",
     "/images/queendom/group04/sig_102.webp",
     "/images/queendom/group04/sig_103.webp",
+    "/images/queendom/group04/sig_104.webp",
     "/images/queendom/group04/sig_105.webp",
     "/images/queendom/group04/sig_108.webp",
     "/images/queendom/group04/sig_110.webp",
