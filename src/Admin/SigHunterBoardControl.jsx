@@ -8,8 +8,8 @@ import {
   setDoc,
   getDoc,
 } from "firebase/firestore";
-import { db } from "../../shared/core/firebase";
-import { fetchSigItems } from "../../shared/api/sigHunterImageLibraryApi";
+import { db } from "../../src/shared/core/firebase";
+import { fetchSigItems } from "../../src/shared/api/sigHunterImageLibraryApi";
 
 // 기본 보드 설정 (config 문서 없을 때 fallback)
 const DEFAULT_CONFIG = {

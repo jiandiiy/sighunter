@@ -13,7 +13,7 @@ import BoardGame          from "./features/BoardGame/BoardGame";
 import CasinoWheelHuge    from "./features/BigWheel/CasinoWheelHuge";
 import BingoBoard         from "./features/Bingo/BingoBoard";
 import SigHunterBingoBoard   from "./features/SigHunterBingo/SigHunterBingoBoard";
-import SigImageAdminPage  from "./GameCenter/Admin/SigImageAdminPage";
+import SigImageAdminPage  from "./Admin/SigImageAdminPage";
 
 // ── HP 배틀 ──────────────────────────────────────────────────
 import HpBattle   from "./features/HPBattle/HpBattle";
@@ -21,8 +21,8 @@ import HpControl  from "./features/HPBattle/HpControl";
 import HpOverlay  from "./features/HPBattle/HpOverlay";
 
 // ── Admin ────────────────────────────────────────────────────
-import SigHunterBoardControl from "./GameCenter/Admin/SigHunterBoardControl";
-import SigHunterFlipControl  from "./GameCenter/Admin/SigHunterFlipControl";
+import SigHunterBoardControl from "./Admin/SigHunterBoardControl";
+import SigHunterFlipControl  from "./Admin/SigHunterFlipControl";
 
 // ── OBS 뷰어 ─────────────────────────────────────────────────
 import {
