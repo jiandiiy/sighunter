@@ -12,6 +12,7 @@ import {
 } from "../../shared/api/sigHunterBingoApi";
 import { loadAllCells } from "../../shared/api/sigHunterBingoCellsApi";
 import { toStorageUrl } from "../../shared/core/storageUrl";
+import { getSigCountFromPool } from "../../shared/utils/getSigCountFromPool";
 
 export const AVAILABLE_SIZES = [3, 5];
 
@@ -425,16 +426,41 @@ console.log("=== index 4 상세 ===", JSON.stringify(nextCells[4], null, 2));
   };
 
   const getCurrentCount = (cell) => {
-    if (cell?.counts && cell.counts.length > 0) {
-      const idx =
-        typeof cell.imageIndex === "number"
-          ? cell.imageIndex % cell.counts.length
-          : 0;
-      const value = cell.counts[idx];
-      if (value != null) return value;
-    }
-    return cell.sigCount ?? 0;
-  };
+  // 1) 현재 사용 중인 이미지 경로 구하기 (getCurrentImage와 동일 기준)
+  let imagePath = null;
+
+  if (cell?.imageUrl) {
+    imagePath = cell.imageUrl;
+  } else if (cell?.images && cell.images.length > 0) {
+    const idx =
+      typeof cell.imageIndex === "number"
+        ? cell.imageIndex % cell.images.length
+        : 0;
+    const raw = cell.images[idx];
+    const path = typeof raw === "string" ? raw : raw?.path ?? null;
+    imagePath = path;
+  }
+
+  // 2) sigHunterImagePool에서 count 찾기
+  const mapped = getSigCountFromPool(imagePath);
+
+  if (mapped != null) {
+    return mapped;        // ✅ data(script)에서 정의한 숫자
+  }
+
+  // 3) 못 찾으면 기존 counts 배열 로직 사용
+  if (cell?.counts && cell.counts.length > 0) {
+    const idx =
+      typeof cell.imageIndex === "number"
+        ? cell.imageIndex % cell.counts.length
+        : 0;
+    const value = cell.counts[idx];
+    if (value != null) return value;
+  }
+
+  // 4) 마지막 fallback
+  return cell.sigCount ?? 0;
+};
 
   // 보드 페이지: 칸 클릭(점령/쟁탈)
   const handleClickCell = (cellId, actorRaw) => {
