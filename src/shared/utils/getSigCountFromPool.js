@@ -1,5 +1,5 @@
 // src/shared/utils/getSigCountFromPool.js
-import { sigHunterImagePool } from "../data/sigHunterImagePool";
+import { sigHunterImagePool } from "../data/sigHunterImagePresets";
 
 // 이미지 경로(/images/muse/group01/sig_199.webp) → count 숫자
 export const getSigCountFromPool = (imagePath) => {

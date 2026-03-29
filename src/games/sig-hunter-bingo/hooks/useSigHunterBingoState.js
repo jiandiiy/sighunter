@@ -5,7 +5,7 @@ import {
   getInitialHunterCells,
   HUNTER_MODES,
   createRandomHunterCell,
-} from "../../../shared/utils/sigHunterBingoData";
+} from "../../../shared/api/sigHunterBingoData";
 import {
   loadSigHunterBingoState,
   saveSigHunterBingoState,

@@ -1,6 +1,6 @@
 // src/utils/sigHunterBingoData.js
 
-import { sigHunterImagePool } from "../../shared/data/sigHunterImagePool";
+import { sigHunterImagePool } from "../data/sigHunterImagePresets";
 // ❌ 여기서는 더 이상 toStorageUrl을 사용하지 않습니다.
 // import { toStorageUrl } from "../core/storageUrl";
 

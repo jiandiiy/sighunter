@@ -8,7 +8,7 @@ import {
   makeDefaultCellStyles,
   makeToken,
 } from "../lib/constants";
-import { useDice } from "../../../shared/hooks/useDice";
+import { useDice } from "../../../shared/hooks/common/useDice";
 import { useBoardEffects } from "../../../shared/hooks/useBoardEffects";
 
 export default function BoardGame() {

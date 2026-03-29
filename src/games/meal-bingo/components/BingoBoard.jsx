@@ -6,12 +6,12 @@ import "../styles/BingoBoard.css";
 import {
   getRandomBingoImages,
   getRandomBingoImage,
-} from "../../../shared/utils/sigBingoImagePool";
+} from "../../../shared/api/sigBingoImagePool";
 import { fetchSigItems } from "../../../shared/api/sigHunterImageLibraryApi";
 import {
   loadSigBingoState,
   saveSigBingoState,
-} from "../../../shared/api/sigBingoStorage";
+} from "../../../shared/core/sigBingoStorage";
 
 console.log("[BINGO] *** BingoBoard.jsx 로드 완료 ***");
 
