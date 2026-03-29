@@ -2,7 +2,7 @@
 import React from "react";
 import HpControl from "./HpControl";
 import HpOverlay from "./HpOverlay";
-import "./HpBattle.css";
+import "../styles/HpBattle.css";
 
 export default function HpBattle() {
   const battleId = "sig-hp";

@@ -5,7 +5,7 @@ import "./SigHunterBingoBoard.css";
 import {
   useSigHunterBingoState,
   AVAILABLE_SIZES,
-} from "./useSigHunterBingoState";
+} from "../useSigHunterBingoState";
 
 export default function SigHunterBingoControl({ boardId = "hunter1" }) {
   const {

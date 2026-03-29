@@ -7,9 +7,9 @@ import {
   makeDefaultCellTexts,
   makeDefaultCellStyles,
   makeToken,
-} from "./constants";
-import { useDice } from "../../shared/hooks/useDice";
-import { useBoardEffects } from "../../shared/hooks/useBoardEffects";
+} from "../lib/constants";
+import { useDice } from "../../../shared/hooks/useDice";
+import { useBoardEffects } from "../../../shared/hooks/useBoardEffects";
 
 export default function BoardGame() {
   const [rows, setRows] = useState(9);

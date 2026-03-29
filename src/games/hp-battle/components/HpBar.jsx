@@ -1,6 +1,6 @@
 // src/components/HPBattle/HpBar.jsx
 import React from "react";
-import "./HpBattle.css";
+import "../styles/HpBattle.css";
 
 export default function HpBar({ fighter, lastAction, side = "left" }) {
   if (!fighter) return null;

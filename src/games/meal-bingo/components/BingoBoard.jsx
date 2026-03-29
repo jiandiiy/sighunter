@@ -1,17 +1,17 @@
 // src/components/GameCenter/Bingo/BingoBoard.jsx
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import "./BingoBoard.css";
+import "../styles/BingoBoard.css";
 
 import {
   getRandomBingoImages,
   getRandomBingoImage,
-} from "../../shared/utils/sigBingoImagePool";
-import { fetchSigItems } from "../../shared/api/sigHunterImageLibraryApi";
+} from "../../../shared/utils/sigBingoImagePool";
+import { fetchSigItems } from "../../../shared/api/sigHunterImageLibraryApi";
 import {
   loadSigBingoState,
   saveSigBingoState,
-} from "../../shared/api/sigBingoStorage";
+} from "../../../shared/api/sigBingoStorage";
 
 console.log("[BINGO] *** BingoBoard.jsx 로드 완료 ***");
 

@@ -1,10 +1,10 @@
 // src/components/GameCenter/SigHunterBingo/SigHunterBingoBoard.jsx
 import React, { useState, useMemo, useEffect, useRef } from "react";
-import "./SigHunterBingoBoard.css";
+import "../styles/SigHunterBingoBoard.css";
 import {
   useSigHunterBingoState,
   AVAILABLE_SIZES,
-} from "./useSigHunterBingoState";
+} from "../hooks/useSigHunterBingoState";
 
 // ✅ 모드 탭 이름 매핑 (컴포넌트 밖에 선언 → 렌더링마다 재생성 방지)  
 const MODE_LABELS = {  

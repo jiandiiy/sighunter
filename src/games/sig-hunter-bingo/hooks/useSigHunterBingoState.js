@@ -5,14 +5,14 @@ import {
   getInitialHunterCells,
   HUNTER_MODES,
   createRandomHunterCell,
-} from "../../shared/utils/sigHunterBingoData";
+} from "../../../shared/utils/sigHunterBingoData";
 import {
   loadSigHunterBingoState,
   saveSigHunterBingoState,
-} from "../../shared/api/sigHunterBingoApi";
-import { loadAllCells } from "../../shared/api/sigHunterBingoCellsApi";
-import { toStorageUrl } from "../../shared/core/storageUrl";
-import { getSigCountFromPool } from "../../shared/utils/getSigCountFromPool";
+} from "../../../shared/api/sigHunterBingoApi";
+import { loadAllCells } from "../../../shared/api/sigHunterBingoCellsApi";
+import { toStorageUrl } from "../../../shared/core/storageUrl";
+import { getSigCountFromPool } from "../../../shared/utils/getSigCountFromPool";
 
 export const AVAILABLE_SIZES = [3, 5];
 

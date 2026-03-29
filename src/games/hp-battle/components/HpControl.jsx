@@ -6,12 +6,12 @@ import {
   SIG_CONFIG,
   ITEMS,
   createInitialBattleState,
-} from "../../shared/utils/hpBattle/battleTypes";
+} from "../../../shared/utils/hpBattle/battleTypes";
 import {
   loadBattleStateOnce,
   saveBattleState,
-} from "../../shared/utils/hpBattle/battleStorage";
-import "./HpBattle.css";
+} from "../../../shared/utils/hpBattle/battleStorage";
+import "../styles/HpBattle.css";
 
 const { ATTACK_PER_SIG, HEAL_PER_SIG, SHIELD_PER_SIG } = SIG_CONFIG;
 

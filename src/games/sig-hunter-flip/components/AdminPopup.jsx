@@ -4,8 +4,8 @@ import {
   museSigCards,
   normalMessages as defaultNormalMessages,
   specialMessages as defaultSpecialMessages,
-} from "../../shared/data/sigData";
-import "./adminPopup.css";
+} from "../../../shared/data/sigData";
+import "../styles/adminPopup.css";
 
 export default function AdminPopup({
   project,

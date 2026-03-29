@@ -14,20 +14,20 @@ import SigHunterBingoBoard from "./games/sig-hunter-bingo";
 import BingoBoard from "./games/meal-bingo";
 
 // SigHunterFlip 팝업 관련 (폴더 내부 파일 직접 import)
-import AdminPopup from "./games/sig-hunter-flip/AdminPopup";
-import EditMessageModal from "./games/sig-hunter-flip/EditMessageModal";
+import AdminPopup from "./games/sig-hunter-flip/components/AdminPopup";
+import EditMessageModal from "./games/sig-hunter-flip/components/EditMessageModal";
 
 // ── 레이아웃 ───────────────────────────────────────
 import GameHub from "./layout/GameHub";
 
 // ── HP 배틀 ────────────────────────────────────────
-import HpControl from "./games/hp-battle/HpControl";
-import HpOverlay from "./games/hp-battle/HpOverlay";
+import HpControl from "./games/hp-battle/components/HpControl";
+import HpOverlay from "./games/hp-battle/components/HpOverlay";
 
 // ── Admin ─────────────────────────────────────────
 import SigImageAdminPage from "./Admin/SigImageAdminPage";
 import SigHunterBoardControl from "./Admin/SigHunterBoardControl";
-import SigHunterFlipControl from "./Admin/SigHunterFlipControl";
+import SigHunterFlipControl from "./Admin/SigHunterFlipControl"; 
 
 // ── OBS 뷰어 ───────────────────────────────────────
 import {

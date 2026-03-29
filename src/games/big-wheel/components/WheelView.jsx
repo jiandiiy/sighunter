@@ -1,6 +1,6 @@
 // src/components/GameCenter/BigWheel/WheelView.jsx
 import React from "react";
-import { SEGMENT_BG, SEGMENT_STROKE, SEGMENT_STROKE_WIDTH, TIER_TEXT_GRADIENTS } from "./wheelLogic";
+import { SEGMENT_BG, SEGMENT_STROKE, SEGMENT_STROKE_WIDTH, TIER_TEXT_GRADIENTS } from "../lib/wheelLogic";
 
 // ✅ 티어별 보석 이미지(경로는 프로젝트에 맞게 수정)
 const TIER_GEM_IMAGES = {

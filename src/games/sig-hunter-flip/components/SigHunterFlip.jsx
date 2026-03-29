@@ -4,14 +4,14 @@ import {
   queendomSigCards,
   museSigCards,
   holicSigCards, // ← 추가
-} from "../../shared/data/sigData";
-import { useSigStorage } from "../../shared/hooks/useSigStorage";
-import { fireConfetti, weightedPick } from "../../../src/components/common/confettiUtils";
-import { fetchRandomSigItems } from "../../shared/api/sigHunterImageLibraryApi";
+} from "../../../shared/data/sigData";
+import { useSigStorage } from "../../../shared/hooks/useSigStorage";
+import { fireConfetti, weightedPick } from "../../../components/common/confettiUtils";
+import { fetchRandomSigItems } from "../../../shared/api/sigHunterImageLibraryApi";
 import CardGrid from "./CardGrid";
 import EditMessageModal from "./EditMessageModal";
 import AdminPopup from "./AdminPopup";
-import "./flip.css";
+import "../styles/flip.css";
 
 // ✅ holic 추가
 const projectCardSets = {

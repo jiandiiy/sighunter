@@ -1,3 +1,3 @@
-import MinesGame from "./MinesGame"; 
+import MinesGame from "./components/MinesGame"; 
 
 export default MinesGame;

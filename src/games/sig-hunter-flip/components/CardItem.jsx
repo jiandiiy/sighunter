@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { toStorageUrl } from "../../shared/core/storageUrl"; // ✅ 추가
+import { toStorageUrl } from "../../../shared/core/storageUrl"; // ✅ 추가
 
 function CardItem({
   card = {},
