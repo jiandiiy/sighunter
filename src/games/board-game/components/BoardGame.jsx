@@ -9,7 +9,7 @@ import {
   makeToken,
 } from "../lib/constants";
 import { useDice } from "../../../shared/hooks/common/useDice";
-import { useBoardEffects } from "../../../shared/hooks/useBoardEffects";
+import { useBoardEffects } from "../../../shared/hooks";
 
 export default function BoardGame() {
   const [rows, setRows] = useState(9);

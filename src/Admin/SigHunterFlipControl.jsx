@@ -12,7 +12,7 @@ import {
   writeBatch,
 } from "firebase/firestore";
 import { db } from "../shared/core/firebase";
-import { fetchSigItems } from "../shared/api/sigHunterImageLibraryApi";
+import { fetchSigItems } from "../shared/api";
 
 const DEFAULT_CONFIG = {
   rows: 4,

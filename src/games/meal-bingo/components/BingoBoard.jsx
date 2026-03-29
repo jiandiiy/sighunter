@@ -6,14 +6,13 @@ import "../styles/BingoBoard.css";
 import {
   getRandomBingoImages,
   getRandomBingoImage,
-} from "../../../shared/api/sigBingoImagePool";
-import { fetchSigItems } from "../../../shared/api/sigHunterImageLibraryApi";
+} from "../../../shared/api";
+import { fetchSigItems } from "../../../shared/api";
 import {
   loadSigBingoState,
   saveSigBingoState,
 } from "../../../shared/core/sigBingoStorage";
 
-console.log("[BINGO] *** BingoBoard.jsx 로드 완료 ***");
 
 // ✅ 변경 1: holic 추가  
 const MODES = ["muse", "queendom", "holic"]; 

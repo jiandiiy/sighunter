@@ -11,7 +11,7 @@ import EditMessageModal from "./games/sig-hunter-flip/components/EditMessageModa
 
 import HpControl from "./games/hp-battle/components/HpControl";
 import HpOverlay from "./games/hp-battle/components/HpOverlay"; 
-
+console.log("[APP] ✅ 현재 App.js 버전이 로드되었습니다");
 // ── lazy 로드: 게임 엔트리 ─────────────────────────
 const SigHunterFlip = lazy(() => import("./games/sig-hunter-flip"));
 const MinesGame = lazy(() => import("./games/mines"));
@@ -74,7 +74,7 @@ export default function App() {
             <Route path="/bigwheel" element={<BigWheel />} />
 
             {/* 식대전 빙고 1 / 2 / 3 */}
-            <Route
+            {/*<Route
               path="/bingo/1"
               element={
                 <BingoBoard key="bingo1" boardId="bingo1" currentBoardNo="1" />
@@ -91,7 +91,8 @@ export default function App() {
               element={
                 <BingoBoard key="bingo3" boardId="bingo3" currentBoardNo="3" />
               }
-            />
+            />*/}<Route path="/bingo/:boardNo" element={<BingoBoard />} />
+
 
             {/* 시그헌터 빙고 */}
             <Route

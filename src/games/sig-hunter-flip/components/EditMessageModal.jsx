@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import {
   queendomSigCards,
   museSigCards,
-} from "../../../shared/data/sigData";
+} from "../../../shared/data";
 import "../styles/editMessage.css";
 
 export default function EditMessageModal({

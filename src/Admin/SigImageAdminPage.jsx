@@ -5,7 +5,7 @@ import {
   fetchSigItems,
   updateSigItem,
   deleteSigItem,
-} from "../shared/api/sigHunterImageLibraryApi";
+} from "../shared/api";
 
 // ─────────────────────────────────────────────
 // 상수 정의
