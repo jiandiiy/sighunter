@@ -10,7 +10,7 @@ import AdminPopup from "./games/sig-hunter-flip/components/AdminPopup";
 import EditMessageModal from "./games/sig-hunter-flip/components/EditMessageModal";
 
 import HpControl from "./games/hp-battle/components/HpControl";
-import HpOverlay from "./games/hp-battle/components/HpOverlay";
+import HpOverlay from "./games/hp-battle/components/HpOverlay"; 
 
 // ── lazy 로드: 게임 엔트리 ─────────────────────────
 const SigHunterFlip = lazy(() => import("./games/sig-hunter-flip"));
