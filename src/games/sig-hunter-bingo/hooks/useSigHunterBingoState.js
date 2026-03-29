@@ -5,13 +5,11 @@ import {
   getInitialHunterCells,
   HUNTER_MODES,
   createRandomHunterCell,
-} from "../../../shared/api";
-import {
   loadSigHunterBingoState,
   saveSigHunterBingoState,
+  loadAllCells,
 } from "../../../shared/api";
-import { loadAllCells } from "../../../shared/api";
-import { toStorageUrl } from "../../../shared/core/storageUrl";
+import { toStorageUrl } from "../../../shared/utils";
 import { getSigCountFromPool } from "../../../shared/utils";
 
 export const AVAILABLE_SIZES = [3, 5];
@@ -164,7 +162,12 @@ export function useSigHunterBingoState(boardId = "hunter1") {
       const targetSize = overrideSize ?? size; // ✅ 명시적으로 받아서 사용
 
       try {
-        await saveSigHunterBingoState(boardId, targetMode, targetSize, stateToSave);
+        await saveSigHunterBingoState(
+          boardId,
+          targetMode,
+          targetSize,
+          stateToSave
+        );
       } catch (e) {
         console.error("saveSigHunterBingoState failed", e);
       }
@@ -179,7 +182,7 @@ export function useSigHunterBingoState(boardId = "hunter1") {
     async function init() {
       setLoading(true);
 
-      let nextCells; // ← 스코프 최상단에 선언 (if/else 모두 공유)
+      let nextCells;
 
       const stored = await loadSigHunterBingoState(boardId, mode, size);
 
@@ -199,7 +202,6 @@ export function useSigHunterBingoState(boardId = "hunter1") {
       if (!alive) return;
 
       if (stored) {
-        // ← let nextCells 제거, 상단 선언 변수 사용
         if (Array.isArray(stored.cells) && stored.cells.length === cellCount) {
           nextCells = stored.cells.map((c, idx) => {
             const base = initCells[idx];
@@ -218,17 +220,16 @@ export function useSigHunterBingoState(boardId = "hunter1") {
                   : base.isSpecial ?? false,
             };
 
-            // ✅ 수정 (유효한 URL만 주입)
             if (imageUrlByIndex[idx]) {
               const url = imageUrlByIndex[idx];
               const isValid =
-                url.startsWith("https://") && url.includes("sig-hunter%2Fimages%2F");
+                url.startsWith("https://") &&
+                url.includes("sig-hunter%2Fimages%2F");
               if (isValid) {
                 merged.imageUrl = url;
               }
             }
 
-            // ✅ 이미지 없으면 랜덤 보충 (관리 페이지 없이도 이미지 표시)
             const hasImage =
               merged.imageUrl ||
               (Array.isArray(merged.images) && merged.images.length > 0);
@@ -250,7 +251,6 @@ export function useSigHunterBingoState(boardId = "hunter1") {
               cell.imageUrl = imageUrlByIndex[idx];
             }
 
-            // ✅ 이미지 없으면 랜덤 보충 (방어 코드)
             const hasImage =
               cell.imageUrl ||
               (Array.isArray(cell.images) && cell.images.length > 0);
@@ -278,9 +278,7 @@ export function useSigHunterBingoState(boardId = "hunter1") {
         setLogs(stored.logs || []);
         setLineOwners(restoredLineOwners);
         setPlayerColors(restoredPlayerColors);
-        // ✅ setModeStates 제거
       } else {
-        // ← const nextCells 제거, 상단 선언 변수 사용
         nextCells = initCells.map((base, idx) => {
           const cell = { ...base };
 
@@ -288,7 +286,6 @@ export function useSigHunterBingoState(boardId = "hunter1") {
             cell.imageUrl = imageUrlByIndex[idx];
           }
 
-          // ✅ 이미지 없으면 랜덤 보충 (방어 코드)
           const hasImage =
             cell.imageUrl ||
             (Array.isArray(cell.images) && cell.images.length > 0);
@@ -307,7 +304,6 @@ export function useSigHunterBingoState(boardId = "hunter1") {
         setLogs([]);
         setLineOwners(initLineOwners);
         setPlayerColors({});
-        // ✅ setModeStates 제거
 
         await saveSigHunterBingoState(boardId, mode, size, {
           cells: nextCells,
@@ -317,14 +313,20 @@ export function useSigHunterBingoState(boardId = "hunter1") {
         });
       }
 
-      // 임시 디버그 ← 확인 후 삭제
       console.log("=== CELLS imageUrl 체크 ===");
       nextCells.forEach((c, i) => {
-        console.log(i, c.id, c.imageUrl ? "✅" : "❌ EMPTY", c.imageUrl?.slice(0, 60));
+        console.log(
+          i,
+          c.id,
+          c.imageUrl ? "✅" : "❌ EMPTY",
+          c.imageUrl?.slice(0, 60)
+        );
       });
 
-      // ✅ 추가: index 4 상세 확인 ← 확인 후 삭제
-console.log("=== index 4 상세 ===", JSON.stringify(nextCells[4], null, 2));
+      console.log(
+        "=== index 4 상세 ===",
+        JSON.stringify(nextCells[4], null, 2)
+      );
 
       if (!alive) return;
       setLoading(false);
@@ -340,14 +342,10 @@ console.log("=== index 4 상세 ===", JSON.stringify(nextCells[4], null, 2));
   const handleChangeMode = (nextMode) => {
     if (mode === nextMode) return;
 
-    // ✅ URL 쿼리 동기화 (replaceState: 히스토리 쌓지 않음)
     const params = new URLSearchParams(window.location.search);
     params.set("mode", nextMode);
     window.history.replaceState(null, "", "?" + params.toString());
 
-    // ✅ setMode만 호출 — useEffect가 Firestore 로드 및 setCells를 처리함
-    // ✅ 여기서 setCells / sync를 직접 호출하지 않음 (클로저 버그 + 덮어쓰기 방지)
-    // ✅ setModeStates 제거 — 캐시 최적화 시 useRef로 재도입 예정
     setMode(nextMode);
   };
 
@@ -355,14 +353,10 @@ console.log("=== index 4 상세 ===", JSON.stringify(nextCells[4], null, 2));
   const handleChangeSize = (nextSize) => {
     if (size === nextSize) return;
 
-    // ✅ URL 쿼리 동기화 (replaceState: 히스토리 쌓지 않음)
     const params = new URLSearchParams(window.location.search);
     params.set("size", nextSize);
     window.history.replaceState(null, "", "?" + params.toString());
 
-    // ✅ setSize만 호출 — useEffect가 Firestore 로드 및 setCells를 처리함
-    // ✅ 여기서 setCells / sync를 직접 호출하지 않음 (클로저 버그 + 덮어쓰기 방지)
-    // ✅ setModeStates 제거 — 캐시 최적화 시 useRef로 재도입 예정
     setSize(nextSize);
   };
 
@@ -375,7 +369,6 @@ console.log("=== index 4 상세 ===", JSON.stringify(nextCells[4], null, 2));
     setLogs([]);
     setLineOwners(initLineOwners);
     setPlayerColors({});
-    // ✅ setModeStates 제거
 
     sync({
       cells: initCells,
@@ -387,26 +380,20 @@ console.log("=== index 4 상세 ===", JSON.stringify(nextCells[4], null, 2));
 
   const getCurrentImage = (cell) => {
     if (cell?.imageUrl?.startsWith("https://")) {
-      // ✅ 올바른 경로만 통과: "sig-hunter/images/" 포함 여부로 판단
-      // ❌ "sigHunterBingo/hunter-main-..." 패턴은 fallback으로 떨어짐
       if (cell.imageUrl.includes("sig-hunter%2Fimages%2F")) {
         return cell.imageUrl;
       }
-      // 잘못된 URL → 아래 fallback으로 계속 진행
     }
 
-    // 상대경로 imageUrl → toStorageUrl 변환
     if (cell?.imageUrl) {
       return toStorageUrl(cell.imageUrl);
     }
 
-    // fallback: images[] 배열 (로컬 public 경로 → toStorageUrl)
     if (!cell?.images || cell.images.length === 0) {
       console.warn("[SIG] no image for cell", cell?.id);
       return null;
     }
 
-    
     const idx =
       typeof cell.imageIndex === "number"
         ? cell.imageIndex % cell.images.length
@@ -414,11 +401,15 @@ console.log("=== index 4 상세 ===", JSON.stringify(nextCells[4], null, 2));
 
     const raw = cell.images[idx];
 
-    // ✅ 객체 형태 { path, count, rawText } 방어 처리
     const imagePath = typeof raw === "string" ? raw : raw?.path ?? null;
 
     if (!imagePath) {
-      console.warn("[SIG] images[idx] has no valid path — raw:", raw, "cell:", cell?.id);
+      console.warn(
+        "[SIG] images[idx] has no valid path — raw:",
+        raw,
+        "cell:",
+        cell?.id
+      );
       return null;
     }
 
@@ -426,41 +417,37 @@ console.log("=== index 4 상세 ===", JSON.stringify(nextCells[4], null, 2));
   };
 
   const getCurrentCount = (cell) => {
-  // 1) 현재 사용 중인 이미지 경로 구하기 (getCurrentImage와 동일 기준)
-  let imagePath = null;
+    let imagePath = null;
 
-  if (cell?.imageUrl) {
-    imagePath = cell.imageUrl;
-  } else if (cell?.images && cell.images.length > 0) {
-    const idx =
-      typeof cell.imageIndex === "number"
-        ? cell.imageIndex % cell.images.length
-        : 0;
-    const raw = cell.images[idx];
-    const path = typeof raw === "string" ? raw : raw?.path ?? null;
-    imagePath = path;
-  }
+    if (cell?.imageUrl) {
+      imagePath = cell.imageUrl;
+    } else if (cell?.images && cell.images.length > 0) {
+      const idx =
+        typeof cell.imageIndex === "number"
+          ? cell.imageIndex % cell.images.length
+          : 0;
+      const raw = cell.images[idx];
+      const path = typeof raw === "string" ? raw : raw?.path ?? null;
+      imagePath = path;
+    }
 
-  // 2) sigHunterImagePool에서 count 찾기
-  const mapped = getSigCountFromPool(imagePath);
+    const mapped = getSigCountFromPool(imagePath);
 
-  if (mapped != null) {
-    return mapped;        // ✅ data(script)에서 정의한 숫자
-  }
+    if (mapped != null) {
+      return mapped;
+    }
 
-  // 3) 못 찾으면 기존 counts 배열 로직 사용
-  if (cell?.counts && cell.counts.length > 0) {
-    const idx =
-      typeof cell.imageIndex === "number"
-        ? cell.imageIndex % cell.counts.length
-        : 0;
-    const value = cell.counts[idx];
-    if (value != null) return value;
-  }
+    if (cell?.counts && cell.counts.length > 0) {
+      const idx =
+        typeof cell.imageIndex === "number"
+          ? cell.imageIndex % cell.counts.length
+          : 0;
+      const value = cell.counts[idx];
+      if (value != null) return value;
+    }
 
-  // 4) 마지막 fallback
-  return cell.sigCount ?? 0;
-};
+    return cell.sigCount ?? 0;
+  };
 
   // 보드 페이지: 칸 클릭(점령/쟁탈)
   const handleClickCell = (cellId, actorRaw) => {
@@ -514,8 +501,6 @@ console.log("=== index 4 상세 ===", JSON.stringify(nextCells[4], null, 2));
         if (exists) return prevLogs;
 
         const updatedLogs = [...prevLogs, newLog];
-
-        // ✅ setModeStates 제거
 
         sync({
           cells: nextCells,

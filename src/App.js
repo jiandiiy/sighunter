@@ -74,24 +74,7 @@ export default function App() {
             <Route path="/bigwheel" element={<BigWheel />} />
 
             {/* 식대전 빙고 1 / 2 / 3 */}
-            {/*<Route
-              path="/bingo/1"
-              element={
-                <BingoBoard key="bingo1" boardId="bingo1" currentBoardNo="1" />
-              }
-            />
-            <Route
-              path="/bingo/2"
-              element={
-                <BingoBoard key="bingo2" boardId="bingo2" currentBoardNo="2" />
-              }
-            />
-            <Route
-              path="/bingo/3"
-              element={
-                <BingoBoard key="bingo3" boardId="bingo3" currentBoardNo="3" />
-              }
-            />*/}<Route path="/bingo/:boardNo" element={<BingoBoard />} />
+           <Route path="/bingo/:boardNo" element={<BingoBoard />} />
 
 
             {/* 시그헌터 빙고 */}

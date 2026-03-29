@@ -6,23 +6,19 @@ import "../styles/BingoBoard.css";
 import {
   getRandomBingoImages,
   getRandomBingoImage,
+  loadMealBingoState,
+  saveMealBingoState,
+  fetchSigItems,
 } from "../../../shared/api";
-import { fetchSigItems } from "../../../shared/api";
-import {
-  loadSigBingoState,
-  saveSigBingoState,
-} from "../../../shared/core/sigBingoStorage";
 
+// ✅ holic 모드 추가
+const MODES = ["muse", "queendom", "holic"];
 
-// ✅ 변경 1: holic 추가  
-const MODES = ["muse", "queendom", "holic"]; 
-
-// ✅ 변경 2: 탭 라벨 객체 맵으로 교체 (이진 삼항식 제거)  
-const MODE_LABELS = {  
-  muse: "뮤즈",  
-  queendom: "퀸덤",  
-  holic: "홀릭",  
-};  
+const MODE_LABELS = {
+  muse: "뮤즈",
+  queendom: "퀸덤",
+  holic: "홀릭",
+};
 
 const GLOBAL_MODE_KEY = "sigBingo-global-mode";
 
@@ -286,11 +282,11 @@ export default function BingoBoard({
         let globalMode = "muse";
         if (typeof window !== "undefined") {
           const v = window.localStorage.getItem(GLOBAL_MODE_KEY);
-          if (v && MODES.includes(v)) globalMode = v;  // "holic" 포함 모든 유효 모드 허용
+          if (v && MODES.includes(v)) globalMode = v;
         }
 
-        // 🔥 Firestore에서 저장된 상태 로드
-        const remote = await loadSigBingoState(boardId);
+        // 🔥 Firestore에서 저장된 상태 로드 (api 래핑 사용)
+        const remote = await loadMealBingoState(boardId);
 
         if (remote && remote.mode === globalMode) {
           console.log("[BINGO] Firestore 데이터 복원", {
@@ -298,7 +294,6 @@ export default function BingoBoard({
             cardCount: remote.cards?.length,
           });
 
-          // 저장된 상태 그대로 복원
           setMode(remote.mode);
           setCards(remote.cards || []);
           setChecked(remote.checked || Array(CELL_COUNT).fill(false));
@@ -307,7 +302,6 @@ export default function BingoBoard({
         } else {
           console.log("[BINGO] 새 게임 시작 (Firestore 데이터 없음)");
 
-          // 🔥 새 빙고판 구성
           const initialHistory = remote?.shownHistory || {};
           const built = await buildBoardWithRandomAndFixed(
             globalMode,
@@ -327,8 +321,8 @@ export default function BingoBoard({
           setCompletedLines(newLines);
           setShownHistory(historyToUse);
 
-          // 🔥 Firestore 저장
-          saveSigBingoState(boardId, {
+          // 🔥 Firestore 저장 (api 래핑 사용)
+          saveMealBingoState(boardId, {
             mode: globalMode,
             cards: baseCards,
             checked: initChecked,
@@ -352,7 +346,6 @@ export default function BingoBoard({
   /* -------------------------------------------------------------------------- */
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Alt + Shift + F 조합인지 확인
       if (e.altKey && e.shiftKey && (e.key === "f" || e.key === "F")) {
         e.preventDefault();
         if (cellNumberInputRef.current) {
@@ -374,7 +367,7 @@ export default function BingoBoard({
     const historyToSave =
       historyOverride !== undefined ? historyOverride : shownHistory;
 
-    saveSigBingoState(boardId, {
+    saveMealBingoState(boardId, {
       ...next,
       shownHistory: historyToSave,
     }).catch((e) => console.error("[BINGO] 동기화 실패:", e));
@@ -399,14 +392,12 @@ export default function BingoBoard({
 
       const newLines = calcCompletedLines(nextChecked);
 
-      // 🔥 라인 완성에 포함된 칸인지 확인
       const isInCompletedLine = LINES_3X3.some(
         (line, lineIndex) => newLines.includes(lineIndex) && line.includes(idx)
       );
 
       let nextCards = cards;
 
-      // 🔥 라인 완성 시 스페셜 카드로 교체
       if (isInCompletedLine) {
         console.log(`[BINGO] 칸 ${idx + 1} 라인 완성! 스페셜 카드로 교체`);
         const newCard = await getRandomBingoImage(mode, { rarity: "special" });
@@ -420,7 +411,6 @@ export default function BingoBoard({
       setCompletedLines(newLines);
       setCards(nextCards);
 
-      // 🔥 Firestore 저장
       sync({
         mode,
         cards: nextCards,
@@ -445,7 +435,7 @@ export default function BingoBoard({
   };
 
   /* -------------------------------------------------------------------------- */
-  /* 🔄 모드 변경 핸들러 (뮤즈 ↔ 퀸덤)                                             */
+  /* 🔄 모드 변경 핸들러                                                          */
   /* -------------------------------------------------------------------------- */
   const handleChangeMode = async (nextMode) => {
     if (mode === nextMode) return;
@@ -453,12 +443,10 @@ export default function BingoBoard({
     try {
       console.log(`[BINGO] 모드 변경: ${mode} → ${nextMode}`);
 
-      // 🔥 전역 모드 저장 (localStorage)
       if (typeof window !== "undefined") {
         window.localStorage.setItem(GLOBAL_MODE_KEY, nextMode);
       }
 
-      // 🔥 새 빙고판 구성
       const built = await buildBoardWithRandomAndFixed(
         nextMode,
         currentBoardNo,
@@ -476,7 +464,6 @@ export default function BingoBoard({
       setCompletedLines(newLines);
       setShownHistory(newHistory);
 
-      // 🔥 Firestore 저장
       sync(
         {
           mode: nextMode,
@@ -498,7 +485,6 @@ export default function BingoBoard({
     try {
       console.log("[BINGO] 보드 초기화 (히스토리 완전 리셋)");
 
-      // 🔥 히스토리 완전 리셋
       const emptyHistory = {};
 
       const built = await buildBoardWithRandomAndFixed(
@@ -517,7 +503,6 @@ export default function BingoBoard({
       setCompletedLines(newLines);
       setShownHistory(newHistory);
 
-      // 🔥 Firestore 저장
       sync(
         {
           mode,
@@ -566,7 +551,6 @@ export default function BingoBoard({
                 }
                 onClick={() => handleChangeMode(m)}
               >
-               {/* ✅ 변경 2 적용: MODE_LABELS 맵으로 라벨 출력 */}
                 {MODE_LABELS[m]}
               </button>
             ))}
@@ -582,7 +566,7 @@ export default function BingoBoard({
               초기화
             </button>
 
-            {/* 🔢 칸 번호 입력 (시그헌터 스타일 라벨) */}
+            {/* 🔢 칸 번호 입력 */}
             <div
               className="bingo-cellno-wrapper"
               style={{ position: "relative", width: 70 }}
@@ -609,7 +593,6 @@ export default function BingoBoard({
                   }
                 }}
               />
-              {/* 라벨: 포커스 없을 때만 보이게 CSS로 제어 */}
               <span className="bingo-cellno-label">칸 번호</span>
             </div>
           </div>
@@ -648,7 +631,7 @@ export default function BingoBoard({
             );
           })}
 
-          {/* 🎴 번호로 뒤집기 버튼 (빙고 버튼 오른쪽) */}
+          {/* 🎴 번호로 뒤집기 버튼 */}
           <button
             type="button"
             onClick={() => flipCellByNumber(targetCellNo)}
@@ -667,8 +650,8 @@ export default function BingoBoard({
             🎴 뒤집기
           </button>
         </div>
-        
-         {/* 🔹 단축키 안내 문구 */}
+
+        {/* 🔹 단축키 안내 문구 */}
         <span
           style={{
             fontSize: 16,
@@ -679,7 +662,6 @@ export default function BingoBoard({
         >
           *Alt+Shift+F → 칸번호
         </span>
-
 
         {/* 제목 */}
         <h2 className="bingo-title-text">🍽️ 식사대전 빙고 🍽️</h2>

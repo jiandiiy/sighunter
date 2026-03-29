@@ -3,16 +3,12 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import {
-  onSnapshot,
-  doc,
-  collection,
-  setDoc,
-  getDoc,
-  updateDoc,
-  writeBatch,
-} from "firebase/firestore";
-import { db } from "../shared/core/firebase";
-import { fetchSigItems } from "../shared/api";
+  fetchSigItems,
+  subscribeFlipBoard,
+  updateFlipBoardCard,
+  resetAllFlipCards,
+  flipAllFlipCards,
+} from "../shared/api";
 
 const DEFAULT_CONFIG = {
   rows: 4,
@@ -48,39 +44,30 @@ export default function SigHunterFlipControl() {
     return () => clearTimeout(t);
   }, [message, error]);
 
-  // Firestore 실시간 구독
+  // Firestore 실시간 구독 (shared/api를 통해서만 접근)
   useEffect(() => {
     if (!boardId) return;
 
-    const boardRef = doc(db, "sigHunterFlipBoards", boardId);
-    const cardsRef = collection(boardRef, "cards");
-    let unsubCards;
+    setLoadingBoard(true);
 
-    (async () => {
-      try {
-        setLoadingBoard(true);
-
-        const snap = await getDoc(boardRef);
-        if (snap.exists() && snap.data()?.config) {
-          setConfig({ ...DEFAULT_CONFIG, ...snap.data().config });
-        }
-
-        unsubCards = onSnapshot(cardsRef, (qs) => {
-          const map = {};
-          qs.forEach((d) => {
-            map[d.id] = d.data();
-          });
-          setCards(map);
-          setLoadingBoard(false);
+    const unsub = subscribeFlipBoard(boardId, {
+      onConfig: (nextConfig) => {
+        setConfig({
+          ...DEFAULT_CONFIG,
+          ...nextConfig,
         });
-      } catch (e) {
-        console.error("[FlipControl] error", e);
+      },
+      onCards: (nextCards) => {
+        setCards(nextCards);
         setLoadingBoard(false);
-      }
-    })();
+      },
+      onError: () => {
+        setLoadingBoard(false);
+      },
+    });
 
     return () => {
-      if (unsubCards) unsubCards();
+      if (unsub) unsub();
     };
   }, [boardId]);
 
@@ -110,25 +97,17 @@ export default function SigHunterFlipControl() {
 
   const closeModal = () => setSelectedCardId(null);
 
-  // 이미지 선택 → Firestore 업데이트
+  // 이미지 선택 → Firestore 업데이트 (api 경유)
   const handleSelectImageForCard = async (image) => {
     if (!selectedCardId || !boardId) return;
     try {
-      const boardRef = doc(db, "sigHunterFlipBoards", boardId);
-      const cardRef = doc(boardRef, "cards", selectedCardId);
-
-      await setDoc(
-        cardRef,
-        {
-          imageId: image.id,
-          imageUrl: image.imageUrl,
-          title: image.title || "",
-          isFlipped: false,
-          isMatched: false,
-          updatedAt: new Date(),
-        },
-        { merge: true }
-      );
+      await updateFlipBoardCard(boardId, selectedCardId, {
+        imageId: image.id,
+        imageUrl: image.imageUrl,
+        title: image.title || "",
+        isFlipped: false,
+        isMatched: false,
+      });
 
       setMessage(`카드 ${selectedCardId}에 이미지가 설정되었습니다.`);
       closeModal();
@@ -138,16 +117,12 @@ export default function SigHunterFlipControl() {
     }
   };
 
-  // 카드 뒤집기 토글 (개별)
+  // 카드 뒤집기 토글 (개별) – api에서 isFlipped 토글 처리
   const handleToggleFlip = async (cardId) => {
+    if (!boardId) return;
     try {
-      const boardRef = doc(db, "sigHunterFlipBoards", boardId);
-      const cardRef = doc(boardRef, "cards", cardId);
-      const current = cards[cardId]?.isFlipped ?? false;
-
-      await updateDoc(cardRef, {
-        isFlipped: !current,
-        updatedAt: new Date(),
+      await updateFlipBoardCard(boardId, cardId, {
+        toggle: "flip",
       });
     } catch (e) {
       console.error("[FlipControl] toggle flip error", e);
@@ -155,16 +130,12 @@ export default function SigHunterFlipControl() {
     }
   };
 
-  // 매칭 완료 토글 (개별)
+  // 매칭 완료 토글 (개별) – api에서 isMatched 토글 처리
   const handleToggleMatch = async (cardId) => {
+    if (!boardId) return;
     try {
-      const boardRef = doc(db, "sigHunterFlipBoards", boardId);
-      const cardRef = doc(boardRef, "cards", cardId);
-      const current = cards[cardId]?.isMatched ?? false;
-
-      await updateDoc(cardRef, {
-        isMatched: !current,
-        updatedAt: new Date(),
+      await updateFlipBoardCard(boardId, cardId, {
+        toggle: "match",
       });
     } catch (e) {
       console.error("[FlipControl] toggle match error", e);
@@ -174,22 +145,10 @@ export default function SigHunterFlipControl() {
 
   // 전체 카드 초기화 (isFlipped, isMatched → false)
   const handleResetAll = async () => {
+    if (!boardId) return;
     if (!window.confirm("모든 카드를 뒤집힌 상태로 초기화할까요?")) return;
     try {
-      const boardRef = doc(db, "sigHunterFlipBoards", boardId);
-      const batch = writeBatch(db);
-      const { rows, cols } = config;
-
-      for (let i = 1; i <= rows * cols; i++) {
-        const cardRef = doc(boardRef, "cards", String(i));
-        batch.update(cardRef, {
-          isFlipped: false,
-          isMatched: false,
-          updatedAt: new Date(),
-        });
-      }
-
-      await batch.commit();
+      await resetAllFlipCards(boardId, config);
       setMessage("모든 카드가 초기화되었습니다.");
     } catch (e) {
       console.error("[FlipControl] reset error", e);
@@ -199,21 +158,10 @@ export default function SigHunterFlipControl() {
 
   // 전체 카드 공개
   const handleFlipAll = async () => {
+    if (!boardId) return;
     if (!window.confirm("모든 카드를 공개할까요?")) return;
     try {
-      const boardRef = doc(db, "sigHunterFlipBoards", boardId);
-      const batch = writeBatch(db);
-      const { rows, cols } = config;
-
-      for (let i = 1; i <= rows * cols; i++) {
-        const cardRef = doc(boardRef, "cards", String(i));
-        batch.update(cardRef, {
-          isFlipped: true,
-          updatedAt: new Date(),
-        });
-      }
-
-      await batch.commit();
+      await flipAllFlipCards(boardId, config);
       setMessage("모든 카드가 공개되었습니다.");
     } catch (e) {
       console.error("[FlipControl] flip all error", e);
@@ -381,11 +329,7 @@ export default function SigHunterFlipControl() {
       );
     }
 
-    return (
-      <div style={{ display: "grid", gap: 6 }}>
-        {gridRows}
-      </div>
-    );
+    return <div style={{ display: "grid", gap: 6 }}>{gridRows}</div>;
   };
 
   return (
@@ -434,14 +378,13 @@ export default function SigHunterFlipControl() {
               🃏 시그헌터 플립 조정실
             </h1>
             <p style={{ marginTop: 4, fontSize: 13, color: "#9ca3af" }}>
-              보드 ID: <strong>{boardId}</strong> /{" "}
-              {config.name} — 카드 이미지 설정 및 공개 상태를 관리합니다.
+              보드 ID: <strong>{boardId}</strong> / {config.name} — 카드 이미지
+              설정 및 공개 상태를 관리합니다.
             </p>
           </div>
 
           {/* 전체 제어 버튼 */}
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            {/* 피드백 메시지 */}
             {(message || error) && (
               <span
                 style={{
@@ -453,7 +396,6 @@ export default function SigHunterFlipControl() {
               </span>
             )}
 
-            {/* 전체 공개 버튼 */}
             <button
               type="button"
               onClick={handleFlipAll}
@@ -472,7 +414,6 @@ export default function SigHunterFlipControl() {
               전체 공개
             </button>
 
-            {/* 전체 초기화 버튼 */}
             <button
               type="button"
               onClick={handleResetAll}

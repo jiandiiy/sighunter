@@ -2,14 +2,10 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import {
-  onSnapshot,
-  doc,
-  collection,
-  setDoc,
-  getDoc,
-} from "firebase/firestore";
-import { db } from "../../src/shared/core/firebase";
-import { fetchSigItems } from "../../src/shared/api";
+  fetchSigItems,
+  subscribeBoard,
+  updateBoardCell,
+} from "../../src/shared/api";
 
 // 기본 보드 설정 (config 문서 없을 때 fallback)
 const DEFAULT_CONFIG = {
@@ -33,51 +29,31 @@ export default function SigHunterBoardControl() {
   const [libraryLoading, setLibraryLoading] = useState(false);
   const [libraryError, setLibraryError] = useState("");
 
-  // 1) 보드 config + cells 실시간 구독
+  // 1) 보드 config + cells 실시간 구독 (Firestore 접근은 shared/api에서 처리)
   useEffect(() => {
     if (!boardId) return;
 
-    const boardRef = doc(db, "sigHunterBingoBoards", boardId);
-    const cellsRef = collection(boardRef, "cells");
-    let unsubCells;
+    setLoadingBoard(true);
 
-    (async () => {
-      try {
-        setLoadingBoard(true);
-
-        // config 문서 읽기 (없으면 DEFAULT_CONFIG 사용)
-        const snap = await getDoc(boardRef);
-        if (snap.exists()) {
-          const data = snap.data();
-          if (data.config) {
-            setConfig({
-              ...DEFAULT_CONFIG,
-              ...data.config,
-            });
-          } else {
-            setConfig(DEFAULT_CONFIG);
-          }
-        } else {
-          setConfig(DEFAULT_CONFIG);
-        }
-
-        // cells 실시간 구독
-        unsubCells = onSnapshot(cellsRef, (qs) => {
-          const map = {};
-          qs.forEach((d) => {
-            map[d.id] = d.data();
-          });
-          setCells(map);
-          setLoadingBoard(false);
+    const unsub = subscribeBoard(boardId, {
+      onConfig: (nextConfig) => {
+        // api에서 DEFAULT_CONFIG까지 머지해주지 않는 경우를 대비해 머지
+        setConfig({
+          ...DEFAULT_CONFIG,
+          ...nextConfig,
         });
-      } catch (e) {
-        console.error("[BoardControl] load board error", e);
+      },
+      onCells: (nextCells) => {
+        setCells(nextCells);
         setLoadingBoard(false);
-      }
-    })();
+      },
+      onError: () => {
+        setLoadingBoard(false);
+      },
+    });
 
     return () => {
-      if (unsubCells) unsubCells();
+      if (unsub) unsub();
     };
   }, [boardId]);
 
@@ -87,7 +63,6 @@ export default function SigHunterBoardControl() {
       setLibraryError("");
       setLibraryLoading(true);
 
-      // 필요하면 mode/type/rarity 필터를 prop/쿼리로 받거나 상단에 select 만들어도 됨
       const list = await fetchSigItems({
         type: "sighunter-bingo", // 빙고용 타입만 쓰고 싶을 때
         activeOnly: true,
@@ -112,24 +87,16 @@ export default function SigHunterBoardControl() {
     setSelectedCellId(null);
   };
 
-  // 4) 특정 이미지를 칸에 매핑 (Firestore 업데이트)
+  // 4) 특정 이미지를 칸에 매핑 (Firestore 업데이트는 shared/api에서 처리)
   const handleSelectImageForCell = async (image) => {
     if (!selectedCellId || !boardId) return;
 
     try {
-      const boardRef = doc(db, "sigHunterBingoBoards", boardId);
-      const cellRef = doc(boardRef, "cells", selectedCellId);
-
-      await setDoc(
-        cellRef,
-        {
-          imageId: image.id,
-          imageUrl: image.imageUrl,
-          title: image.title || "",
-          updatedAt: new Date(),
-        },
-        { merge: true }
-      );
+      await updateBoardCell(boardId, selectedCellId, {
+        imageId: image.id,
+        imageUrl: image.imageUrl,
+        title: image.title || "",
+      });
 
       closeModal();
     } catch (e) {
