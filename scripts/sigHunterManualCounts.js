@@ -368,6 +368,7 @@ module.exports = {
    "queendom/group10/sig_10152.webp": 10152,
    "queendom/group10/sig_10155.webp": 10000,
    "queendom/group10/sig_10201.webp": 10201,
+   "queendom/group10/sig_10555.webp": 10555,
    "queendom/group10/sig_12486.webp": 12486,
    "queendom/group10/sig_12487.webp": 12487,
    "queendom/group12/sig_5000.webp": 5000,

@@ -1,82 +1,91 @@
-// src/App.js 전체 교체
+// src/App.js
 
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
-// ── 기존 컴포넌트들 ──────────────────────────────────────────
-import SigHunterFlip      from "./games/SigHunterFlip/SigHunterFlip";
-import AdminPopup         from "./games/SigHunterFlip/AdminPopup";
-import EditMessageModal   from "./games/SigHunterFlip/EditMessageModal";
-import GameHub            from "./layout/GameHub";
-import MinesGame          from "./games/MinesGame";
-import BoardGame          from "./games/BoardGame/BoardGame";
-import CasinoWheelHuge    from "./games/BigWheel/CasinoWheelHuge";
-import BingoBoard         from "./games/Bingo/BingoBoard";
-import SigHunterBingoBoard   from "./games/SigHunterBingo/SigHunterBingoBoard";
-import SigImageAdminPage  from "./Admin/SigImageAdminPage";
+// ── 게임들 ──────────────────────────────────────────
+// 각 폴더에 index import 형태로 정리
+import SigHunterFlip from "./games/sig-hunter-flip";
+import MinesGame from "./games/mines";
+import BoardGame from "./games/board-game";
+import BigWheel from "./games/big-wheel";
+import HpBattle from "./games/hp-battle";
+import SigHunterBingoBoard from "./games/sig-hunter-bingo";
+import BingoBoard from "./games/meal-bingo";
 
-// ── HP 배틀 ──────────────────────────────────────────────────
-import HpBattle   from "./games/HPBattle/HpBattle";
-import HpControl  from "./games/HPBattle/HpControl";
-import HpOverlay  from "./games/HPBattle/HpOverlay";
+// SigHunterFlip 팝업 관련 (폴더 내부 파일 직접 import)
+import AdminPopup from "./games/sig-hunter-flip/AdminPopup";
+import EditMessageModal from "./games/sig-hunter-flip/EditMessageModal";
 
-// ── Admin ────────────────────────────────────────────────────
+// ── 레이아웃 ───────────────────────────────────────
+import GameHub from "./layout/GameHub";
+
+// ── HP 배틀 ────────────────────────────────────────
+import HpControl from "./games/hp-battle/HpControl";
+import HpOverlay from "./games/hp-battle/HpOverlay";
+
+// ── Admin ─────────────────────────────────────────
+import SigImageAdminPage from "./Admin/SigImageAdminPage";
 import SigHunterBoardControl from "./Admin/SigHunterBoardControl";
-import SigHunterFlipControl  from "./Admin/SigHunterFlipControl";
+import SigHunterFlipControl from "./Admin/SigHunterFlipControl";
 
-// ── OBS 뷰어 ─────────────────────────────────────────────────
+// ── OBS 뷰어 ───────────────────────────────────────
 import {
   SigHunterBingoView,
   BingoView,
   SigHunterFlipView,
 } from "./obs";
 
-// ──────────────────────────────────────────────────────────────
+// ───────────────────────────────────────────────────
 // ★ Vercel 프로젝트별 기본 진입 경로
-//   각 Vercel 프로젝트의 환경변수에서 설정
 //   예) REACT_APP_DEFAULT_ROUTE=/bingo/1
-// ──────────────────────────────────────────────────────────────
+// ───────────────────────────────────────────────────
 const DEFAULT_ROUTE = process.env.REACT_APP_DEFAULT_ROUTE || null;
 
 export default function App() {
   return (
     <Router>
       <Routes>
-
-        {/* ═══════════════════════════════════════════════════
+        {/* ═══════════════════════════════════════════════
             GameHub 레이아웃 (네비게이션 포함)
-        ═══════════════════════════════════════════════════ */}
+        ═══════════════════════════════════════════════ */}
         <Route element={<GameHub />}>
-
-          {/* ★ DEFAULT_ROUTE 가 설정된 Vercel 프로젝트면
-                / 접속 시 해당 게임으로 바로 리다이렉트       */}
+          {/* DEFAULT_ROUTE 설정 시 / → 해당 경로로 리다이렉트 */}
           <Route
             path="/"
             element={
-              DEFAULT_ROUTE
-                ? <Navigate to={DEFAULT_ROUTE} replace />
-                : <SigHunterFlip />   // 기존 동작 유지
+              DEFAULT_ROUTE ? (
+                <Navigate to={DEFAULT_ROUTE} replace />
+              ) : (
+                <SigHunterFlip />
+              )
             }
           />
 
-          {/* 기존 라우트 전부 유지 ─────────────────────────── */}
-          <Route path="/sig"     element={<SigHunterFlip />} />
-          <Route path="/mines"   element={<MinesGame />} />
-          <Route path="/board"   element={<BoardGame />} />
-          <Route path="/bigwheel" element={<CasinoWheelHuge />} />
+          {/* 기존 라우트 유지 (경로만 새 구조에 맞게) */}
+          <Route path="/sig" element={<SigHunterFlip />} />
+          <Route path="/mines" element={<MinesGame />} />
+          <Route path="/board" element={<BoardGame />} />
+          <Route path="/bigwheel" element={<BigWheel />} />
 
           {/* 식대전 빙고 1 / 2 / 3 */}
           <Route
             path="/bingo/1"
-            element={<BingoBoard key="bingo1" boardId="bingo1" currentBoardNo="1" />}
+            element={
+              <BingoBoard key="bingo1" boardId="bingo1" currentBoardNo="1" />
+            }
           />
           <Route
             path="/bingo/2"
-            element={<BingoBoard key="bingo2" boardId="bingo2" currentBoardNo="2" />}
+            element={
+              <BingoBoard key="bingo2" boardId="bingo2" currentBoardNo="2" />
+            }
           />
           <Route
             path="/bingo/3"
-            element={<BingoBoard key="bingo3" boardId="bingo3" currentBoardNo="3" />}
+            element={
+              <BingoBoard key="bingo3" boardId="bingo3" currentBoardNo="3" />
+            }
           />
 
           {/* 시그헌터 빙고 */}
@@ -86,11 +95,11 @@ export default function App() {
           />
 
           {/* HP 배틀 */}
-          <Route path="/hp-battle"  element={<HpBattle />} />
+          <Route path="/hp-battle" element={<HpBattle />} />
           <Route path="/hp-control" element={<HpControl battleId="sig-hp" />} />
 
           {/* Admin */}
-          <Route path="/admin/sig"  element={<SigImageAdminPage />} />
+          <Route path="/admin/sig" element={<SigImageAdminPage />} />
           <Route
             path="/admin/sig-hunter-bingo/:boardId"
             element={<SigHunterBoardControl />}
@@ -99,14 +108,12 @@ export default function App() {
             path="/admin/sig-hunter-flip/:boardId"
             element={<SigHunterFlipControl />}
           />
-
         </Route>
-        {/* ═══ GameHub 끝 ═══════════════════════════════════ */}
+        {/* ═══ GameHub 끝 ═══════════════════════════════ */}
 
-
-        {/* ═══════════════════════════════════════════════════
+        {/* ═══════════════════════════════════════════════
             팝업 라우트 (독립 창)
-        ═══════════════════════════════════════════════════ */}
+        ═══════════════════════════════════════════════ */}
         <Route
           path="/edit-message"
           element={<EditMessageModal onClose={() => window.close()} />}
@@ -116,13 +123,10 @@ export default function App() {
           element={<AdminPopup onClose={() => window.close()} />}
         />
 
-
-        {/* ═══════════════════════════════════════════════════
+        {/* ═══════════════════════════════════════════════
             OBS 전용 라우트 (GameHub 밖)
-        ═══════════════════════════════════════════════════ */}
-        <Route path="/hp-overlay"
-          element={<HpOverlay battleId="sig-hp" />}
-        />
+        ═══════════════════════════════════════════════ */}
+        <Route path="/hp-overlay" element={<HpOverlay battleId="sig-hp" />} />
         <Route
           path="/obs/sig-hunter-bingo/:boardId"
           element={<SigHunterBingoView />}
@@ -135,8 +139,7 @@ export default function App() {
           path="/obs/sig-hunter-flip/:boardId"
           element={<SigHunterFlipView />}
         />
-
       </Routes>
     </Router>
   );
-} 
+}
