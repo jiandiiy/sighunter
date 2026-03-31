@@ -45,7 +45,7 @@ const PROJECT_CONFIG = {
     startId: 12,
   },
   holic: {
-    normalGroupCount: 8,   // group01~08
+    normalGroupCount: 9,   // group01~09
     specialGroups: ["group10"],
     totalNormalCards: 10,
     startId: 23,
