@@ -25,6 +25,8 @@ const BingoBoard = lazy(() => import("./games/meal-bingo"));
 const SigImageAdminPage = lazy(() => import("./Admin/SigImageAdminPage"));
 const SigHunterBoardControl = lazy(() => import("./Admin/SigHunterBoardControl"));
 const SigHunterFlipControl = lazy(() => import("./Admin/SigHunterFlipControl"));
+const SigResourceAdminPage = lazy(() => import("./Admin/SigResourceAdminPage"));
+const AdminHub = lazy(() => import("./Admin/AdminHub"));
 
 // ── lazy 로드: OBS 뷰어 ────────────────────────────
 const ObsModule = lazy(() => import("./obs"));
@@ -88,6 +90,7 @@ export default function App() {
             <Route path="/hp-control" element={<HpControl battleId="sig-hp" />} />
 
             {/* Admin */}
+               <Route path="/admin" element={<AdminHub />} />
             <Route path="/admin/sig" element={<SigImageAdminPage />} />
             <Route
               path="/admin/sig-hunter-bingo/:boardId"
@@ -97,6 +100,9 @@ export default function App() {
               path="/admin/sig-hunter-flip/:boardId"
               element={<SigHunterFlipControl />}
             />
+
+            {/* ★ 직원용 리소스 관리 페이지 */}
+            <Route path="/admin/resources" element={<SigResourceAdminPage />} />
           </Route>
           {/* ═══ GameHub 끝 ═══════════════════════════════ */}
 

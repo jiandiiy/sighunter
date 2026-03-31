@@ -6,7 +6,10 @@ import {
   holicSigCards, // ← 추가
 } from "../../../shared/data";
 import { useSigStorage } from "../../../shared/hooks";
-import { fireConfetti, weightedPick } from "../../../components/common/confettiUtils";
+import {
+  fireConfetti,
+  weightedPick,
+} from "../../../components/common/confettiUtils";
 import { fetchRandomSigItems } from "../../../shared/api";
 import CardGrid from "./CardGrid";
 import EditMessageModal from "./EditMessageModal";
@@ -326,9 +329,13 @@ export default function SigHunterFlip() {
   };
 
   const resetAll = async () => {
-    ["sigFlipped", "sigLocked", "sigRevealed", "sigImages", "cardWeights"].forEach(
-      (key) => localStorage.removeItem(key)
-    );
+    [
+      "sigFlipped",
+      "sigLocked",
+      "sigRevealed",
+      "sigImages",
+      "cardWeights",
+    ].forEach((key) => localStorage.removeItem(key));
 
     setRandomImages({});
 

@@ -2,19 +2,16 @@
 
 import React, { useEffect, useState } from "react";
 import {
-  listResources,
-  uploadResource,
-  deleteResource,
-} from "../../../api/sigResourceStorage";
+  listGameResources,
+  uploadGameResource,
+  deleteGameResource,
+} from "../shared/api";
 
 // 직원이 선택할 수 있는 카테고리 목록
 const RESOURCE_CATEGORIES = [
-  { value: "bingo",      label: "식대전/시그헌터 빙고" },
-  { value: "hpbattle",   label: "HP 배틀" },
-  { value: "boardgame",  label: "보드게임" },
-  { value: "bigwheel",   label: "빅휠" },
-  { value: "flip",       label: "카드 뒤집기" },
-  { value: "common",     label: "공용 이미지" },
+  { value: "sighunter", label: "시그헌터" },
+  { value: "sigbingo", label: "식대전 빙고" },
+  { value: "sigtag", label: "시그땅따먹기" },
 ];
 
 const labelStyle = {
@@ -35,8 +32,8 @@ const selectStyle = {
 };
 
 export default function SigResourceAdminPage() {
-  const [category, setCategory] = useState("bingo");
-  const [items, setItems] = useState([]); // [{fileName, url}]
+  const [category, setCategory] = useState("sighunter");
+  const [items, setItems] = useState([]); // [{ name, fullPath, url }]
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
@@ -57,7 +54,7 @@ export default function SigResourceAdminPage() {
     try {
       setLoading(true);
       setError("");
-      const list = await listResources(cat);
+      const list = await listGameResources(cat);
       setItems(list);
     } catch (e) {
       console.error(e);
@@ -81,7 +78,7 @@ export default function SigResourceAdminPage() {
     setError("");
     try {
       for (const file of Array.from(files)) {
-        await uploadResource(category, file);
+        await uploadGameResource(category, file);
       }
       setMessage("업로드가 완료되었습니다.");
       await load();
@@ -95,12 +92,12 @@ export default function SigResourceAdminPage() {
   };
 
   // ─ 삭제 ─
-  const handleDelete = async (fileName) => {
-    if (!window.confirm(`정말 삭제하시겠습니까?\n(${fileName})`)) return;
+  const handleDelete = async (fullPath) => {
+    if (!window.confirm(`정말 삭제하시겠습니까?\n(${fullPath})`)) return;
 
     try {
       setError("");
-      await deleteResource(category, fileName);
+      await deleteGameResource(fullPath);
       setMessage("삭제가 완료되었습니다.");
       await load();
     } catch (err) {
@@ -184,7 +181,7 @@ export default function SigResourceAdminPage() {
           }}
         >
           <div>
-            <label style={labelStyle}>카테고리</label>
+            <label style={labelStyle}>게임 선택</label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
@@ -216,6 +213,18 @@ export default function SigResourceAdminPage() {
           </div>
         </div>
 
+        {/* 직원용 파일명 규칙 안내 */}
+        <div style={{ marginBottom: 8, fontSize: 12, color: "#9ca3af" }}>
+          - 시그헌터: <code>background.png</code>, <code>card-back.png</code> 등
+          <br />
+          - 식대전 빙고: <code>board-bg.png</code>, <code>title.png</code> 등
+          <br />
+          - 시그땅따먹기: <code>board-bg.png</code>, <code>logo.png</code> 등
+          <br />
+          같은 이름의 파일을 다시 올리면 <strong>이미지가 교체</strong>됩니다.
+          (삭제 전까지 계속 보관)
+        </div>
+
         {/* 메시지 / 에러 */}
         {error && (
           <div style={{ marginBottom: 8, color: "#f97373", fontSize: 13 }}>
@@ -233,7 +242,7 @@ export default function SigResourceAdminPage() {
           <p style={{ fontSize: 13, color: "#9ca3af" }}>불러오는 중...</p>
         ) : items.length === 0 ? (
           <p style={{ fontSize: 13, color: "#6b7280" }}>
-            이 카테고리에 등록된 이미지가 없습니다. 상단에서 이미지를 업로드해 주세요.
+            이 게임에 등록된 이미지가 없습니다. 상단에서 이미지를 업로드해 주세요.
           </p>
         ) : (
           <div
@@ -245,7 +254,7 @@ export default function SigResourceAdminPage() {
           >
             {items.map((item) => (
               <div
-                key={item.fileName}
+                key={item.fullPath}
                 style={{
                   border: "1px solid #374151",
                   borderRadius: 10,
@@ -265,7 +274,7 @@ export default function SigResourceAdminPage() {
                 >
                   <img
                     src={item.url}
-                    alt={item.fileName}
+                    alt={item.name}
                     style={{
                       position: "absolute",
                       top: 0,
@@ -285,11 +294,11 @@ export default function SigResourceAdminPage() {
                     marginBottom: 4,
                   }}
                 >
-                  {item.fileName}
+                  {item.name}
                 </div>
                 <button
                   type="button"
-                  onClick={() => handleDelete(item.fileName)}
+                  onClick={() => handleDelete(item.fullPath)}
                   style={{
                     width: "100%",
                     padding: "4px 0",

@@ -6,12 +6,12 @@ import {
   AVAILABLE_SIZES,
 } from "../hooks/useSigHunterBingoState";
 
-// ✅ 모드 탭 이름 매핑 (컴포넌트 밖에 선언 → 렌더링마다 재생성 방지)  
-const MODE_LABELS = {  
-  queendom: "퀸덤",  
-  muse: "뮤즈",  
-  holic: "홀릭",  
-};  
+// ✅ 모드 탭 이름 매핑 (컴포넌트 밖에 선언 → 렌더링마다 재생성 방지)
+const MODE_LABELS = {
+  queendom: "퀸덤",
+  muse: "뮤즈",
+  holic: "홀릭",
+};
 
 export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
   const {
@@ -97,8 +97,8 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
     <div className="hunter-root">
       <header className="hunter-header">
         <div className="hunter-header-row">
-           {/* ✅ 모드 탭: MODE_LABELS 객체로 매핑, 폴백은 키값 그대로 */}
-         <div className="hunter-mode-tabs">
+          {/* ✅ 모드 탭: MODE_LABELS 객체로 매핑, 폴백은 키값 그대로 */}
+          <div className="hunter-mode-tabs">
             {HUNTER_MODES.map((m) => (
               <button
                 key={m}
@@ -131,7 +131,7 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
         <h2 className="hunter-title-text">🎯 시그 땅따먹기 🎯</h2>
       </header>
 
-       <div className="hunter-main">
+      <div className="hunter-main">
         {/* 좌측: 보드 */}
         <div className="hunter-main-left">
           <div className="hunter-line-count-under-board">
@@ -162,9 +162,9 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                   lineHeight: 1.4,
                 }}
               >
-                 *Alt+Shift+D → 닉네임
-  <br />
- *Alt+Shift+F → 칸번호
+                *Alt+Shift+D → 닉네임
+                <br />
+                *Alt+Shift+F → 칸번호
               </span>
             </div>
           </div>
@@ -207,7 +207,7 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                             src={currentImage}
                             alt={cell.sigName}
                             className="hunter-sig-image"
-                        crossOrigin="anonymous"
+                            crossOrigin="anonymous"
                           />
                         </div>
                       )}

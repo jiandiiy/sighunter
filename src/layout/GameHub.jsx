@@ -169,26 +169,6 @@ export default function GameHub() {
         </button>
 
 
-        {/* 시그 이미지 관리(업로드) 버튼 */}
-        <button
-          type="button"
-          onClick={() => navigate("/admin/sig")}
-          style={{
-            padding: "6px 14px",
-            borderRadius: 999,
-            border: "1px solid #4b5563",
-            background: "linear-gradient(135deg, #0f172a, #020617)",
-            color: "#fde68a",
-            fontWeight: 800,
-            cursor: "pointer",
-            fontSize: 13,
-            fontFamily:
-              "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-          }}
-        >
-          🛠 시그 이미지 관리
-        </button>
-
         {/* 지뢰게임 버튼 */}
         <button
           type="button"
@@ -283,6 +263,26 @@ export default function GameHub() {
           }}
         >
           💚 HP 배틀 게이지
+        </button>
+
+       {/* 관리 센터 버튼 */}
+        <button
+          type="button"
+          onClick={() => navigate("/admin")}
+          style={{
+            padding: "6px 14px",
+            borderRadius: 999,
+            border: "1px solid #4b5563",
+            background: "linear-gradient(135deg, #0f172a, #020617)",
+            color: "#fde68a",
+            fontWeight: 800,
+            cursor: "pointer",
+            fontSize: 13,
+            fontFamily:
+              "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          }}
+        >
+          🛠 관리 센터
         </button>
       </div>
 

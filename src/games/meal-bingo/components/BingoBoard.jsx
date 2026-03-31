@@ -11,6 +11,9 @@ import {
   fetchSigItems,
 } from "../../../shared/api";
 
+// 🔹 Storage에서 게임 리소스를 가져오는 커스텀 훅
+import { useGameResource } from "../../../shared/hooks/useGameResource";
+
 // ✅ holic 모드 추가
 const MODES = ["muse", "queendom", "holic"];
 
@@ -518,6 +521,15 @@ export default function BingoBoard({
   };
 
   /* -------------------------------------------------------------------------- */
+  /* 🎨 Storage 배경 이미지 로딩 (식대전 빙고 전용)                                 */
+  /* -------------------------------------------------------------------------- */
+  // 직원이 /admin 리소스 페이지에서
+  //   - 카테고리: sigbingo
+  //   - 파일명: board-bg.png
+  // 로 업로드하면, 그 이미지를 배경으로 사용
+  const { url: bgUrl } = useGameResource("sigbingo", "board-bg.png");
+
+  /* -------------------------------------------------------------------------- */
   /* 🎨 렌더링                                                                   */
   /* -------------------------------------------------------------------------- */
 
@@ -667,8 +679,15 @@ export default function BingoBoard({
         <h2 className="bingo-title-text">🍽️ 식사대전 빙고 🍽️</h2>
       </header>
 
-      {/* 빙고 그리드 (3x3) */}
-      <div className="bingo-grid">
+      {/* 빙고 그리드 (3x3) + 배경 이미지 적용 */}
+      <div
+        className="bingo-grid"
+        style={{
+          backgroundImage: bgUrl ? `url(${bgUrl})` : undefined,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
         {cards.slice(0, CELL_COUNT).map((card, idx) => {
           const inCompletedLine = isCellInCompletedLine(idx);
 
