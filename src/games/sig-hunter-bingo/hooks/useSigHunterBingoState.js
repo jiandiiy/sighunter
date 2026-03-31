@@ -379,42 +379,50 @@ export function useSigHunterBingoState(boardId = "hunter1") {
   };
 
   const getCurrentImage = (cell) => {
-    if (cell?.imageUrl?.startsWith("https://")) {
-      if (cell.imageUrl.includes("sig-hunter%2Fimages%2F")) {
-        return cell.imageUrl;
-      }
-    }
+  // 1) Firestore에 저장된 완전한 download URL (https) 이 있으면 그대로 사용
+  if (cell?.imageUrl?.startsWith("https://")) {
+    // 여기서는 Storage에 있는 카드/이미지 (관리자 페이지에서 업로드한 것)
+    return cell.imageUrl;
+  }
 
-    if (cell?.imageUrl) {
-      return toStorageUrl(cell.imageUrl);
-    }
+  // 2) imageUrl 이 있는데 절대 URL은 아니면, 이건 storagePath 로 간주 → toStorageUrl
+  if (cell?.imageUrl && !cell.imageUrl.startsWith("http")) {
+    // 예: "sig-hunter/images/queendom/group01/xxx.webp" 같은 경로
+    return toStorageUrl(cell.imageUrl);
+  }
 
-    if (!cell?.images || cell.images.length === 0) {
-      console.warn("[SIG] no image for cell", cell?.id);
-      return null;
-    }
+  // 3) 과거 image pool 기반 (public/images) — 백업 용도
+  if (!cell?.images || cell.images.length === 0) {
+    console.warn("[SIG] no image for cell", cell?.id);
+    return null;
+  }
 
-    const idx =
-      typeof cell.imageIndex === "number"
-        ? cell.imageIndex % cell.images.length
-        : 0;
+  const idx =
+    typeof cell.imageIndex === "number"
+      ? cell.imageIndex % cell.images.length
+      : 0;
 
-    const raw = cell.images[idx];
+  const raw = cell.images[idx];
+  const imagePath = typeof raw === "string" ? raw : raw?.path ?? null;
 
-    const imagePath = typeof raw === "string" ? raw : raw?.path ?? null;
+  if (!imagePath) {
+    console.warn(
+      "[SIG] images[idx] has no valid path — raw:",
+      raw,
+      "cell:",
+      cell?.id
+    );
+    return null;
+  }
 
-    if (!imagePath) {
-      console.warn(
-        "[SIG] images[idx] has no valid path — raw:",
-        raw,
-        "cell:",
-        cell?.id
-      );
-      return null;
-    }
+  // 🔹 public/images 기반인 경우: 그대로 사용 (Storage URL로 변환하지 않음)
+  if (imagePath.startsWith("/images/")) {
+    return imagePath;
+  }
 
-    return toStorageUrl(imagePath);
-  };
+  // 🔹 그 외는 storagePath 로 보고 Storage URL로 변환
+  return toStorageUrl(imagePath);
+};
 
   const getCurrentCount = (cell) => {
     let imagePath = null;

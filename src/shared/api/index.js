@@ -9,3 +9,8 @@ export * from "./sigHunterImageLibraryApi";
 
 // admin 보드 관련
 export * from "./adminBoardApi";
+export * from "./sigStorage";
+export * from "./sigResourceStorage";
+
+
+

@@ -7,6 +7,10 @@ import {
   deleteSigItem,
 } from "../shared/api";
 
+import {
+  uploadSigImageToStorage,
+  deleteSigImageFromStorage,
+} from "../shared/api";
 // ─────────────────────────────────────────────
 // 상수 정의
 // ─────────────────────────────────────────────
@@ -368,62 +372,73 @@ export default function SigImageAdminPage() {
   }, []);
 
   // ── 업로드 submit ──
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    // ── 유효성 검사 ──
-    if (!file) {
-      setError("이미지 파일을 선택하세요.");
-      return;
-    }
-    if (!slotIndex) {
-      setError("칸 번호를 입력해주세요.");
-      return;
-    }
-    if (isNaN(Number(slotIndex))) {
-      setError("칸 번호는 숫자로 입력해주세요.");
-      return;
-    }
-    if (isMealBingo && !boardIndex) {
-      setError("빙고판 번호를 선택해주세요.");
-      return;
-    }
+  if (!file) {
+    setError("이미지 파일을 선택하세요.");
+    return;
+  }
+  if (!slotIndex) {
+    setError("칸 번호를 입력해주세요.");
+    return;
+  }
+  if (isNaN(Number(slotIndex))) {
+    setError("칸 번호는 숫자로 입력해주세요.");
+    return;
+  }
+  if (isMealBingo && !boardIndex) {
+    setError("빙고판 번호를 선택해주세요.");
+    return;
+  }
 
-    try {
-      setSubmitting(true);
-      setError("");
-      setUploadProgress(0);
+  try {
+    setSubmitting(true);
+    setError("");
+    setUploadProgress(0);
 
-      const created = await uploadSigItem(
-        {
-          file,
-          title,
-          score,
-          mode,
-          type,
-          rarity,
-          isActive,
-          slotIndex,
-          boardIndex: isMealBingo ? boardIndex : null,
-        },
-        // 진행률 콜백: uploadSigItem 이 지원하면 활용됨
-        (progress) => setUploadProgress(progress)
-      );
+    // 1) Storage 업로드
+    const { downloadURL, storagePath } = await uploadSigImageToStorage(
+      file,
+      {
+        gameType: type,
+        mode,
+        rarity,
+        boardIndex: isMealBingo ? boardIndex : null,
+        slotIndex,
+      },
+      (progress) => setUploadProgress(progress)
+    );
 
-      console.log("[ADMIN] created sig item", created);
-      setHighlightId(created.id);
-      setUploadProgress(100);
-      setMessage("업로드 완료! 🎉");
-      resetForm();
-      await loadList();
-    } catch (err) {
-      console.error(err);
-      setUploadProgress(null);
-      setError(err.message || "업로드에 실패했습니다.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
+    // 2) Firestore 에 메타데이터 저장
+    const created = await uploadSigItem({
+      // 이미지 URL + storagePath 저장
+      imageUrl: downloadURL,
+      storagePath,
+      title,
+      score,
+      mode,
+      type,
+      rarity,
+      isActive,
+      slotIndex,
+      boardIndex: isMealBingo ? boardIndex : null,
+    });
+
+    console.log("[ADMIN] created sig item", created);
+    setHighlightId(created.id);
+    setUploadProgress(100);
+    setMessage("업로드 완료! 🎉");
+    resetForm();
+    await loadList();
+  } catch (err) {
+    console.error(err);
+    setUploadProgress(null);
+    setError(err.message || "업로드에 실패했습니다.");
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   // ── 테이블 인라인 편집 ──
   const handleChangeItemField = (id, field, value) => {
@@ -465,24 +480,31 @@ export default function SigImageAdminPage() {
 
   // ── 행 삭제 ──
   const handleDeleteRow = async (item) => {
-    if (typeof window !== "undefined" && !window.confirm("이 카드를 삭제할까요?")) {
-      return;
-    }
-    try {
-      setDeletingRowId(item.id);
-      setError("");
-      setMessage("");
-      await deleteSigItem(item.id);
-      setMessage("삭제가 완료되었습니다.");
-      await loadList();
-    } catch (err) {
-      console.error(err);
-      setError(err.message || "삭제에 실패했습니다.");
-    } finally {
-      setDeletingRowId(null);
-    }
-  };
+  if (typeof window !== "undefined" && !window.confirm("이 카드를 삭제할까요?")) {
+    return;
+  }
+  try {
+    setDeletingRowId(item.id);
+    setError("");
+    setMessage("");
 
+    // 1) Storage 이미지 삭제
+    if (item.storagePath) {
+      await deleteSigImageFromStorage(item.storagePath);
+    }
+
+    // 2) Firestore 문서 삭제
+    await deleteSigItem(item.id);
+
+    setMessage("삭제가 완료되었습니다.");
+    await loadList();
+  } catch (err) {
+    console.error(err);
+    setError(err.message || "삭제에 실패했습니다.");
+  } finally {
+    setDeletingRowId(null);
+  }
+};
   // ── 게임 타입 변경 ──
   const handleChangeType = (e) => {
     const newType = e.target.value;
