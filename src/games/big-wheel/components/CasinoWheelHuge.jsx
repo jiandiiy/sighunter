@@ -1,7 +1,7 @@
 // src/components/GameCenter/BigWheel/CasinoWheelHuge.jsx
 import React, { useState } from "react";
 import WheelView from "./WheelView";
-import { generateSegmentsFromCountsMixed } from "./wheelLogic";
+import { generateSegmentsFromCountsMixed } from "../lib/wheelLogic";
 
 // ✅ 티어별 아이콘(경로는 프로젝트에 맞게 수정: public 폴더 기준)
 const TIER_ICON = {

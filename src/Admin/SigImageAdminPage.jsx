@@ -1,23 +1,27 @@
-
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import {
-  uploadSigItem,
-  fetchSigItems,
-  updateSigItem,
-  deleteSigItem,
-} from "../shared/api";
 
+// Storage 유틸: images/{program}/{group}/{fileName}
 import {
-  uploadSigImageToStorage,
-  deleteSigImageFromStorage,
-} from "../shared/api";
+  listProgramGroupImages,
+  uploadProgramGroupImage,
+  deleteProgramImage,
+} from "../shared/api/sigResourceStorage";
+
+// Firestore 유틸: gameSigResources 메타
+import {
+  listSigResourceMeta,
+  createSigResourceMeta,
+  updateSigResourceMeta,
+  deleteSigResourceMeta,
+} from "../shared/api/sigGameResourceMeta";
+
 // ─────────────────────────────────────────────
 // 상수 정의
 // ─────────────────────────────────────────────
 const GAME_TYPES = [
-  { value: "meal-bingo",       label: "식대전 빙고" },
-  { value: "sighunter-bingo",  label: "시그헌터 빙고" },
-  { value: "sighunter",        label: "시그헌터 (카드)" },
+  { value: "meal-bingo",      label: "식대전 빙고" },
+  { value: "sighunter-bingo", label: "시그땅따먹기(보드형)" },
+  { value: "sighunter",       label: "시그헌터 (카드)" },
 ];
 
 const MODES = [
@@ -35,6 +39,32 @@ const MEAL_BINGO_BOARDS = [
   { value: "2", label: "2판" },
   { value: "3", label: "3판" },
 ];
+
+const GROUPS = Array.from({ length: 12 }).map((_, i) => ({
+  value: `group${i + 1}`,
+  label: `group${i + 1}`,
+}));
+
+// gameType(type) → Firestore game 필드
+function toGameKey(type) {
+  if (type === "meal-bingo") return "sigbingo";
+  if (type === "sighunter-bingo") return "sigtag";   // 시그땅따먹기
+  if (type === "sighunter") return "sighunter";
+  return null;
+}
+
+// type/boardIndex → Firestore boardType 필드
+function toBoardType(type, boardIndex) {
+  if (type === "meal-bingo") {
+    return `board${boardIndex}`; // "board1" ~ "board3"
+  }
+  if (type === "sighunter-bingo") {
+    // 필요하면 5x5/3x3 등으로 분기 가능
+    return "5x5";
+  }
+  // 시그헌터 카드형은 보드 없음
+  return null;
+}
 
 // ─────────────────────────────────────────────
 // 재사용 스타일 헬퍼
@@ -79,7 +109,6 @@ function DropZone({ file, previewUrl, onFileChange }) {
 
   const processFile = (f) => {
     if (!f || !f.type.startsWith("image/")) return;
-    // 부모의 handleFileChange 와 동일한 시그니처로 맞춤
     const syntheticEvent = { target: { files: [f] } };
     onFileChange(syntheticEvent);
   };
@@ -95,7 +124,6 @@ function DropZone({ file, previewUrl, onFileChange }) {
     <div>
       <label style={labelStyle}>이미지 파일</label>
 
-      {/* 드롭존 영역 */}
       <div
         onDragEnter={(e) => { e.preventDefault(); setIsDragging(true); }}
         onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
@@ -117,9 +145,7 @@ function DropZone({ file, previewUrl, onFileChange }) {
       >
         <span style={{ fontSize: 24 }}>🖼️</span>
         <span style={{ fontSize: 13, color: isDragging ? "#22c55e" : "#9ca3af" }}>
-          {isDragging
-            ? "여기에 놓으세요!"
-            : "클릭하거나 이미지를 드래그하세요"}
+          {isDragging ? "여기에 놓으세요!" : "클릭하거나 이미지를 드래그하세요"}
         </span>
         {file && (
           <span style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>
@@ -211,7 +237,6 @@ function Toast({ message, error }) {
 
 // ─────────────────────────────────────────────
 // 업로드 진행률 바 컴포넌트
-// (uploadSigItem 이 progress 콜백을 지원할 경우 활용)
 // ─────────────────────────────────────────────
 function ProgressBar({ progress }) {
   if (progress === null || progress === undefined) return null;
@@ -244,49 +269,46 @@ function ProgressBar({ progress }) {
 }
 
 // ─────────────────────────────────────────────
-// 메인 컴포넌트
+// 메인 컴포넌트 (직원용 통합 리소스 어드민)
 // ─────────────────────────────────────────────
-export default function SigImageAdminPage() {
+export default function SigResourceAdminPage() {
+  // ── 필터/설정 상태 ──
+  const [type,       setType]       = useState("meal-bingo"); // gameType
+  const [mode,       setMode]       = useState("queendom");   // program
+  const [rarity,     setRarity]     = useState("normal");     // UI용
+  const [boardIndex, setBoardIndex] = useState("1");          // 식대전 전용
+  const [group,      setGroup]      = useState("group1");     // group1~group12
+
+  const isMealBingo = type === "meal-bingo";
+
   // ── 업로드 폼 상태 ──
-  const [title,      setTitle]      = useState("");
-  const [score,      setScore]      = useState("");
-  const [mode,       setMode]       = useState("queendom");
-  const [type,       setType]       = useState("sighunter");
-  const [rarity,     setRarity]     = useState("normal");
-  const [isActive,   setIsActive]   = useState(true);
-  const [slotIndex,  setSlotIndex]  = useState("");
-  const [boardIndex, setBoardIndex] = useState("1");
   const [file,       setFile]       = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
 
   // ── UI 상태 ──
-  const [submitting,    setSubmitting]    = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(null); // 0~100 or null
-  const [message,       setMessage]       = useState("");
-  const [error,         setError]         = useState("");
-  const [highlightId,   setHighlightId]   = useState(null);
+  const [submitting,     setSubmitting]     = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(null);
+  const [message,        setMessage]        = useState("");
+  const [error,          setError]          = useState("");
 
-  // ── 목록 상태 ──
-  const [items,        setItems]        = useState([]);
+  // ── 리소스 목록/메타 상태 ──
+  const [images,       setImages]       = useState([]);  // Storage 이미지 목록
+  const [metas,        setMetas]        = useState([]);  // gameSigResources 문서 목록
   const [loadingList,  setLoadingList]  = useState(false);
-  const [savingRowId,  setSavingRowId]  = useState(null);
-  const [deletingRowId,setDeletingRowId]= useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
 
-  // ── 검색/필터 상태 ──
-  const [searchQuery, setSearchQuery] = useState("");
+  // 선택된 이미지에 대한 메타 편집 상태
+  const [editingMeta, setEditingMeta] = useState({
+    id: null,
+    slotIndex: "",
+    sigNumber: "",
+    sigName: "",
+  });
 
-  const isMealBingo = type === "meal-bingo";
+  const [savingMeta,  setSavingMeta]  = useState(false);
+  const [deletingImg, setDeletingImg] = useState(false);
 
-  // ── 파생 상태: 검색 필터링된 목록 ──
-  const filteredItems = searchQuery.trim()
-    ? items.filter(
-        (it) =>
-          (it.title ?? "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (it.id ?? "").toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : items;
-
-  // ── 메시지/에러 자동 소멸 (3초) ──
+  // ── 메시지/에러 자동 소멸 ──
   useEffect(() => {
     if (!message && !error) return;
     const t = setTimeout(() => {
@@ -296,47 +318,11 @@ export default function SigImageAdminPage() {
     return () => clearTimeout(t);
   }, [message, error]);
 
-  // ── 목록 로딩 ──
-  const loadList = useCallback(
-    async (opts) => {
-      const params = {
-        mode,
-        type,
-        rarity,
-        activeOnly: false,
-        ...(opts || {}),
-      };
-      if (type === "meal-bingo") {
-        params.boardIndex = boardIndex || "1";
-      }
-      const list = await fetchSigItems(params);
-      console.log("[ADMIN] fetchSigItems result", params, list);
-      setItems(list);
-    },
-    [mode, type, rarity, boardIndex]
-  );
-
-  useEffect(() => {
-    async function load() {
-      try {
-        setLoadingList(true);
-        await loadList();
-      } catch (e) {
-        console.error(e);
-        setError("목록을 불러오는데 실패했습니다.");
-      } finally {
-        setLoadingList(false);
-      }
-    }
-    load();
-  }, [loadList]);
-
-  // ── 파일 선택 핸들러 (드롭존/인풋 공용) ──
+  // ── 파일 선택 핸들러 ──
   const handleFileChange = useCallback((e) => {
     const f = e.target?.files?.[0] ?? null;
     setFile(f);
     if (f) {
-      // 이전 blob URL 메모리 해제
       setPreviewUrl((prev) => {
         if (prev) URL.revokeObjectURL(prev);
         return URL.createObjectURL(f);
@@ -359,10 +345,6 @@ export default function SigImageAdminPage() {
 
   // ── 업로드 폼 초기화 ──
   const resetForm = useCallback(() => {
-    setTitle("");
-    setScore("");
-    setIsActive(true);
-    setSlotIndex("");
     setFile(null);
     setUploadProgress(null);
     setPreviewUrl((prev) => {
@@ -371,140 +353,270 @@ export default function SigImageAdminPage() {
     });
   }, []);
 
-  // ── 업로드 submit ──
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  // ── 리소스 목록 로딩 (Storage + Firestore 메타) ──
+  const reloadResources = useCallback(async () => {
+    const game = toGameKey(type);
+    const boardType = toBoardType(type, boardIndex);
 
-  if (!file) {
-    setError("이미지 파일을 선택하세요.");
-    return;
-  }
-  if (!slotIndex) {
-    setError("칸 번호를 입력해주세요.");
-    return;
-  }
-  if (isNaN(Number(slotIndex))) {
-    setError("칸 번호는 숫자로 입력해주세요.");
-    return;
-  }
-  if (isMealBingo && !boardIndex) {
-    setError("빙고판 번호를 선택해주세요.");
-    return;
-  }
-
-  try {
-    setSubmitting(true);
-    setError("");
-    setUploadProgress(0);
-
-    // 1) Storage 업로드
-    const { downloadURL, storagePath } = await uploadSigImageToStorage(
-      file,
-      {
-        gameType: type,
-        mode,
-        rarity,
-        boardIndex: isMealBingo ? boardIndex : null,
-        slotIndex,
-      },
-      (progress) => setUploadProgress(progress)
-    );
-
-    // 2) Firestore 에 메타데이터 저장
-    const created = await uploadSigItem({
-      // 이미지 URL + storagePath 저장
-      imageUrl: downloadURL,
-      storagePath,
-      title,
-      score,
-      mode,
-      type,
-      rarity,
-      isActive,
-      slotIndex,
-      boardIndex: isMealBingo ? boardIndex : null,
-    });
-
-    console.log("[ADMIN] created sig item", created);
-    setHighlightId(created.id);
-    setUploadProgress(100);
-    setMessage("업로드 완료! 🎉");
-    resetForm();
-    await loadList();
-  } catch (err) {
-    console.error(err);
-    setUploadProgress(null);
-    setError(err.message || "업로드에 실패했습니다.");
-  } finally {
-    setSubmitting(false);
-  }
-};
-
-  // ── 테이블 인라인 편집 ──
-  const handleChangeItemField = (id, field, value) => {
-    setItems((prev) =>
-      prev.map((it) => (it.id === id ? { ...it, [field]: value } : it))
-    );
-  };
-
-  const handleToggleItemActive = (id) => {
-    setItems((prev) =>
-      prev.map((it) =>
-        it.id === id ? { ...it, isActive: !it.isActive } : it
-      )
-    );
-  };
-
-  // ── 행 저장 ──
-  const handleSaveRow = async (item) => {
+    setLoadingList(true);
     try {
-      setSavingRowId(item.id);
-      setError("");
-      setMessage("");
-      await updateSigItem(item.id, {
-        title:      item.title      ?? "",
-        score:      item.score      ?? "",
-        slotIndex:  item.slotIndex  ?? "",
-        boardIndex: item.boardIndex ?? "",
-        isActive:   item.isActive,
+      // 1) Storage 이미지 목록
+      const imgs = await listProgramGroupImages(mode, group);
+      setImages(imgs);
+
+      // 2) 메타 목록
+      const metaList = await listSigResourceMeta({
+        game,
+        boardType,
+        program: mode,
+        group,
       });
-      setMessage("수정이 저장되었습니다.");
-      await loadList();
+      setMetas(metaList);
+
+      // 3) 선택된 이미지가 있다면 그에 맞는 메타 반영
+      if (selectedImage) {
+        const found = metaList.find(
+          (m) => m.storagePath === selectedImage.fullPath
+        );
+        if (found) {
+          setEditingMeta({
+            id: found.id,
+            slotIndex: found.slotIndex ?? "",
+            sigNumber: found.sigNumber ?? "",
+            sigName: found.sigName ?? "",
+          });
+        } else {
+          setEditingMeta({
+            id: null,
+            slotIndex: "",
+            sigNumber: "",
+            sigName: "",
+          });
+        }
+      } else {
+        // 선택된 이미지가 없으면 메타도 초기화
+        setEditingMeta({
+          id: null,
+          slotIndex: "",
+          sigNumber: "",
+          sigName: "",
+        });
+      }
+    } catch (e) {
+      console.error(e);
+      setError("리소스를 불러오는데 실패했습니다.");
+    } finally {
+      setLoadingList(false);
+    }
+  }, [type, boardIndex, mode, group, selectedImage]);
+
+  // 필터 변경 시마다 리소스 다시 로딩
+  useEffect(() => {
+    reloadResources();
+  }, [reloadResources]);
+
+  // ── 업로드 submit ──
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!file) {
+      setError("이미지 파일을 선택하세요.");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      setError("");
+      setUploadProgress(0);
+
+      // Storage 업로드: images/{program}/{group}/{fileName}
+      const uploaded = await uploadProgramGroupImage(mode, group, file);
+      // uploaded: { fileName, fullPath, url }
+
+      setSelectedImage(uploaded);
+setEditingMeta({
+  id: null,
+  slotIndex: "",
+  sigNumber: "",
+  sigName: "",
+});
+
+      setMessage("이미지가 업로드되었습니다.");
+      setUploadProgress(100);
+      resetForm();
+
+      // 목록 다시 로딩
+      await reloadResources();
     } catch (err) {
       console.error(err);
-      setError(err.message || "수정에 실패했습니다.");
+      setUploadProgress(null);
+      setError(err.message || "업로드에 실패했습니다.");
     } finally {
-      setSavingRowId(null);
+      setSubmitting(false);
     }
   };
 
-  // ── 행 삭제 ──
-  const handleDeleteRow = async (item) => {
-  if (typeof window !== "undefined" && !window.confirm("이 카드를 삭제할까요?")) {
-    return;
-  }
-  try {
-    setDeletingRowId(item.id);
-    setError("");
-    setMessage("");
+  // ── 이미지 카드 클릭 (선택 변경) ──
+  const handleSelectImage = (img) => {
+    setSelectedImage(img);
+    // 선택한 이미지에 대응하는 메타 찾기
+    const found = metas.find((m) => m.storagePath === img.fullPath);
+    if (found) {
+      setEditingMeta({
+        id: found.id,
+        slotIndex: found.slotIndex ?? "",
+        sigNumber: found.sigNumber ?? "",
+        sigName: found.sigName ?? "",
+      });
+    } else {
+      setEditingMeta({
+        id: null,
+        slotIndex: "",
+        sigNumber: "",
+        sigName: "",
+      });
+    }
+  };
 
-    // 1) Storage 이미지 삭제
-    if (item.storagePath) {
-      await deleteSigImageFromStorage(item.storagePath);
+  // ── 메타 값 변경 ──
+  const handleChangeMetaField = (field, value) => {
+    setEditingMeta((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // ── 메타 저장 (칸/시그 정보) ──
+  const handleSaveMeta = async () => {
+    if (!selectedImage) {
+      setError("먼저 왼쪽에서 이미지를 선택하세요.");
+      return;
+    }
+    if (!editingMeta.slotIndex) {
+      setError("칸 번호를 입력해주세요.");
+      return;
+    }
+    if (isNaN(Number(editingMeta.slotIndex))) {
+      setError("칸 번호는 숫자로 입력해주세요.");
+      return;
     }
 
-    // 2) Firestore 문서 삭제
-    await deleteSigItem(item.id);
+    const game = toGameKey(type);
+    const boardType = toBoardType(type, boardIndex);
 
-    setMessage("삭제가 완료되었습니다.");
-    await loadList();
-  } catch (err) {
-    console.error(err);
-    setError(err.message || "삭제에 실패했습니다.");
-  } finally {
-    setDeletingRowId(null);
-  }
-};
+    const payload = {
+      game,
+      boardType: boardType || null,
+      program: mode,
+      group,
+      slotIndex: Number(editingMeta.slotIndex),
+      sigNumber: editingMeta.sigNumber
+        ? Number(editingMeta.sigNumber)
+        : null,
+      sigName: editingMeta.sigName || "",
+      storagePath: selectedImage.fullPath,
+      imageUrl: selectedImage.url,
+    };
+
+    try {
+      setSavingMeta(true);
+      setError("");
+      setMessage("");
+
+      if (editingMeta.id) {
+        await updateSigResourceMeta(editingMeta.id, payload);
+      } else {
+        const id = await createSigResourceMeta(payload);
+        setEditingMeta((prev) => ({ ...prev, id }));
+      }
+
+      setMessage("이미지 정보가 저장되었습니다.");
+      await reloadResources();
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "저장에 실패했습니다.");
+    } finally {
+      setSavingMeta(false);
+    }
+  };
+
+  // ── 메타만 삭제 (이미지는 유지) ──
+  const handleDeleteMetaOnly = async () => {
+    if (!editingMeta.id) return;
+    if (
+      typeof window !== "undefined" &&
+      !window.confirm("이 이미지의 칸/시그 정보만 삭제할까요? (이미지는 남습니다)")
+    ) {
+      return;
+    }
+
+    try {
+      setSavingMeta(true);
+      setError("");
+      setMessage("");
+
+      await deleteSigResourceMeta(editingMeta.id);
+      setEditingMeta({
+        id: null,
+        slotIndex: "",
+        sigNumber: "",
+        sigName: "",
+      });
+
+      setMessage("이미지 정보가 삭제되었습니다.");
+      await reloadResources();
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "삭제에 실패했습니다.");
+    } finally {
+      setSavingMeta(false);
+    }
+  };
+
+  // ── 이미지 + 관련 메타 전부 삭제 ──
+  const handleDeleteSelectedImage = async () => {
+    if (!selectedImage) return;
+
+    if (
+      typeof window !== "undefined" &&
+      !window.confirm(
+        "이 이미지를 삭제하면, 이 이미지를 사용하는 모든 칸 설정도 함께 삭제됩니다. 계속할까요?"
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setDeletingImg(true);
+      setError("");
+      setMessage("");
+
+      // Storage 파일 삭제
+      await deleteProgramImage(selectedImage.fullPath);
+
+      // 이 이미지를 사용하는 메타 전부 삭제
+      const relatedMetas = metas.filter(
+        (m) => m.storagePath === selectedImage.fullPath
+      );
+      await Promise.all(
+        relatedMetas.map((m) => deleteSigResourceMeta(m.id))
+      );
+
+      setSelectedImage(null);
+      setEditingMeta({
+        id: null,
+        slotIndex: "",
+        sigNumber: "",
+        sigName: "",
+      });
+
+      setMessage("이미지와 관련 설정이 모두 삭제되었습니다.");
+      await reloadResources();
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "삭제에 실패했습니다.");
+    } finally {
+      setDeletingImg(false);
+    }
+  };
+
   // ── 게임 타입 변경 ──
   const handleChangeType = (e) => {
     const newType = e.target.value;
@@ -517,7 +629,6 @@ export default function SigImageAdminPage() {
   // ─────────────────────────────────────────────
   return (
     <>
-      {/* ── 토스트 알림 (우측 하단 고정) ── */}
       <Toast message={message} error={error} />
 
       <div
@@ -532,7 +643,7 @@ export default function SigImageAdminPage() {
         <div
           style={{
             width: "100%",
-            maxWidth: 960,
+            maxWidth: 1160,
             background:
               "linear-gradient(135deg, rgba(15,23,42,0.95), rgba(17,24,39,0.98))",
             borderRadius: 20,
@@ -561,13 +672,12 @@ export default function SigImageAdminPage() {
                   letterSpacing: "0.04em",
                 }}
               >
-                🛠 시그 이미지 관리
+                🛠 시그 리소스 통합 관리
               </h1>
               <p style={{ marginTop: 4, fontSize: 13, color: "#9ca3af" }}>
-                게임 / 모드 / 일반·스페셜 / 빙고판 별로 카드 이미지를 관리합니다.
+                게임 / 보드 / 프로그램 / 그룹 별로 이미지 리소스와 칸·시그 정보를 설정합니다.
               </p>
             </div>
-            {/* 총 카드 수 배지 */}
             <div
               style={{
                 padding: "4px 14px",
@@ -579,19 +689,19 @@ export default function SigImageAdminPage() {
                 whiteSpace: "nowrap",
               }}
             >
-              총 {items.length}장
+              이미지 {images.length}개
             </div>
           </div>
 
-          {/* ── 업로드 폼 ── */}
+          {/* ── 업로드 + 필터 영역 ── */}
           <form onSubmit={handleSubmit}>
             {/* 필터 셀렉트 행 */}
             <div
               style={{
                 display: "grid",
                 gridTemplateColumns: isMealBingo
-                  ? "repeat(4, minmax(0,1fr))"
-                  : "repeat(3, minmax(0,1fr))",
+                  ? "repeat(5, minmax(0,1fr))"
+                  : "repeat(4, minmax(0,1fr))",
                 gap: 12,
                 marginBottom: 16,
               }}
@@ -606,20 +716,28 @@ export default function SigImageAdminPage() {
                 </select>
               </div>
 
-              {/* 모드 */}
+              {/* 모드 (program) */}
               <div>
                 <label style={labelStyle}>모드</label>
-                <select value={mode} onChange={(e) => setMode(e.target.value)} style={inputStyle}>
+                <select
+                  value={mode}
+                  onChange={(e) => setMode(e.target.value)}
+                  style={inputStyle}
+                >
                   {MODES.map((m) => (
                     <option key={m.value} value={m.value}>{m.label}</option>
                   ))}
                 </select>
               </div>
 
-              {/* 카드 종류 */}
+              {/* 카드 종류 (UI용) */}
               <div>
                 <label style={labelStyle}>카드 종류</label>
-                <select value={rarity} onChange={(e) => setRarity(e.target.value)} style={inputStyle}>
+                <select
+                  value={rarity}
+                  onChange={(e) => setRarity(e.target.value)}
+                  style={inputStyle}
+                >
                   {RARITIES.map((r) => (
                     <option key={r.value} value={r.value}>{r.label}</option>
                   ))}
@@ -630,58 +748,30 @@ export default function SigImageAdminPage() {
               {isMealBingo && (
                 <div>
                   <label style={labelStyle}>빙고판</label>
-                  <select value={boardIndex} onChange={(e) => setBoardIndex(e.target.value)} style={inputStyle}>
+                  <select
+                    value={boardIndex}
+                    onChange={(e) => setBoardIndex(e.target.value)}
+                    style={inputStyle}
+                  >
                     {MEAL_BINGO_BOARDS.map((b) => (
                       <option key={b.value} value={b.value}>{b.label}</option>
                     ))}
                   </select>
                 </div>
               )}
-            </div>
 
-            {/* 제목 / 점수 / 칸 번호 행 */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "minmax(0,2.2fr) minmax(0,1.2fr) minmax(0,0.8fr)",
-                gap: 12,
-                marginBottom: 14,
-              }}
-            >
+              {/* 그룹 */}
               <div>
-                <label style={labelStyle}>카드 이름 (선택)</label>
-                <input
-                  type="text"
-                  value={title}
-                  placeholder="예) 시그 이름"
-                  onChange={(e) => setTitle(e.target.value)}
+                <label style={labelStyle}>그룹</label>
+                <select
+                  value={group}
+                  onChange={(e) => setGroup(e.target.value)}
                   style={inputStyle}
-                />
-              </div>
-              <div>
-                <label style={labelStyle}>점수 (선택)</label>
-                <input
-                  type="number"
-                  value={score}
-                  placeholder="예) 100"
-                  onChange={(e) => setScore(e.target.value)}
-                  style={inputStyle}
-                />
-              </div>
-              <div>
-                <label style={labelStyle}>칸 번호 (필수)</label>
-                <input
-                  type="number"
-                  min="1"
-                  max="25"
-                  value={slotIndex}
-                  placeholder="1 ~ 25"
-                  onChange={(e) => setSlotIndex(e.target.value)}
-                  style={{
-                    ...inputStyle,
-                    border: slotIndex ? "1px solid #374151" : "1px solid #f97373",
-                  }}
-                />
+                >
+                  {GROUPS.map((g) => (
+                    <option key={g.value} value={g.value}>{g.label}</option>
+                  ))}
+                </select>
               </div>
             </div>
 
@@ -695,54 +785,31 @@ export default function SigImageAdminPage() {
                 alignItems: "stretch",
               }}
             >
-              {/* 드래그 앤 드롭 파일 선택 (개선됨) */}
               <DropZone
                 file={file}
                 previewUrl={previewUrl}
                 onFileChange={handleFileChange}
               />
-
-              {/* 미리보기 */}
               <ImagePreview previewUrl={previewUrl} />
             </div>
 
-            {/* 활성화 체크박스 */}
-            <label
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                marginBottom: 14,
-                fontSize: 13,
-                color: "#d1fae5",
-                cursor: "pointer",
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={isActive}
-                onChange={(e) => setIsActive(e.target.checked)}
-                style={{ width: 16, height: 16 }}
-              />
-              <span>활성화 (랜덤 뽑기에 포함)</span>
-            </label>
-
-            {/* 업로드 진행률 바 */}
-            {submitting && (
-              <ProgressBar progress={uploadProgress} />
-            )}
-
-            {/* 업로드 버튼 */}
+            {/* 업로드 버튼 + 안내 */}
             <div
               style={{
                 display: "flex",
-                justifyContent: "flex-end",
+                justifyContent: "space-between",
                 alignItems: "center",
                 gap: 10,
                 marginTop: 4,
                 marginBottom: 12,
+                flexWrap: "wrap",
               }}
             >
+              <p style={{ margin: 0, fontSize: 11, color: "#9ca3af" }}>
+                * 이미지는 <code style={{ fontSize: 11 }}>images/{`{프로그램}`}/{`{그룹}`}</code> 에 업로드됩니다.
+                한 번 업로드된 이미지는 삭제하기 전까지 계속 재사용할 수 있습니다.
+              </p>
+
               <button
                 type="submit"
                 disabled={submitting}
@@ -762,299 +829,421 @@ export default function SigImageAdminPage() {
                   transition: "background 0.2s, box-shadow 0.2s",
                 }}
               >
-                {submitting ? `업로드 중... ${uploadProgress ?? 0}%` : "⬆️ 업로드"}
+                {submitting ? `업로드 중... ${uploadProgress ?? 0}%` : "⬆️ 이미지 업로드"}
               </button>
             </div>
+
+            {submitting && <ProgressBar progress={uploadProgress} />}
           </form>
 
-          {/* ── 등록된 카드 목록 ── */}
+          {/* ── 본문: 좌측 이미지 목록 + 우측 메타 폼 ── */}
           <div
             style={{
-              marginTop: 16,
-              paddingTop: 12,
+              marginTop: 20,
+              paddingTop: 16,
               borderTop: "1px solid rgba(55,65,81,0.8)",
+              display: "grid",
+              gridTemplateColumns: "minmax(0,3fr) minmax(0,2.2fr)",
+              gap: 18,
             }}
           >
-            {/* 목록 헤더 */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginBottom: 10,
-                alignItems: "center",
-                gap: 12,
-                flexWrap: "wrap",
-              }}
-            >
-              <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "#e5e7eb" }}>
-                등록된 카드 목록
-              </h2>
-
+            {/* 좌측: 이미지 리스트 */}
+            <div>
               <div
                 style={{
                   display: "flex",
+                  justifyContent: "space-between",
                   alignItems: "center",
-                  gap: 10,
-                  flexWrap: "wrap",
+                  marginBottom: 8,
                 }}
               >
-                {/* 필터 요약 배지 */}
-                <span style={{ fontSize: 12, color: "#9ca3af" }}>
+                <h2
+                  style={{
+                    margin: 0,
+                    fontSize: 15,
+                    fontWeight: 700,
+                    color: "#e5e7eb",
+                  }}
+                >
+                  이미지 목록
+                </h2>
+                <span style={{ fontSize: 11, color: "#9ca3af" }}>
                   {MODES.find((m) => m.value === mode)?.label} /{" "}
                   {GAME_TYPES.find((g) => g.value === type)?.label} /{" "}
-                  {RARITIES.find((r) => r.value === rarity)?.label}
+                  {group}
                   {isMealBingo && boardIndex
                     ? ` / ${MEAL_BINGO_BOARDS.find((b) => b.value === boardIndex)?.label || `${boardIndex}판`}`
                     : ""}
                 </span>
-
-                {/* 검색 인풋 (NEW) */}
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="🔍 이름 또는 ID 검색"
-                  style={{
-                    padding: "5px 10px",
-                    borderRadius: 8,
-                    border: "1px solid #374151",
-                    background: "#020617",
-                    color: "#e5e7eb",
-                    fontSize: 12,
-                    outline: "none",
-                    width: 180,
-                  }}
-                />
               </div>
-            </div>
 
-            {/* 테이블 */}
-            <div
-              style={{
-                maxHeight: 300,
-                overflow: "auto",
-                borderRadius: 10,
-                border: "1px solid rgba(55,65,81,0.9)",
-                background: "rgba(15,23,42,0.95)",
-              }}
-            >
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
-                <thead>
-                  <tr
+              <div
+                style={{
+                  maxHeight: 320,
+                  overflow: "auto",
+                  borderRadius: 10,
+                  border: "1px solid rgba(55,65,81,0.9)",
+                  background: "rgba(15,23,42,0.95)",
+                  padding: 8,
+                }}
+              >
+                {loadingList ? (
+                  <div
                     style={{
-                      background: "rgba(15,23,42,1)",
-                      position: "sticky",
-                      top: 0,
-                      zIndex: 1,
+                      padding: 24,
+                      textAlign: "center",
+                      color: "#9ca3af",
+                      fontSize: 13,
                     }}
                   >
-                    {["이미지", "이름", "점수", "판", "칸", "활성", "관리", "ID"].map((h) => (
-                      <th
-                        key={h}
-                        style={{
-                          padding: "7px 8px",
-                          textAlign: h === "이미지" || h === "이름" ? "left" : "center",
-                          color: "#94a3b8",
-                          fontWeight: 600,
-                          borderBottom: "1px solid rgba(55,65,81,0.8)",
-                        }}
-                      >
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {loadingList ? (
-                    <tr>
-                      <td colSpan={8} style={{ padding: 24, textAlign: "center", color: "#9ca3af" }}>
-                        <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-                          <span
+                    불러오는 중...
+                  </div>
+                ) : images.length === 0 ? (
+                  <div
+                    style={{
+                      padding: 24,
+                      textAlign: "center",
+                      color: "#6b7280",
+                      fontSize: 12,
+                    }}
+                  >
+                    현재 조건에 업로드된 이미지가 없습니다.
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(auto-fill, minmax(88px, 1fr))",
+                      gap: 10,
+                    }}
+                  >
+                    {images.map((img) => {
+                      const metaForImg = metas.find(
+                        (m) => m.storagePath === img.fullPath
+                      );
+                      const isSelected =
+                        selectedImage && selectedImage.fullPath === img.fullPath;
+
+                      return (
+                        <button
+                          key={img.fullPath}
+                          type="button"
+                          onClick={() => handleSelectImage(img)}
+                          style={{
+                            borderRadius: 10,
+                            padding: 6,
+                            border: isSelected
+                              ? "2px solid #22c55e"
+                              : "1px solid rgba(55,65,81,0.9)",
+                            background: isSelected
+                              ? "rgba(34,197,94,0.12)"
+                              : "rgba(15,23,42,0.9)",
+                            cursor: "pointer",
+                            textAlign: "left",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 4,
+                          }}
+                        >
+                          <div
                             style={{
-                              width: 16,
-                              height: 16,
-                              border: "2px solid #9ca3af",
-                              borderTopColor: "transparent",
-                              borderRadius: "50%",
-                              display: "inline-block",
-                              animation: "spin 0.7s linear infinite",
-                            }}
-                          />
-                          불러오는 중...
-                        </span>
-                      </td>
-                    </tr>
-                  ) : filteredItems.length === 0 ? (
-                    <tr>
-                      <td colSpan={8} style={{ padding: 24, textAlign: "center", color: "#6b7280" }}>
-                        {searchQuery ? "검색 결과가 없습니다." : "현재 조건에 등록된 카드가 없습니다."}
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredItems.map((item) => (
-                      <tr
-                        key={item.id}
-                        style={{
-                          borderTop: "1px solid rgba(31,41,55,0.9)",
-                          background:
-                            item.id === highlightId
-                              ? "rgba(34,197,94,0.08)"
-                              : "transparent",
-                          transition: "background 0.5s",
-                        }}
-                      >
-                        {/* 썸네일 */}
-                        <td style={{ padding: "5px 6px" }}>
-                          <img
-                            src={item.imageUrl}
-                            alt={item.title || item.id}
-                            style={{
-                              width: 44,
-                              height: 44,
+                              width: "100%",
+                              aspectRatio: "1 / 1",
                               borderRadius: 8,
-                              objectFit: "cover",
-                              border: "1px solid rgba(55,65,81,0.9)",
-                            }}
-                          />
-                        </td>
-
-                        {/* 이름 */}
-                        <td style={{ padding: "4px 6px", maxWidth: 180 }}>
-                          <input
-                            type="text"
-                            value={item.title || ""}
-                            onChange={(e) => handleChangeItemField(item.id, "title", e.target.value)}
-                            style={tableInputStyle}
-                          />
-                        </td>
-
-                        {/* 점수 */}
-                        <td style={{ padding: "4px 6px", textAlign: "center" }}>
-                          <input
-                            type="number"
-                            value={item.score ?? ""}
-                            onChange={(e) => handleChangeItemField(item.id, "score", e.target.value)}
-                            style={{ ...tableInputStyle, color: "#fbbf24", textAlign: "center" }}
-                          />
-                        </td>
-
-                        {/* 빙고판 */}
-                        <td style={{ padding: "4px 6px", textAlign: "center" }}>
-                          <input
-                            type="number"
-                            min="1"
-                            max="3"
-                            value={item.boardIndex ?? ""}
-                            onChange={(e) => handleChangeItemField(item.id, "boardIndex", e.target.value)}
-                            style={{ ...tableInputStyle, textAlign: "center" }}
-                          />
-                        </td>
-
-                        {/* 칸 번호 */}
-                        <td style={{ padding: "4px 6px", textAlign: "center" }}>
-                          <input
-                            type="number"
-                            value={item.slotIndex ?? ""}
-                            onChange={(e) => handleChangeItemField(item.id, "slotIndex", e.target.value)}
-                            style={{ ...tableInputStyle, textAlign: "center" }}
-                          />
-                        </td>
-
-                        {/* 활성 토글 */}
-                        <td style={{ padding: "4px 6px", textAlign: "center" }}>
-                          <button
-                            type="button"
-                            onClick={() => handleToggleItemActive(item.id)}
-                            style={{
-                              padding: "2px 8px",
-                              borderRadius: 999,
-                              border: "1px solid #374151",
-                              background: item.isActive ? "#064e3b" : "#111827",
-                              color: item.isActive ? "#4ade80" : "#6b7280",
-                              fontSize: 11,
-                              cursor: "pointer",
-                              transition: "background 0.2s, color 0.2s",
+                              overflow: "hidden",
+                              border: "1px solid rgba(31,41,55,0.9)",
+                              background: "#020617",
                             }}
                           >
-                            {item.isActive ? "ON" : "OFF"}
-                          </button>
-                        </td>
-
-                        {/* 저장/삭제 버튼 */}
-                        <td style={{ padding: "4px 6px", textAlign: "center" }}>
-                          <div style={{ display: "flex", justifyContent: "center", gap: 6 }}>
-                            <button
-                              type="button"
-                              onClick={() => handleSaveRow(item)}
-                              disabled={savingRowId === item.id}
+                            <img
+                              src={img.url}
+                              alt={img.fileName}
                               style={{
-                                padding: "2px 10px",
-                                borderRadius: 999,
-                                border: "none",
-                                background: "linear-gradient(135deg,#22c55e,#16a34a)",
-                                color: "#022c22",
-                                fontSize: 11,
-                                fontWeight: 700,
-                                cursor: savingRowId === item.id ? "default" : "pointer",
-                                opacity: savingRowId === item.id ? 0.6 : 1,
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
                               }}
-                            >
-                              {savingRowId === item.id ? "저장중…" : "저장"}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteRow(item)}
-                              disabled={deletingRowId === item.id}
-                              style={{
-                                padding: "2px 10px",
-                                borderRadius: 999,
-                                border: "none",
-                                background: "linear-gradient(135deg,#f97373,#ef4444)",
-                                color: "#fee2e2",
-                                fontSize: 11,
-                                fontWeight: 700,
-                                cursor: deletingRowId === item.id ? "default" : "pointer",
-                                opacity: deletingRowId === item.id ? 0.6 : 1,
-                              }}
-                            >
-                              {deletingRowId === item.id ? "삭제중…" : "삭제"}
-                            </button>
+                            />
                           </div>
-                        </td>
+                          <div
+                            style={{
+                              fontSize: 11,
+                              color: "#e5e7eb",
+                              whiteSpace: "nowrap",
+                              textOverflow: "ellipsis",
+                              overflow: "hidden",
+                            }}
+                            title={img.fileName}
+                          >
+                            {img.fileName}
+                          </div>
+                          <div
+                            style={{
+                              fontSize: 10,
+                              color: metaForImg ? "#22c55e" : "#6b7280",
+                            }}
+                          >
+                            {metaForImg
+                              ? `칸 ${metaForImg.slotIndex}${
+                                  metaForImg.sigNumber
+                                    ? ` / #${metaForImg.sigNumber}`
+                                    : ""
+                                }`
+                              : "미설정"}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
 
-                        {/* ID */}
-                        <td
+              <p style={{ marginTop: 6, fontSize: 11, color: "#6b7280" }}>
+                * 이미지를 클릭하면 오른쪽에서 해당 이미지의 칸 번호와 시그 정보를 설정할 수 있습니다.
+              </p>
+            </div>
+
+            {/* 우측: 선택된 이미지 메타 폼 */}
+            <div>
+              <h2
+                style={{
+                  margin: 0,
+                  marginBottom: 8,
+                  fontSize: 15,
+                  fontWeight: 700,
+                  color: "#e5e7eb",
+                }}
+              >
+                선택된 이미지 정보
+              </h2>
+
+              <div
+                style={{
+                  borderRadius: 10,
+                  border: "1px solid rgba(55,65,81,0.9)",
+                  background: "rgba(15,23,42,0.95)",
+                  padding: 12,
+                  minHeight: 180,
+                }}
+              >
+                {!selectedImage ? (
+                  <div
+                    style={{
+                      height: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 12,
+                      color: "#6b7280",
+                      textAlign: "center",
+                    }}
+                  >
+                    왼쪽에서 이미지를 선택하면
+                    <br />
+                    이 영역에서 칸 번호 및 시그 정보를 설정할 수 있습니다.
+                  </div>
+                ) : (
+                  <>
+                    {/* 선택된 이미지 미리보기 */}
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 10,
+                        marginBottom: 10,
+                        alignItems: "center",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 70,
+                          height: 70,
+                          borderRadius: 10,
+                          overflow: "hidden",
+                          border: "1px solid rgba(31,41,55,0.9)",
+                          background: "#020617",
+                        }}
+                      >
+                        <img
+                          src={selectedImage.url}
+                          alt={selectedImage.fileName}
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div
                           style={{
-                            padding: "4px 6px",
-                            textAlign: "center",
-                            color: "#6b7280",
-                            fontSize: 11,
-                            maxWidth: 140,
+                            fontSize: 12,
+                            color: "#e5e7eb",
+                            marginBottom: 4,
                             whiteSpace: "nowrap",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                           }}
-                          title={item.id}
+                          title={selectedImage.fileName}
                         >
-                          {item.id}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+                          {selectedImage.fileName}
+                        </div>
+                        <div style={{ fontSize: 11, color: "#9ca3af" }}>
+                          {mode} / {group}
+                        </div>
+                        <div style={{ fontSize: 11, color: "#6b7280" }}>
+                          storagePath: {selectedImage.fullPath}
+                        </div>
+                      </div>
+                    </div>
 
-            {/* 테이블 하단 안내 */}
-            <p style={{ marginTop: 6, fontSize: 11, color: "#6b7280" }}>
-              * 랜덤으로 뽑을 때, 이 목록의 카드들 중에서 (게임 / 모드 / 카드 종류 / 빙고판에 맞게) 사용됩니다.
-              칸 번호와 일반/스페셜로 나눠서 관리할 수 있습니다.
-            </p>
+                    {/* 메타 입력 폼 */}
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(3, minmax(0,1fr))",
+                        gap: 8,
+                        marginBottom: 10,
+                      }}
+                    >
+                      <div>
+                        <label style={labelStyle}>칸 번호 (필수)</label>
+                        <input
+                          type="number"
+                          min="1"
+                          max="25"
+                          value={editingMeta.slotIndex}
+                          onChange={(e) =>
+                            handleChangeMetaField("slotIndex", e.target.value)
+                          }
+                          style={{
+                            ...tableInputStyle,
+                            border: editingMeta.slotIndex
+                              ? "1px solid #374151"
+                              : "1px solid #f97373",
+                          }}
+                          placeholder="예) 1"
+                        />
+                      </div>
+                      <div>
+                        <label style={labelStyle}>시그 번호 (선택)</label>
+                        <input
+                          type="number"
+                          value={editingMeta.sigNumber}
+                          onChange={(e) =>
+                            handleChangeMetaField("sigNumber", e.target.value)
+                          }
+                          style={tableInputStyle}
+                          placeholder="예) 101"
+                        />
+                      </div>
+                      <div>
+                        <label style={labelStyle}>시그 이름 (선택)</label>
+                        <input
+                          type="text"
+                          value={editingMeta.sigName}
+                          onChange={(e) =>
+                            handleChangeMetaField("sigName", e.target.value)
+                          }
+                          style={tableInputStyle}
+                          placeholder="예) 홍길동"
+                        />
+                      </div>
+                    </div>
+
+                    {/* 버튼 영역 */}
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        gap: 8,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: 8,
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <button
+                          type="button"
+                          onClick={handleSaveMeta}
+                          disabled={savingMeta}
+                          style={{
+                            padding: "6px 14px",
+                            borderRadius: 999,
+                            border: "none",
+                            background:
+                              "linear-gradient(135deg,#22c55e,#16a34a)",
+                            color: "#022c22",
+                            fontSize: 12,
+                            fontWeight: 700,
+                            cursor: savingMeta ? "default" : "pointer",
+                            opacity: savingMeta ? 0.7 : 1,
+                          }}
+                        >
+                          {savingMeta ? "저장 중..." : "칸/시그 정보 저장"}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={handleDeleteMetaOnly}
+                          disabled={!editingMeta.id || savingMeta}
+                          style={{
+                            padding: "6px 12px",
+                            borderRadius: 999,
+                            border: "1px solid rgba(248,113,113,0.7)",
+                            background: "transparent",
+                            color: editingMeta.id ? "#fecaca" : "#4b5563",
+                            fontSize: 12,
+                            fontWeight: 600,
+                            cursor:
+                              !editingMeta.id || savingMeta
+                                ? "default"
+                                : "pointer",
+                          }}
+                        >
+                          정보만 삭제
+                        </button>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleDeleteSelectedImage}
+                        disabled={deletingImg}
+                        style={{
+                          padding: "6px 12px",
+                          borderRadius: 999,
+                          border: "none",
+                          background:
+                            "linear-gradient(135deg,#f97373,#ef4444)",
+                          color: "#fee2e2",
+                          fontSize: 12,
+                          fontWeight: 700,
+                          cursor: deletingImg ? "default" : "pointer",
+                          opacity: deletingImg ? 0.7 : 1,
+                        }}
+                      >
+                        {deletingImg ? "이미지 삭제 중..." : "이미지 + 매핑 삭제"}
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <p style={{ marginTop: 6, fontSize: 11, color: "#6b7280" }}>
+                * 개발자는 <code style={{ fontSize: 11 }}>gameSigResources</code> 컬렉션을
+                <br />
+                <code style={{ fontSize: 11 }}>
+                  game / boardType / program / group / slotIndex
+                </code>{" "}
+                조건으로 조회해
+                <br />
+                각 칸의 이미지와 시그 정보를 사용할 수 있습니다.
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* 스피너 애니메이션 키프레임 */}
       <style>{`
         @keyframes spin {
           to { transform: rotate(360deg); }

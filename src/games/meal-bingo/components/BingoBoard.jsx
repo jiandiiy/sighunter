@@ -14,6 +14,9 @@ import {
 // 🔹 Storage에서 게임 리소스를 가져오는 커스텀 훅
 import { useGameResource } from "../../../shared/hooks/useGameResource";
 
+// 🔹 sigGameResources 메타 유틸 (경로는 실제 프로젝트 구조에 맞게 조정)
+import { listSigResourceMeta } from "../../../shared/api/sigGameResourceMeta";
+
 // ✅ holic 모드 추가
 const MODES = ["muse", "queendom", "holic"];
 
@@ -28,6 +31,13 @@ const GLOBAL_MODE_KEY = "sigBingo-global-mode";
 const ROWS = 3;
 const COLS = 3;
 const CELL_COUNT = ROWS * COLS;
+
+const DEFAULT_GROUP = "group1";
+
+const toBoardType = (boardNo) => {
+  // "1" | "2" | "3" → "board1" | "board2" | "board3"
+  return `board${boardNo}`;
+};
 
 const LINES_3X3 = [
   [0, 1, 2], // 가로1
@@ -70,6 +80,8 @@ export default function BingoBoard({
     });
     return done;
   };
+ 
+
 
   /* -------------------------------------------------------------------------- */
   /* 🔧 Firestore: 관리자가 등록한 식대전 빙고 카드 로드 (슬롯별)                  */
@@ -251,6 +263,72 @@ export default function BingoBoard({
   );
 
   /* -------------------------------------------------------------------------- */
+/* 🔧 sigGameResources 메타를 불러와서 카드 위에 덮어쓰기                       */
+/* -------------------------------------------------------------------------- */
+const applySigMetaToCards = useCallback(
+  async (baseCards, targetMode, boardNo) => {
+    try {
+      const boardType = toBoardType(boardNo);
+      const program = targetMode; // mode와 program을 1:1로 사용
+      const group = DEFAULT_GROUP; // 우선 group1 고정 (필요 시 props로 확장)
+
+      const metas = await listSigResourceMeta({
+        game: "sigbingo",
+        boardType,
+        program,
+        group,
+      });
+
+      if (!Array.isArray(metas) || metas.length === 0) {
+        console.log("[BINGO] sigGameResources 메타 없음, 기본 카드 사용", {
+          boardType,
+          program,
+          group,
+        });
+        return baseCards;
+      }
+
+      console.log("[BINGO] sigGameResources 메타 로드", {
+        count: metas.length,
+        boardType,
+        program,
+        group,
+      });
+
+      const nextCards = [...baseCards];
+
+      metas.forEach((meta) => {
+        const raw = Number(meta.slotIndex);
+        if (!Number.isFinite(raw)) return;
+        const idx = raw - 1; // 1~9 → 0~8
+        if (idx < 0 || idx >= CELL_COUNT) return;
+
+        // 기존 카드 데이터에 sig 정보 덮어쓰기
+        const prev = baseCards[idx] || {};
+        nextCards[idx] = {
+          ...prev,
+          // Storage에 있는 시그 전용 이미지가 있다면 그걸 최우선으로 사용
+          imageUrl: meta.imageUrl || prev.imageUrl,
+          // 필요 시 title을 sigName으로 덮어쓸 수도 있음
+          title: meta.sigName || prev.title,
+          // sigNumber, sigName을 카드 객체에 같이 넣어둠 (추후 UI에 쓸 수 있게)
+          sigNumber: meta.sigNumber ?? null,
+          sigName: meta.sigName || "",
+          // 디버깅용으로 메타 id도 살짝 보관
+          _sigMetaId: meta.id,
+        };
+      });
+
+      return nextCards;
+    } catch (error) {
+      console.error("[BINGO] sig 메타 적용 실패:", error);
+      return baseCards;
+    }
+  },
+  []
+);
+
+  /* -------------------------------------------------------------------------- */
   /* 🔧 디버그: 랜덤 이미지 API 테스트                                             */
   /* -------------------------------------------------------------------------- */
   useEffect(() => {
@@ -306,32 +384,39 @@ export default function BingoBoard({
           console.log("[BINGO] 새 게임 시작 (Firestore 데이터 없음)");
 
           const initialHistory = remote?.shownHistory || {};
-          const built = await buildBoardWithRandomAndFixed(
-            globalMode,
-            currentBoardNo,
-            initialHistory
-          );
+         const built = await buildBoardWithRandomAndFixed(
+  globalMode,
+  currentBoardNo,
+  initialHistory
+);
 
-          const baseCards = built.cards;
-          const historyToUse = built.history;
+const baseCards = built.cards;
+const historyToUse = built.history;
 
-          const initChecked = Array(CELL_COUNT).fill(false);
-          const newLines = calcCompletedLines(initChecked);
 
-          setMode(globalMode);
-          setCards(baseCards);
-          setChecked(initChecked);
-          setCompletedLines(newLines);
-          setShownHistory(historyToUse);
+const initChecked = Array(CELL_COUNT).fill(false);
+const newLines = calcCompletedLines(initChecked);
 
-          // 🔥 Firestore 저장 (api 래핑 사용)
-          saveMealBingoState(boardId, {
-            mode: globalMode,
-            cards: baseCards,
-            checked: initChecked,
-            completedLines: newLines,
-            shownHistory: historyToUse,
-          }).catch((e) => console.error("[BINGO] 저장 실패:", e));
+// 🔥 sig 메타 적용
+const cardsWithMeta = await applySigMetaToCards(
+  baseCards,
+   globalMode,
+  currentBoardNo
+);
+
+setMode(globalMode);
+setCards(cardsWithMeta);
+setChecked(initChecked);
+setCompletedLines(newLines);
+setShownHistory(historyToUse);
+
+saveMealBingoState(boardId, {
+  mode: globalMode,
+  cards: cardsWithMeta,
+  checked: initChecked,
+  completedLines: newLines,
+  shownHistory: historyToUse,
+}).catch((e) => console.error("[BINGO] 저장 실패:", e));
         }
 
         setLoading(false);
@@ -342,7 +427,7 @@ export default function BingoBoard({
     }
 
     init();
-  }, [boardId, currentBoardNo, buildBoardWithRandomAndFixed]);
+  }, [boardId, currentBoardNo, buildBoardWithRandomAndFixed, applySigMetaToCards]);
 
   /* -------------------------------------------------------------------------- */
   /* 🔧 Alt+Shift+F 단축키로 칸 번호 입력창으로 포커스 이동                        */
@@ -461,8 +546,15 @@ export default function BingoBoard({
       const initChecked = Array(CELL_COUNT).fill(false);
       const newLines = calcCompletedLines(initChecked);
 
+      // 🔥 sig 메타 적용
+const cardsWithMeta = await applySigMetaToCards(
+  baseCards,
+  nextMode,
+  currentBoardNo
+);
+
       setMode(nextMode);
-      setCards(baseCards);
+      setCards(cardsWithMeta);
       setChecked(initChecked);
       setCompletedLines(newLines);
       setShownHistory(newHistory);
@@ -470,7 +562,7 @@ export default function BingoBoard({
       sync(
         {
           mode: nextMode,
-          cards: baseCards,
+          cards: cardsWithMeta,
           checked: initChecked,
           completedLines: newLines,
         },
@@ -501,7 +593,14 @@ export default function BingoBoard({
       const initChecked = Array(CELL_COUNT).fill(false);
       const newLines = calcCompletedLines(initChecked);
 
-      setCards(baseCards);
+    // 🔥 sig 메타 적용
+const cardsWithMeta = await applySigMetaToCards(
+  baseCards,
+  mode,
+  currentBoardNo
+);
+
+      setCards(cardsWithMeta);
       setChecked(initChecked);
       setCompletedLines(newLines);
       setShownHistory(newHistory);
@@ -509,7 +608,7 @@ export default function BingoBoard({
       sync(
         {
           mode,
-          cards: baseCards,
+          cards: cardsWithMeta,
           checked: initChecked,
           completedLines: newLines,
         },
@@ -719,6 +818,13 @@ export default function BingoBoard({
 
                   {/* 칸 번호 (1~9) */}
                   <span className="bingo-cell-number">{idx + 1}</span>
+                   {/* 🔹 시그 이름/번호(있다면) 간단 표시 */}
+  {card?.sigName && (
+    <span className="bingo-cell-signame">
+      {card.sigNumber ? `#${card.sigNumber} ` : ""}
+      {card.sigName}
+    </span>
+  )}
                 </div>
 
                 {/* 뒷면: 체크 표시 (O) */}

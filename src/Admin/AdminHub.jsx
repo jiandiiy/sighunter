@@ -1,7 +1,6 @@
 // src/Admin/AdminHub.jsx
 import React, { useState } from "react";
 import SigImageAdminPage from "./SigImageAdminPage";
-import SigResourceAdminPage from "./SigResourceAdminPage";
 // 필요하면 다른 Admin 페이지도 import
 
 export default function AdminHub() {
@@ -84,29 +83,9 @@ export default function AdminHub() {
               fontSize: 13,
             }}
           >
-            🃏 시그 카드 관리
+            🃏 시그 이미지 관리
           </button>
 
-          <button
-            type="button"
-            onClick={() => setTab("resources")}
-            style={{
-              padding: "6px 14px",
-              borderRadius: 999,
-              border:
-                tab === "resources" ? "2px solid #38bdf8" : "1px solid #4b5563",
-              background:
-                tab === "resources"
-                  ? "linear-gradient(135deg, #38bdf8, #bfdbfe)"
-                  : "linear-gradient(135deg, #0f172a, #020617)",
-              color: tab === "resources" ? "#0f172a" : "#e5e7eb",
-              fontWeight: 800,
-              cursor: "pointer",
-              fontSize: 13,
-            }}
-          >
-            📁 리소스 관리 (이미지)
-          </button>
 
           {/* 필요하면 다른 Admin 탭도 여기에 추가 */}
         </div>
@@ -121,7 +100,6 @@ export default function AdminHub() {
           }}
         >
           {tab === "cards" && <SigImageAdminPage />}
-          {tab === "resources" && <SigResourceAdminPage />}
         </div>
       </div>
     </div>

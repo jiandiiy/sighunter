@@ -13,11 +13,11 @@ const TIER_GEM_IMAGES = {
 };
 
 export default function WheelView({
-  wheelSize,
-  segments,
-  rotation,
-  isSpinning,
-  snapTransition,
+  wheelSize = 400,          // 기본값 지정 (선택)
+  segments = [],            // ✅ 기본값으로 빈 배열
+  rotation = 0,
+  isSpinning = false,
+  snapTransition = false,
   children,
 }) {
   const segmentCount = segments.length || 1;
@@ -25,6 +25,30 @@ export default function WheelView({
 
   const pointerW = Math.max(18, wheelSize * 0.04);
   const pointerH = Math.max(36, wheelSize * 0.06);
+
+  
+   // segments가 비었을 때는 그냥 빈 휠(또는 플레이스홀더) 렌더
+  if (!segments.length) {
+    return (
+      <div
+        style={{
+          position: "relative",
+          width: wheelSize,
+          height: wheelSize,
+          borderRadius: "50%",
+          background: "#020617",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "#e5e7eb",
+          fontWeight: 600,
+        }}
+      >
+        빅휠 데이터가 없습니다.
+      </div>
+    );
+  }
+
 
   return (
     <div style={{ position: "relative", width: wheelSize, height: wheelSize }}>
