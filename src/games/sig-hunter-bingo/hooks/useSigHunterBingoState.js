@@ -69,7 +69,14 @@ const getInitialSize = () => {
   return [3, 5].includes(s) ? s : 5;
 };
 
-export function useSigHunterBingoState(boardId = "hunter1") {
+// 🔹 라운드 ID 생성
+const createNewRoundId = () => {
+  return "round_" + Date.now();
+};
+
+export function useSigHunterBingoState(boardId = "hunter1", options = {}) {
+  const { allPlayers = [], program, group } = options;
+
   const [loading, setLoading] = useState(true);
 
   // 모드 / 사이즈 — ✅ 초기값을 URL 쿼리에서 읽음
@@ -89,7 +96,10 @@ export function useSigHunterBingoState(boardId = "hunter1") {
     makeLines(5).map(() => ({ owner: null }))
   );
   const [playerColors, setPlayerColors] = useState({});
-  // ✅ modeStates 제거 — 현재 읽는 곳 없음. 캐시 최적화 시 useRef로 재도입 예정
+
+  // 🔹 판 상태 + 라운드 ID
+  const [status, setStatus] = useState("ready"); // "ready" | "playing" | "finished"
+  const [gameRoundId, setGameRoundId] = useState(() => createNewRoundId());
 
   // 팔레트 셔플
   const [shuffledPalette] = useState(() => {
@@ -145,8 +155,68 @@ export function useSigHunterBingoState(boardId = "hunter1") {
     return nextLineOwners;
   };
 
+  // 🔹 플레이어별 점령 칸 수
+  const playerTerritoryCounts = useMemo(() => {
+    const counts = {};
+    cells.forEach((cell) => {
+      if (!cell.owner) return;
+      if (!counts[cell.owner]) counts[cell.owner] = 0;
+      counts[cell.owner] += 1;
+    });
+    return counts;
+  }, [cells]);
+
+  // 🔹 플레이어별 참여 횟수
+  const playerParticipationCounts = useMemo(() => {
+    const counts = {};
+    logs.forEach((log) => {
+      if (!log.actor) return;
+      if (!counts[log.actor]) counts[log.actor] = 0;
+      counts[log.actor] += 1;
+    });
+    return counts;
+  }, [logs]);
+
+  // 🔹 MVP 후보
+  const mvpCandidate = useMemo(() => {
+    const entries = Object.entries(playerParticipationCounts);
+    if (entries.length === 0) return null;
+    const [topPlayer, topCount] = entries.sort((a, b) => b[1] - a[1])[0];
+    return { player: topPlayer, count: topCount };
+  }, [playerParticipationCounts]);
+
+  // 🔹 이번 판 참여자
+  const participants = useMemo(() => {
+    const set = new Set();
+    logs.forEach((log) => {
+      if (log.actor) set.add(log.actor.trim());
+    });
+    return Array.from(set).filter(Boolean).sort();
+  }, [logs]);
+
+  // 🔹 전체 인원(allPlayers) 기반 미참여자 계산 (trim 포함)
+  const nonParticipants = useMemo(() => {
+    if (!allPlayers || allPlayers.length === 0) return [];
+    const pSet = new Set(participants.map((p) => p.trim()));
+    return allPlayers
+      .map((n) => (n || "").trim())
+      .filter((name) => name && !pSet.has(name));
+  }, [allPlayers, participants]);
+
+  // 🔹 승자(최다 점령자)
+  const winner = useMemo(() => {
+    const entries = Object.entries(playerTerritoryCounts);
+    if (entries.length === 0) return null;
+    const [topPlayer, topCount] = entries.sort((a, b) => b[1] - a[1])[0];
+    return { player: topPlayer, count: topCount };
+  }, [playerTerritoryCounts]);
+
+  // 🔹 보드 꽉 찼는지 (완판)
+  const isBoardFull = useMemo(() => {
+    return cells.length > 0 && cells.every((cell) => !!cell.owner);
+  }, [cells]);
+
   // Firestore 저장: 현재 상태 기준
-  // ✅ overrideMode, overrideSize 추가 — 클로저로 이전 mode/size가 캡처되는 버그 방지
   const sync = useCallback(
     async (overrideState, overrideMode, overrideSize) => {
       const stateToSave =
@@ -158,8 +228,8 @@ export function useSigHunterBingoState(boardId = "hunter1") {
           playerColors,
         };
 
-      const targetMode = overrideMode ?? mode; // ✅ 명시적으로 받아서 사용
-      const targetSize = overrideSize ?? size; // ✅ 명시적으로 받아서 사용
+      const targetMode = overrideMode ?? mode;
+      const targetSize = overrideSize ?? size;
 
       try {
         await saveSigHunterBingoState(
@@ -174,6 +244,44 @@ export function useSigHunterBingoState(boardId = "hunter1") {
     },
     [boardId, mode, size, cells, logs, lineOwners, playerColors]
   );
+
+  // 🔹 라운드 요약 Firestore 저장용 (지금은 console.log만)
+  const saveRoundResult = useCallback(async () => {
+    const roundSummary = {
+      boardId,
+      roundId: gameRoundId,
+      timestamp: Date.now(),
+      mode,
+      program: program ?? null,
+      group: group ?? null,
+      size,
+      participants,
+      mvpCandidate,
+      winner,
+      nonParticipants,
+      rawLogs: logs,
+    };
+
+    try {
+      console.log("[HUNTER] round saved:", roundSummary);
+    } catch (err) {
+      console.error("[HUNTER] failed to save round:", err);
+    }
+
+    return roundSummary;
+  }, [
+    boardId,
+    gameRoundId,
+    mode,
+    program,
+    group,
+    size,
+    participants,
+    mvpCandidate,
+    winner,
+    nonParticipants,
+    logs,
+  ]);
 
   // 최초/모드/사이즈 변경 시 로드
   useEffect(() => {
@@ -330,6 +438,10 @@ export function useSigHunterBingoState(boardId = "hunter1") {
 
       if (!alive) return;
       setLoading(false);
+
+      // 모드/사이즈 바뀌면 새 라운드로 보는 게 자연스럽다
+      setStatus("ready");
+      setGameRoundId(createNewRoundId());
     }
 
     init();
@@ -369,6 +481,8 @@ export function useSigHunterBingoState(boardId = "hunter1") {
     setLogs([]);
     setLineOwners(initLineOwners);
     setPlayerColors({});
+    setStatus("ready");
+    setGameRoundId(createNewRoundId());
 
     sync({
       cells: initCells,
@@ -379,50 +493,46 @@ export function useSigHunterBingoState(boardId = "hunter1") {
   };
 
   const getCurrentImage = (cell) => {
-  // 1) Firestore에 저장된 완전한 download URL (https) 이 있으면 그대로 사용
-  if (cell?.imageUrl?.startsWith("https://")) {
-    // 여기서는 Storage에 있는 카드/이미지 (관리자 페이지에서 업로드한 것)
-    return cell.imageUrl;
-  }
+    // 1) Firestore에 저장된 완전한 download URL (https) 이 있으면 그대로 사용
+    if (cell?.imageUrl?.startsWith("https://")) {
+      return cell.imageUrl;
+    }
 
-  // 2) imageUrl 이 있는데 절대 URL은 아니면, 이건 storagePath 로 간주 → toStorageUrl
-  if (cell?.imageUrl && !cell.imageUrl.startsWith("http")) {
-    // 예: "sig-hunter/images/queendom/group01/xxx.webp" 같은 경로
-    return toStorageUrl(cell.imageUrl);
-  }
+    // 2) imageUrl 이 있는데 절대 URL은 아니면, 이건 storagePath 로 간주 → toStorageUrl
+    if (cell?.imageUrl && !cell.imageUrl.startsWith("http")) {
+      return toStorageUrl(cell.imageUrl);
+    }
 
-  // 3) 과거 image pool 기반 (public/images) — 백업 용도
-  if (!cell?.images || cell.images.length === 0) {
-    console.warn("[SIG] no image for cell", cell?.id);
-    return null;
-  }
+    // 3) 과거 image pool 기반 (public/images) — 백업 용도
+    if (!cell?.images || cell.images.length === 0) {
+      console.warn("[SIG] no image for cell", cell?.id);
+      return null;
+    }
 
-  const idx =
-    typeof cell.imageIndex === "number"
-      ? cell.imageIndex % cell.images.length
-      : 0;
+    const idx =
+      typeof cell.imageIndex === "number"
+        ? cell.imageIndex % cell.images.length
+        : 0;
 
-  const raw = cell.images[idx];
-  const imagePath = typeof raw === "string" ? raw : raw?.path ?? null;
+    const raw = cell.images[idx];
+    const imagePath = typeof raw === "string" ? raw : raw?.path ?? null;
 
-  if (!imagePath) {
-    console.warn(
-      "[SIG] images[idx] has no valid path — raw:",
-      raw,
-      "cell:",
-      cell?.id
-    );
-    return null;
-  }
+    if (!imagePath) {
+      console.warn(
+        "[SIG] images[idx] has no valid path — raw:",
+        raw,
+        "cell:",
+        cell?.id
+      );
+      return null;
+    }
 
-  // 🔹 public/images 기반인 경우: 그대로 사용 (Storage URL로 변환하지 않음)
-  if (imagePath.startsWith("/images/")) {
-    return imagePath;
-  }
+    if (imagePath.startsWith("/images/")) {
+      return imagePath;
+    }
 
-  // 🔹 그 외는 storagePath 로 보고 Storage URL로 변환
-  return toStorageUrl(imagePath);
-};
+    return toStorageUrl(imagePath);
+  };
 
   const getCurrentCount = (cell) => {
     let imagePath = null;
@@ -457,7 +567,7 @@ export function useSigHunterBingoState(boardId = "hunter1") {
     return cell.sigCount ?? 0;
   };
 
-  // 보드 페이지: 칸 클릭(점령/쟁탈)
+  // 보드 페이지: 칸 클릭(점령/쟁탈) - 원본
   const handleClickCell = (cellId, actorRaw) => {
     const actor = actorRaw?.trim();
     if (!actor) {
@@ -524,7 +634,54 @@ export function useSigHunterBingoState(boardId = "hunter1") {
     });
   };
 
+  // 🔹 진행 상태를 고려한 안전 래퍼 (상위 컴포넌트에서 사용)
+  const safeHandleClickCell = (cellId, actorRaw) => {
+    if (status === "finished") {
+      return;
+    }
+    if (status === "ready") {
+      setStatus("playing");
+    }
+    handleClickCell(cellId, actorRaw);
+  };
+
   const completedLineCount = lineOwners.filter((l) => !!l.owner).length;
+
+  // 🔹 5x5 완판 감지 후 콜백 호출 (상위에서 배너 띄우기용)
+  const handleBoardAutoComplete = useCallback(
+    async (onBoardCompleted) => {
+      if (!isBoardFull) return;
+      if (status === "finished") return;
+
+      setStatus("finished");
+
+      const summary = await saveRoundResult();
+      if (typeof onBoardCompleted === "function") {
+        onBoardCompleted(summary);
+      }
+    },
+    [isBoardFull, status, saveRoundResult]
+  );
+
+  // 🔹 다음 판 시작 (현재 설정 유지)
+  const startNextRound = useCallback(() => {
+    const initCells = getInitialHunterCells(mode, size);
+    const initLineOwners = lines.map(() => ({ owner: null }));
+
+    setCells(initCells);
+    setLogs([]);
+    setLineOwners(initLineOwners);
+    setPlayerColors({});
+    setStatus("ready");
+    setGameRoundId(createNewRoundId());
+
+    sync({
+      cells: initCells,
+      logs: [],
+      lineOwners: initLineOwners,
+      playerColors: {},
+    });
+  }, [mode, size, lines, sync]);
 
   return {
     // 상태
@@ -538,9 +695,18 @@ export function useSigHunterBingoState(boardId = "hunter1") {
     lineOwners,
     playerColors,
     completedLineCount,
+    status,
+    gameRoundId,
+    participants,
+    mvpCandidate,
+    nonParticipants,
+    winner,
+    isBoardFull,
+
     // 상수
     HUNTER_MODES,
     AVAILABLE_SIZES,
+
     // 액션
     setMode,
     setSize,
@@ -548,12 +714,17 @@ export function useSigHunterBingoState(boardId = "hunter1") {
     setLogs,
     setLineOwners,
     setPlayerColors,
+    setStatus,
     handleChangeMode,
     handleChangeSize,
     handleResetBoard,
-    handleClickCell,
+    handleClickCell,      // 원본
+    safeHandleClickCell,  // 상태 반영된 버전
     getCurrentImage,
     getCurrentCount,
     getColorForPlayer,
+    saveRoundResult,
+    startNextRound,
+    handleBoardAutoComplete,
   };
 }

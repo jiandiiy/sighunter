@@ -1,19 +1,68 @@
 // src/components/GameCenter/SigHunterBingo/SigHunterBingoBoard.jsx
-import React, { useState, useMemo, useEffect, useRef } from "react";
+
+import React, {
+  useState,
+  useMemo,
+  useEffect,
+  useRef,
+} from "react";
 import "../styles/SigHunterBingoBoard.css";
 import {
   useSigHunterBingoState,
   AVAILABLE_SIZES,
 } from "../hooks/useSigHunterBingoState";
+import {
+  loadSigHunterPlayers,
+  saveSigHunterPlayers,
+} from "../../../shared/api/sigBingoPlayersApi";
 
-// ✅ 모드 탭 이름 매핑 (컴포넌트 밖에 선언 → 렌더링마다 재생성 방지)
+// 모드 탭 이름 매핑
 const MODE_LABELS = {
   queendom: "퀸덤",
   muse: "뮤즈",
   holic: "홀릭",
 };
 
-export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
+export default function SigHunterBingoBoard({
+  boardId = "hunter1",
+  program = "muse",
+  group = "group1",
+}) {
+  // 🔹 전체 인원 Firestore + 로컬 상태
+  const [allPlayers, setAllPlayers] = useState([]);
+  const [allPlayersInput, setAllPlayersInput] = useState("");
+  const [playersSaving, setPlayersSaving] = useState(false);
+  const [playersLoading, setPlayersLoading] = useState(true);
+
+  // 전체 인원 모달
+  const [isAllPlayersModalOpen, setIsAllPlayersModalOpen] = useState(false);
+  const openAllPlayersModal = () => setIsAllPlayersModalOpen(true);
+  const closeAllPlayersModal = () => setIsAllPlayersModalOpen(false);
+
+  useEffect(() => {
+    let alive = true;
+
+    async function load() {
+      setPlayersLoading(true);
+      try {
+        const list = await loadSigHunterPlayers(program, group);
+        if (!alive) return;
+        setAllPlayers(list);
+        setAllPlayersInput(list.join("\n"));
+      } catch (e) {
+        console.error("[HUNTER] loadSigHunterPlayers failed", e);
+      } finally {
+        if (!alive) return;
+        setPlayersLoading(false);
+      }
+    }
+
+    load();
+    return () => {
+      alive = false;
+    };
+  }, [program, group]);
+
   const {
     loading,
     mode,
@@ -27,25 +76,41 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
     HUNTER_MODES,
     handleChangeMode,
     handleChangeSize,
-    handleResetBoard,
-    handleClickCell,
+    handleResetBoard: rawResetBoard,
+    handleClickCell: rawClickCell,
     getCurrentImage,
     getCurrentCount,
     getColorForPlayer,
-  } = useSigHunterBingoState(boardId);
+
+    status,
+    participants,
+    mvpCandidate,
+    nonParticipants,
+    safeHandleClickCell,
+    startNextRound,
+    handleBoardAutoComplete,
+    lines,
+  } = useSigHunterBingoState(boardId, {
+    allPlayers,
+    program,
+    group,
+  });
 
   const [currentPlayer, setCurrentPlayer] = useState("");
-  const [targetCellNo, setTargetCellNo] = useState(""); // 🔹 칸 번호 입력 상태
+  const [targetCellNo, setTargetCellNo] = useState("");
 
-  // 🔹 입력창 포커스용 ref
+  const [showSummaryBanner, setShowSummaryBanner] = useState(false);
+  const [lastSummary, setLastSummary] = useState(null);
+
+  const [highlightMvp, setHighlightMvp] = useState(false);
+  const [highlightNonParticipants, setHighlightNonParticipants] =
+    useState(false);
+
   const playerInputRef = useRef(null);
   const cellNumberInputRef = useRef(null);
 
-  // 🔹 Alt+Shift+D → 플레이어 닉네임 입력창 포커스
-  //    Alt+Shift+F → 칸 번호 입력창 포커스
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // 플레이어 닉네임 포커스
       if (e.altKey && e.shiftKey && (e.key === "d" || e.key === "D")) {
         e.preventDefault();
         if (playerInputRef.current) {
@@ -53,7 +118,6 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
         }
       }
 
-      // 칸 번호 입력창 포커스
       if (e.altKey && e.shiftKey && (e.key === "f" || e.key === "F")) {
         e.preventDefault();
         if (cellNumberInputRef.current) {
@@ -66,7 +130,6 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // 🔹 플레이어별 점령 칸 수 집계
   const playerTerritoryCounts = useMemo(() => {
     const counts = {};
     cells.forEach((cell) => {
@@ -77,7 +140,6 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
     return counts;
   }, [cells]);
 
-  // 🔹 플레이어별 참여 횟수 집계 (현재 판 기준)
   const playerParticipationCounts = useMemo(() => {
     const counts = {};
     logs.forEach((log) => {
@@ -88,24 +150,32 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
     return counts;
   }, [logs]);
 
-  // 🔹 MVP 후보 계산 (참여 횟수 최다 플레이어)
-  const mvpCandidate = useMemo(() => {
+  const localMvpCandidate = useMemo(() => {
+    if (mvpCandidate) return mvpCandidate;
     const entries = Object.entries(playerParticipationCounts);
     if (entries.length === 0) return null;
-    const [topPlayer, topCount] = entries.sort((a, b) => b[1] - a[1])[0];
+    const [topPlayer, topCount] = entries.sort(
+      (a, b) => b[1] - a[1]
+    )[0];
     return { player: topPlayer, count: topCount };
-  }, [playerParticipationCounts]);
+  }, [mvpCandidate, playerParticipationCounts]);
 
-  // 🔹 이번 판 참여자 목록 (BJ 이름 리스트)
-  const participants = useMemo(() => {
+  const localParticipants = useMemo(() => {
+    if (participants && participants.length > 0) return participants;
     const set = new Set();
     logs.forEach((log) => {
-      if (log.actor) set.add(log.actor);
+      if (log.actor) set.add((log.actor || "").trim());
     });
-    return Array.from(set).sort();
-  }, [logs]);
+    return Array.from(set).filter(Boolean).sort();
+  }, [participants, logs]);
 
-  // 🔹 번호(1~N)로 칸 찾아서 현재 플레이어로 클릭 처리
+  const localNonParticipants = useMemo(() => {
+    if (Array.isArray(nonParticipants)) return nonParticipants;
+    if (!allPlayers || allPlayers.length === 0) return [];
+    const pSet = new Set(localParticipants);
+    return allPlayers.filter((name) => !pSet.has(name));
+  }, [nonParticipants, allPlayers, localParticipants]);
+
   const flipCellByNumber = (noStr) => {
     const n = Number(noStr);
     if (!Number.isFinite(n)) return;
@@ -113,8 +183,136 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
 
     const cell = cells[n - 1];
     if (!cell) return;
+    if (!currentPlayer) return;
 
-    handleClickCell(cell.id, currentPlayer);
+    if (safeHandleClickCell) {
+      safeHandleClickCell(cell.id, currentPlayer);
+    } else {
+      rawClickCell(cell.id, currentPlayer);
+    }
+  };
+
+  useEffect(() => {
+    if (!handleBoardAutoComplete) return;
+
+    async function checkComplete() {
+      await handleBoardAutoComplete((summary) => {
+        setLastSummary(summary);
+        setShowSummaryBanner(true);
+      });
+    }
+    checkComplete();
+  }, [handleBoardAutoComplete]);
+
+  const settlementText = useMemo(() => {
+    const participantText =
+      (localParticipants && localParticipants.length > 0
+        ? "참여자: " + localParticipants.join(", ")
+        : "참여자: 없음") + "\n";
+
+    const mvp = localMvpCandidate;
+    const mvpText = mvp
+      ? "MVP 후보: " + mvp.player + " (" + mvp.count + "회 참여)\n"
+      : "MVP 후보: 없음\n";
+
+    const nonPartText =
+      localNonParticipants && localNonParticipants.length > 0
+        ? "미참여자: " +
+          localNonParticipants.join(", ") +
+          " (−2,000점 예정)"
+        : "미참여자: 없음";
+
+    return participantText + mvpText + nonPartText;
+  }, [localParticipants, localMvpCandidate, localNonParticipants]);
+
+  const handleCopySettlementText = () => {
+    navigator.clipboard
+      .writeText(settlementText)
+      .catch((err) =>
+        console.error("[HUNTER] 정산 텍스트 복사 실패:", err)
+      );
+  };
+
+  const handleCopyParticipants = () => {
+    const text = localParticipants.join(", ");
+    navigator.clipboard
+      .writeText(text)
+      .catch((err) =>
+        console.error("[HUNTER] 참여자 복사 실패:", err)
+      );
+  };
+
+  const canStartNextRound = status === "finished";
+
+  // 🔹 표시용 라운드 번호 (gameRoundId 변경 시 1씩 증가)
+  const [roundDisplay, setRoundDisplay] = useState(1);
+  
+
+  const handleResetBoard = () => {
+    if (status === "playing") {
+      const ok = window.confirm(
+        "현재 판이 진행 중입니다. 정말 초기화하시겠습니까?"
+      );
+      if (!ok) return;
+    }
+
+    // 🔹 표시용 라운드 번호를 1로 초기화
+    setRoundDisplay(1);
+
+    if (startNextRound) {
+      startNextRound();
+    } else {
+      rawResetBoard();
+    }
+  };
+
+  const handleCellClick = (cell) => {
+    if (status === "finished") {
+      return;
+    }
+    if (!currentPlayer) {
+      alert("플레이어 닉네임을 먼저 입력해주세요.");
+      return;
+    }
+
+    if (safeHandleClickCell) {
+      safeHandleClickCell(cell.id, currentPlayer);
+    } else {
+      rawClickCell(cell.id, currentPlayer);
+    }
+  };
+
+  const getCellClasses = (cell) => {
+    const classes = ["hunter-cell"];
+    if (cell.owner) {
+      classes.push("hunter-cell--owned");
+    }
+    const mvp = localMvpCandidate;
+    if (highlightMvp && mvp && cell.owner === mvp.player) {
+      classes.push("hunter-cell-mvp-highlight");
+    }
+    return classes.join(" ");
+  };
+
+  const parseAllPlayersInput = (value) => {
+    return value
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean);
+  };
+
+  const handleSaveAllPlayers = async () => {
+    setPlayersSaving(true);
+    try {
+      const parsed = parseAllPlayersInput(allPlayersInput);
+      const saved = await saveSigHunterPlayers(program, group, parsed);
+      setAllPlayers(saved);
+    } catch (e) {
+      console.error("[HUNTER] saveSigHunterPlayers failed", e);
+      alert("전체 인원 저장에 실패했습니다. 콘솔 로그를 확인해주세요.");
+    } finally {
+      setPlayersSaving(false);
+    }
   };
 
   if (loading) {
@@ -125,13 +323,13 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
     <div className="hunter-root">
       <header className="hunter-header">
         <div className="hunter-header-row">
-          {/* ✅ 모드 탭: MODE_LABELS 객체로 매핑, 폴백은 키값 그대로 */}
           <div className="hunter-mode-tabs">
             {HUNTER_MODES.map((m) => (
               <button
                 key={m}
                 className={
-                  "hunter-tab" + (mode === m ? " hunter-tab--active" : "")
+                  "hunter-tab" +
+                  (mode === m ? " hunter-tab--active" : "")
                 }
                 onClick={() => handleChangeMode(m)}
               >
@@ -140,13 +338,13 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
             ))}
           </div>
 
-          {/* 3x3 / 5x5 탭 */}
           <div className="hunter-mode-tabs" style={{ marginLeft: 12 }}>
             {AVAILABLE_SIZES.map((s) => (
               <button
                 key={s}
                 className={
-                  "hunter-tab" + (size === s ? " hunter-tab--active" : "")
+                  "hunter-tab" +
+                  (size === s ? " hunter-tab--active" : "")
                 }
                 onClick={() => handleChangeSize(s)}
               >
@@ -163,9 +361,21 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
         {/* 좌측: 보드 */}
         <div className="hunter-main-left">
           <div className="hunter-line-count-under-board">
-            <div>
-              현재 점령된 줄: <span>{completedLineCount}</span> 줄
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <div>
+                현재 점령된 줄: <span>{completedLineCount}</span> 줄
+              </div>
+              <div
+                className={
+                  "hunter-status-pill hunter-status-pill--" + status
+                }
+                style={{ marginTop: 4 }}
+              >
+                {/* 🔹 라운드 표기 변경 */}
+                현재 상태: {status} / 라운드: {roundDisplay}라운드
+              </div>
             </div>
+
             <div
               style={{
                 display: "flex",
@@ -182,7 +392,19 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                 초기화
               </button>
 
-              {/* 🔹 단축키 안내 문구 */}
+              <button
+                type="button"
+                className="hunter-next-round-btn"
+                onClick={() => {
+                  // 🔹 다음 판 시작 시 라운드 번호 +1
+                  setRoundDisplay((prev) => prev + 1);
+                  startNextRound();
+                }}
+                disabled={!canStartNextRound}
+              >
+                다음 판 시작
+              </button>
+
               <span
                 style={{
                   fontSize: 16,
@@ -197,12 +419,61 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
             </div>
           </div>
 
+          {showSummaryBanner && lastSummary && (
+            <div className="hunter-summary-banner">
+              <div className="hunter-summary-main">
+                <strong>이번 판 요약</strong>
+                <div>
+                  모드: {lastSummary.mode} / 그룹:{" "}
+                  {lastSummary.group} / 크기: {lastSummary.size}×
+                  {lastSummary.size}
+                </div>
+                <div>
+                  참여자:{" "}
+                  {lastSummary.participants &&
+                  lastSummary.participants.length > 0
+                    ? lastSummary.participants.join(", ")
+                    : "없음"}
+                </div>
+                <div>
+                  MVP 후보:{" "}
+                  {lastSummary.mvpCandidate
+                    ? `${lastSummary.mvpCandidate.player} (${lastSummary.mvpCandidate.count}회 참여)`
+                    : "없음"}
+                </div>
+                <div>
+                  미참여자:{" "}
+                  {lastSummary.nonParticipants &&
+                  lastSummary.nonParticipants.length > 0
+                    ? lastSummary.nonParticipants.join(", ") +
+                      " (−2,000점 예정)"
+                    : "없음"}
+                </div>
+              </div>
+              <div className="hunter-summary-actions">
+                <button
+                  type="button"
+                  className="hunter-btn-outline"
+                  onClick={handleCopySettlementText}
+                >
+                  문구 복사
+                </button>
+                <button
+                  type="button"
+                  className="hunter-btn-ghost"
+                  onClick={() => setShowSummaryBanner(false)}
+                >
+                  닫기
+                </button>
+              </div>
+            </div>
+          )}
+
           <div
             className="hunter-grid"
             style={{ gridTemplateColumns: `repeat(${size}, 1fr)` }}
           >
             {cells.slice(0, cellCount).map((cell) => {
-              const isOwned = !!cell.owner;
               const currentImage = getCurrentImage(cell);
               const currentCount = getCurrentCount(cell);
 
@@ -220,14 +491,11 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
               return (
                 <div
                   key={cell.id}
-                  className={
-                    "hunter-cell" + (isOwned ? " hunter-cell--owned" : "")
-                  }
+                  className={getCellClasses(cell)}
                   style={cellStyle}
-                  onClick={() => handleClickCell(cell.id, currentPlayer)}
+                  onClick={() => handleCellClick(cell)}
                 >
                   <div className="hunter-cell-inner">
-                    {/* 앞면: 이미지만 노출 */}
                     <div className="hunter-cell-front">
                       {currentImage && (
                         <div className="hunter-sig-image-wrap">
@@ -241,12 +509,13 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                       )}
                     </div>
 
-                    {/* 뒷면: 소유자 / 점수 */}
                     <div className="hunter-cell-back">
                       <div
                         className="hunter-cell-owner-area"
                         style={
-                          ownerColor ? { backgroundColor: ownerColor } : {}
+                          ownerColor
+                            ? { backgroundColor: ownerColor }
+                            : {}
                         }
                       >
                         <div className="hunter-cell-owner-text">
@@ -267,7 +536,6 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
           </div>
         </div>
 
-        {/* 우측: 닉네임, 칸 번호 입력, 플레이어 점령 현황, 줄 미니맵, 로그 */}
         <aside className="hunter-main-right">
           <div className="hunter-sidebar-top">
             <div className="hunter-player-input-row">
@@ -279,7 +547,7 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                   value={currentPlayer}
                   onChange={(e) => setCurrentPlayer(e.target.value)}
                   placeholder="닉네임"
-                  ref={playerInputRef} // 🔹 단축키 포커스용 ref
+                  ref={playerInputRef}
                 />
               </label>
               <div className="hunter-line-count">
@@ -287,7 +555,6 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
               </div>
             </div>
 
-            {/* 🔹 플레이어 닉네임 아래: 칸 번호 입력 + 뒤집기 버튼 */}
             <div
               className="hunter-cellno-row"
               style={{
@@ -308,11 +575,12 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
               >
                 <span>칸 번호:</span>
 
-                {/* 🔹 칸 번호 입력 래퍼 (시그헌터 스타일 라벨) */}
                 <div
                   className={
                     "hunter-cellno-wrapper" +
-                    (targetCellNo ? " hunter-cellno-wrapper--filled" : "")
+                    (targetCellNo
+                      ? " hunter-cellno-wrapper--filled"
+                      : "")
                   }
                   style={{ position: "relative", width: 70 }}
                 >
@@ -338,9 +606,8 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                       backgroundColor: "#fff",
                       color: "#000",
                     }}
-                    ref={cellNumberInputRef} // 🔹 단축키 포커스용 ref
+                    ref={cellNumberInputRef}
                   />
-                  {/* 🔹 라벨: 값 없고 포커스 없을 때만 보이게 CSS로 제어 */}
                   <span className="hunter-cellno-label">번호</span>
                 </div>
               </label>
@@ -365,7 +632,73 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
             </div>
           </div>
 
-          {/* 플레이어별 점령 칸 수 + 참여 횟수 + MVP 후보 표시 */}
+          {/* 전체 인원 관리 */}
+          <section className="hunter-panel-section">
+            <h4 className="hunter-panel-title">
+              전체 인원 관리 ({MODE_LABELS[mode]} / {group})
+            </h4>
+
+            {playersLoading ? (
+              <div className="hunter-participants-empty">
+                전체 인원 로딩 중...
+              </div>
+            ) : (
+              <>
+                <p className="hunter-panel-description">
+                  전체 인원은 별도 팝업에서 관리합니다.
+                  <br />
+                  저장하면 미참여자 계산에 바로 반영됩니다.
+                </p>
+
+                <button
+                  type="button"
+                  className="hunter-btn-sm hunter-btn-primary"
+                  onClick={openAllPlayersModal}
+                >
+                  전체 인원 입력 / 수정
+                </button>
+
+                <div
+                  style={{
+                    marginTop: 6,
+                    fontSize: 12,
+                    color: "#9ca3af",
+                  }}
+                >
+                  현재 인원 수: {allPlayers.length}명
+                </div>
+              </>
+            )}
+          </section>
+
+          {/* 퀵 액션 */}
+          <section className="hunter-panel-section">
+            <h4 className="hunter-panel-title">퀵 액션</h4>
+            <div className="hunter-quick-actions">
+              <label className="hunter-toggle">
+                <input
+                  type="checkbox"
+                  checked={highlightMvp}
+                  onChange={(e) =>
+                    setHighlightMvp(e.target.checked)
+                  }
+                />
+                <span>MVP 후보 하이라이트</span>
+              </label>
+              <label className="hunter-toggle">
+                <input
+                  type="checkbox"
+                  checked={highlightNonParticipants}
+                  onChange={(e) =>
+                    setHighlightNonParticipants(e.target.checked)
+                  }
+                />
+                <span>미참여자 상단 표시</span>
+              </label>
+            </div>
+          </section>
+
+          {/* 플레이어 점령 현황 */}
           <div className="hunter-player-territory-summary">
             <h4 className="hunter-player-territory-title">
               플레이어 점령 현황
@@ -385,7 +718,8 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                     const participation =
                       playerParticipationCounts[player] || 0;
                     const isMvp =
-                      mvpCandidate && mvpCandidate.player === player;
+                      localMvpCandidate &&
+                      localMvpCandidate.player === player;
 
                     return (
                       <li
@@ -422,7 +756,7 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
             )}
           </div>
 
-          {/* 이번 판 참여자 리스트 + 복사 버튼 */}
+          {/* 참여자 */}
           <div className="hunter-participants-section">
             <div className="hunter-participants-header">
               <h4 className="hunter-participants-title">
@@ -431,27 +765,20 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
               <button
                 type="button"
                 className="hunter-participants-copy-btn"
-                onClick={() => {
-                  const text = participants.join(", ");
-                  navigator.clipboard
-                    .writeText(text)
-                    .catch((err) =>
-                      console.error("[HUNTER] 참여자 복사 실패:", err)
-                    );
-                }}
-                disabled={participants.length === 0}
+                onClick={handleCopyParticipants}
+                disabled={localParticipants.length === 0}
               >
                 참여자 복사
               </button>
             </div>
 
-            {participants.length === 0 ? (
+            {localParticipants.length === 0 ? (
               <div className="hunter-participants-empty">
                 아직 참여한 플레이어가 없습니다.
               </div>
             ) : (
               <div className="hunter-participants-list">
-                {participants.map((p) => (
+                {localParticipants.map((p) => (
                   <span
                     key={p}
                     className="hunter-participants-chip"
@@ -463,63 +790,133 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
             )}
           </div>
 
+          {/* 미참여자 */}
+          <section className="hunter-panel-section">
+            <h4 className="hunter-panel-title">
+              미참여자{" "}
+              {localNonParticipants &&
+              localNonParticipants.length > 0
+                ? `(${localNonParticipants.length}명)`
+                : ""}
+            </h4>
+            {(!localNonParticipants ||
+              localNonParticipants.length === 0) && (
+              <div className="hunter-participants-empty">
+                전체 플레이어 정보가 없거나, 모두 참여했습니다.
+              </div>
+            )}
+            {localNonParticipants &&
+              localNonParticipants.length > 0 && (
+                <div className="hunter-nonparticipants-list">
+                  {localNonParticipants
+                    .slice()
+                    .sort()
+                    .map((name) => (
+                      <div
+                        key={name}
+                        className={
+                          "hunter-nonparticipant-item" +
+                          (highlightNonParticipants
+                            ? " is-highlighted"
+                            : "")
+                        }
+                      >
+                        {name}
+                      </div>
+                    ))}
+                </div>
+              )}
+          </section>
+
+          {/* 정산용 */}
+          <section className="hunter-panel-section">
+            <h4 className="hunter-panel-title">점수 정산용</h4>
+            <button
+              type="button"
+              className="hunter-btn-sm hunter-btn-primary"
+              onClick={handleCopySettlementText}
+            >
+              정산 문구 복사
+            </button>
+            <pre className="hunter-settlement-preview">
+              {settlementText}
+            </pre>
+          </section>
+
           {/* 줄 소유권 미니맵 */}
           <div className="hunter-lines-ownership">
             <h4 className="hunter-lines-ownership-title">
               줄 소유권 미니맵
             </h4>
             <div className="hunter-lines-ownership-list">
-              {lineOwners.map((line, idx) => {
-                const ownerName = line.owner;
-                const color = ownerName
-                  ? getColorForPlayer(ownerName)
-                  : null;
+    {lineOwners.map((line, idx) => {
+      // 🔹 줄의 각 index에 해당하는 cell 들을 가져오기
+      const indicesForThisLine = lines[idx];        // [0,1,2,3,4] 같은 인덱스 배열
+      const cellsForThisLine = indicesForThisLine
+        ? indicesForThisLine.map((i) => cells[i])
+        : [];
+
+      // 🔹 줄 전체 owner (전부 같은 사람일 때만 표기용)
+      const fullLineOwner = line.owner;
+      const fullLineColor = fullLineOwner
+        ? getColorForPlayer(fullLineOwner)
+        : null;
 
                 const lineLabel =
-                  idx < size
-                    ? `가로 ${idx + 1}`
-                    : idx < size * 2
-                    ? `세로 ${idx - (size - 1)}`
-                    : idx === size * 2
-                    ? "대각 ↘"
-                    : "대각 ↙";
+        idx < size
+          ? `가로 ${idx + 1}`
+          : idx < size * 2
+          ? `세로 ${idx - (size - 1)}`
+          : idx === size * 2
+          ? "대각 ↘"
+          : "대각 ↙";
 
-                return (
-                  <div key={idx} className="hunter-line-mini">
-                    <div className="hunter-line-mini-header">
-                      <span className="hunter-line-mini-label">
-                        {lineLabel}
-                      </span>
-                      <span
-                        className={
-                          "hunter-line-mini-owner" +
-                          (ownerName
-                            ? ""
-                            : " hunter-line-mini-owner--empty")
-                        }
-                        style={
-                          ownerName && color
-                            ? { backgroundColor: color, color: "#fff" }
-                            : {}
-                        }
-                      >
-                        {ownerName || "미점령"}
-                      </span>
-                    </div>
+      return (
+        <div key={idx} className="hunter-line-mini">
+          <div className="hunter-line-mini-header">
+            <span className="hunter-line-mini-label">
+              {lineLabel}
+            </span>
+            <span
+              className={
+                "hunter-line-mini-owner" +
+                (fullLineOwner
+                  ? ""
+                  : " hunter-line-mini-owner--empty")
+              }
+              style={
+                fullLineOwner && fullLineColor
+                  ? {
+                      backgroundColor: fullLineColor,
+                      color: "#fff",
+                    }
+                  : {}
+              }
+            >
+              {fullLineOwner || "미점령"}
+            </span>
+          </div>
 
-                    <div className="hunter-line-mini-strip">
-                      {Array.from({ length: size }).map((_, i) => (
-                        <div
-                          key={i}
-                          className="hunter-line-mini-cell"
-                          style={
-                            ownerName && color
-                              ? { backgroundColor: color }
-                              : {}
-                          }
-                        />
-                      ))}
-                    </div>
+                   <div className="hunter-line-mini-strip">
+            {cellsForThisLine.map((cell, i) => {
+              const ownerName = cell?.owner || null;
+              const color = ownerName
+                ? getColorForPlayer(ownerName)
+                : null;
+
+              return (
+                <div
+                  key={i}
+                  className="hunter-line-mini-cell"
+                  style={
+                    ownerName && color
+                      ? { backgroundColor: color }
+                      : {}
+                  }
+                />
+              );
+            })}
+          </div>
                   </div>
                 );
               })}
@@ -550,9 +947,7 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                       className="hunter-log-item"
                       style={
                         color
-                          ? {
-                              borderLeft: `4px solid ${color}`,
-                            }
+                          ? { borderLeft: `4px solid ${color}` }
                           : {}
                       }
                     >
@@ -561,7 +956,9 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                       </span>
                       <span className="hunter-log-text">
                         [{log.actor}] 님이{" "}
-                        {log.prevOwner ? `${log.prevOwner} 님에게서 ` : ""}
+                        {log.prevOwner
+                          ? `${log.prevOwner} 님에게서 `
+                          : ""}
                         {log.sigName} ({log.sigCount}점) 칸을
                         {log.prevOwner
                           ? " 뺏었습니다."
@@ -572,6 +969,68 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                 })}
             </div>
           </section>
+
+          {/* 전체 인원 입력 모달 */}
+          {isAllPlayersModalOpen && (
+            <div
+              className="hunter-modal-backdrop"
+              onClick={closeAllPlayersModal}
+            >
+              <div
+                className="hunter-modal-container"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <header className="hunter-modal-header">
+                  <h2 className="hunter-modal-title">
+                    전체 인원 입력 ({MODE_LABELS[mode]} / {group})
+                  </h2>
+                  <button
+                    type="button"
+                    className="hunter-modal-close"
+                    onClick={closeAllPlayersModal}
+                  >
+                    ✕
+                  </button>
+                </header>
+
+                <p className="hunter-modal-description">
+                  한 줄에 한 명씩 입력해 주세요.
+                  <br />
+                  저장 시 미참여자 · 정산 문구에 바로 반영됩니다.
+                </p>
+
+                <textarea
+                  className="hunter-modal-textarea"
+                  rows={14}
+                  value={allPlayersInput}
+                  onChange={(e) => setAllPlayersInput(e.target.value)}
+                  placeholder={"예)\n지안\n홍길동\n김코딩"}
+                />
+
+                <div className="hunter-modal-footer">
+                  <button
+                    type="button"
+                    className="hunter-modal-btn hunter-modal-btn-secondary"
+                    onClick={closeAllPlayersModal}
+                    disabled={playersSaving}
+                  >
+                    취소
+                  </button>
+                  <button
+                    type="button"
+                    className="hunter-modal-btn hunter-modal-btn-primary"
+                    onClick={async () => {
+                      await handleSaveAllPlayers();
+                      closeAllPlayersModal();
+                    }}
+                    disabled={playersSaving}
+                  >
+                    {playersSaving ? "저장 중..." : "전체 인원 저장"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </aside>
       </div>
     </div>
