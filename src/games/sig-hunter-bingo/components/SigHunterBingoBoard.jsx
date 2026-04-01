@@ -77,6 +77,34 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
     return counts;
   }, [cells]);
 
+  // 🔹 플레이어별 참여 횟수 집계 (현재 판 기준)
+  const playerParticipationCounts = useMemo(() => {
+    const counts = {};
+    logs.forEach((log) => {
+      if (!log.actor) return;
+      if (!counts[log.actor]) counts[log.actor] = 0;
+      counts[log.actor] += 1;
+    });
+    return counts;
+  }, [logs]);
+
+  // 🔹 MVP 후보 계산 (참여 횟수 최다 플레이어)
+  const mvpCandidate = useMemo(() => {
+    const entries = Object.entries(playerParticipationCounts);
+    if (entries.length === 0) return null;
+    const [topPlayer, topCount] = entries.sort((a, b) => b[1] - a[1])[0];
+    return { player: topPlayer, count: topCount };
+  }, [playerParticipationCounts]);
+
+  // 🔹 이번 판 참여자 목록 (BJ 이름 리스트)
+  const participants = useMemo(() => {
+    const set = new Set();
+    logs.forEach((log) => {
+      if (log.actor) set.add(log.actor);
+    });
+    return Array.from(set).sort();
+  }, [logs]);
+
   // 🔹 번호(1~N)로 칸 찾아서 현재 플레이어로 클릭 처리
   const flipCellByNumber = (noStr) => {
     const n = Number(noStr);
@@ -337,7 +365,7 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
             </div>
           </div>
 
-          {/* 플레이어별 점령 칸 수 */}
+          {/* 플레이어별 점령 칸 수 + 참여 횟수 + MVP 후보 표시 */}
           <div className="hunter-player-territory-summary">
             <h4 className="hunter-player-territory-title">
               플레이어 점령 현황
@@ -354,6 +382,10 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                   .map(([player, count], index) => {
                     const color = getColorForPlayer(player);
                     const rank = index + 1;
+                    const participation =
+                      playerParticipationCounts[player] || 0;
+                    const isMvp =
+                      mvpCandidate && mvpCandidate.player === player;
 
                     return (
                       <li
@@ -371,14 +403,63 @@ export default function SigHunterBingoBoard({ boardId = "hunter1" }) {
                         />
                         <span className="hunter-player-territory-name">
                           {player}
+                          {isMvp && (
+                            <span className="hunter-player-mvp-badge">
+                              MVP 후보
+                            </span>
+                          )}
                         </span>
                         <span className="hunter-player-territory-count">
                           {count}칸
+                        </span>
+                        <span className="hunter-player-participation-count">
+                          ({participation}회 참여)
                         </span>
                       </li>
                     );
                   })}
               </ul>
+            )}
+          </div>
+
+          {/* 이번 판 참여자 리스트 + 복사 버튼 */}
+          <div className="hunter-participants-section">
+            <div className="hunter-participants-header">
+              <h4 className="hunter-participants-title">
+                이번 판 참여자
+              </h4>
+              <button
+                type="button"
+                className="hunter-participants-copy-btn"
+                onClick={() => {
+                  const text = participants.join(", ");
+                  navigator.clipboard
+                    .writeText(text)
+                    .catch((err) =>
+                      console.error("[HUNTER] 참여자 복사 실패:", err)
+                    );
+                }}
+                disabled={participants.length === 0}
+              >
+                참여자 복사
+              </button>
+            </div>
+
+            {participants.length === 0 ? (
+              <div className="hunter-participants-empty">
+                아직 참여한 플레이어가 없습니다.
+              </div>
+            ) : (
+              <div className="hunter-participants-list">
+                {participants.map((p) => (
+                  <span
+                    key={p}
+                    className="hunter-participants-chip"
+                  >
+                    {p}
+                  </span>
+                ))}
+              </div>
             )}
           </div>
 

@@ -610,3 +610,74 @@
 .hunter-cellno-wrapper--filled .hunter-cellno-label {
   display: none;
 }
+
+.hunter-player-mvp-badge {
+  margin-left: 4px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background-color: #f97316;
+  color: #111827;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.hunter-player-participation-count {
+  margin-left: 4px;
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.hunter-participants-section {
+  margin-top: 16px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background-color: #020617;
+  border: 1px solid #1f2937;
+}
+
+.hunter-participants-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.hunter-participants-title {
+  font-size: 13px;
+  color: #e5e7eb;
+  margin: 0;
+}
+
+.hunter-participants-copy-btn {
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid #4b5563;
+  background: #111827;
+  color: #e5e7eb;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.hunter-participants-copy-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.hunter-participants-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.hunter-participants-chip {
+  padding: 2px 6px;
+  border-radius: 999px;
+  background-color: #111827;
+  color: #e5e7eb;
+  font-size: 11px;
+}
+
+.hunter-participants-empty {
+  font-size: 12px;
+  color: #6b7280;
+}
