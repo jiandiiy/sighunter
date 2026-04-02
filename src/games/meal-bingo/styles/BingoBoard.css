@@ -101,7 +101,6 @@
   border: 3px solid #e5e7eb;
   box-shadow: 0 0 18px rgba(15, 23, 42, 0.95);
   background-color: #020617;
-  background-image: radial-gradient(circle at center, #020617, #111827);
   overflow: hidden;
 }
 

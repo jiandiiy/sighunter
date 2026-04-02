@@ -11,9 +11,6 @@ import {
   fetchSigItems,
 } from "../../../shared/api";
 
-// 🔹 Storage에서 게임 리소스를 가져오는 커스텀 훅
-import { useGameResource } from "../../../shared/hooks/useGameResource";
-
 // 🔹 sigGameResources 메타 유틸 (경로는 실제 프로젝트 구조에 맞게 조정)
 import { listSigResourceMeta } from "../../../shared/api/sigGameResourceMeta";
 
@@ -50,6 +47,31 @@ const LINES_3X3 = [
   [2, 4, 6], // 대각선2
 ];
 
+// ==============================
+// 🔧 그룹 경로 보정 유틸
+// ==============================
+const normalizeSigImageUrl = (url) => {
+  if (typeof url !== "string" || !url) return url;
+
+  // 1) 실제 경로 조각: .../group1/...
+  // 2) 인코딩된 조각: ...group1%2F...
+  // 3) 인코딩된 슬래시 포함 케이스들 약식 처리
+  // 목적: group1 -> group01
+
+  let next = url;
+
+  // /group1/ 를 /group01/로
+  next = next.replaceAll("/group1/", "/group01/");
+
+  // group1%2F 를 group01%2F로
+  next = next.replaceAll("group1%2F", "group01%2F");
+
+  // group1%252F 같은 이중인코딩이 있을 수도 있어 방어적으로 한 번 더
+  next = next.replaceAll("group1%252F", "group01%252F");
+
+  return next;
+};
+
 export default function BingoBoard({
   boardId = "default",
   currentBoardNo = "1", // "1" | "2" | "3"
@@ -71,7 +93,7 @@ export default function BingoBoard({
   const cellNumberInputRef = useRef(null);
 
   /* -------------------------------------------------------------------------- */
-  /* 🔧 유틸: 완성된 라인 계산                                                    */
+  /* 🔧 유틸: 완성된 라인 계산                                                 */
   /* -------------------------------------------------------------------------- */
   const calcCompletedLines = (checkedArr) => {
     const done = [];
@@ -80,11 +102,9 @@ export default function BingoBoard({
     });
     return done;
   };
- 
-
 
   /* -------------------------------------------------------------------------- */
-  /* 🔧 Firestore: 관리자가 등록한 식대전 빙고 카드 로드 (슬롯별)                  */
+  /* 🔧 Firestore: 관리자가 등록한 식대전 빙고 카드 로드 (슬롯별)             */
   /* -------------------------------------------------------------------------- */
   const loadSlotPoolsForBoard = useCallback(async (targetMode, boardNo) => {
     try {
@@ -130,7 +150,7 @@ export default function BingoBoard({
   }, []);
 
   /* -------------------------------------------------------------------------- */
-  /* 🔧 히스토리 기반 중복 방지 카드 선택                                          */
+  /* 🔧 히스토리 기반 중복 방지 카드 선택                                    */
   /* -------------------------------------------------------------------------- */
   const pickCardFromPoolWithGuarantee = useCallback(
     (pool, targetMode, cellIndex, history) => {
@@ -177,7 +197,7 @@ export default function BingoBoard({
   );
 
   /* -------------------------------------------------------------------------- */
-  /* 🎲 빙고판 한 장 구성 (랜덤 + Firestore 슬롯별 카드 혼합)                      */
+  /* 🎲 빙고판 한 장 구성 (랜덤 + Firestore 슬롯별 카드 혼합)                 */
   /* -------------------------------------------------------------------------- */
   const buildBoardWithRandomAndFixed = useCallback(
     async (targetMode, boardNo, baseHistory) => {
@@ -263,73 +283,73 @@ export default function BingoBoard({
   );
 
   /* -------------------------------------------------------------------------- */
-/* 🔧 sigGameResources 메타를 불러와서 카드 위에 덮어쓰기                       */
-/* -------------------------------------------------------------------------- */
-const applySigMetaToCards = useCallback(
-  async (baseCards, targetMode, boardNo) => {
-    try {
-      const boardType = toBoardType(boardNo);
-      const program = targetMode; // mode와 program을 1:1로 사용
-      const group = DEFAULT_GROUP; // 우선 group1 고정 (필요 시 props로 확장)
+  /* 🔧 sigGameResources 메타를 불러와서 카드 위에 덮어쓰기                 */
+  /* -------------------------------------------------------------------------- */
+  const applySigMetaToCards = useCallback(
+    async (baseCards, targetMode, boardNo) => {
+      try {
+        const boardType = toBoardType(boardNo);
+        const program = targetMode; // mode와 program을 1:1로 사용
+        const group = DEFAULT_GROUP; // 우선 group1 고정 (필요 시 props로 확장)
 
-      const metas = await listSigResourceMeta({
-        game: "sigbingo",
-        boardType,
-        program,
-        group,
-      });
-
-      if (!Array.isArray(metas) || metas.length === 0) {
-        console.log("[BINGO] sigGameResources 메타 없음, 기본 카드 사용", {
+        const metas = await listSigResourceMeta({
+          game: "sigbingo",
           boardType,
           program,
           group,
         });
+
+        if (!Array.isArray(metas) || metas.length === 0) {
+          console.log("[BINGO] sigGameResources 메타 없음, 기본 카드 사용", {
+            boardType,
+            program,
+            group,
+          });
+          return baseCards;
+        }
+
+        console.log("[BINGO] sigGameResources 메타 로드", {
+          count: metas.length,
+          boardType,
+          program,
+          group,
+        });
+
+        const nextCards = [...baseCards];
+
+        metas.forEach((meta) => {
+          const raw = Number(meta.slotIndex);
+          if (!Number.isFinite(raw)) return;
+          const idx = raw - 1; // 1~9 → 0~8
+          if (idx < 0 || idx >= CELL_COUNT) return;
+
+          // 기존 카드 데이터에 sig 정보 덮어쓰기
+          const prev = baseCards[idx] || {};
+
+          const rawImageUrl = meta.imageUrl || prev.imageUrl;
+          const fixedImageUrl = normalizeSigImageUrl(rawImageUrl);
+
+          nextCards[idx] = {
+            ...prev,
+            imageUrl: fixedImageUrl,
+            title: meta.sigName || prev.title,
+            sigNumber: meta.sigNumber ?? null,
+            sigName: meta.sigName || "",
+            _sigMetaId: meta.id,
+          };
+        });
+
+        return nextCards;
+      } catch (error) {
+        console.error("[BINGO] sig 메타 적용 실패:", error);
         return baseCards;
       }
-
-      console.log("[BINGO] sigGameResources 메타 로드", {
-        count: metas.length,
-        boardType,
-        program,
-        group,
-      });
-
-      const nextCards = [...baseCards];
-
-      metas.forEach((meta) => {
-        const raw = Number(meta.slotIndex);
-        if (!Number.isFinite(raw)) return;
-        const idx = raw - 1; // 1~9 → 0~8
-        if (idx < 0 || idx >= CELL_COUNT) return;
-
-        // 기존 카드 데이터에 sig 정보 덮어쓰기
-        const prev = baseCards[idx] || {};
-        nextCards[idx] = {
-          ...prev,
-          // Storage에 있는 시그 전용 이미지가 있다면 그걸 최우선으로 사용
-          imageUrl: meta.imageUrl || prev.imageUrl,
-          // 필요 시 title을 sigName으로 덮어쓸 수도 있음
-          title: meta.sigName || prev.title,
-          // sigNumber, sigName을 카드 객체에 같이 넣어둠 (추후 UI에 쓸 수 있게)
-          sigNumber: meta.sigNumber ?? null,
-          sigName: meta.sigName || "",
-          // 디버깅용으로 메타 id도 살짝 보관
-          _sigMetaId: meta.id,
-        };
-      });
-
-      return nextCards;
-    } catch (error) {
-      console.error("[BINGO] sig 메타 적용 실패:", error);
-      return baseCards;
-    }
-  },
-  []
-);
+    },
+    []
+  );
 
   /* -------------------------------------------------------------------------- */
-  /* 🔧 디버그: 랜덤 이미지 API 테스트                                             */
+  /* 🔧 디버그: 랜덤 이미지 API 테스트                                        */
   /* -------------------------------------------------------------------------- */
   useEffect(() => {
     async function debugRandom() {
@@ -352,7 +372,7 @@ const applySigMetaToCards = useCallback(
   }, []);
 
   /* -------------------------------------------------------------------------- */
-  /* 🎬 초기화: Firestore 로드 + 빙고판 구성                                       */
+  /* 🎬 초기화: Firestore 로드 + 빙고판 구성                                 */
   /* -------------------------------------------------------------------------- */
   useEffect(() => {
     async function init() {
@@ -384,39 +404,38 @@ const applySigMetaToCards = useCallback(
           console.log("[BINGO] 새 게임 시작 (Firestore 데이터 없음)");
 
           const initialHistory = remote?.shownHistory || {};
-         const built = await buildBoardWithRandomAndFixed(
-  globalMode,
-  currentBoardNo,
-  initialHistory
-);
+          const built = await buildBoardWithRandomAndFixed(
+            globalMode,
+            currentBoardNo,
+            initialHistory
+          );
 
-const baseCards = built.cards;
-const historyToUse = built.history;
+          const baseCards = built.cards;
+          const historyToUse = built.history;
 
+          const initChecked = Array(CELL_COUNT).fill(false);
+          const newLines = calcCompletedLines(initChecked);
 
-const initChecked = Array(CELL_COUNT).fill(false);
-const newLines = calcCompletedLines(initChecked);
+          // 🔥 sig 메타 적용
+          const cardsWithMeta = await applySigMetaToCards(
+            baseCards,
+            globalMode,
+            currentBoardNo
+          );
 
-// 🔥 sig 메타 적용
-const cardsWithMeta = await applySigMetaToCards(
-  baseCards,
-   globalMode,
-  currentBoardNo
-);
+          setMode(globalMode);
+          setCards(cardsWithMeta);
+          setChecked(initChecked);
+          setCompletedLines(newLines);
+          setShownHistory(historyToUse);
 
-setMode(globalMode);
-setCards(cardsWithMeta);
-setChecked(initChecked);
-setCompletedLines(newLines);
-setShownHistory(historyToUse);
-
-saveMealBingoState(boardId, {
-  mode: globalMode,
-  cards: cardsWithMeta,
-  checked: initChecked,
-  completedLines: newLines,
-  shownHistory: historyToUse,
-}).catch((e) => console.error("[BINGO] 저장 실패:", e));
+          saveMealBingoState(boardId, {
+            mode: globalMode,
+            cards: cardsWithMeta,
+            checked: initChecked,
+            completedLines: newLines,
+            shownHistory: historyToUse,
+          }).catch((e) => console.error("[BINGO] 저장 실패:", e));
         }
 
         setLoading(false);
@@ -427,10 +446,15 @@ saveMealBingoState(boardId, {
     }
 
     init();
-  }, [boardId, currentBoardNo, buildBoardWithRandomAndFixed, applySigMetaToCards]);
+  }, [
+    boardId,
+    currentBoardNo,
+    buildBoardWithRandomAndFixed,
+    applySigMetaToCards,
+  ]);
 
   /* -------------------------------------------------------------------------- */
-  /* 🔧 Alt+Shift+F 단축키로 칸 번호 입력창으로 포커스 이동                        */
+  /* 🔧 Alt+Shift+F 단축키로 칸 번호 입력창으로 포커스 이동                 */
   /* -------------------------------------------------------------------------- */
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -462,7 +486,7 @@ saveMealBingoState(boardId, {
   };
 
   /* -------------------------------------------------------------------------- */
-  /* 🔧 완성된 라인에 포함된 칸인지 확인                                            */
+  /* 🔧 완성된 라인에 포함된 칸인지 확인                                     */
   /* -------------------------------------------------------------------------- */
   const isCellInCompletedLine = (cellIndex) =>
     LINES_3X3.some(
@@ -471,7 +495,7 @@ saveMealBingoState(boardId, {
     );
 
   /* -------------------------------------------------------------------------- */
-  /* 🎯 칸 클릭 핸들러 (체크/해제 + 라인 완성 시 스페셜 카드 교체)                   */
+  /* 🎯 칸 클릭 핸들러 (체크/해제 + 라인 완성 시 스페셜 카드 교체)           */
   /* -------------------------------------------------------------------------- */
   const handleToggleCell = async (idx) => {
     try {
@@ -511,7 +535,7 @@ saveMealBingoState(boardId, {
   };
 
   /* -------------------------------------------------------------------------- */
-  /* 🔹 번호(1~9)로 칸 찾아서 토글                                               */
+  /* 🔹 번호(1~9)로 칸 찾아서 토글                                           */
   /* -------------------------------------------------------------------------- */
   const flipCellByNumber = (noStr) => {
     const n = Number(noStr);
@@ -523,7 +547,7 @@ saveMealBingoState(boardId, {
   };
 
   /* -------------------------------------------------------------------------- */
-  /* 🔄 모드 변경 핸들러                                                          */
+  /* 🔄 모드 변경 핸들러                                                      */
   /* -------------------------------------------------------------------------- */
   const handleChangeMode = async (nextMode) => {
     if (mode === nextMode) return;
@@ -547,11 +571,11 @@ saveMealBingoState(boardId, {
       const newLines = calcCompletedLines(initChecked);
 
       // 🔥 sig 메타 적용
-const cardsWithMeta = await applySigMetaToCards(
-  baseCards,
-  nextMode,
-  currentBoardNo
-);
+      const cardsWithMeta = await applySigMetaToCards(
+        baseCards,
+        nextMode,
+        currentBoardNo
+      );
 
       setMode(nextMode);
       setCards(cardsWithMeta);
@@ -574,7 +598,7 @@ const cardsWithMeta = await applySigMetaToCards(
   };
 
   /* -------------------------------------------------------------------------- */
-  /* 🔄 보드 초기화 핸들러 (히스토리 완전 리셋)                                     */
+  /* 🔄 보드 초기화 핸들러 (히스토리 완전 리셋)                             */
   /* -------------------------------------------------------------------------- */
   const handleResetBoard = async () => {
     try {
@@ -593,12 +617,12 @@ const cardsWithMeta = await applySigMetaToCards(
       const initChecked = Array(CELL_COUNT).fill(false);
       const newLines = calcCompletedLines(initChecked);
 
-    // 🔥 sig 메타 적용
-const cardsWithMeta = await applySigMetaToCards(
-  baseCards,
-  mode,
-  currentBoardNo
-);
+      // 🔥 sig 메타 적용
+      const cardsWithMeta = await applySigMetaToCards(
+        baseCards,
+        mode,
+        currentBoardNo
+      );
 
       setCards(cardsWithMeta);
       setChecked(initChecked);
@@ -620,18 +644,8 @@ const cardsWithMeta = await applySigMetaToCards(
   };
 
   /* -------------------------------------------------------------------------- */
-  /* 🎨 Storage 배경 이미지 로딩 (식대전 빙고 전용)                                 */
-  /* -------------------------------------------------------------------------- */
-  // 직원이 /admin 리소스 페이지에서
-  //   - 카테고리: sigbingo
-  //   - 파일명: board-bg.png
-  // 로 업로드하면, 그 이미지를 배경으로 사용
-  const { url: bgUrl } = useGameResource("sigbingo", "board-bg.png");
-
-  /* -------------------------------------------------------------------------- */
   /* 🎨 렌더링                                                                   */
   /* -------------------------------------------------------------------------- */
-
   console.log("[BINGO] 렌더링", {
     mode,
     boardNo: currentBoardNo,
@@ -657,9 +671,7 @@ const cardsWithMeta = await applySigMetaToCards(
             {MODES.map((m) => (
               <button
                 key={m}
-                className={
-                  "bingo-tab" + (mode === m ? " bingo-tab--active" : "")
-                }
+                className={"bingo-tab" + (mode === m ? " bingo-tab--active" : "")}
                 onClick={() => handleChangeMode(m)}
               >
                 {MODE_LABELS[m]}
@@ -778,15 +790,8 @@ const cardsWithMeta = await applySigMetaToCards(
         <h2 className="bingo-title-text">🍽️ 식사대전 빙고 🍽️</h2>
       </header>
 
-      {/* 빙고 그리드 (3x3) + 배경 이미지 적용 */}
-      <div
-        className="bingo-grid"
-        style={{
-          backgroundImage: bgUrl ? `url(${bgUrl})` : undefined,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
+      {/* 빙고 그리드 */}
+      <div className="bingo-grid">
         {cards.slice(0, CELL_COUNT).map((card, idx) => {
           const inCompletedLine = isCellInCompletedLine(idx);
 
@@ -811,20 +816,21 @@ const cardsWithMeta = await applySigMetaToCards(
                         console.error(
                           `[BINGO] 이미지 로드 실패: ${card.imageUrl}`
                         );
-                        e.target.style.display = "none";
+                        e.currentTarget.style.display = "none";
                       }}
                     />
                   )}
 
                   {/* 칸 번호 (1~9) */}
                   <span className="bingo-cell-number">{idx + 1}</span>
-                   {/* 🔹 시그 이름/번호(있다면) 간단 표시 */}
-  {card?.sigName && (
-    <span className="bingo-cell-signame">
-      {card.sigNumber ? `#${card.sigNumber} ` : ""}
-      {card.sigName}
-    </span>
-  )}
+
+                  {/* 🔹 시그 이름/번호(있다면) 간단 표시 */}
+                  {card?.sigName && (
+                    <span className="bingo-cell-signame">
+                      {card.sigNumber ? `#${card.sigNumber} ` : ""}
+                      {card.sigName}
+                    </span>
+                  )}
                 </div>
 
                 {/* 뒷면: 체크 표시 (O) */}

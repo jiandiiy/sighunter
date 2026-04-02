@@ -118,7 +118,7 @@ export async function getGameResourceUrl(category, filename) {
 /**
  * 프로그램/그룹별 이미지 목록 조회
  * @param {string} program - 'queendom' | 'muse' | 'holic'
- * @param {string} group   - 'group1' ~ 'group12'
+ * @param {string} group   - 'group01' ~ 'group12'
  *
  * 예: (queendom, group1)
  *  → images/queendom/group1/ 이하 모든 파일

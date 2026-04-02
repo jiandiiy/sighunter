@@ -44,7 +44,7 @@ export async function listSigResourceMeta(filters = {}) {
  *   game,           // 'sigbingo' | 'sighunter' | 'sigtag'
  *   boardType,      // 'board1' | 'board2' | 'board3' | '5x5' | '3x3' | null
  *   program,        // 'queendom' | 'muse' | 'holic'
- *   group,          // 'group1' ~ 'group12'
+ *   group,          // 'group01' ~ 'group12'
  *   slotIndex,      // number (칸 번호)
  *   sigNumber?,     // number | null (시그 숫자)
  *   sigName?,       // string (시그 이름)
