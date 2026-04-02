@@ -649,7 +649,7 @@
 }
 
 .hunter-participants-title {
-  font-size: 13px;
+  font-size: 18px;
   margin: 0;
 }
 
@@ -659,7 +659,7 @@
   border: 1px solid #4b5563;
   background: #111827;
   color: #f9fafb;
-  font-size: 11px;
+  font-size: 14px;
   cursor: pointer;
 }
 
@@ -679,11 +679,11 @@
   border-radius: 999px;
   background-color: #f3f4f6;
   color: #111827;
-  font-size: 11px;
+  font-size: 18px;
 }
 
 .hunter-participants-empty {
-  font-size: 12px;
+  font-size: 14px;
   color: #6b7280;
 }
 
@@ -692,7 +692,7 @@
   display: inline-flex;
   padding: 4px 8px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 16px;
 }
 .hunter-status-pill--ready {
   background: #eef;
@@ -724,7 +724,7 @@
 }
 
 .hunter-summary-main strong {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -759,14 +759,14 @@
 .hunter-lines-ownership-title,
 .hunter-log-title {
   margin: 0 0 6px;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
   color: #111827;
 }
 
 .hunter-panel-description {
   margin: 0 0 8px;
-  font-size: 12px;
+  font-size: 18px;
   color: #4b5563;
 }
 
@@ -775,7 +775,7 @@
   padding: 5px 10px;
   border-radius: 6px;
   border: none;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   line-height: 1.2;
@@ -798,21 +798,24 @@
   border-radius: 6px;
   padding: 6px 8px;
   border: 1px solid #e5e7eb;
-  font-size: 12px;
+  font-size: 16px;
   white-space: pre-wrap;
 }
 
 /* 미참여자 리스트 */
 .hunter-nonparticipants-list {
   background: transparent;
+  display: flex;
+  flex-wrap: wrap;   /* 길면 다음 줄로 자동 줄바꿈 */
+  gap: 4px;          /* 칩 사이 간격 */
 }
 
 .hunter-nonparticipant-item {
-  background: #f3f4f6;
-  color: #111827;
+   background: #f3f4f6 !important;
+  color: #111827 !important;
   padding: 2px 6px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: 18px;
 }
 
 /* ===== 모달 ===== */
@@ -1019,4 +1022,16 @@
   background: #9ca3af;        /* 비활성회색 */
   color: #f9fafb !important;
   cursor: not-allowed;
+}
+
+/* 점수 정산용: 제목 + 버튼을 한 줄 상단 정렬 */
+.hunter-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.hunter-panel-header .hunter-panel-title {
+  margin: 0;
 }

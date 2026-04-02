@@ -528,7 +528,7 @@ export function useSigHunterBingoState(boardId = "hunter1", options = {}) {
     }
 
     if (imagePath.startsWith("/images/")) {
-      return imagePath;
+       return toStorageUrl(imagePath);
     }
 
     return toStorageUrl(imagePath);

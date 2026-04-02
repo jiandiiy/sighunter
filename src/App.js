@@ -19,8 +19,7 @@ const BoardGame = lazy(() => import("./games/board-game"));
 const BigWheel = lazy(() => import("./games/big-wheel"));
 const HpBattle = lazy(() => import("./games/hp-battle"));
 const SigHunterBingoBoard = lazy(() => import("./games/sig-hunter-bingo"));
-const BingoBoard = lazy(() => import("./games/meal-bingo"));
-
+ const BingoBoard = lazy(() => import("./games/meal-bingo"));
 // ── lazy 로드: Admin ──────────────────────────────
 const SigImageAdminPage = lazy(() => import("./Admin/SigImageAdminPage"));
 const SigHunterBoardControl = lazy(() => import("./Admin/SigHunterBoardControl"));
@@ -28,8 +27,16 @@ const SigHunterFlipControl = lazy(() => import("./Admin/SigHunterFlipControl"));
 const AdminHub = lazy(() => import("./Admin/AdminHub"));
 
 // ── lazy 로드: OBS 뷰어 ────────────────────────────
-const ObsModule = lazy(() => import("./obs"));
-// ObsModule 안에서 { SigHunterBingoView, BingoView, SigHunterFlipView } export 중
+// ./obs/index.js 에서 named export 로 나오는 걸 각각 lazy 로 래핑
+const SigHunterBingoObsView = lazy(() =>
+  import("./obs").then((mod) => ({ default: mod.SigHunterBingoView }))
+);
+const BingoObsView = lazy(() =>
+  import("./obs").then((mod) => ({ default: mod.BingoView }))
+);
+const SigHunterFlipObsView = lazy(() =>
+  import("./obs").then((mod) => ({ default: mod.SigHunterFlipView }))
+);
 
 
 // ───────────────────────────────────────────────────
@@ -121,30 +128,30 @@ export default function App() {
           <Route path="/hp-overlay" element={<HpOverlay battleId="sig-hp" />} />
 
           {/* ObsModule 안의 named export 사용 */}
-          <Route
-            path="/obs/sig-hunter-bingo/:boardId"
-            element={
-              <Suspense fallback={<PageFallback />}>
-                <ObsModule.SigHunterBingoView />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/obs/bingo/:boardId"
-            element={
-              <Suspense fallback={<PageFallback />}>
-                <ObsModule.BingoView />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/obs/sig-hunter-flip/:boardId"
-            element={
-              <Suspense fallback={<PageFallback />}>
-                <ObsModule.SigHunterFlipView />
-              </Suspense>
-            }
-          />
+         <Route
+   path="/obs/sig-hunter-bingo/:boardId"
+   element={
+     <Suspense fallback={<PageFallback />}>
+       <SigHunterBingoObsView />
+     </Suspense>
+   }
+ />
+ <Route
+   path="/obs/bingo/:boardId"
+   element={
+     <Suspense fallback={<PageFallback />}>
+       <BingoObsView />
+     </Suspense>
+   }
+ />
+ <Route
+   path="/obs/sig-hunter-flip/:boardId"
+   element={
+     <Suspense fallback={<PageFallback />}>
+       <SigHunterFlipObsView />
+     </Suspense>
+   }
+ />
         </Routes>
       </Suspense>
     </Router>

@@ -29,7 +29,11 @@ export default function SigHunterBingoBoard({
   group = "group1",
 }) {
   // 🔹 전체 인원 Firestore + 로컬 상태
-  const [allPlayers, setAllPlayers] = useState([]);
+  const [allPlayersByMode, setAllPlayersByMode] = useState({
+    muse: [],
+    queendom: [],
+    holic: [],
+  });
   const [allPlayersInput, setAllPlayersInput] = useState("");
   const [playersSaving, setPlayersSaving] = useState(false);
   const [playersLoading, setPlayersLoading] = useState(true);
@@ -39,16 +43,27 @@ export default function SigHunterBingoBoard({
   const openAllPlayersModal = () => setIsAllPlayersModalOpen(true);
   const closeAllPlayersModal = () => setIsAllPlayersModalOpen(false);
 
-  useEffect(() => {
+   useEffect(() => {
     let alive = true;
 
-    async function load() {
+    async function loadAllModes() {
       setPlayersLoading(true);
       try {
-        const list = await loadSigHunterPlayers(program, group);
+        const modes = ["muse", "queendom", "holic"];
+        const results = {};
+
+        for (const m of modes) {
+          // 🔹 program 대신 mode 기준으로 저장/로드한다고 가정
+          const list = await loadSigHunterPlayers(m, group);
+          results[m] = list || [];
+        }
+
         if (!alive) return;
-        setAllPlayers(list);
-        setAllPlayersInput(list.join("\n"));
+
+        setAllPlayersByMode(results);
+        // 최초 로드는 기본 program(예: "muse") 기준으로 초기화
+        const initialList = results[program] || [];
+    setAllPlayersInput(initialList.join("\n"));
       } catch (e) {
         console.error("[HUNTER] loadSigHunterPlayers failed", e);
       } finally {
@@ -57,11 +72,14 @@ export default function SigHunterBingoBoard({
       }
     }
 
-    load();
+    loadAllModes();
     return () => {
       alive = false;
     };
-  }, [program, group]);
+      // group이 바뀌면 다시 로드
+  }, [group, program]);
+
+  const initialProgram = program;
 
   const {
     loading,
@@ -85,16 +103,21 @@ export default function SigHunterBingoBoard({
     status,
     participants,
     mvpCandidate,
-    nonParticipants,
     safeHandleClickCell,
     startNextRound,
     handleBoardAutoComplete,
     lines,
   } = useSigHunterBingoState(boardId, {
-    allPlayers,
-    program,
+    allPlayers: allPlayersByMode[initialProgram] || [],
+  program: initialProgram, // 🔹 훅/백엔드가 기대하는 키에 맞게 조정
     group,
   });
+
+  // 모드 바뀔 때 textarea 내용 갱신
+  useEffect(() => {
+    const listForMode = allPlayersByMode[mode] || [];
+    setAllPlayersInput(listForMode.join("\n"));
+  }, [mode, allPlayersByMode]);
 
   const [currentPlayer, setCurrentPlayer] = useState("");
   const [targetCellNo, setTargetCellNo] = useState("");
@@ -160,21 +183,33 @@ export default function SigHunterBingoBoard({
     return { player: topPlayer, count: topCount };
   }, [mvpCandidate, playerParticipationCounts]);
 
-  const localParticipants = useMemo(() => {
-    if (participants && participants.length > 0) return participants;
-    const set = new Set();
-    logs.forEach((log) => {
-      if (log.actor) set.add((log.actor || "").trim());
-    });
-    return Array.from(set).filter(Boolean).sort();
-  }, [participants, logs]);
+ // 현재 라운드 참여자: 우선 participants 상태, 없으면 logs에서 actor 수집
+const localParticipants = useMemo(() => {
+  if (participants && participants.length > 0) return participants;
 
-  const localNonParticipants = useMemo(() => {
-    if (Array.isArray(nonParticipants)) return nonParticipants;
-    if (!allPlayers || allPlayers.length === 0) return [];
-    const pSet = new Set(localParticipants);
-    return allPlayers.filter((name) => !pSet.has(name));
-  }, [nonParticipants, allPlayers, localParticipants]);
+  const set = new Set();
+  logs.forEach((log) => {
+    const name = (log.actor || "").trim();
+    if (name) set.add(name);
+  });
+
+  return Array.from(set).sort();
+}, [participants, logs]);
+
+ // 현재 라운드 미참여자: 전체 인원 - localParticipants
+const localNonParticipants = useMemo(() => {
+  const listForMode = allPlayersByMode[mode] || [];
+  if (!listForMode || listForMode.length === 0) return [];
+
+  const pSet = new Set(
+    (localParticipants || []).map((name) => (name || "").trim())
+  );
+
+  return listForMode
+    .map((name) => (name || "").trim())
+    .filter(Boolean)
+    .filter((name) => !pSet.has(name));
+}, [allPlayersByMode, mode, localParticipants]);
 
   const flipCellByNumber = (noStr) => {
     const n = Number(noStr);
@@ -204,26 +239,30 @@ export default function SigHunterBingoBoard({
     checkComplete();
   }, [handleBoardAutoComplete]);
 
-  const settlementText = useMemo(() => {
-    const participantText =
-      (localParticipants && localParticipants.length > 0
-        ? "참여자: " + localParticipants.join(", ")
-        : "참여자: 없음") + "\n";
+ const settlementText = useMemo(() => {
+  const mvp = localMvpCandidate;
 
-    const mvp = localMvpCandidate;
-    const mvpText = mvp
-      ? "MVP 후보: " + mvp.player + " (" + mvp.count + "회 참여)\n"
-      : "MVP 후보: 없음\n";
+  // 1. MVP
+  const mvpText =
+    mvp ? "MVP: " + mvp.player + " (" + mvp.count + "칸 점령)\n"
+        : "MVP: 없음\n";
 
-    const nonPartText =
-      localNonParticipants && localNonParticipants.length > 0
-        ? "미참여자: " +
-          localNonParticipants.join(", ") +
-          " (−2,000점 예정)"
-        : "미참여자: 없음";
+  // 2. 참여자
+  const participantText =
+    (localParticipants && localParticipants.length > 0
+      ? "참여자: " + localParticipants.join(", ")
+      : "참여자: 없음") + "\n";
 
-    return participantText + mvpText + nonPartText;
-  }, [localParticipants, localMvpCandidate, localNonParticipants]);
+  // 3. 미참여자
+  const nonPartText =
+    localNonParticipants && localNonParticipants.length > 0
+      ? "미참여자: " +
+        localNonParticipants.join(", ") +
+        " (−2,000점 예정)"
+      : "미참여자: 없음";
+
+  return mvpText + participantText + nonPartText;
+}, [localParticipants, localMvpCandidate, localNonParticipants]);
 
   const handleCopySettlementText = () => {
     navigator.clipboard
@@ -294,6 +333,7 @@ export default function SigHunterBingoBoard({
     return classes.join(" ");
   };
 
+
   const parseAllPlayersInput = (value) => {
     return value
       .split(/\r?\n/)
@@ -301,12 +341,19 @@ export default function SigHunterBingoBoard({
       .filter(Boolean);
   };
 
+// 저장도 현재 mode 기준
   const handleSaveAllPlayers = async () => {
     setPlayersSaving(true);
     try {
       const parsed = parseAllPlayersInput(allPlayersInput);
-      const saved = await saveSigHunterPlayers(program, group, parsed);
-      setAllPlayers(saved);
+      // 🔹 현재 모드 기준으로 저장
+      const saved = await saveSigHunterPlayers(mode, group, parsed);
+
+      // 🔹 모드별 상태 갱신
+      setAllPlayersByMode((prev) => ({
+        ...prev,
+        [mode]: saved,
+      }));
     } catch (e) {
       console.error("[HUNTER] saveSigHunterPlayers failed", e);
       alert("전체 인원 저장에 실패했습니다. 콘솔 로그를 확인해주세요.");
@@ -475,6 +522,7 @@ export default function SigHunterBingoBoard({
           >
             {cells.slice(0, cellCount).map((cell) => {
               const currentImage = getCurrentImage(cell);
+ 
               const currentCount = getCurrentCount(cell);
 
               const ownerColor = cell.owner
@@ -483,8 +531,7 @@ export default function SigHunterBingoBoard({
 
               const cellStyle = ownerColor
                 ? {
-                    borderColor: ownerColor,
-                    boxShadow: `0 0 0 2px ${ownerColor}55`,
+                    borderColor: ownerColor,                    
                   }
                 : {};
 
@@ -665,7 +712,7 @@ export default function SigHunterBingoBoard({
                     color: "#9ca3af",
                   }}
                 >
-                  현재 인원 수: {allPlayers.length}명
+                  현재 인원 수: {(allPlayersByMode[mode] || []).length}명
                 </div>
               </>
             )}
@@ -828,20 +875,23 @@ export default function SigHunterBingoBoard({
               )}
           </section>
 
-          {/* 정산용 */}
-          <section className="hunter-panel-section">
-            <h4 className="hunter-panel-title">점수 정산용</h4>
-            <button
-              type="button"
-              className="hunter-btn-sm hunter-btn-primary"
-              onClick={handleCopySettlementText}
-            >
-              정산 문구 복사
-            </button>
-            <pre className="hunter-settlement-preview">
-              {settlementText}
-            </pre>
-          </section>
+       {/* 결과용 */}
+<section className="hunter-panel-section">
+  <div className="hunter-panel-header">
+    <h4 className="hunter-panel-title">이번 판 결과</h4>
+    <button
+      type="button"
+      className="hunter-btn-sm hunter-btn-primary"
+      onClick={handleCopySettlementText}
+    >
+      결과 복사
+    </button>
+  </div>
+
+  <pre className="hunter-settlement-preview">
+    {settlementText}
+  </pre>
+</section>
 
           {/* 줄 소유권 미니맵 */}
           <div className="hunter-lines-ownership">
