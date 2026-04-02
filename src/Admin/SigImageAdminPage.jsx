@@ -19,18 +19,19 @@ import {
 // 상수 정의
 // ─────────────────────────────────────────────
 const GAME_TYPES = [
-  { value: "meal-bingo",      label: "식대전 빙고" },
+  { value: "meal-bingo", label: "식대전 빙고" },
   { value: "sighunter-bingo", label: "시그땅따먹기(보드형)" },
-  { value: "sighunter",       label: "시그헌터 (카드)" },
+  { value: "sighunter", label: "시그헌터 (카드)" },
 ];
 
 const MODES = [
-  { value: "muse",     label: "뮤즈" },
+  { value: "muse", label: "뮤즈" },
   { value: "queendom", label: "퀸덤" },
+  { value: "holic", label: "홀릭" },
 ];
 
 const RARITIES = [
-  { value: "normal",  label: "일반 카드" },
+  { value: "normal", label: "일반 카드" },
   { value: "special", label: "스페셜 카드" },
 ];
 
@@ -40,15 +41,15 @@ const MEAL_BINGO_BOARDS = [
   { value: "3", label: "3판" },
 ];
 
-const GROUPS = Array.from({ length: 12 }).map((_, i) => ({
-  value: `group${i + 1}`,
-  label: `group${i + 1}`,
-}));
+const GROUPS = Array.from({ length: 12 }).map((_, i) => {
+  const num = String(i + 1).padStart(2, "0"); // 01~12
+  return { value: `group${num}`, label: `group${num}` };
+});
 
 // gameType(type) → Firestore game 필드
 function toGameKey(type) {
   if (type === "meal-bingo") return "sigbingo";
-  if (type === "sighunter-bingo") return "sigtag";   // 시그땅따먹기
+  if (type === "sighunter-bingo") return "sigtag"; // 시그땅따먹기
   if (type === "sighunter") return "sighunter";
   return null;
 }
@@ -64,6 +65,30 @@ function toBoardType(type, boardIndex) {
   }
   // 시그헌터 카드형은 보드 없음
   return null;
+}
+
+// ─────────────────────────────────────────────
+// storagePath 정규화 헬퍼 (추가됨)
+// ─────────────────────────────────────────────
+function normalizeStoragePath(p) {
+  if (!p) return "";
+  const str = String(p).split("?")[0];
+  
+  const idx = str.indexOf("images/");
+  if (idx >= 0) return str.slice(idx);
+  
+  // prefix 제거 후 최종 정규화
+  let normalized = str
+    .replace(/^sig-hunter\//, "")
+    .replace(/^sighunter\//, "")
+    .replace(/^sigtag\//, "");
+  
+  // 맨 앞이 "images/"가 아니면 붙이기
+  if (!normalized.startsWith("images/")) {
+    normalized = "images/" + normalized;
+  }
+  
+  return normalized;
 }
 
 // ─────────────────────────────────────────────
@@ -125,8 +150,14 @@ function DropZone({ file, previewUrl, onFileChange }) {
       <label style={labelStyle}>이미지 파일</label>
 
       <div
-        onDragEnter={(e) => { e.preventDefault(); setIsDragging(true); }}
-        onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+        onDragEnter={(e) => {
+          e.preventDefault();
+          setIsDragging(true);
+        }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setIsDragging(true);
+        }}
         onDragLeave={() => setIsDragging(false)}
         onDrop={handleDrop}
         onClick={() => inputRef.current?.click()}
@@ -215,9 +246,7 @@ function Toast({ message, error }) {
         zIndex: 9999,
         padding: "12px 20px",
         borderRadius: 12,
-        background: isError
-          ? "rgba(239,68,68,0.15)"
-          : "rgba(34,197,94,0.15)",
+        background: isError ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)",
         border: `1px solid ${isError ? "#ef4444" : "#22c55e"}`,
         color: isError ? "#f97373" : "#4ade80",
         fontSize: 14,
@@ -273,28 +302,28 @@ function ProgressBar({ progress }) {
 // ─────────────────────────────────────────────
 export default function SigResourceAdminPage() {
   // ── 필터/설정 상태 ──
-  const [type,       setType]       = useState("meal-bingo"); // gameType
-  const [mode,       setMode]       = useState("queendom");   // program
-  const [rarity,     setRarity]     = useState("normal");     // UI용
-  const [boardIndex, setBoardIndex] = useState("1");          // 식대전 전용
-  const [group,      setGroup]      = useState("group1");     // group1~group12
+  const [type, setType] = useState("meal-bingo"); // gameType
+  const [mode, setMode] = useState("queendom"); // program
+  const [rarity, setRarity] = useState("normal"); // UI용
+  const [boardIndex, setBoardIndex] = useState("1"); // 식대전 전용
+  const [group, setGroup] = useState("group1"); // group1~group12
 
   const isMealBingo = type === "meal-bingo";
 
   // ── 업로드 폼 상태 ──
-  const [file,       setFile]       = useState(null);
+  const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
 
   // ── UI 상태 ──
-  const [submitting,     setSubmitting]     = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(null);
-  const [message,        setMessage]        = useState("");
-  const [error,          setError]          = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   // ── 리소스 목록/메타 상태 ──
-  const [images,       setImages]       = useState([]);  // Storage 이미지 목록
-  const [metas,        setMetas]        = useState([]);  // gameSigResources 문서 목록
-  const [loadingList,  setLoadingList]  = useState(false);
+  const [images, setImages] = useState([]); // Storage 이미지 목록
+  const [metas, setMetas] = useState([]); // gameSigResources 문서 목록
+  const [loadingList, setLoadingList] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
 
   // 선택된 이미지에 대한 메타 편집 상태
@@ -305,7 +334,7 @@ export default function SigResourceAdminPage() {
     sigName: "",
   });
 
-  const [savingMeta,  setSavingMeta]  = useState(false);
+  const [savingMeta, setSavingMeta] = useState(false);
   const [deletingImg, setDeletingImg] = useState(false);
 
   // ── 메시지/에러 자동 소멸 ──
@@ -362,15 +391,24 @@ export default function SigResourceAdminPage() {
     try {
       // 1) Storage 이미지 목록
       const imgs = await listProgramGroupImages(mode, group);
+console.log("[reloadResources] images length:", imgs?.length);
       setImages(imgs);
 
-      // 2) 메타 목록
-      const metaList = await listSigResourceMeta({
+      // 2) 메타 목록 (여기서 한 번만 가져오고)
+      const metaFilters = {
         game,
         boardType,
         program: mode,
         group,
-      });
+      };
+
+      const metaList = await listSigResourceMeta(metaFilters);
+      console.log(
+        "[reloadResources metas length]:",
+        metaList?.length,
+        "sample:",
+        metaList?.[0]
+      );
       setMetas(metaList);
 
       // 3) 선택된 이미지가 있다면 그에 맞는 메타 반영
@@ -434,12 +472,12 @@ export default function SigResourceAdminPage() {
       // uploaded: { fileName, fullPath, url }
 
       setSelectedImage(uploaded);
-setEditingMeta({
-  id: null,
-  slotIndex: "",
-  sigNumber: "",
-  sigName: "",
-});
+      setEditingMeta({
+        id: null,
+        slotIndex: "",
+        sigNumber: "",
+        sigName: "",
+      });
 
       setMessage("이미지가 업로드되었습니다.");
       setUploadProgress(100);
@@ -507,9 +545,7 @@ setEditingMeta({
       program: mode,
       group,
       slotIndex: Number(editingMeta.slotIndex),
-      sigNumber: editingMeta.sigNumber
-        ? Number(editingMeta.sigNumber)
-        : null,
+      sigNumber: editingMeta.sigNumber ? Number(editingMeta.sigNumber) : null,
       sigName: editingMeta.sigName || "",
       storagePath: selectedImage.fullPath,
       imageUrl: selectedImage.url,
@@ -539,6 +575,7 @@ setEditingMeta({
 
   // ── 메타만 삭제 (이미지는 유지) ──
   const handleDeleteMetaOnly = async () => {
+    console.log("[handleDeleteMetaOnly] editingMeta.id:", editingMeta.id);
     if (!editingMeta.id) return;
     if (
       typeof window !== "undefined" &&
@@ -570,54 +607,133 @@ setEditingMeta({
     }
   };
 
-  // ── 이미지 + 관련 메타 전부 삭제 ──
-  const handleDeleteSelectedImage = async () => {
-    if (!selectedImage) return;
+// ── 이미지 + 관련 메타 전부 삭제 ──
+const handleDeleteSelectedImage = async () => {
+  if (!selectedImage) return;
 
-    if (
-      typeof window !== "undefined" &&
-      !window.confirm(
-        "이 이미지를 삭제하면, 이 이미지를 사용하는 모든 칸 설정도 함께 삭제됩니다. 계속할까요?"
-      )
-    ) {
-      return;
-    }
+// 삭제 직전 추가
+  console.log('[DEBUG-1] selectedImage.fullPath:', selectedImage.fullPath);
+  console.log('[DEBUG-2] metas storagePath list:', 
+    metas.map(m => m.storagePath)
+  );
+  console.log('[DEBUG-3] direct match check:', 
+    metas.some(m => m.storagePath === selectedImage.fullPath)
+  );
+
+
+  if (
+    typeof window !== "undefined" &&
+    !window.confirm(
+      "이 이미지를 삭제하면, 이 이미지를 사용하는 모든 칸 설정도 함께 삭제됩니다. 계속할까요?"
+    )
+  ) {
+    return;
+  }
+
+  console.log("[handleDeleteSelectedImage] START - about to enter try block");
+
+  try {
+    setDeletingImg(true);
+    setError("");
+    setMessage("");
+
+    console.log("[deleteProgramImage] about to delete:", {
+      fullPath: selectedImage.fullPath,
+      normalized: normalizeStoragePath(selectedImage.fullPath),
+    });
+// 현재 선택된 이미지 정보
+console.log('selectedImage:', selectedImage);
+
+// 메타 샘플 (storagePath 확인!)
+console.log('metas[0]:', metas?.[0]);
+
+    // ✅ 삭제 직전 이미지 개수 확인
+    const imgsBefore = await listProgramGroupImages(mode, group);
+    console.log("[before delete] listProgramGroupImages:", {
+      mode,
+      group,
+      length: imgsBefore?.length,
+      fileNames: imgsBefore?.map(img => img.fileName),
+    });
+
+    // Storage 파일 삭제
+    console.log("[checkpoint] before deleteProgramImage call");
 
     try {
-      setDeletingImg(true);
-      setError("");
-      setMessage("");
-
-      // Storage 파일 삭제
       await deleteProgramImage(selectedImage.fullPath);
-
-      // 이 이미지를 사용하는 메타 전부 삭제
-      const relatedMetas = metas.filter(
-        (m) => m.storagePath === selectedImage.fullPath
-      );
-      await Promise.all(
-        relatedMetas.map((m) => deleteSigResourceMeta(m.id))
-      );
-
-      setSelectedImage(null);
-      setEditingMeta({
-        id: null,
-        slotIndex: "",
-        sigNumber: "",
-        sigName: "",
-      });
-
-      setMessage("이미지와 관련 설정이 모두 삭제되었습니다.");
-      await reloadResources();
-    } catch (err) {
-      console.error(err);
-      setError(err.message || "삭제에 실패했습니다.");
-    } finally {
-      setDeletingImg(false);
+      console.log("[after delete] deleteProgramImage resolved");
+    } catch (e) {
+      console.error("[after delete] deleteProgramImage error:", e);
+      return; // 삭제 실패면 여기서 중단
     }
-  };
 
-  // ── 게임 타입 변경 ──
+    console.log("[checkpoint] after deleteProgramImage - b log");
+    console.log("[after delete] deleteProgramImage done.");
+
+    // ✅ 삭제 직후 이미지 개수 확인
+    const imgsAfter = await listProgramGroupImages(mode, group);
+    console.log("[after delete] listProgramGroupImages:", {
+      mode,
+      group,
+      length: imgsAfter?.length,
+      fileNames: imgsAfter?.map(img => img.fileName),
+    });
+
+    console.log("metas state:", {
+      isArray: Array.isArray(metas),
+      length: Array.isArray(metas) ? metas.length : null,
+    });
+    console.log("meta sample:", metas?.[0]);
+
+    const game = toGameKey(type);
+    const boardType = toBoardType(type, boardIndex);
+
+   // ★ 수정: 모든 메타를 삭제 (같은 프로그램/그룹/보드의 모든 메타)
+const relatedMetas = (metas || []).filter(
+  (m) =>
+    m.game === game &&
+    (m.boardType ?? null) === (boardType ?? null) &&
+    m.program === mode &&
+    m.group === group
+);
+
+    console.log("[handleDeleteSelectedImage] relatedMetas:", {
+      selectedImageFullPath: selectedImage?.fullPath,
+      filters: { game, boardType, program: mode, group },
+      metasLength: metas?.length,
+      relatedMetasLength: relatedMetas.length,
+      relatedMetasIds: relatedMetas.map((m) => m.id),
+    });
+
+    // ✅ deleteSigResourceMeta는 1번만 호출 (중복 제거)
+    const uniqueIds = Array.from(new Set(relatedMetas.map((m) => m.id)));
+    await Promise.all(uniqueIds.map((id) => deleteSigResourceMeta(id)));
+
+    console.log("[handleDeleteSelectedImage] deleted ids done:", {
+      deletedCount: uniqueIds.length,
+    });
+
+    setSelectedImage(null);
+    setEditingMeta({
+      id: null,
+      slotIndex: "",
+      sigNumber: "",
+      sigName: "",
+    });
+
+    setMessage("이미지와 관련 설정이 모두 삭제되었습니다.");
+    await reloadResources();
+  } catch (err) {
+    console.error("[handleDeleteSelectedImage] failed:", err);
+    setError(err.message || "삭제에 실패했습니다.");
+  } finally {
+    setDeletingImg(false);
+  }
+};
+
+  // ─────────────────────────────────────────────
+  // 게임 타입 변경 ──
+  // ─────────────────────────────────────────────
   const handleChangeType = (e) => {
     const newType = e.target.value;
     setType(newType);
@@ -675,7 +791,8 @@ setEditingMeta({
                 🛠 시그 리소스 통합 관리
               </h1>
               <p style={{ marginTop: 4, fontSize: 13, color: "#9ca3af" }}>
-                게임 / 보드 / 프로그램 / 그룹 별로 이미지 리소스와 칸·시그 정보를 설정합니다.
+                게임 / 보드 / 프로그램 / 그룹 별로 이미지 리소스와 칸·시그 정보를
+                설정합니다.
               </p>
             </div>
             <div
@@ -699,9 +816,7 @@ setEditingMeta({
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: isMealBingo
-                  ? "repeat(5, minmax(0,1fr))"
-                  : "repeat(4, minmax(0,1fr))",
+                gridTemplateColumns: isMealBingo ? "repeat(5, minmax(0,1fr))" : "repeat(4, minmax(0,1fr))",
                 gap: 12,
                 marginBottom: 16,
               }}
@@ -711,7 +826,9 @@ setEditingMeta({
                 <label style={labelStyle}>게임</label>
                 <select value={type} onChange={handleChangeType} style={inputStyle}>
                   {GAME_TYPES.map((g) => (
-                    <option key={g.value} value={g.value}>{g.label}</option>
+                    <option key={g.value} value={g.value}>
+                      {g.label}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -719,13 +836,11 @@ setEditingMeta({
               {/* 모드 (program) */}
               <div>
                 <label style={labelStyle}>모드</label>
-                <select
-                  value={mode}
-                  onChange={(e) => setMode(e.target.value)}
-                  style={inputStyle}
-                >
+                <select value={mode} onChange={(e) => setMode(e.target.value)} style={inputStyle}>
                   {MODES.map((m) => (
-                    <option key={m.value} value={m.value}>{m.label}</option>
+                    <option key={m.value} value={m.value}>
+                      {m.label}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -733,13 +848,11 @@ setEditingMeta({
               {/* 카드 종류 (UI용) */}
               <div>
                 <label style={labelStyle}>카드 종류</label>
-                <select
-                  value={rarity}
-                  onChange={(e) => setRarity(e.target.value)}
-                  style={inputStyle}
-                >
+                <select value={rarity} onChange={(e) => setRarity(e.target.value)} style={inputStyle}>
                   {RARITIES.map((r) => (
-                    <option key={r.value} value={r.value}>{r.label}</option>
+                    <option key={r.value} value={r.value}>
+                      {r.label}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -748,13 +861,11 @@ setEditingMeta({
               {isMealBingo && (
                 <div>
                   <label style={labelStyle}>빙고판</label>
-                  <select
-                    value={boardIndex}
-                    onChange={(e) => setBoardIndex(e.target.value)}
-                    style={inputStyle}
-                  >
+                  <select value={boardIndex} onChange={(e) => setBoardIndex(e.target.value)} style={inputStyle}>
                     {MEAL_BINGO_BOARDS.map((b) => (
-                      <option key={b.value} value={b.value}>{b.label}</option>
+                      <option key={b.value} value={b.value}>
+                        {b.label}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -763,13 +874,11 @@ setEditingMeta({
               {/* 그룹 */}
               <div>
                 <label style={labelStyle}>그룹</label>
-                <select
-                  value={group}
-                  onChange={(e) => setGroup(e.target.value)}
-                  style={inputStyle}
-                >
+                <select value={group} onChange={(e) => setGroup(e.target.value)} style={inputStyle}>
                   {GROUPS.map((g) => (
-                    <option key={g.value} value={g.value}>{g.label}</option>
+                    <option key={g.value} value={g.value}>
+                      {g.label}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -785,11 +894,7 @@ setEditingMeta({
                 alignItems: "stretch",
               }}
             >
-              <DropZone
-                file={file}
-                previewUrl={previewUrl}
-                onFileChange={handleFileChange}
-              />
+              <DropZone file={file} previewUrl={previewUrl} onFileChange={handleFileChange} />
               <ImagePreview previewUrl={previewUrl} />
             </div>
 
@@ -888,25 +993,11 @@ setEditingMeta({
                 }}
               >
                 {loadingList ? (
-                  <div
-                    style={{
-                      padding: 24,
-                      textAlign: "center",
-                      color: "#9ca3af",
-                      fontSize: 13,
-                    }}
-                  >
+                  <div style={{ padding: 24, textAlign: "center", color: "#9ca3af", fontSize: 13 }}>
                     불러오는 중...
                   </div>
                 ) : images.length === 0 ? (
-                  <div
-                    style={{
-                      padding: 24,
-                      textAlign: "center",
-                      color: "#6b7280",
-                      fontSize: 12,
-                    }}
-                  >
+                  <div style={{ padding: 24, textAlign: "center", color: "#6b7280", fontSize: 12 }}>
                     현재 조건에 업로드된 이미지가 없습니다.
                   </div>
                 ) : (
@@ -918,11 +1009,8 @@ setEditingMeta({
                     }}
                   >
                     {images.map((img) => {
-                      const metaForImg = metas.find(
-                        (m) => m.storagePath === img.fullPath
-                      );
-                      const isSelected =
-                        selectedImage && selectedImage.fullPath === img.fullPath;
+                      const metaForImg = metas.find((m) => m.storagePath === img.fullPath);
+                      const isSelected = selectedImage && selectedImage.fullPath === img.fullPath;
 
                       return (
                         <button
@@ -932,12 +1020,8 @@ setEditingMeta({
                           style={{
                             borderRadius: 10,
                             padding: 6,
-                            border: isSelected
-                              ? "2px solid #22c55e"
-                              : "1px solid rgba(55,65,81,0.9)",
-                            background: isSelected
-                              ? "rgba(34,197,94,0.12)"
-                              : "rgba(15,23,42,0.9)",
+                            border: isSelected ? "2px solid #22c55e" : "1px solid rgba(55,65,81,0.9)",
+                            background: isSelected ? "rgba(34,197,94,0.12)" : "rgba(15,23,42,0.9)",
                             cursor: "pointer",
                             textAlign: "left",
                             display: "flex",
@@ -958,11 +1042,7 @@ setEditingMeta({
                             <img
                               src={img.url}
                               alt={img.fileName}
-                              style={{
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "cover",
-                              }}
+                              style={{ width: "100%", height: "100%", objectFit: "cover" }}
                             />
                           </div>
                           <div
@@ -977,18 +1057,9 @@ setEditingMeta({
                           >
                             {img.fileName}
                           </div>
-                          <div
-                            style={{
-                              fontSize: 10,
-                              color: metaForImg ? "#22c55e" : "#6b7280",
-                            }}
-                          >
+                          <div style={{ fontSize: 10, color: metaForImg ? "#22c55e" : "#6b7280" }}>
                             {metaForImg
-                              ? `칸 ${metaForImg.slotIndex}${
-                                  metaForImg.sigNumber
-                                    ? ` / #${metaForImg.sigNumber}`
-                                    : ""
-                                }`
+                              ? `칸 ${metaForImg.slotIndex}${metaForImg.sigNumber ? ` / #${metaForImg.sigNumber}` : ""}`
                               : "미설정"}
                           </div>
                         </button>
@@ -1108,14 +1179,10 @@ setEditingMeta({
                           min="1"
                           max="25"
                           value={editingMeta.slotIndex}
-                          onChange={(e) =>
-                            handleChangeMetaField("slotIndex", e.target.value)
-                          }
+                          onChange={(e) => handleChangeMetaField("slotIndex", e.target.value)}
                           style={{
                             ...tableInputStyle,
-                            border: editingMeta.slotIndex
-                              ? "1px solid #374151"
-                              : "1px solid #f97373",
+                            border: editingMeta.slotIndex ? "1px solid #374151" : "1px solid #f97373",
                           }}
                           placeholder="예) 1"
                         />
@@ -1125,9 +1192,7 @@ setEditingMeta({
                         <input
                           type="number"
                           value={editingMeta.sigNumber}
-                          onChange={(e) =>
-                            handleChangeMetaField("sigNumber", e.target.value)
-                          }
+                          onChange={(e) => handleChangeMetaField("sigNumber", e.target.value)}
                           style={tableInputStyle}
                           placeholder="예) 101"
                         />
@@ -1137,9 +1202,7 @@ setEditingMeta({
                         <input
                           type="text"
                           value={editingMeta.sigName}
-                          onChange={(e) =>
-                            handleChangeMetaField("sigName", e.target.value)
-                          }
+                          onChange={(e) => handleChangeMetaField("sigName", e.target.value)}
                           style={tableInputStyle}
                           placeholder="예) 홍길동"
                         />
@@ -1156,13 +1219,7 @@ setEditingMeta({
                         flexWrap: "wrap",
                       }}
                     >
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: 8,
-                          flexWrap: "wrap",
-                        }}
-                      >
+                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                         <button
                           type="button"
                           onClick={handleSaveMeta}
@@ -1171,8 +1228,7 @@ setEditingMeta({
                             padding: "6px 14px",
                             borderRadius: 999,
                             border: "none",
-                            background:
-                              "linear-gradient(135deg,#22c55e,#16a34a)",
+                            background: "linear-gradient(135deg,#22c55e,#16a34a)",
                             color: "#022c22",
                             fontSize: 12,
                             fontWeight: 700,
@@ -1195,10 +1251,7 @@ setEditingMeta({
                             color: editingMeta.id ? "#fecaca" : "#4b5563",
                             fontSize: 12,
                             fontWeight: 600,
-                            cursor:
-                              !editingMeta.id || savingMeta
-                                ? "default"
-                                : "pointer",
+                            cursor: !editingMeta.id || savingMeta ? "default" : "pointer",
                           }}
                         >
                           정보만 삭제
@@ -1213,8 +1266,7 @@ setEditingMeta({
                           padding: "6px 12px",
                           borderRadius: 999,
                           border: "none",
-                          background:
-                            "linear-gradient(135deg,#f97373,#ef4444)",
+                          background: "linear-gradient(135deg,#f97373,#ef4444)",
                           color: "#fee2e2",
                           fontSize: 12,
                           fontWeight: 700,
@@ -1232,9 +1284,7 @@ setEditingMeta({
               <p style={{ marginTop: 6, fontSize: 11, color: "#6b7280" }}>
                 * 개발자는 <code style={{ fontSize: 11 }}>gameSigResources</code> 컬렉션을
                 <br />
-                <code style={{ fontSize: 11 }}>
-                  game / boardType / program / group / slotIndex
-                </code>{" "}
+                <code style={{ fontSize: 11 }}>game / boardType / program / group / slotIndex</code>{" "}
                 조건으로 조회해
                 <br />
                 각 칸의 이미지와 시그 정보를 사용할 수 있습니다.

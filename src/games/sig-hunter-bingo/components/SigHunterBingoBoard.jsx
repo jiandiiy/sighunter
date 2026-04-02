@@ -522,7 +522,11 @@ const localNonParticipants = useMemo(() => {
           >
             {cells.slice(0, cellCount).map((cell) => {
               const currentImage = getCurrentImage(cell);
- 
+ // debug: 이미지 생성 값 확인
+// 실패하는 셀 번호 하나로 좁혀서 찍는 게 좋아요.
+if (!currentImage) {
+  console.warn("[HUNTER] currentImage empty", { cellId: cell.id, sigName: cell.sigName });
+}
               const currentCount = getCurrentCount(cell);
 
               const ownerColor = cell.owner

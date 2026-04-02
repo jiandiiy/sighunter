@@ -4,33 +4,31 @@ const STORAGE_BASE =
 export function toStorageUrl(localPath) {
   if (!localPath) return "";
 
-  // ✅ string이 아니면 경고 후 빈 문자열 반환
   if (typeof localPath !== "string") {
-    console.warn("[toStorageUrl] expected string, got:", typeof localPath, localPath);
     return "";
   }
 
-  // 완성 URL은 건드리지 않음
+  // 완성 URL이면 그대로
   if (localPath.startsWith("https://")) return localPath;
 
-  // "/images/holic/..." → "images/holic/..."
+  // "/images/..." -> "images/..."
   const withoutLeadingSlash = localPath.replace(/^\//, "");
 
-  // group6 → group06
-  const padded = withoutLeadingSlash.replace(
+ // ✅ objectKey가 실수로 'sig-hunter/images/...' 형태로 들어오면 제거
+  const stripped = withoutLeadingSlash.replace(/^sig-hunter\//, "");
+
+  // group6 -> group06 (여기부터 stripped 기준으로 정규화)
+  const normalized = stripped.replace(
     /group(\d+)/g,
     (_, n) => `group${String(n).padStart(2, "0")}`
   );
 
-  // 이미 sig-hunter/로 시작하면 중복 방지
-  const withPrefix = padded.startsWith("sig-hunter/")
-    ? padded
-    : `sig-hunter/${padded}`;
+  // objectKey를 그대로 인코딩 (prefix 강제하지 않음)
+  const encoded = normalized
+    .split("/")
+    .map(encodeURIComponent)
+    .join("%2F");
 
-  // "sig-hunter/images/holic/group01/sig_01.webp" →
-  // "sig-hunter%2Fimages%2Fholic%2Fgroup01%2Fsig_01.webp"
-  const encoded = withPrefix.split("/").map(encodeURIComponent).join("%2F");
-
- // 변경 — 개발 중 캐시 무력화용
-return `${STORAGE_BASE}/${encoded}?alt=media&t=${Date.now()}`;
+  // 캐시 무력화용 t 붙이기(개발 중 유지 가능)
+  return `${STORAGE_BASE}/${encoded}?alt=media&t=${Date.now()}`;
 }
