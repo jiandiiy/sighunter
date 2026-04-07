@@ -10,7 +10,7 @@ import {
   specialMessages as defaultSpecialMessages,
 } from "../data/sigData";
 import { doc, onSnapshot, setDoc } from "firebase/firestore";
-import { firestore } from "../core/firebase";
+import { firestore } from "../../resources/firestore/firebase";
 
 export function useSigStorage() {
   const [flipped, setFlippedState] = useState({});

@@ -4,38 +4,38 @@ import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 // ── 레이아웃 ───────────────────────────────────────
-import GameHub from "./layout/GameHub";
+import GameHub from "./app/layout/GameHub";
 // ── SigHunterFlip 팝업 / HP 배틀 컴포넌트 (자주 쓰이므로 즉시 로드) ──
-import AdminPopup from "./games/sig-hunter-flip/components/AdminPopup";
-import EditMessageModal from "./games/sig-hunter-flip/components/EditMessageModal";
+import AdminPopup from "./features/games/sig-hunter-flip/components/AdminPopup";
+import EditMessageModal from "./features/games/sig-hunter-flip/components/EditMessageModal";
 
-import HpControl from "./games/hp-battle/components/HpControl";
-import HpOverlay from "./games/hp-battle/components/HpOverlay"; 
+import HpControl from "./features/games/hp-battle/components/HpControl";
+import HpOverlay from "./features/games/hp-battle/components/HpOverlay"; 
 console.log("[APP] ✅ 현재 App.js 버전이 로드되었습니다");
 // ── lazy 로드: 게임 엔트리 ─────────────────────────
-const SigHunterFlip = lazy(() => import("./games/sig-hunter-flip"));
-const MinesGame = lazy(() => import("./games/mines"));
-const BoardGame = lazy(() => import("./games/board-game"));
-const BigWheel = lazy(() => import("./games/big-wheel"));
-const HpBattle = lazy(() => import("./games/hp-battle"));
-const SigHunterBingoBoard = lazy(() => import("./games/sig-hunter-bingo"));
- const BingoBoard = lazy(() => import("./games/meal-bingo"));
+const SigHunterFlip = lazy(() => import("./features/games/sig-hunter-flip"));
+const MinesGame = lazy(() => import("./features/games/mines"));
+const BoardGame = lazy(() => import("./features/games/board-game"));
+const BigWheel = lazy(() => import("./features/games/big-wheel"));
+const HpBattle = lazy(() => import("./features/games/hp-battle"));
+const SigHunterBingoBoard = lazy(() => import("./features/games/sig-hunter-bingo"));
+ const BingoBoard = lazy(() => import("./features/games/meal-bingo"));
 // ── lazy 로드: Admin ──────────────────────────────
-const SigImageAdminPage = lazy(() => import("./Admin/SigImageAdminPage"));
-const SigHunterBoardControl = lazy(() => import("./Admin/SigHunterBoardControl"));
-const SigHunterFlipControl = lazy(() => import("./Admin/SigHunterFlipControl"));
-const AdminHub = lazy(() => import("./Admin/AdminHub"));
+const SigImageAdminPage = lazy(() => import("./Admin/pages/SigImageAdminPage"));
+const SigHunterBoardControl = lazy(() => import("./Admin/components/SigHunterBoardControl"));
+const SigHunterFlipControl = lazy(() => import("./Admin/components/SigHunterFlipControl"));
+const AdminHub = lazy(() => import("./Admin/pages/AdminHub"));
 
 // ── lazy 로드: OBS 뷰어 ────────────────────────────
 // ./obs/index.js 에서 named export 로 나오는 걸 각각 lazy 로 래핑
 const SigHunterBingoObsView = lazy(() =>
-  import("./obs").then((mod) => ({ default: mod.SigHunterBingoView }))
+  import("./app/layout/obs").then((mod) => ({ default: mod.SigHunterBingoView }))
 );
 const BingoObsView = lazy(() =>
-  import("./obs").then((mod) => ({ default: mod.BingoView }))
+  import("./app/layout/obs").then((mod) => ({ default: mod.BingoView }))
 );
 const SigHunterFlipObsView = lazy(() =>
-  import("./obs").then((mod) => ({ default: mod.SigHunterFlipView }))
+  import("./app/layout/obs").then((mod) => ({ default: mod.SigHunterFlipView }))
 );
 
 

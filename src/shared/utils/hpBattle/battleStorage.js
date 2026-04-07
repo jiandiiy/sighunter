@@ -1,5 +1,5 @@
 // src/utils/hpBattle/battleStorage.js
-import { rtdb } from "../../core/firebase";
+import { rtdb } from "../../../resources/firestore/firebase";
 import { ref, onValue, set } from "firebase/database";
 
 console.log("🔥 db in battleStorage:", rtdb);
