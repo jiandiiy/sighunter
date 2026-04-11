@@ -1,4 +1,4 @@
-// src/components/GameCenter/SigHunterBingo/useSigHunterBingoState.js
+// src/components/GameCenter/SigHunterBingoState.js
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -12,6 +12,9 @@ import {
 import { toStorageUrl } from "../../../../shared/utils";
 import { getSigCountFromPool } from "../../../../shared/utils";
 
+// === 아래 내용은 원본 그대로 유지 ===
+
+// 플레이어 크기
 export const AVAILABLE_SIZES = [3, 5];
 
 // 공용: 라인(가로/세로/대각) 인덱스 생성
@@ -528,7 +531,7 @@ export function useSigHunterBingoState(boardId = "hunter1", options = {}) {
     }
 
     if (imagePath.startsWith("/images/")) {
-       return toStorageUrl(imagePath);
+      return toStorageUrl(imagePath);
     }
 
     return toStorageUrl(imagePath);
@@ -549,11 +552,71 @@ export function useSigHunterBingoState(boardId = "hunter1", options = {}) {
       imagePath = path;
     }
 
-    const mapped = getSigCountFromPool(imagePath);
+    const normalizePoolKey = (p) => {
+      if (!p) return null;
 
-    if (mapped != null) {
-      return mapped;
+      // 1) URL인 경우: o/<encodedPath>?alt=media 형태에서 decode해서 path 추출
+      if (typeof p === "string" && p.startsWith("http")) {
+        const match = p.match(/\/o\/([^?]+)\?/);
+        if (match?.[1]) {
+          const decoded = decodeURIComponent(match[1]); // 예: images/queendom/group05/sig_14.webp
+          return decoded.startsWith("images/") ? decoded.slice("images/".length) : decoded;
+        }
+      }
+
+      // 2) 상대/절대 경로: /images/xxx 또는 images/xxx
+      if (p.startsWith("/images/")) return p.slice("/images/".length);
+      if (p.startsWith("images/")) return p.slice("images/".length);
+
+      // 이미 pool key 포맷일 수도 있음
+      return p;
+    };
+
+    const normalized = normalizePoolKey(imagePath);
+    const mapped = normalized ? getSigCountFromPool(normalized) : null;
+
+    // ✅ (추가) 특정 타겟 키 관련 디버그: MISS/HIT과 관계없이 한번 더 확인
+    const isTarget =
+      typeof normalized === "string" && normalized === "queendom/group04/sig_95.webp";
+
+    if (isTarget) {
+      console.log("[HUNTER][DEBUG] target count check (sig_95.webp)", {
+        imagePath,
+        normalized,
+        mapped,
+        sigName: cell?.sigName,
+        cellSigCount: cell?.sigCount,
+        countsLen: cell?.counts?.length,
+        imageIndex: cell?.imageIndex,
+        sigCountFallback: cell?.sigCount ?? 0,
+      });
     }
+
+    // 기존 MISS/HIT 로그는 그대로 유지
+    if (mapped == null) {
+      console.log("[HUNTER][DEBUG] getCurrentCount MISS", {
+        imagePath,
+        normalized,
+        sigName: cell?.sigName,
+        cellSigCount: cell?.sigCount,
+        countsLen: cell?.counts?.length,
+        imageIndex: cell?.imageIndex,
+        countsFirst: cell?.counts?.slice?.(0, 5),
+        idxForCounts:
+          typeof cell.imageIndex === "number"
+            ? cell.imageIndex % (cell.counts?.length ?? 1)
+            : 0,
+        sigCountFallback: cell?.sigCount ?? 0,
+      });
+    } else {
+      console.log("[HUNTER][DEBUG] getCurrentCount HIT", {
+        imagePath,
+        normalized,
+        mapped,
+      });
+    }
+
+    if (mapped != null) return mapped;
 
     if (cell?.counts && cell.counts.length > 0) {
       const idx =
@@ -718,8 +781,8 @@ export function useSigHunterBingoState(boardId = "hunter1", options = {}) {
     handleChangeMode,
     handleChangeSize,
     handleResetBoard,
-    handleClickCell,      // 원본
-    safeHandleClickCell,  // 상태 반영된 버전
+    handleClickCell, // 원본
+    safeHandleClickCell, // 상태 반영된 버전
     getCurrentImage,
     getCurrentCount,
     getColorForPlayer,

@@ -10,7 +10,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { firestore } from "../firestore/firebase";
-import { sigHunterImagePool } from "../../shared/data/sigHunterImagePresets";
+import { sigHunterImagePresets } from "../../shared/data/sigHunterImagePresets";
 
 // ===== 공통 상수 / 유틸 =====
 
@@ -66,9 +66,9 @@ function pickOne(list) {
 // 모드 + 그룹 목록에서 N장 랜덤 뽑기 (중복 허용)
 // 반환값: 문자열 경로 배열 (e.g. "/images/holic/group01/sig_01.webp")
 function getRandomImagesFromGroups(mode, groups, countPerCell) {
-  const poolForMode = sigHunterImagePool[mode] || {};
+  const poolForMode = sigHunterImagePresets[mode] || {};
 
-  // ✅ 유효한 그룹만 필터링 (pool에 실제로 존재하고 비어있지 않은 것만)
+  // ✅ 유효한 그룹만 필터링
   const validGroups = groups.filter((rawGroup) => {
     const group = rawGroup.replace(/^group(\d)$/, "group0$1");
     return poolForMode[group] && poolForMode[group].length > 0;
@@ -88,13 +88,18 @@ function getRandomImagesFromGroups(mode, groups, countPerCell) {
     const gIdx = Math.floor(Math.random() * resolvedGroups.length);
     const rawGroup = resolvedGroups[gIdx];
     const group = rawGroup.replace(/^group(\d)$/, "group0$1");
-    const list = poolForMode[group];
+    const list = poolForMode[group]; // [{ path, rawText, count }, ...]
 
-    const img = pickOne(list);
-    if (img) result.push(img);
+    const preset = pickOne(list); // preset 하나 랜덤 선택
+    if (preset) {
+      result.push({
+        path: preset.path,          // 실제 이미지 경로
+        count: preset.count ?? 0,   // 수동 매칭 count
+      });
+    }
   }
 
-  return result;
+  return result; // [{ path, count }, ...]
 }
 
 const GROUPS_BY_MODE_AND_SIZE = {
@@ -149,8 +154,8 @@ export function createRandomHunterCell(mode, size, idx) {
 
   const isCenter = idx === centerIndex;
 
-  // images: string[] — 로컬 public 경로 문자열 배열
-  const images = isCenter
+  // ✅ 이제 { path, count } 배열을 받음
+  const imageEntries = isCenter
     ? getRandomImagesFromGroups(mode, centerGroups, IMAGES_PER_CELL)
     : getRandomImagesFromGroups(mode, normalGroups, IMAGES_PER_CELL);
 
@@ -161,14 +166,17 @@ export function createRandomHunterCell(mode, size, idx) {
       ? "홀릭 시그"
       : "뮤즈 시그";
 
+  const images = imageEntries.map((e) => e.path);         // 경로만
+  const counts = imageEntries.map((e) => e.count ?? 0);   // 각 이미지 count
+  const sigCount = counts.reduce((sum, c) => sum + c, 0); // 필요하다면 합계
+
   return {
     id: idx,
     sigName: `${prefix} ${idx + 1}`,
-    sigCount: 0, // count 정보 없으므로 0으로 초기화
+    sigCount,    // ✅ 이제 실제 수동 count 기반 값
     owner: null,
-    // ✅ 경로 문자열 그대로 보관 (toStorageUrl 적용 안 함)
-    images,
-    counts: images.map(() => null), // count 정보 없으므로 null로 초기화
+    images,      // string[]
+    counts,      // number[]
     imageIndex: 0,
   };
 }

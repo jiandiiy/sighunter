@@ -1,5 +1,5 @@
 // src/shared/utils/getSigCountFromPool.js
-import { sigHunterImagePool } from "../data/sigHunterImagePresets";
+import { sigHunterImagePresets } from "../../shared/data/sigHunterImagePresets";
 
 // 이미지 경로(/images/muse/group01/sig_199.webp) → count 숫자
 export const getSigCountFromPool = (imagePath) => {
@@ -9,8 +9,8 @@ export const getSigCountFromPool = (imagePath) => {
   const purePath = imagePath.split("?")[0];
 
   // mode 계층을 모르는 상태에서 전체 풀 탐색
-  for (const modeKey of Object.keys(sigHunterImagePool)) {
-    const modeGroups = sigHunterImagePool[modeKey];
+  for (const modeKey of Object.keys(sigHunterImagePresets)) {
+    const modeGroups = sigHunterImagePresets[modeKey];
     for (const groupKey of Object.keys(modeGroups)) {
       const list = modeGroups[groupKey];
       const found = list.find((item) => item.path === purePath);

@@ -1,7 +1,7 @@
-// ⚙️ 자동 생성: 시그헌터 이미지 풀 (수동 숫자만 사용)
-// scripts/generateSigHunterImagePoolWithOCR.js 에 의해 생성됨
+// ⚙️ 자동 생성: 시그헌터 빙고 이미지 풀 (수동 숫자만 사용)
+// scripts/generateSigHunterImagePresets.js 에 의해 생성됨
 // 수동 숫자: scripts/sigHunterManualCounts.js 참고
-export const sigHunterImagePool = {
+export const sigHunterImagePresets = {
   "muse": {
     "group01": [
       {
@@ -928,6 +928,11 @@ export const sigHunterImagePool = {
         "count": 1009
       },
       {
+        "path": "/images/queendom/group01/sig_11.webp",
+        "rawText": "[MANUAL]",
+        "count": 1010
+      },
+      {
         "path": "/images/queendom/group01/sig_12.webp",
         "rawText": "[MANUAL]",
         "count": 1011
@@ -1045,6 +1050,11 @@ export const sigHunterImagePool = {
         "count": 1033
       },
       {
+        "path": "/images/queendom/group02/sig_35.webp",
+        "rawText": "[MANUAL]",
+        "count": 1034
+      },
+      {
         "path": "/images/queendom/group02/sig_36.webp",
         "rawText": "[MANUAL]",
         "count": 1035
@@ -1070,9 +1080,19 @@ export const sigHunterImagePool = {
         "count": 1039
       },
       {
+        "path": "/images/queendom/group02/sig_41.webp",
+        "rawText": "[MANUAL]",
+        "count": 1040
+      },
+      {
         "path": "/images/queendom/group02/sig_42.webp",
         "rawText": "[MANUAL]",
         "count": 1041
+      },
+      {
+        "path": "/images/queendom/group02/sig_43.webp",
+        "rawText": "[MANUAL]",
+        "count": 1042
       },
       {
         "path": "/images/queendom/group02/sig_44.webp",
@@ -1269,9 +1289,24 @@ export const sigHunterImagePool = {
         "count": 1100
       },
       {
+        "path": "/images/queendom/group04/sig_102.webp",
+        "rawText": "[MANUAL]",
+        "count": 1101
+      },
+      {
         "path": "/images/queendom/group04/sig_103.webp",
         "rawText": "[MANUAL]",
         "count": 1102
+      },
+      {
+        "path": "/images/queendom/group04/sig_104.webp",
+        "rawText": "[MANUAL]",
+        "count": 1103
+      },
+      {
+        "path": "/images/queendom/group04/sig_105.webp",
+        "rawText": "[MANUAL]",
+        "count": 1104
       },
       {
         "path": "/images/queendom/group04/sig_108.webp",
@@ -1377,6 +1412,11 @@ export const sigHunterImagePool = {
         "path": "/images/queendom/group04/sig_97.webp",
         "rawText": "[MANUAL]",
         "count": 1096
+      },
+      {
+        "path": "/images/queendom/group04/sig_98.webp",
+        "rawText": "[MANUAL]",
+        "count": 1097
       }
     ],
     "group05": [
@@ -1578,6 +1618,11 @@ export const sigHunterImagePool = {
         "path": "/images/queendom/group07/sig_900.webp",
         "rawText": "[MANUAL]",
         "count": 1900
+      },
+      {
+        "path": "/images/queendom/group07/sig_999.webp",
+        "rawText": "[MANUAL]",
+        "count": 1999
       }
     ],
     "group09": [
@@ -1649,14 +1694,29 @@ export const sigHunterImagePool = {
         "count": 10001
       },
       {
+        "path": "/images/queendom/group10/sig_10002.webp",
+        "rawText": "[MANUAL]",
+        "count": 10002
+      },
+      {
         "path": "/images/queendom/group10/sig_10003.webp",
         "rawText": "[MANUAL]",
         "count": 10003
       },
       {
+        "path": "/images/queendom/group10/sig_10005.webp",
+        "rawText": "[MANUAL]",
+        "count": 10005
+      },
+      {
         "path": "/images/queendom/group10/sig_10007.webp",
         "rawText": "[MANUAL]",
         "count": 10007
+      },
+      {
+        "path": "/images/queendom/group10/sig_10008.webp",
+        "rawText": "[MANUAL]",
+        "count": 10008
       },
       {
         "path": "/images/queendom/group10/sig_10009.webp",
@@ -1689,6 +1749,11 @@ export const sigHunterImagePool = {
         "count": 10000
       },
       {
+        "path": "/images/queendom/group10/sig_10023.webp",
+        "rawText": "[MANUAL]",
+        "count": 10023
+      },
+      {
         "path": "/images/queendom/group10/sig_10026.webp",
         "rawText": "[MANUAL]",
         "count": 10026
@@ -1714,19 +1779,9 @@ export const sigHunterImagePool = {
         "count": 10045
       },
       {
-        "path": "/images/queendom/group10/sig_10046.webp",
-        "rawText": "[MANUAL]",
-        "count": 10046
-      },
-      {
         "path": "/images/queendom/group10/sig_10047.webp",
         "rawText": "[MANUAL]",
         "count": 10000
-      },
-      {
-        "path": "/images/queendom/group10/sig_10053.webp",
-        "rawText": "[MANUAL]",
-        "count": 10053
       },
       {
         "path": "/images/queendom/group10/sig_10054.webp",
@@ -1734,49 +1789,44 @@ export const sigHunterImagePool = {
         "count": 10054
       },
       {
-        "path": "/images/queendom/group10/sig_10056.webp",
-        "rawText": "[MANUAL]",
-        "count": 10056
-      },
-      {
         "path": "/images/queendom/group10/sig_10057.webp",
         "rawText": "[MANUAL]",
         "count": 10000
       },
       {
-        "path": "/images/queendom/group10/sig_10060.webp",
-        "rawText": "[MANUAL]",
-        "count": 10060
-      },
-      {
-        "path": "/images/queendom/group10/sig_10063.webp",
-        "rawText": "[MANUAL]",
-        "count": 10063
-      },
-      {
         "path": "/images/queendom/group10/sig_10064.webp",
         "rawText": "[MANUAL]",
-        "count": 10000
+        "count": 10064
       },
       {
-        "path": "/images/queendom/group10/sig_10066.webp",
+        "path": "/images/queendom/group10/sig_10065.webp",
         "rawText": "[MANUAL]",
-        "count": 10066
+        "count": 10000
       },
       {
         "path": "/images/queendom/group10/sig_10071.webp",
         "rawText": "[MANUAL]",
+        "count": 10071
+      },
+      {
+        "path": "/images/queendom/group10/sig_10072.webp",
+        "rawText": "[MANUAL]",
         "count": 10000
       },
       {
-        "path": "/images/queendom/group10/sig_10082.webp",
+        "path": "/images/queendom/group10/sig_10076.webp",
         "rawText": "[MANUAL]",
-        "count": 10082
+        "count": 10076
       },
       {
         "path": "/images/queendom/group10/sig_10083.webp",
         "rawText": "[MANUAL]",
         "count": 10000
+      },
+      {
+        "path": "/images/queendom/group10/sig_10085.webp",
+        "rawText": "[MANUAL]",
+        "count": 10085
       },
       {
         "path": "/images/queendom/group10/sig_10092.webp",
@@ -1789,6 +1839,16 @@ export const sigHunterImagePool = {
         "count": 10000
       },
       {
+        "path": "/images/queendom/group10/sig_10096.webp",
+        "rawText": "[MANUAL]",
+        "count": 10096
+      },
+      {
+        "path": "/images/queendom/group10/sig_10142.webp",
+        "rawText": "[MANUAL]",
+        "count": 10142
+      },
+      {
         "path": "/images/queendom/group10/sig_10152.webp",
         "rawText": "[MANUAL]",
         "count": 10152
@@ -1799,19 +1859,39 @@ export const sigHunterImagePool = {
         "count": 10000
       },
       {
-        "path": "/images/queendom/group10/sig_10172.webp",
+        "path": "/images/queendom/group10/sig_10201.webp",
         "rawText": "[MANUAL]",
-        "count": 10172
+        "count": 10201
+      },
+      {
+        "path": "/images/queendom/group10/sig_10555.webp",
+        "rawText": "[MANUAL]",
+        "count": 10555
       },
       {
         "path": "/images/queendom/group10/sig_12486.webp",
         "rawText": "[MANUAL]",
         "count": 12486
+      },
+      {
+        "path": "/images/queendom/group10/sig_12487.webp",
+        "rawText": "[MANUAL]",
+        "count": 12487
+      },
+      {
+        "path": "/images/queendom/group10/sig_12488.webp",
+        "rawText": "[MANUAL]",
+        "count": 12488
       }
     ],
     "group11": [
       {
         "path": "/images/queendom/group11/sig_10004.webp",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "/images/queendom/group11/sig_10018.webp",
         "rawText": "[NO_MANUAL]",
         "count": 0
       },
@@ -1842,6 +1922,11 @@ export const sigHunterImagePool = {
       },
       {
         "path": "/images/queendom/group11/sig_10042.webp",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "/images/queendom/group11/sig_10047.webp",
         "rawText": "[NO_MANUAL]",
         "count": 0
       },
@@ -1926,6 +2011,11 @@ export const sigHunterImagePool = {
         "count": 0
       },
       {
+        "path": "/images/queendom/group11/sig_10118.webp",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
         "path": "/images/queendom/group11/sig_10129.webp",
         "rawText": "[NO_MANUAL]",
         "count": 0
@@ -1946,6 +2036,11 @@ export const sigHunterImagePool = {
         "count": 0
       },
       {
+        "path": "/images/queendom/group11/sig_10184.webp",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
         "path": "/images/queendom/group11/sig_10192.webp",
         "rawText": "[NO_MANUAL]",
         "count": 0
@@ -1956,7 +2051,17 @@ export const sigHunterImagePool = {
         "count": 0
       },
       {
+        "path": "/images/queendom/group11/sig_10224.webp",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
         "path": "/images/queendom/group11/sig_10314.webp",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "/images/queendom/group11/sig_10315.webp",
         "rawText": "[NO_MANUAL]",
         "count": 0
       },
@@ -1967,6 +2072,11 @@ export const sigHunterImagePool = {
       },
       {
         "path": "/images/queendom/group11/sig_10333.webp",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "/images/queendom/group11/sig_10444.webp",
         "rawText": "[NO_MANUAL]",
         "count": 0
       },
@@ -2028,14 +2138,29 @@ export const sigHunterImagePool = {
         "count": 10001
       },
       {
+        "path": "/images/queendom/group12/sig_10002.webp",
+        "rawText": "[MANUAL]",
+        "count": 10002
+      },
+      {
         "path": "/images/queendom/group12/sig_10003.webp",
         "rawText": "[MANUAL]",
         "count": 10003
       },
       {
+        "path": "/images/queendom/group12/sig_10005.webp",
+        "rawText": "[MANUAL]",
+        "count": 10005
+      },
+      {
         "path": "/images/queendom/group12/sig_10007.webp",
         "rawText": "[MANUAL]",
         "count": 10007
+      },
+      {
+        "path": "/images/queendom/group12/sig_10008.webp",
+        "rawText": "[MANUAL]",
+        "count": 10008
       },
       {
         "path": "/images/queendom/group12/sig_10009.webp",
@@ -2071,6 +2196,16 @@ export const sigHunterImagePool = {
         "path": "/images/queendom/group12/sig_12486.webp",
         "rawText": "[MANUAL]",
         "count": 12486
+      },
+      {
+        "path": "/images/queendom/group12/sig_12487.webp",
+        "rawText": "[MANUAL]",
+        "count": 12487
+      },
+      {
+        "path": "/images/queendom/group12/sig_12488.webp",
+        "rawText": "[MANUAL]",
+        "count": 12488
       },
       {
         "path": "/images/queendom/group12/sig_5000.webp",
