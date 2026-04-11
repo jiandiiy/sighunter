@@ -359,24 +359,23 @@ export default function SigHunterBingoBoard({
   };
 
   // ✅ 숫자 미노출 디버그: 첫 5칸의 currentCount를 로그로 확인
-  useEffect(() => {
-    if (loading) return;
-    if (!cells || cells.length === 0) return;
-    if (!DEBUG_SHOW_COUNT) return;
+ useEffect(() => {
+  if (loading) return;
+  if (!cells || cells.length === 0) return;
+  if (!DEBUG_SHOW_COUNT) return;
 
-    const sampleCells = cells.slice(0, 5);
-    sampleCells.forEach((cell) => {
-      const currentCount = getCurrentCount(cell);
-      console.log("[HUNTER][DEBUG] cell count", {
-        cellId: cell.id,
-        sigName: cell.sigName,
-        currentCount,
-        cell,
-      });
+  const sampleCells = cells.slice(0, 5);
+  sampleCells.forEach((cell) => {
+    const currentCount = getCurrentCount(cell);
+    console.log("[HUNTER][DEBUG] cell count", {
+      cellId: cell.id,
+      sigName: cell.sigName,
+      currentCount,
+      cell,
     });
-    // DEBUG_SHOW_COUNT는 상수라 dependency에 넣지 않아도 되지만,
-    // ESLint warning을 싫어하면 여기 의존성 경고를 끄는 대신 넣어도 됩니다.
-  }, [loading, cells, getCurrentCount]);
+  });
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, [loading, cells, getCurrentCount, DEBUG_SHOW_COUNT]);
 
   if (loading) {
     return <div style={{ color: "#fff" }}>로딩 중...</div>;
