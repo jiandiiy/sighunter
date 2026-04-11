@@ -12,9 +12,11 @@ import { useDice } from "../../../../shared/hooks/common/useDice";
 import { useBoardEffects } from "../../../../shared/hooks";
 
 export default function BoardGame() {
-  const [rows, setRows] = useState(9);
-  const [cols, setCols] = useState(9);
+  // 7x7 고정
+  const [rows, setRows] = useState(7);
+  const [cols, setCols] = useState(7);
 
+  // 둘레(칸 수) = 24 (7x7 기준)
   const perimeter = useMemo(() => {
     if (rows < 2 || cols < 2) return 0;
     return 2 * (rows + cols) - 4;
@@ -69,7 +71,10 @@ export default function BoardGame() {
     if (!token) return;
     if (isMoving) return;
 
-    const totalCells = 32; // 보드 둘레 32칸 기준
+    // 7x7 보드의 둘레(24칸)를 사용
+    const totalCells = perimeter;
+    if (!totalCells) return;
+
     const intSteps = steps | 0;
     if (intSteps === 0) return;
 
@@ -142,7 +147,11 @@ export default function BoardGame() {
     );
   };
 
-  /** 보드 크기 변경 */
+  /** 보드 크기 변경
+   *  실제로는 7x7 고정으로 쓰고 싶다면,
+   *  외부에서 resize가 들어와도 무시하거나, 7로 고정되게 처리할 수 있음.
+   *  여기선 "요청이 들어와도 7~7 범위 안에서만" 동작하도록 남겨둠.
+   */
   const handleResizeBoard = (newRows, newCols) => {
     const r = Math.max(4, Math.min(20, newRows || rows));
     const c = Math.max(4, Math.min(20, newCols || cols));
@@ -312,12 +321,15 @@ export default function BoardGame() {
         }}
       >
         {/* 보드 */}
-        <div style={{ 
-    flex: 1,
-    minWidth: 0,
-    minHeight: 0,
-    maxWidth: "min(2000px, 70vw)",      // ✅ 원하는 최대 크기(px)
-    width: "90%",}}>
+        <div
+          style={{
+            flex: 1,
+            minWidth: 0,
+            minHeight: 0,
+            maxWidth: "min(2000px, 70vw)", // 원하는 최대 크기
+            width: "90%",
+          }}
+        >
           <Board
             rows={rows}
             cols={cols}

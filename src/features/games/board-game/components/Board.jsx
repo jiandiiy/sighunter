@@ -6,7 +6,6 @@ export default function Board({
   rows,
   cols,
   cells,
-  cellStyles,
   tokens,
   currentTurnToken,
   isMoving,
@@ -16,83 +15,85 @@ export default function Board({
   onClickCell,
   onResizeBoard,
 
-  // ✅ 중앙 주사위
+  // 중앙 주사위
   diceValue,
   diceRotation3d,
   diceSnapRotation,
   isRolling,
   onRollDice,
 }) {
+  // ✅ 7x7 고정일 때도 rows/cols로부터 둘레(칸 수) 계산 → 24
   const perimeter = useMemo(() => {
     if (rows < 2 || cols < 2) return 0;
     return 2 * (rows + cols) - 4;
   }, [rows, cols]);
 
-  // ✅ 32칸(9×9 링) 전용 좌표 매핑
-  const indexToCoord32 = (pos) => {
-    const N = 9; // 9×9 그리드
-    // bottom row: (8,0)~(8,8) : 9칸 (pos 0..8)
-    if (pos < 9) return { r: N - 1, c: pos };
+  // ✅ 24칸(7×7 외곽 링) 전용 좌표 매핑
+  // 0~23 인덱스를 7x7 격자의 (row, col)로 매핑
+  const GRID_SIZE = 7;
+  const indexToCoord24 = (index) => {
+    const max = GRID_SIZE - 1; // 6
 
-    // right col: (7,8)~(0,8) : 8칸 (pos 9..16)
-    if (pos < 9 + 8) return { r: N - 2 - (pos - 9), c: N - 1 };
+    // 상단 라인: (0,0) ~ (0,6) => index 0~6 (7칸)
+    if (index <= 6) {
+      return { r: 0, c: index };
+    }
 
-    // top row: (0,7)~(0,0) : 8칸 (pos 17..24)
-    if (pos < 9 + 8 + 8)
-      return { r: 0, c: N - 2 - (pos - (9 + 8)) };
+    // 오른쪽 라인: (1,6) ~ (5,6) => index 7~11 (5칸)
+    if (index <= 11) {
+      return { r: index - 6, c: max };
+    }
 
-    // left col: (1,0)~(7,0) : 7칸 (pos 25..31)
-    return { r: 1 + (pos - (9 + 8 + 8)), c: 0 };
+    // 하단 라인: (6,6) ~ (6,0) => index 12~18 (7칸)
+    if (index <= 18) {
+      return { r: max, c: max - (index - 11.8) };
+    }
+
+    // 왼쪽 라인: (5,0) ~ (1,0) => index 19~23 (5칸)
+    return { r: max - (index - 18), c: 0 };
   };
 
-  const boardData32 = [
-    { bg: "#d1d5cf", text: "#1f2937", name: "START", icon: "🏁", isCorner: true },
-    { bg: "#513c33", text: "#fff", name: "타이베이" },
-    { bg: "#d3bb98", text: "#422006", name: "베이징" },
-    { bg: "#d1b690", text: "#422006", name: "마닐라" },
-    { bg: "#ceb28e", text: "#422006", name: "싱가포르" },
-    { bg: "#3b4f5b", text: "#fff", name: "황금열쇠", icon: "🔑", special: true },
-    { bg: "#e0d6df", text: "#4c1d95", name: "제주" },
-    { bg: "#d2e0dd", text: "#065f46", name: "서울" },
-    { bg: "#40b578", text: "#fff", name: "무인도", icon: "🏝️", isCorner: true },
-    { bg: "#624d28", text: "#fff", name: "푸껫" },
-    { bg: "#b48c56", text: "#422006", name: "하와이" },
-    { bg: "#976e3e", text: "#fff", name: "괌" },
-    { bg: "#865d2d", text: "#fff", name: "오끼나와" },
-    { bg: "#957241", text: "#fff", name: "황금열쇠", icon: "🔑", special: true },
-    { bg: "#3a4034", text: "#fff", name: "다낭" },
-    { bg: "#b9dce6", text: "#0c4a6e", name: "시드니" },
-    { bg: "#c9dce3", text: "#0c4a6e", name: "세계여행", icon: "✈️", isCorner: true },
-    { bg: "#897a83", text: "#fff", name: "도쿄" },
-    { bg: "#d1bfa5", text: "#422006", name: "파리" },
-    { bg: "#cbb08b", text: "#422006", name: "로마" },
-    { bg: "#cbae7e", text: "#422006", name: "런던" },
-    { bg: "#caab78", text: "#422006", name: "황금열쇠", icon: "🔑", special: true },
-    { bg: "#c3a379", text: "#422006", name: "베를린" },
-    { bg: "#eb8c63", text: "#fff", name: "모스크바" },
-    { bg: "#e6c7de", text: "#831843", name: "우주여행", icon: "🚀", isCorner: true },
-    { bg: "#6c60ee", text: "#fff", name: "서울" },
-    { bg: "#796af2", text: "#fff", name: "부산" },
-    { bg: "#d5b987", text: "#422006", name: "뉴욕" },
-    { bg: "#c7a470", text: "#422006", name: "황금열쇠", icon: "🔑", special: true },
-    { bg: "#d2b581", text: "#422006", name: "프라하" },
-    { bg: "#cdac7a", text: "#422006", name: "취리히" },
-    { bg: "#bb93b6", text: "#4c1d95", name: "퀘백" },
+  // ✅ 24칸용 보드 데이터 (원하는 대로 색/이름 나중에 조정 가능)
+  const boardData24 = [
+    // 0~6: 상단 왼→오
+    { bg: "#d1d5cf", text: "#1f2937", name: "START", icon: "🏁", isCorner: true }, // 0
+    { bg: "#513c33", text: "#fff", name: "타이베이" }, // 1
+    { bg: "#d3bb98", text: "#422006", name: "베이징" }, // 2
+    { bg: "#d1b690", text: "#422006", name: "마닐라" }, // 3
+    { bg: "#ceb28e", text: "#422006", name: "싱가포르" }, // 4
+    { bg: "#3b4f5b", text: "#fff", name: "황금열쇠", icon: "🔑", special: true }, // 5
+    { bg: "#40b578", text: "#fff", name: "무인도", icon: "🏝️", isCorner: true }, // 6 (우상단)
+
+    // 7~11: 오른쪽 상→하
+    { bg: "#e0d6df", text: "#4c1d95", name: "제주" }, // 7
+    { bg: "#d2e0dd", text: "#065f46", name: "서울" }, // 8
+    { bg: "#624d28", text: "#fff", name: "푸껫" }, // 9
+    { bg: "#b48c56", text: "#422006", name: "하와이" }, // 10
+    { bg: "#897a83", text: "#fff", name: "도쿄" }, // 12
+    
+    // 12~18: 하단 오→왼
+    { bg: "#c9dce3", text: "#0c4a6e", name: "세계여행", icon: "✈️", isCorner: true }, // 11 (우하단)
+    { bg: "#d1bfa5", text: "#422006", name: "파리" }, // 13
+    { bg: "#cbb08b", text: "#422006", name: "로마" }, // 14
+    { bg: "#cbae7e", text: "#422006", name: "런던" }, // 15
+    { bg: "#caab78", text: "#422006", name: "황금열쇠", icon: "🔑", special: true }, // 16
+    { bg: "#eb8c63", text: "#fff", name: "모스크바" }, // 17
+    { bg: "#e6c7de", text: "#831843", name: "우주여행", icon: "🚀", isCorner: true }, // 18 (좌하단)
+
+    // 19~23: 왼쪽 하→상
+    { bg: "#6c60ee", text: "#fff", name: "서울" }, // 19
+    { bg: "#796af2", text: "#fff", name: "부산" }, // 20
+    { bg: "#d5b987", text: "#422006", name: "뉴욕" }, // 21
+    { bg: "#c7a470", text: "#422006", name: "황금열쇠", icon: "🔑", special: true }, // 22
+    { bg: "#bb93b6", text: "#4c1d95", name: "퀘백", isCorner: true }, // 23 (좌상단)
   ];
 
   const getCellColor = (pos) => {
-    if (perimeter === 32 && pos < 32) return boardData32[pos];
+    if (pos < boardData24.length) {
+      return boardData24[pos];
+    }
 
-    const { r, c } = indexToCoord32(pos);
-    const N = 9;
-    const isCorner =
-      (r === 0 && c === 0) ||
-      (r === 0 && c === N - 1) ||
-      (r === N - 1 && c === 0) ||
-      (r === N - 1 && c === N - 1);
-
-    if (isCorner) return { bg: "#60a5fa", text: "#1e3a8a", isCorner: true };
-
+    // perimeter보다 pos가 커지는 일은 거의 없지만, 방어적으로 기본 색 반환
     const colors = [
       { bg: "#10b981", text: "#fff" },
       { bg: "#3b82f6", text: "#fff" },
@@ -102,84 +103,141 @@ export default function Board({
     return colors[pos % 4];
   };
 
-  //const INNER_PAD_PCT = 1.2;
   const BOARD_BORDER = 6;
   const CENTER_PAD = 22;
 
-  // ✅ 9×9 링 기준: 모서리=1×1, 상/하=1×2, 좌/우=2×1
-  const getCellStyleFromPos = (pos) => {
-    const N = 9;
-      const RING = 2; // ✅ 링(테두리) 두께: 2칸
-    const { r, c } = indexToCoord32(pos);
+  // 코너 전용 조정 상수
+const CORNER_SIZE_FACTOR = 1.50; // 1.5~1.6 사이 왔다갔다 하면서 맞추기
 
-    const USED = 96;
-    const base = USED / N;
-    const offset = (100 - USED) / 2; // 가운데 정렬
+// ↖ (0번)
+const CORNER_0_SHIFT_X = 0.35;
+const CORNER_0_SHIFT_Y = 0.50;
 
-    const isTop = r === 0;
-    const isBottom = r === N - 1;
-    const isLeft = c === 0;
-    const isRight = c === N - 1;
+// ↗ (6번)
+const CORNER_6_SHIFT_X = 0.50;
+const CORNER_6_SHIFT_Y = 0.50;
 
-    const isCorner =
-      (isTop && isLeft) ||
-      (isTop && isRight) ||
-      (isBottom && isLeft) ||
-      (isBottom && isRight);
+// ↘ (12번)
+const CORNER_12_SHIFT_X = 0.10;
+const CORNER_12_SHIFT_Y = 0.50;
 
-    const left0 = offset + c * base;
-    const top0 = offset + r * base;
+// ↙ (18번)
+const CORNER_18_SHIFT_X = 0.0;
+const CORNER_18_SHIFT_Y = 0.55;
 
-    // 🔹 모서리: 1×1
+  // ✅ 7×7 링 기준: 전부 1×1 셀로, 7×7 그리드 내에 배치
+ const getCellStyleFromPos = (pos) => {
+  const { r, c } = indexToCoord24(pos);
+  const N = GRID_SIZE; // 7
+
+  const USED = 95;
+  const cell = USED / N;
+  const offset = (100 - USED) / 2;
+
+  const isTop = r === 0;
+  const isBottom = r === N - 1;
+  const isLeft = c === 0;
+  const isRight = c === 0 || c === N - 1;
+
+  const leftBase = offset + c * cell;
+  const topBase = offset + r * cell;
+
+  const common = {
+    position: "absolute",
+    boxSizing: "border-box",
+  };
+
+  // ===== 조정용 상수들 =====
+  // 코너 판정
+  const isCorner = pos === 0 || pos === 6 || pos === 12 || pos === 18;
   if (isCorner) {
-    const left = isLeft ? left0 : left0 - (RING - 1) * base;   // 오른쪽 모서리는 안쪽으로
-    const top = isTop ? top0 : top0 - (RING - 1) * base;       // 아래 모서리는 안쪽으로
-    return {
-      position: "absolute",
-      left: `${left}%`,
-      top: `${top}%`,
-      width: `${base * RING}%`,
-      height: `${base * RING}%`,
-    };
+    const size = cell * CORNER_SIZE_FACTOR;
+
+    let shiftX = 0.32;
+    let shiftY = 0.4;
+
+    if (pos === 0) {
+      shiftX = CORNER_0_SHIFT_X;
+      shiftY = CORNER_0_SHIFT_Y;
+    } else if (pos === 6) {
+      shiftX = CORNER_6_SHIFT_X;
+      shiftY = CORNER_6_SHIFT_Y;
+    } else if (pos === 12) {
+      shiftX = CORNER_12_SHIFT_X;
+      shiftY = CORNER_12_SHIFT_Y;
+    } else if (pos === 18) {
+      shiftX = CORNER_18_SHIFT_X;
+      shiftY = CORNER_18_SHIFT_Y;
     }
 
-     if (isTop) {
     return {
-      position: "absolute",
-      left: `${left0}%`,
-      top: `${top0}%`,
-      width: `${base}%`,
-      height: `${base * RING}%`,
-    };
-  }
-  if (isBottom) {
-    return {
-      position: "absolute",
-      left: `${left0}%`,
-      top: `${top0 - (RING - 1) * base}%`,
-      width: `${base}%`,
-      height: `${base * RING}%`,
+      ...common,
+      left: `${leftBase - (size - cell) * shiftX}%`,
+      top: `${topBase - (size - cell) * shiftY}%`,
+      width: `${size}%`,
+      height: `${size}%`,
+      zIndex: 5,
     };
   }
 
-  // 🔹 좌/우: 가로 RING칸(안쪽으로), 세로 1칸
-  if (isLeft) {
+  const H_WIDTH_FACTOR = 0.7;       // 상/하 가로 얇기 (0.6 ~ 0.9)
+  const H_HEIGHT_FACTOR = 1.5;      // 상/하 세로 길이 (1.2 ~ 1.7)
+  const H_TOP_OFFSET_TOP = 0.5;     // 상단 위로 튀어나오는 정도 (0.5 ~ 0.9)
+  const H_TOP_OFFSET_BOTTOM = 0.4;  // 하단 안쪽으로 넣는 정도 (0 ~ 0.4)
+
+  const V_WIDTH_FACTOR = 1.6;       // 좌/우 가로 길이 (1.3 ~ 1.8)
+  const V_HEIGHT_FACTOR = 0.15;      // 좌/우 세로 얇기 (0.2 ~ 0.5)
+  const V_LEFT_OFFSET_LEFT = 0.3;   // 좌측 왼쪽으로 튀어나오는 정도 (0.5 ~ 0.9)
+  const V_LEFT_OFFSET_RIGHT = 0.2;  // 우측 안쪽으로 넣는 정도 (0 ~ 0.4)
+  const V_TOP_SHIFT = 0.2;          // 좌/우 위아래 기준 위치 보정 (0 ~ 1)
+
+
+  // ===== 상/하 =====
+  if (isTop || isBottom) {
+    const width = cell * H_WIDTH_FACTOR;
+    const height = cell * H_HEIGHT_FACTOR;
+
+    const top = isTop
+      ? topBase - (height - cell) * H_TOP_OFFSET_TOP
+      : topBase + (cell - height) * H_TOP_OFFSET_BOTTOM;
+
     return {
-      position: "absolute",
-      left: `${left0}%`,
-      top: `${top0}%`,
-      width: `${base * RING}%`,
-      height: `${base}%`,
+      ...common,
+      left: `${leftBase - (width - cell) / 2}%`,
+      top: `${top}%`,
+      width: `${width}%`,
+      height: `${height}%`,
+      zIndex: 4,
     };
   }
 
-  // isRight
+  // ===== 좌/우 =====
+  if (isLeft || isRight) {
+    const width = cell * V_WIDTH_FACTOR;
+    const height = cell * V_HEIGHT_FACTOR;
+
+    const left = isLeft
+      ? leftBase - (width - cell) * V_LEFT_OFFSET_LEFT
+      : leftBase + (cell - width) * V_LEFT_OFFSET_RIGHT;
+
+    return {
+      ...common,
+      left: `${left}%`,
+      top: `${topBase - (height - cell) * V_TOP_SHIFT}%`,
+      width: `${width}%`,
+      height: `${height}%`,
+      zIndex: 3,
+    };
+  }
+
+  // 안전장치
   return {
-    position: "absolute",
-    left: `${left0 - (RING - 1) * base}%`,
-    top: `${top0}%`,
-    width: `${base * RING}%`,
-    height: `${base}%`,
+    ...common,
+    left: `${leftBase}%`,
+    top: `${topBase}%`,
+    width: `${cell}%`,
+    height: `${cell}%`,
+    zIndex: 1,
   };
 };
 
@@ -188,19 +246,31 @@ export default function Board({
 
   return (
     <div style={{ width: "100%", display: "flex", flexDirection: "column" }}>
+      {/* 헤더 타이틀 */}
       <h2
         style={{
           margin: 0,
           marginBottom: 8,
           fontSize: 32,
           fontWeight: 900,
-          background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
           letterSpacing: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 8,
         }}
       >
-        🎲 모두의마불 🎲
+        <span>🎲</span>
+        <span
+          style={{
+            background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
+          모두의마불
+        </span>
+        <span>🎲</span>
       </h2>
 
       <p
@@ -214,6 +284,7 @@ export default function Board({
         {rows} × {cols} 보드 · 둘레 {perimeter}칸
       </p>
 
+      {/* 행/열 입력 (원하면 나중에 제거/비활성화 가능) */}
       <div
         style={{
           display: "flex",
@@ -272,6 +343,7 @@ export default function Board({
         </label>
       </div>
 
+      {/* 실제 보드 영역 */}
       <div
         style={{
           position: "relative",
@@ -290,9 +362,10 @@ export default function Board({
             position: "absolute",
             inset: BOARD_BORDER,
             borderRadius: 20 - BOARD_BORDER,
-            overflow: "visible", // 칸이 안쪽으로 2칸 확장돼도 안 잘리게
+            overflow: "visible",
           }}
         >
+          {/* 중앙 영역 가이드 (투명) */}
           <div
             style={{
               position: "absolute",
@@ -306,7 +379,7 @@ export default function Board({
             }}
           />
 
-          {/* ✅ 중앙 주사위 */}
+          {/* 중앙 주사위 */}
           <div
             style={{
               position: "absolute",
@@ -339,11 +412,12 @@ export default function Board({
             </div>
           </div>
 
-          {/* 칸들 */}
+          {/* 둘레 칸들 */}
           {Array.from({ length: perimeter }, (_, pos) => {
             const onThis = tokensOnCell(pos);
             const colorScheme = getCellColor(pos);
-            const displayName = colorScheme.name || cells[pos] || `칸${pos + 1}`;
+            const displayName =
+              colorScheme.name || cells[pos] || `칸${pos + 1}`;
 
             const isSelectedCell = selectedCellIndex === pos;
             const isLanded = lastLandedIndex === pos;
@@ -416,12 +490,12 @@ export default function Board({
                     </div>
 
                     <div
-                      style={{
-                        fontSize: 9,
-                        fontWeight: 700,
-                        color: colorScheme.text,
-                        textAlign: "center",
-                        lineHeight: 1.2,
+                       style={{
+     fontSize: 9,
+    fontWeight: 700,
+    color: colorScheme.text,
+    textAlign: "center",
+    lineHeight: 1.2,
                       }}
                     >
                       {displayName}
