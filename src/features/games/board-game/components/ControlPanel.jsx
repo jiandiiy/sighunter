@@ -11,7 +11,7 @@ export default function ControlPanel({
   currentTurnIndex,
   moveSteps,
   setMoveSteps,
-  diceValue,      // ✅ 마지막 결과만 표시용으로 유지
+  diceValue, // ✅ 마지막 결과만 표시용으로 유지
   isRolling,
   isMoving,
   logs,
@@ -27,8 +27,8 @@ export default function ControlPanel({
   onMoveSelected,
   onApplyCellChange,
   onResetGame, // 🔁 전체 초기화 핸들러
-  diceTarget,      // "turn" | "selected"
-  setDiceTarget,   // setter
+  diceTarget, // "turn" | "selected"
+  setDiceTarget, // setter
 }) {
   return (
     <div
@@ -57,7 +57,7 @@ export default function ControlPanel({
         🎰 컨트롤 센터
       </h3>
 
-      {/* 현재 턴 표시 */}
+      {/* 현재 턴 표시 + 무인도 상태 배지 */}
       <div
         style={{
           marginBottom: 6,
@@ -65,10 +65,44 @@ export default function ControlPanel({
           color: "#e5e7eb",
         }}
       >
-        현재 턴:&nbsp;
-        <b style={{ color: "#fef3c7" }}>
-          {currentTurnToken ? currentTurnToken.name : "-"}
-        </b>
+        <div style={{ marginBottom: 4 }}>
+          현재 턴:&nbsp;
+          <b style={{ color: "#fef3c7" }}>
+            {currentTurnToken ? currentTurnToken.name : "-"}
+          </b>
+        </div>
+
+        {/* 🔥 현재 턴 말이 무인도에 갇혀 있는 경우 표시 */}
+        {currentTurnToken && currentTurnToken.skipTurns > 0 && (
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "4px 8px",
+              borderRadius: 999,
+              background:
+                "linear-gradient(90deg, rgba(248,113,113,0.2), rgba(239,68,68,0.15))",
+              border: "1px solid rgba(248,113,113,0.6)",
+              color: "#fecaca",
+              fontSize: 11,
+            }}
+          >
+            <span
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: "999px",
+                backgroundColor: "#f97316",
+                boxShadow: "0 0 6px rgba(248,113,113,0.7)",
+              }}
+            />
+            <span>
+              무인도 대기{" "}
+              <strong>{currentTurnToken.skipTurns}</strong>턴 남음
+            </span>
+          </div>
+        )}
       </div>
 
       {/* 말 추가/삭제 컨트롤 */}
@@ -492,39 +526,53 @@ export default function ControlPanel({
                 color: "#e5e7eb",
               }}
             >
-              로그
-            </div>
-            {logs.length === 0 ? (
-              <div style={{ opacity: 0.6 }}>아직 로그 없음</div>
-            ) : (
-              logs.map((log) => (
-                <div key={log.id} style={{ marginBottom: 2 }}>
-                  <span style={{ color: "#bfdbfe" }}>
-                    {log.tokenName}
-                  </span>{" "}
-                  님 주사위{" "}
-                  <span style={{ color: "#fee2e2" }}>{log.dice}</span>{" "}
-                  ➜ {log.cell}번 칸
-                  {log.diff !== 0 && (
-                    <>
-                      {" "}
-                      (
-                      <span
-                        style={{
-                          color:
-                            log.diff > 0 ? "#bbf7d0" : "#fecaca",
-                        }}
-                      >
-                        {log.diff > 0 ? "+" : ""}
-                        {log.diff}점
-                      </span>
-                      )
-                    </>
-                  )}
-                </div>
-              ))
-            )}
+                로그
+  </div>
+  {logs.length === 0 ? (
+    <div style={{ opacity: 0.6 }}>아직 로그 없음</div>
+  ) : (
+    logs.map((log) => (
+      <div key={log.id} style={{ marginBottom: 4 }}>
+        {/* 1줄: 누구 / 주사위 / 몇 번 칸 / 점수 변화 */}
+        <div>
+          <span style={{ color: "#bfdbfe" }}>{log.tokenName}</span> 님 주사위{" "}
+          <span style={{ color: "#fee2e2" }}>{log.dice}</span> ➜{" "}
+          <span style={{ color: "#fde68a" }}>{log.cell}번 칸</span>
+          {log.diff !== 0 && (
+            <>
+              {" "}
+              (
+              <span
+                style={{
+                  color: log.diff > 0 ? "#bbf7d0" : "#fecaca",
+                }}
+              >
+                {log.diff > 0 ? "+" : ""}
+                {log.diff}점
+              </span>
+              )
+            </>
+          )}
+        </div>
+
+        {/* 2줄: 해당 칸의 효과 텍스트 (줄바꿈 유지) */}
+        {log.text && (
+          <div
+            style={{
+              marginTop: 2,
+              marginLeft: 4,
+              fontSize: 10,
+              color: "#9ca3af",
+              whiteSpace: "pre-line", // \n → 실제 줄바꿈
+            }}
+          >
+            {log.text}
           </div>
+        )}
+      </div>
+    ))
+  )}
+</div>
 
           {/* 클릭해서 선택한 칸 내용 수정 영역 */}
           <div

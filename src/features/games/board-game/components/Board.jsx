@@ -21,79 +21,126 @@ export default function Board({
   diceSnapRotation,
   isRolling,
   onRollDice,
+
+  // 지금은 BoardGame 쪽에서 직접 처리하므로 사용 X (남겨만 둠)
+  onTokenLand,
+
+  // ✅ 무인도 오버레이 (주사위 위에 뜨는 알림)
+  prisonOverlay,
 }) {
-  // ✅ 7x7 고정일 때도 rows/cols로부터 둘레(칸 수) 계산 → 24
+  // =========================
+  // 0. 기본 보드 구조
+  // =========================
+
   const perimeter = useMemo(() => {
     if (rows < 2 || cols < 2) return 0;
     return 2 * (rows + cols) - 4;
   }, [rows, cols]);
 
-  // ✅ 24칸(7×7 외곽 링) 전용 좌표 매핑
-  // 0~23 인덱스를 7x7 격자의 (row, col)로 매핑
   const GRID_SIZE = 7;
+
+  // 24칸 인덱스 → 7x7 좌표 (r,c)
   const indexToCoord24 = (index) => {
     const max = GRID_SIZE - 1; // 6
 
-    // 상단 라인: (0,0) ~ (0,6) => index 0~6 (7칸)
-    if (index <= 6) {
-      return { r: 0, c: index };
-    }
-
-    // 오른쪽 라인: (1,6) ~ (5,6) => index 7~11 (5칸)
-    if (index <= 11) {
-      return { r: index - 6, c: max };
-    }
-
-    // 하단 라인: (6,6) ~ (6,0) => index 12~18 (7칸)
+    if (index <= 6) return { r: 0, c: index }; // 상단
+    if (index <= 11) return { r: index - 6, c: max }; // 오른쪽
     if (index <= 18) {
-      return { r: max, c: max - (index - 11.8) };
+      const offset = index - 12;
+      return { r: max, c: max - offset }; // 하단
     }
-
-    // 왼쪽 라인: (5,0) ~ (1,0) => index 19~23 (5칸)
-    return { r: max - (index - 18), c: 0 };
+    const offset = index - 19;
+    return { r: max - 1 - offset, c: 0 }; // 왼쪽
   };
 
-  // ✅ 24칸용 보드 데이터 (원하는 대로 색/이름 나중에 조정 가능)
-  const boardData24 = [
-    // 0~6: 상단 왼→오
-    { bg: "#d1d5cf", text: "#1f2937", name: "START", icon: "🏁", isCorner: true }, // 0
-    { bg: "#513c33", text: "#fff", name: "타이베이" }, // 1
-    { bg: "#d3bb98", text: "#422006", name: "베이징" }, // 2
-    { bg: "#d1b690", text: "#422006", name: "마닐라" }, // 3
-    { bg: "#ceb28e", text: "#422006", name: "싱가포르" }, // 4
-    { bg: "#3b4f5b", text: "#fff", name: "황금열쇠", icon: "🔑", special: true }, // 5
-    { bg: "#40b578", text: "#fff", name: "무인도", icon: "🏝️", isCorner: true }, // 6 (우상단)
+  // =========================
+  // 1. 기본 보드 데이터 (색/도시 이름만)
+  // =========================
 
-    // 7~11: 오른쪽 상→하
-    { bg: "#e0d6df", text: "#4c1d95", name: "제주" }, // 7
-    { bg: "#d2e0dd", text: "#065f46", name: "서울" }, // 8
-    { bg: "#624d28", text: "#fff", name: "푸껫" }, // 9
-    { bg: "#b48c56", text: "#422006", name: "하와이" }, // 10
-    { bg: "#897a83", text: "#fff", name: "도쿄" }, // 12
-    
-    // 12~18: 하단 오→왼
-    { bg: "#c9dce3", text: "#0c4a6e", name: "세계여행", icon: "✈️", isCorner: true }, // 11 (우하단)
-    { bg: "#d1bfa5", text: "#422006", name: "파리" }, // 13
-    { bg: "#cbb08b", text: "#422006", name: "로마" }, // 14
-    { bg: "#cbae7e", text: "#422006", name: "런던" }, // 15
-    { bg: "#caab78", text: "#422006", name: "황금열쇠", icon: "🔑", special: true }, // 16
-    { bg: "#eb8c63", text: "#fff", name: "모스크바" }, // 17
-    { bg: "#e6c7de", text: "#831843", name: "우주여행", icon: "🚀", isCorner: true }, // 18 (좌하단)
+  const boardData24 = useMemo(
+    () => [
+      // 0~6: 상단 왼→오
+      {
+        bg: "#d1d5cf",
+        text: "#1f2937",
+        name: "START",
+        icon: "🏁",
+        isCorner: true,
+      }, // 0
+      { bg: "#513c33", text: "#fff", name: "타이베이" }, // 1
+      { bg: "#d3bb98", text: "#422006", name: "베이징" }, // 2
+      { bg: "#d1b690", text: "#422006", name: "마닐라" }, // 3
+      { bg: "#ceb28e", text: "#422006", name: "싱가포르" }, // 4
+      {
+        bg: "#3b4f5b",
+        text: "#fff",
+        name: "황금열쇠",
+        icon: "🔑",
+        special: "key",
+      }, // 5
+      {
+        bg: "#40b578",
+        text: "#fff",
+        name: "무인도",
+        icon: "🏝️",
+        isCorner: true,
+        special: "prison",
+      }, // 6
 
-    // 19~23: 왼쪽 하→상
-    { bg: "#6c60ee", text: "#fff", name: "서울" }, // 19
-    { bg: "#796af2", text: "#fff", name: "부산" }, // 20
-    { bg: "#d5b987", text: "#422006", name: "뉴욕" }, // 21
-    { bg: "#c7a470", text: "#422006", name: "황금열쇠", icon: "🔑", special: true }, // 22
-    { bg: "#bb93b6", text: "#4c1d95", name: "퀘백", isCorner: true }, // 23 (좌상단)
-  ];
+      // 7~11: 오른쪽 상→하
+      { bg: "#e0d6df", text: "#4c1d95", name: "제주" }, // 7
+      { bg: "#d2e0dd", text: "#065f46", name: "서울" }, // 8
+      { bg: "#624d28", text: "#fff", name: "푸껫" }, // 9
+      { bg: "#b48c56", text: "#422006", name: "하와이" }, // 10
+      { bg: "#897a83", text: "#fff", name: "도쿄" }, // 11
 
-  const getCellColor = (pos) => {
-    if (pos < boardData24.length) {
-      return boardData24[pos];
-    }
+      // 12~18: 하단 오→왼
+      {
+        bg: "#c9dce3",
+        text: "#0c4a6e",
+        name: "세계여행",
+        icon: "✈️",
+        isCorner: true,
+        special: "world",
+      }, // 12
+      { bg: "#d1bfa5", text: "#422006", name: "파리" }, // 13
+      { bg: "#cbb08b", text: "#422006", name: "로마" }, // 14
+      { bg: "#cbae7e", text: "#422006", name: "런던" }, // 15
+      {
+        bg: "#caab78",
+        text: "#422006",
+        name: "황금열쇠",
+        icon: "🔑",
+        special: "key",
+      }, // 16
+      { bg: "#eb8c63", text: "#fff", name: "모스크바" }, // 17
+      {
+        bg: "#e6c7de",
+        text: "#831843",
+        name: "우주여행",
+        icon: "🚀",
+        isCorner: true,
+        special: "space",
+      }, // 18
 
-    // perimeter보다 pos가 커지는 일은 거의 없지만, 방어적으로 기본 색 반환
+      // 19~23: 왼쪽 하→상
+      { bg: "#6c60ee", text: "#fff", name: "서울" }, // 19
+      { bg: "#796af2", text: "#fff", name: "부산" }, // 20
+      { bg: "#d5b987", text: "#422006", name: "뉴욕" }, // 21
+      {
+        bg: "#c7a470",
+        text: "#422006",
+        name: "황금열쇠",
+        icon: "🔑",
+        special: "key",
+      }, // 22
+      { bg: "#bb93b6", text: "#4c1d95", name: "퀘백", isCorner: true }, // 23
+    ],
+    []
+  );
+
+  const getBaseCellColor = (pos) => {
+    if (pos < boardData24.length) return boardData24[pos];
     const colors = [
       { bg: "#10b981", text: "#fff" },
       { bg: "#3b82f6", text: "#fff" },
@@ -106,143 +153,140 @@ export default function Board({
   const BOARD_BORDER = 6;
   const CENTER_PAD = 22;
 
-  // 코너 전용 조정 상수
-const CORNER_SIZE_FACTOR = 1.50; // 1.5~1.6 사이 왔다갔다 하면서 맞추기
+  // =========================
+  // 2. 렌더링 헬퍼
+  // =========================
 
-// ↖ (0번)
-const CORNER_0_SHIFT_X = 0.35;
-const CORNER_0_SHIFT_Y = 0.50;
+  const tokensOnCell = (pos) => tokens.filter((t) => t.pos === pos);
+  const diceDisabled = !currentTurnToken || isMoving;
 
-// ↗ (6번)
-const CORNER_6_SHIFT_X = 0.50;
-const CORNER_6_SHIFT_Y = 0.50;
+  const getCellStyleFromPos = (pos) => {
+    const { r, c } = indexToCoord24(pos);
+    const N = GRID_SIZE;
 
-// ↘ (12번)
-const CORNER_12_SHIFT_X = 0.10;
-const CORNER_12_SHIFT_Y = 0.50;
+    const USED = 95;
+    const cell = USED / N;
+    const offset = (100 - USED) / 2;
 
-// ↙ (18번)
-const CORNER_18_SHIFT_X = 0.0;
-const CORNER_18_SHIFT_Y = 0.55;
+    const isTop = r === 0;
+    const isBottom = r === N - 1;
+    const isLeft = c === 0;
+    const isRight = c === N - 1;
 
-  // ✅ 7×7 링 기준: 전부 1×1 셀로, 7×7 그리드 내에 배치
- const getCellStyleFromPos = (pos) => {
-  const { r, c } = indexToCoord24(pos);
-  const N = GRID_SIZE; // 7
+    const leftBase = offset + c * cell;
+    const topBase = offset + r * cell;
 
-  const USED = 95;
-  const cell = USED / N;
-  const offset = (100 - USED) / 2;
+    const common = {
+      position: "absolute",
+      boxSizing: "border-box",
+    };
 
-  const isTop = r === 0;
-  const isBottom = r === N - 1;
-  const isLeft = c === 0;
-  const isRight = c === 0 || c === N - 1;
+    const CORNER_SIZE_FACTOR = 1.5;
+    const CORNER_0_SHIFT_X = 0.35;
+    const CORNER_0_SHIFT_Y = 0.5;
+    const CORNER_6_SHIFT_X = 0.5;
+    const CORNER_6_SHIFT_Y = 0.5;
+    const CORNER_12_SHIFT_X = 0.1;
+    const CORNER_12_SHIFT_Y = 0.5;
+    const CORNER_18_SHIFT_X = 0.0;
+    const CORNER_18_SHIFT_Y = 0.55;
 
-  const leftBase = offset + c * cell;
-  const topBase = offset + r * cell;
+    const isCorner = pos === 0 || pos === 6 || pos === 12 || pos === 18;
+    if (isCorner) {
+      const size = cell * CORNER_SIZE_FACTOR;
 
-  const common = {
-    position: "absolute",
-    boxSizing: "border-box",
-  };
+      let shiftX = 0.32;
+      let shiftY = 0.4;
 
-  // ===== 조정용 상수들 =====
-  // 코너 판정
-  const isCorner = pos === 0 || pos === 6 || pos === 12 || pos === 18;
-  if (isCorner) {
-    const size = cell * CORNER_SIZE_FACTOR;
+      if (pos === 0) {
+        shiftX = CORNER_0_SHIFT_X;
+        shiftY = CORNER_0_SHIFT_Y;
+      } else if (pos === 6) {
+        shiftX = CORNER_6_SHIFT_X;
+        shiftY = CORNER_6_SHIFT_Y;
+      } else if (pos === 12) {
+        shiftX = CORNER_12_SHIFT_X;
+        shiftY = CORNER_12_SHIFT_Y;
+      } else if (pos === 18) {
+        shiftX = CORNER_18_SHIFT_X;
+        shiftY = CORNER_18_SHIFT_Y;
+      }
 
-    let shiftX = 0.32;
-    let shiftY = 0.4;
+      return {
+        ...common,
+        left: `${leftBase - (size - cell) * shiftX}%`,
+        top: `${topBase - (size - cell) * shiftY}%`,
+        width: `${size}%`,
+        height: `${size}%`,
+        zIndex: 5,
+      };
+    }
 
-    if (pos === 0) {
-      shiftX = CORNER_0_SHIFT_X;
-      shiftY = CORNER_0_SHIFT_Y;
-    } else if (pos === 6) {
-      shiftX = CORNER_6_SHIFT_X;
-      shiftY = CORNER_6_SHIFT_Y;
-    } else if (pos === 12) {
-      shiftX = CORNER_12_SHIFT_X;
-      shiftY = CORNER_12_SHIFT_Y;
-    } else if (pos === 18) {
-      shiftX = CORNER_18_SHIFT_X;
-      shiftY = CORNER_18_SHIFT_Y;
+    const H_WIDTH_FACTOR = 0.7;
+    const H_HEIGHT_FACTOR = 1.5;
+    const H_TOP_OFFSET_TOP = 0.5;
+    const H_TOP_OFFSET_BOTTOM = 0.4;
+
+    const V_WIDTH_FACTOR = 1.6;
+    const V_HEIGHT_FACTOR = 0.15;
+    const V_LEFT_OFFSET_LEFT = 0.3;
+    const V_LEFT_OFFSET_RIGHT = 0.2;
+    const V_TOP_SHIFT = 0.2;
+
+    if (isTop || isBottom) {
+      const width = cell * H_WIDTH_FACTOR;
+      const height = cell * H_HEIGHT_FACTOR;
+
+      const top = isTop
+        ? topBase - (height - cell) * H_TOP_OFFSET_TOP
+        : topBase + (cell - height) * H_TOP_OFFSET_BOTTOM;
+
+      return {
+        ...common,
+        left: `${leftBase - (width - cell) / 2}%`,
+        top: `${top}%`,
+        width: `${width}%`,
+        height: `${height}%`,
+        zIndex: 4,
+      };
+    }
+
+    if (isLeft || isRight) {
+      const width = cell * V_WIDTH_FACTOR;
+      const height = cell * V_HEIGHT_FACTOR;
+
+      const left = isLeft
+        ? leftBase - (width - cell) * V_LEFT_OFFSET_LEFT
+        : leftBase + (cell - width) * V_LEFT_OFFSET_RIGHT;
+
+      return {
+        ...common,
+        left: `${left}%`,
+        top: `${topBase - (height - cell) * V_TOP_SHIFT}%`,
+        width: `${width}%`,
+        height: `${height}%`,
+        zIndex: 3,
+      };
     }
 
     return {
       ...common,
-      left: `${leftBase - (size - cell) * shiftX}%`,
-      top: `${topBase - (size - cell) * shiftY}%`,
-      width: `${size}%`,
-      height: `${size}%`,
-      zIndex: 5,
+      left: `${leftBase}%`,
+      top: `${topBase}%`,
+      width: `${cell}%`,
+      height: `${cell}%`,
+      zIndex: 1,
     };
-  }
-
-  const H_WIDTH_FACTOR = 0.7;       // 상/하 가로 얇기 (0.6 ~ 0.9)
-  const H_HEIGHT_FACTOR = 1.5;      // 상/하 세로 길이 (1.2 ~ 1.7)
-  const H_TOP_OFFSET_TOP = 0.5;     // 상단 위로 튀어나오는 정도 (0.5 ~ 0.9)
-  const H_TOP_OFFSET_BOTTOM = 0.4;  // 하단 안쪽으로 넣는 정도 (0 ~ 0.4)
-
-  const V_WIDTH_FACTOR = 1.6;       // 좌/우 가로 길이 (1.3 ~ 1.8)
-  const V_HEIGHT_FACTOR = 0.15;      // 좌/우 세로 얇기 (0.2 ~ 0.5)
-  const V_LEFT_OFFSET_LEFT = 0.3;   // 좌측 왼쪽으로 튀어나오는 정도 (0.5 ~ 0.9)
-  const V_LEFT_OFFSET_RIGHT = 0.2;  // 우측 안쪽으로 넣는 정도 (0 ~ 0.4)
-  const V_TOP_SHIFT = 0.2;          // 좌/우 위아래 기준 위치 보정 (0 ~ 1)
-
-
-  // ===== 상/하 =====
-  if (isTop || isBottom) {
-    const width = cell * H_WIDTH_FACTOR;
-    const height = cell * H_HEIGHT_FACTOR;
-
-    const top = isTop
-      ? topBase - (height - cell) * H_TOP_OFFSET_TOP
-      : topBase + (cell - height) * H_TOP_OFFSET_BOTTOM;
-
-    return {
-      ...common,
-      left: `${leftBase - (width - cell) / 2}%`,
-      top: `${top}%`,
-      width: `${width}%`,
-      height: `${height}%`,
-      zIndex: 4,
-    };
-  }
-
-  // ===== 좌/우 =====
-  if (isLeft || isRight) {
-    const width = cell * V_WIDTH_FACTOR;
-    const height = cell * V_HEIGHT_FACTOR;
-
-    const left = isLeft
-      ? leftBase - (width - cell) * V_LEFT_OFFSET_LEFT
-      : leftBase + (cell - width) * V_LEFT_OFFSET_RIGHT;
-
-    return {
-      ...common,
-      left: `${left}%`,
-      top: `${topBase - (height - cell) * V_TOP_SHIFT}%`,
-      width: `${width}%`,
-      height: `${height}%`,
-      zIndex: 3,
-    };
-  }
-
-  // 안전장치
-  return {
-    ...common,
-    left: `${leftBase}%`,
-    top: `${topBase}%`,
-    width: `${cell}%`,
-    height: `${cell}%`,
-    zIndex: 1,
   };
-};
 
-  const tokensOnCell = (pos) => tokens.filter((t) => t.pos === pos);
-  const diceDisabled = !currentTurnToken || isMoving;
+  const getMergedCellInfo = (pos) => {
+    const base = getBaseCellColor(pos);
+    return { base };
+  };
+
+  // =========================
+  // 3. 렌더
+  // =========================
 
   return (
     <div style={{ width: "100%", display: "flex", flexDirection: "column" }}>
@@ -284,7 +328,7 @@ const CORNER_18_SHIFT_Y = 0.55;
         {rows} × {cols} 보드 · 둘레 {perimeter}칸
       </p>
 
-      {/* 행/열 입력 (원하면 나중에 제거/비활성화 가능) */}
+      {/* 행/열 입력 */}
       <div
         style={{
           display: "flex",
@@ -365,7 +409,7 @@ const CORNER_18_SHIFT_Y = 0.55;
             overflow: "visible",
           }}
         >
-          {/* 중앙 영역 가이드 (투명) */}
+          {/* 중앙 가이드 */}
           <div
             style={{
               position: "absolute",
@@ -379,7 +423,7 @@ const CORNER_18_SHIFT_Y = 0.55;
             }}
           />
 
-          {/* 중앙 주사위 */}
+          {/* 중앙 주사위 + 무인도 오버레이 */}
           <div
             style={{
               position: "absolute",
@@ -390,6 +434,7 @@ const CORNER_18_SHIFT_Y = 0.55;
               pointerEvents: "none",
             }}
           >
+            {/* 주사위 */}
             <div
               onClick={() => {
                 if (diceDisabled || isRolling) return;
@@ -410,17 +455,113 @@ const CORNER_18_SHIFT_Y = 0.55;
                 disabled={diceDisabled || isRolling}
               />
             </div>
+
+            {/* ✅ 무인도 알림 오버레이 */}
+            {prisonOverlay && (
+              <div
+                style={{
+                  position: "absolute",
+                  left: "50%",
+                  top: "-65%", // 주사위 위쪽에 배치
+                  transform: "translateX(-50%)",
+                  padding: "6px 10px",
+                  borderRadius: 999,
+                  background:
+                    "linear-gradient(135deg, rgba(239,68,68,0.95), rgba(249,115,22,0.95))",
+                  color: "#f9fafb",
+                  fontSize: 10,
+                  fontWeight: 800,
+                  boxShadow:
+                    "0 4px 10px rgba(0,0,0,0.7), 0 0 12px rgba(248,250,252,0.7)",
+                  whiteSpace: "nowrap",
+                  pointerEvents: "none",
+                  border: "1px solid rgba(248,250,252,0.8)",
+                  textShadow: "0 1px 2px rgba(0,0,0,0.9)",
+                }}
+              >
+                <span style={{ marginRight: 4 }}>🏝️ 무인도 당첨!</span>
+                <span>
+                  {prisonOverlay.tokenName} – {prisonOverlay.turns}턴 동안 이동 불가
+                </span>
+              </div>
+            )}
           </div>
 
           {/* 둘레 칸들 */}
           {Array.from({ length: perimeter }, (_, pos) => {
+            const { base } = getMergedCellInfo(pos);
             const onThis = tokensOnCell(pos);
-            const colorScheme = getCellColor(pos);
-            const displayName =
-              colorScheme.name || cells[pos] || `칸${pos + 1}`;
-
+            const displayName = base.name || cells[pos] || `칸${pos + 1}`;
             const isSelectedCell = selectedCellIndex === pos;
             const isLanded = lastLandedIndex === pos;
+
+            // 모든 칸 공통 토큰 영역
+            const tokenStack = (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 2,
+                  alignItems: "center",
+                  marginTop: "auto",
+                }}
+              >
+                {onThis.map((t) => {
+                  const isMovingThis =
+                    isMoving && t.id === currentTurnToken?.id;
+                  const isScoreChanging =
+                    scoreChange && scoreChange.tokenId === t.id;
+
+                  return (
+                    <div
+                      key={t.id}
+                      title={`${t.name} (점수: ${t.score}점)`}
+                      style={{
+                        position: "relative",
+                        padding: ".0625rem .25rem",
+                        borderRadius: 6,
+                        background: t.color,
+                        color: "#ffffff",
+                        fontSize: 9,
+                        fontWeight: 700,
+                        boxShadow: "0 .125rem .25rem rgba(0,0,0,0.5)",
+                        transform: isMovingThis ? "scale(1.05)" : "none",
+                        transition: "transform 0.2s ease-out",
+                        whiteSpace: "nowrap",
+                        maxWidth: "100%",
+                        textOverflow: "ellipsis",
+                        overflow: "hidden",
+                      }}
+                    >
+                      {t.name}
+
+                      {isScoreChanging && (
+                        <span
+                          style={{
+                            position: "absolute",
+                            top: -14,
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            fontSize: 9,
+                            fontWeight: 900,
+                            color:
+                              scoreChange.diff > 0
+                                ? "#4ade80"
+                                : "#f87171",
+                            textShadow:
+                              "0 0 .375rem rgba(0,0,0,0.9)",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {scoreChange.diff > 0 ? "+" : ""}
+                          {scoreChange.diff}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            );
 
             return (
               <div
@@ -428,7 +569,7 @@ const CORNER_18_SHIFT_Y = 0.55;
                 onClick={() => onClickCell(pos)}
                 style={{
                   ...getCellStyleFromPos(pos),
-                  background: colorScheme.bg,
+                  background: base.bg,
                   border: isSelectedCell
                     ? ".1875rem solid #fbbf24"
                     : isLanded
@@ -439,63 +580,73 @@ const CORNER_18_SHIFT_Y = 0.55;
                     : isLanded
                     ? "0 0 1.125rem rgba(52,211,153,0.9)"
                     : "inset 0 .125rem .25rem rgba(255,255,255,0.2), 0 .125rem .5rem rgba(0,0,0,0.4)",
-                  borderRadius: colorScheme.isCorner ? 12 : 6,
-                  padding: colorScheme.isCorner ? "8%" : "7%",
+                  borderRadius: base.isCorner ? 12 : 6,
+                  padding: base.isCorner ? "8%" : "7%",
                   boxSizing: "border-box",
                   cursor: "pointer",
                   overflow: "hidden",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  justifyContent: colorScheme.isCorner
-                    ? "center"
-                    : "space-between",
+                  justifyContent: base.isCorner ? "center" : "space-between",
                 }}
               >
-                {colorScheme.isCorner ? (
+                {base.isCorner ? (
                   <div style={{ textAlign: "center" }}>
-                    {colorScheme.icon && (
+                    {base.icon && (
                       <div style={{ fontSize: 32, marginBottom: 4 }}>
-                        {colorScheme.icon}
+                        {base.icon}
                       </div>
                     )}
                     <div
                       style={{
                         fontSize: 12,
                         fontWeight: 900,
-                        color: colorScheme.text,
+                        color: base.text,
                       }}
                     >
                       {displayName}
                     </div>
+                    {base.special === "prison" && (
+                      <div
+                        style={{
+                          marginTop: 4,
+                          fontSize: 9,
+                          color: base.text,
+                          fontWeight: 700,
+                        }}
+                      >
+                        2턴 동안 이동 불가
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <>
                     <div style={{ width: "100%", textAlign: "center" }}>
-                      {colorScheme.special && colorScheme.icon && (
+                      {base.special && base.icon && (
                         <div style={{ fontSize: 18, marginBottom: 2 }}>
-                          {colorScheme.icon}
+                          {base.icon}
                         </div>
                       )}
                       <div
                         style={{
-                          fontSize: colorScheme.special ? 10 : 8,
+                          fontSize: base.special ? 10 : 8,
                           fontWeight: 700,
-                          color: colorScheme.text,
-                          opacity: colorScheme.special ? 1 : 0.7,
+                          color: base.text,
+                          opacity: base.special ? 1 : 0.7,
                         }}
                       >
-                        {colorScheme.special ? "" : `#${pos + 1}`}
+                        {base.special ? "" : `#${pos + 1}`}
                       </div>
                     </div>
 
                     <div
-                       style={{
-     fontSize: 9,
-    fontWeight: 700,
-    color: colorScheme.text,
-    textAlign: "center",
-    lineHeight: 1.2,
+                      style={{
+                        fontSize: 9,
+                        fontWeight: 700,
+                        color: base.text,
+                        textAlign: "center",
+                        lineHeight: 1.2,
                       }}
                     >
                       {displayName}
@@ -503,69 +654,39 @@ const CORNER_18_SHIFT_Y = 0.55;
 
                     <div
                       style={{
+                        width: "100%",
                         display: "flex",
                         flexDirection: "column",
                         gap: 2,
-                        alignItems: "center",
-                        marginTop: "auto",
+                        marginTop: 2,
                       }}
                     >
-                      {onThis.map((t) => {
-                        const isMovingThis =
-                          isMoving && t.id === currentTurnToken?.id;
-                        const isScoreChanging =
-                          scoreChange && scoreChange.tokenId === t.id;
-
-                        return (
-                          <div
-                            key={t.id}
-                            title={`${t.name} (점수: ${t.score}점)`}
+                      {base.special === "prison" && (
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <span
                             style={{
-                              position: "relative",
-                              padding: ".0625rem .25rem",
-                              borderRadius: 6,
-                              background: t.color,
-                              color: "#ffffff",
-                              fontSize: 9,
-                              fontWeight: 700,
-                              boxShadow: "0 .125rem .25rem rgba(0,0,0,0.5)",
-                              transform: isMovingThis ? "scale(1.05)" : "none",
-                              transition: "transform 0.2s ease-out",
-                              whiteSpace: "nowrap",
-                              maxWidth: "100%",
-                              textOverflow: "ellipsis",
-                              overflow: "hidden",
+                              padding: "1px 4px",
+                              borderRadius: 999,
+                              fontSize: 8,
+                              background: "#1f2937",
+                              color: "#e5e7eb",
                             }}
                           >
-                            {t.name}
-
-                            {isScoreChanging && (
-                              <span
-                                style={{
-                                  position: "absolute",
-                                  top: -14,
-                                  left: "50%",
-                                  transform: "translateX(-50%)",
-                                  fontSize: 9,
-                                  fontWeight: 900,
-                                  color:
-                                    scoreChange.diff > 0
-                                      ? "#4ade80"
-                                      : "#f87171",
-                                  textShadow: "0 0 .375rem rgba(0,0,0,0.9)",
-                                  whiteSpace: "nowrap",
-                                }}
-                              >
-                                {scoreChange.diff > 0 ? "+" : ""}
-                                {scoreChange.diff}
-                              </span>
-                            )}
-                          </div>
-                        );
-                      })}
+                            무인도 (2턴 정지)
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </>
                 )}
+
+                {/* 코너/일반 공통 토큰 영역 */}
+                {tokenStack}
               </div>
             );
           })}

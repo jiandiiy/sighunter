@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from "react";
+// src/components/GameCenter/BoardGame/BoardGame.jsx
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import Board from "./Board";
 import ControlPanel from "./ControlPanel";
 import Toast from "./Toast";
@@ -11,6 +12,8 @@ import {
 import { useDice } from "../../../../shared/hooks/common/useDice";
 import { useBoardEffects } from "../../../../shared/hooks";
 
+const STORAGE_KEY = "boardGameState_v1";
+
 export default function BoardGame() {
   // 7x7 고정
   const [rows, setRows] = useState(7);
@@ -22,27 +25,33 @@ export default function BoardGame() {
     return 2 * (rows + cols) - 4;
   }, [rows, cols]);
 
-  const [cells, setCells] = useState(() => makeDefaultCellTexts(perimeter));
+  // 초기 토큰 생성 함수
+  const createInitialTokens = useCallback(() => {
+    return Array.from({ length: 4 }, (_, i) =>
+      makeToken(i + 1, `BJ${i + 1}`, TOKEN_COLORS[i % TOKEN_COLORS.length])
+    ).map((t) => ({ ...t, skipTurns: 0 }));
+  }, []);
+
+  // =========================
+  // 1. 상태 정의
+  // =========================
+
+  const [cells, setCells] = useState(() =>
+    perimeter > 0 ? makeDefaultCellTexts(perimeter) : []
+  );
   const [cellStyles, setCellStyles] = useState(() =>
-    makeDefaultCellStyles(perimeter)
+    perimeter > 0 ? makeDefaultCellStyles(perimeter) : []
   );
 
-  const initialTokens = Array.from({ length: 4 }, (_, i) =>
-    makeToken(i + 1, `BJ${i + 1}`, TOKEN_COLORS[i % TOKEN_COLORS.length])
-  );
-  const [tokens, setTokens] = useState(initialTokens);
-  const [selectedTokenId, setSelectedTokenId] = useState(
-    initialTokens[0]?.id ?? null
-  );
+  const [tokens, setTokens] = useState(() => createInitialTokens());
+  const [selectedTokenId, setSelectedTokenId] = useState(null);
   const [diceTarget, setDiceTarget] = useState("turn");
 
   const [currentTurnIndex, setCurrentTurnIndex] = useState(0);
   const [moveSteps, setMoveSteps] = useState(1);
   const [isMoving, setIsMoving] = useState(false);
 
-  const [tokenNameEdit, setTokenNameEdit] = useState(
-    initialTokens[0]?.name ?? ""
-  );
+  const [tokenNameEdit, setTokenNameEdit] = useState("");
 
   const [selectedCellIndex, setSelectedCellIndex] = useState(null);
   const [panelCellText, setPanelCellText] = useState("");
@@ -52,7 +61,16 @@ export default function BoardGame() {
     color: "#f9fafb",
   });
 
-  const selectedToken = tokens.find((t) => t.id === selectedTokenId);
+  // 무인도 오버레이 (주사위 위 알림)
+  const [prisonOverlay, setPrisonOverlay] = useState(null);
+  // { tokenName, turns } | null
+
+  // ✅ 세계여행/우주여행 목적지 선택 모드
+  const [travelSelect, setTravelSelect] = useState(null);
+  // { tokenId: number, type: 'world' | 'space' } | null
+
+  const selectedToken =
+    tokens.find((t) => t.id === selectedTokenId) || null;
   const currentTurnToken = tokens[currentTurnIndex] || null;
 
   const {
@@ -64,15 +82,253 @@ export default function BoardGame() {
     resetBoardEffects,
     attachGoodAudioRef,
     attachBadAudioRef,
+    setToast,
   } = useBoardEffects({ cells });
 
+  // =========================
+  // 2. localStorage 복원
+  // =========================
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        // 초기값 세팅
+        const initTokens = createInitialTokens();
+        setTokens(initTokens);
+        setSelectedTokenId(initTokens[0]?.id ?? null);
+        setTokenNameEdit(initTokens[0]?.name ?? "");
+        setCells(makeDefaultCellTexts(24));
+        setCellStyles(makeDefaultCellStyles(24));
+        return;
+      }
+
+      const saved = JSON.parse(raw);
+
+      const savedCells = Array.isArray(saved.cells)
+        ? saved.cells
+        : makeDefaultCellTexts(24);
+      const savedStyles = Array.isArray(saved.cellStyles)
+        ? saved.cellStyles
+        : makeDefaultCellStyles(24);
+      const savedTokens = Array.isArray(saved.tokens)
+        ? saved.tokens
+        : createInitialTokens();
+
+      setCells(savedCells);
+      setCellStyles(savedStyles);
+      setTokens(savedTokens);
+
+      setSelectedTokenId(
+        saved.selectedTokenId ?? savedTokens[0]?.id ?? null
+      );
+      setDiceTarget(saved.diceTarget || "turn");
+      setCurrentTurnIndex(
+        typeof saved.currentTurnIndex === "number"
+          ? saved.currentTurnIndex
+          : 0
+      );
+      setMoveSteps(
+        typeof saved.moveSteps === "number" ? saved.moveSteps : 1
+      );
+      setSelectedCellIndex(
+        typeof saved.selectedCellIndex === "number"
+          ? saved.selectedCellIndex
+          : null
+      );
+      setPanelCellText(saved.panelCellText || "");
+      setPanelCellStyle(
+        saved.panelCellStyle || {
+          fontSize: 12,
+          fontWeight: 600,
+          color: "#f9fafb",
+        }
+      );
+
+      const firstToken =
+        savedTokens.find((t) => t.id === saved.selectedTokenId) ||
+        savedTokens[0] ||
+        null;
+      setTokenNameEdit(firstToken?.name ?? "");
+    } catch (e) {
+      console.error("보드 상태 복원 실패:", e);
+      const initTokens = createInitialTokens();
+      setTokens(initTokens);
+      setSelectedTokenId(initTokens[0]?.id ?? null);
+      setTokenNameEdit(initTokens[0]?.name ?? "");
+      setCells(makeDefaultCellTexts(24));
+      setCellStyles(makeDefaultCellStyles(24));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // 최초 1회만 복원
+
+  // =========================
+  // 3. localStorage 저장
+  // =========================
+
+  useEffect(() => {
+    try {
+      const data = {
+        cells,
+        cellStyles,
+        tokens,
+        selectedTokenId,
+        diceTarget,
+        currentTurnIndex,
+        moveSteps,
+        selectedCellIndex,
+        panelCellText,
+        panelCellStyle,
+      };
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch (e) {
+      console.error("보드 상태 저장 실패:", e);
+    }
+  }, [
+    cells,
+    cellStyles,
+    tokens,
+    selectedTokenId,
+    diceTarget,
+    currentTurnIndex,
+    moveSteps,
+    selectedCellIndex,
+    panelCellText,
+    panelCellStyle,
+  ]);
+
+  // =========================
+  // 4. 턴/이동/주사위 로직
+  // =========================
+
+  /** 다음 턴으로 이동 + skipTurns 소모 */
+  const goToNextTurn = () => {
+    setTokens((prevTokens) => {
+      if (prevTokens.length === 0) return prevTokens;
+
+      let safety = 0;
+      const nextTokens = [...prevTokens];
+
+      let nextIndex =
+        (currentTurnIndex + 1 + nextTokens.length) % nextTokens.length;
+
+      while (safety < nextTokens.length * 2) {
+        const candidate = nextTokens[nextIndex];
+
+        if (candidate.skipTurns && candidate.skipTurns > 0) {
+          // 이 토큰은 이번 턴 스킵, skipTurns -1
+          nextTokens[nextIndex] = {
+            ...candidate,
+            skipTurns: candidate.skipTurns - 1,
+          };
+          nextIndex = (nextIndex + 1) % nextTokens.length;
+          safety += 1;
+          continue;
+        }
+
+        // skipTurns가 0이면 이 토큰이 다음 턴 주인공
+        setCurrentTurnIndex(nextIndex);
+        return nextTokens;
+      }
+
+      // 모든 토큰이 스킵 상태면 턴은 유지
+      return nextTokens;
+    });
+  };
+
+  /** Board에서 올려주는 칸 도착 콜백 (무인도 등) */
+  const handleTokenLand = useCallback(
+    (token, cellIndex, info) => {
+      console.log("handleTokenLand 호출:", {
+        tokenName: token.name,
+        cellIndex,
+        info,
+      });
+
+      if (info?.prisonSkip) {
+        console.log("무인도 도착, prisonSkip =", info.prisonSkip);
+
+        // skipTurns 증가
+        setTokens((prev) =>
+          prev.map((t) =>
+            t.id === token.id
+              ? {
+                  ...t,
+                  skipTurns: (t.skipTurns || 0) + info.prisonSkip,
+                }
+              : t
+          )
+        );
+
+        const turns =
+          typeof info.prisonSkip === "number" ? info.prisonSkip : 0;
+
+        if (typeof setToast === "function") {
+          setToast(
+            `${token.name} 님이 무인도에 갇혔습니다! (${turns}턴 대기)`
+          );
+        }
+
+        setPrisonOverlay({
+          tokenName: token.name,
+          turns,
+        });
+
+        setTimeout(() => {
+          setPrisonOverlay(null);
+        }, 2500);
+      }
+    },
+    [setTokens, setToast]
+  );
+
+  /** 텍스트/무인도/세계·우주여행 등, 말이 어떤 칸에 "최종" 도착했을 때 공통 처리 */
+  const handleFinalLand = (token, cellIndex, diceValue, options = {}) => {
+    const totalCells = perimeter || 24;
+
+    // 1) 텍스트 기반 칸 효과
+    applyCellEffect({
+      cellIndex,
+      token,
+      diceValue,
+      updateTokens: setTokens,
+      boardSize: totalCells,
+    });
+
+    // 2) 특수 칸 처리
+    if (cellIndex === 6) {
+      // 무인도
+      handleTokenLand(token, cellIndex, {
+        base: { special: "prison" },
+        dynamic: null,
+        prisonSkip: 2,
+      });
+    } else if (cellIndex === 12) {
+      // 세계여행
+      setTravelSelect({ tokenId: token.id, type: "world" });
+      setToast?.(
+        `${token.name} 님, 세계여행 도착! 이동할 칸을 선택하세요.`
+      );
+    } else if (cellIndex === 18) {
+      // 우주여행
+      setTravelSelect({ tokenId: token.id, type: "space" });
+      setToast?.(
+        `${token.name} 님, 우주여행 도착! 이동할 칸을 선택하세요.`
+      );
+    }
+
+    // 3) 턴 넘기기
+    if (!options.skipTurnAdvance) {
+      goToNextTurn();
+    }
+  };
+
   /** 토큰 이동 애니메이션 */
-  const moveTokenWithAnimation = (token, steps) => {
+  const moveTokenWithAnimation = (token, steps, options = {}) => {
     if (!token) return;
     if (isMoving) return;
 
-    // 7x7 보드의 둘레(24칸)를 사용
-    const totalCells = perimeter;
+    const totalCells = perimeter || 24; // 7x7 기준 24칸
     if (!totalCells) return;
 
     const intSteps = steps | 0;
@@ -91,24 +347,19 @@ export default function BoardGame() {
       moved += 1;
       currentPos = (currentPos + direction + totalCells) % totalCells;
 
+      // 말 한 칸씩 이동
       setTokens((prev) =>
-        prev.map((t) => (t.id === token.id ? { ...t, pos: currentPos } : t))
+        prev.map((t) =>
+          t.id === token.id ? { ...t, pos: currentPos } : t
+        )
       );
 
       if (moved >= totalSteps) {
         clearInterval(timer);
         setIsMoving(false);
 
-        applyCellEffect({
-          cellIndex: currentPos,
-          token,
-          diceValue: steps, // 실제 이동 칸 수를 효과에 전달
-          updateTokens: setTokens,
-        });
-
-        setCurrentTurnIndex((prev) =>
-          tokens.length === 0 ? 0 : (prev + 1) % tokens.length
-        );
+        // 최종 도착 처리 (텍스트 + 특수칸 + 턴 넘김)
+        handleFinalLand(token, currentPos, steps, options);
       }
     }, stepMs);
   };
@@ -136,6 +387,7 @@ export default function BoardGame() {
 
   /** 보드 칸 클릭 */
   const handleClickCell = (index) => {
+    // 패널 선택/수정 용도
     setSelectedCellIndex(index);
     setPanelCellText(cells[index] || "");
     setPanelCellStyle(
@@ -145,13 +397,45 @@ export default function BoardGame() {
         color: "#f9fafb",
       }
     );
+
+    // ✅ 세계여행/우주여행 목적지 선택 모드일 때는 이동 처리
+    if (!travelSelect) return;
+
+    const targetToken = tokens.find(
+      (t) => t.id === travelSelect.tokenId
+    );
+    if (!targetToken) {
+      setTravelSelect(null);
+      return;
+    }
+
+    const totalCells = perimeter || 24;
+    const targetIndex = ((index % totalCells) + totalCells) % totalCells;
+
+    // 토큰 위치를 선택한 칸으로 순간 이동
+    setTokens((prev) =>
+      prev.map((t) =>
+        t.id === targetToken.id ? { ...t, pos: targetIndex } : t
+      )
+    );
+
+    // 선택한 칸 효과 적용 + 무인도/세계·우주여행(재도착) 처리
+    // 여기서는 "직행"이므로 diceValue는 0으로 둬도 됨
+    handleFinalLand(
+      { ...targetToken, pos: targetIndex },
+      targetIndex,
+      0,
+      {
+        // 목적지 선택 후에는 같은 턴에서 다시 턴 넘김을 할지 말지는 취향
+        // 여기서는 턴 즉시 넘기도록 false (기본값) 유지
+        skipTurnAdvance: false,
+      }
+    );
+
+    setTravelSelect(null);
   };
 
-  /** 보드 크기 변경
-   *  실제로는 7x7 고정으로 쓰고 싶다면,
-   *  외부에서 resize가 들어와도 무시하거나, 7로 고정되게 처리할 수 있음.
-   *  여기선 "요청이 들어와도 7~7 범위 안에서만" 동작하도록 남겨둠.
-   */
+  /** 보드 크기 변경 */
   const handleResizeBoard = (newRows, newCols) => {
     const r = Math.max(4, Math.min(20, newRows || rows));
     const c = Math.max(4, Math.min(20, newCols || cols));
@@ -164,7 +448,9 @@ export default function BoardGame() {
     setCells(makeDefaultCellTexts(newPerimeter));
     setCellStyles(makeDefaultCellStyles(newPerimeter));
 
-    setTokens((prev) => prev.map((t) => ({ ...t, pos: 0 })));
+    setTokens((prev) =>
+      prev.map((t) => ({ ...t, pos: 0, skipTurns: 0 }))
+    );
 
     setSelectedCellIndex(null);
     setPanelCellText("");
@@ -174,14 +460,14 @@ export default function BoardGame() {
       color: "#f9fafb",
     });
 
+    setTravelSelect(null);
     resetBoardEffects();
   };
 
   /** 전체 게임 초기화 */
   const handleResetGame = () => {
-    const resetTokens = Array.from({ length: 4 }, (_, i) =>
-      makeToken(i + 1, `BJ${i + 1}`, TOKEN_COLORS[i % TOKEN_COLORS.length])
-    );
+    const resetTokens = createInitialTokens();
+
     setTokens(resetTokens);
     setSelectedTokenId(resetTokens[0]?.id ?? null);
     setTokenNameEdit(resetTokens[0]?.name ?? "");
@@ -198,9 +484,11 @@ export default function BoardGame() {
       color: "#f9fafb",
     });
 
-    setCells(makeDefaultCellTexts(perimeter));
-    setCellStyles(makeDefaultCellStyles(perimeter));
+    setCells(makeDefaultCellTexts(perimeter || 24));
+    setCellStyles(makeDefaultCellStyles(perimeter || 24));
 
+    setPrisonOverlay(null);
+    setTravelSelect(null);
     resetBoardEffects();
   };
 
@@ -232,7 +520,8 @@ export default function BoardGame() {
       ? Math.max(...tokens.map((t) => t.id)) + 1
       : 1;
     const color = TOKEN_COLORS[(nextId - 1) % TOKEN_COLORS.length];
-    const newToken = makeToken(nextId, `BJ${nextId}`, color);
+    const baseToken = makeToken(nextId, `BJ${nextId}`, color);
+    const newToken = { ...baseToken, skipTurns: 0 };
 
     const nextTokens = [...tokens, newToken];
     setTokens(nextTokens);
@@ -283,8 +572,20 @@ export default function BoardGame() {
 
     if (!token) return;
     if (isRolling || isMoving) return;
+
+    if (token.skipTurns && token.skipTurns > 0) {
+      setToast(
+        `${token.name} 님은 무인도 대기 중이라 이번 턴은 쉬어갑니다.`
+      );
+      return;
+    }
+
     rollDice();
   };
+
+  // =========================
+  // 5. 렌더
+  // =========================
 
   return (
     <>
@@ -326,7 +627,7 @@ export default function BoardGame() {
             flex: 1,
             minWidth: 0,
             minHeight: 0,
-            maxWidth: "min(2000px, 70vw)", // 원하는 최대 크기
+            maxWidth: "min(2000px, 70vw)",
             width: "90%",
           }}
         >
@@ -348,6 +649,8 @@ export default function BoardGame() {
             diceSnapRotation={diceSnapRotation}
             isRolling={isRolling}
             onRollDice={rollDiceAndMove}
+            onTokenLand={handleTokenLand}
+            prisonOverlay={prisonOverlay}
           />
         </div>
 
