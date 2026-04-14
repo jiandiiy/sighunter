@@ -69,6 +69,10 @@ export default function BoardGame() {
   const [travelSelect, setTravelSelect] = useState(null);
   // { tokenId: number, type: 'world' | 'space' } | null
 
+  // ✅ 히든 옵션 상태
+  const [hiddenOptionCells, setHiddenOptionCells] = useState([]); // 현재 활성 히든 칸 인덱스
+  const [hiddenOptionSeed, setHiddenOptionSeed] = useState(0); // 재배치 트리거용
+
   const selectedToken =
     tokens.find((t) => t.id === selectedTokenId) || null;
   const currentTurnToken = tokens[currentTurnIndex] || null;
@@ -179,6 +183,9 @@ export default function BoardGame() {
         selectedCellIndex,
         panelCellText,
         panelCellStyle,
+        // 히든 옵션은 "세션 감성"이라 꼭 저장할 필요는 없지만
+        // 원하면 아래처럼 같이 저장/복원해도 됨.
+        hiddenOptionCells,
       };
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (e) {
@@ -195,10 +202,51 @@ export default function BoardGame() {
     selectedCellIndex,
     panelCellText,
     panelCellStyle,
+    hiddenOptionCells,
   ]);
 
   // =========================
-  // 4. 턴/이동/주사위 로직
+  // 4. 히든 옵션 관련 유틸 & 타이머
+  // =========================
+
+  // 0 ~ totalCells-1 사이에서 count개 랜덤 인덱스 뽑기 (중복 X)
+  const pickRandomHiddenCells = useCallback((totalCells, count = 5) => {
+    const n = Math.min(count, totalCells);
+    const indices = Array.from({ length: totalCells }, (_, i) => i);
+
+    // Fisher–Yates 방식 일부만 사용해서 상위 n개 추출
+    for (let i = totalCells - 1; i > totalCells - 1 - n; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+
+    return indices.slice(totalCells - n);
+  }, []);
+
+  // 히든 옵션 초기 세팅 + 주기적 재배치
+  useEffect(() => {
+    const totalCells = perimeter || 24;
+    if (!totalCells) return;
+
+    // 1) seed 변경 시 5개 랜덤 배치
+    setHiddenOptionCells(pickRandomHiddenCells(totalCells, 5));
+
+    // 2) 다음 재배치까지 시간: 5~10분 랜덤
+    const minMs = 5 * 60 * 1000; // 5분
+    const maxMs = 10 * 60 * 1000; // 10분
+    const nextDelay =
+      minMs + Math.floor(Math.random() * (maxMs - minMs + 1));
+
+    const timer = setTimeout(() => {
+      // seed 변경 → effect 다시 실행 → 새로운 5칸
+      setHiddenOptionSeed((prev) => prev + 1);
+    }, nextDelay);
+
+    return () => clearTimeout(timer);
+  }, [perimeter, hiddenOptionSeed, pickRandomHiddenCells]);
+
+  // =========================
+  // 5. 턴/이동/주사위 로직
   // =========================
 
   /** 다음 턴으로 이동 + skipTurns 소모 */
@@ -282,6 +330,74 @@ export default function BoardGame() {
     [setTokens, setToast]
   );
 
+  /** 히든 옵션 효과 적용 */
+  const applyHiddenOptionEffect = useCallback(
+    (token, cellIndex) => {
+      // 현재 활성 히든이 아니면 무시
+      if (!hiddenOptionCells.includes(cellIndex)) return;
+
+      // 간단한 히든 옵션 목록 (추후 상수로 분리 가능)
+      const options = [
+        "BONUS_200",
+        "MINUS_100",
+        "LAND_OWN",
+        "LAND_STEAL",
+      ];
+      const picked =
+        options[Math.floor(Math.random() * options.length)];
+
+      // 공통: 이 칸의 히든 옵션은 한 번 쓰고 제거
+      setHiddenOptionCells((prev) =>
+        prev.filter((idx) => idx !== cellIndex)
+      );
+
+      switch (picked) {
+        case "BONUS_200": {
+          setTokens((prev) =>
+            prev.map((t) =>
+              t.id === token.id
+                ? { ...t, score: (t.score || 0) + 200 }
+                : t
+            )
+          );
+          setToast?.(
+            `${token.name} 님, 히든 옵션 발견! 보너스 +200점 획득!`
+          );
+          break;
+        }
+        case "MINUS_100": {
+          setTokens((prev) =>
+            prev.map((t) =>
+              t.id === token.id
+                ? { ...t, score: (t.score || 0) - 100 }
+                : t
+            )
+          );
+          setToast?.(
+            `${token.name} 님, 함정 히든 옵션! -100점 감소...`
+          );
+          break;
+        }
+        case "LAND_OWN": {
+          // 아직 땅 시스템은 없으므로, 향후 확장용 메시지만
+          setToast?.(
+            `${token.name} 님, 히든 옵션 [땅 점령권] 획득! (향후 토지 시스템과 연동)`
+          );
+          break;
+        }
+        case "LAND_STEAL": {
+          setToast?.(
+            `${token.name} 님, 히든 옵션 [땅 스틸권] 획득! (향후 토지 시스템과 연동)`
+          );
+          break;
+        }
+        default:
+          break;
+      }
+    },
+    [hiddenOptionCells, setTokens, setToast]
+  );
+
   /** 텍스트/무인도/세계·우주여행 등, 말이 어떤 칸에 "최종" 도착했을 때 공통 처리 */
   const handleFinalLand = (token, cellIndex, diceValue, options = {}) => {
     const totalCells = perimeter || 24;
@@ -294,6 +410,9 @@ export default function BoardGame() {
       updateTokens: setTokens,
       boardSize: totalCells,
     });
+
+    // 1-1) 히든 옵션 효과 (있으면)
+    applyHiddenOptionEffect(token, cellIndex);
 
     // 2) 특수 칸 처리
     if (cellIndex === 6) {
@@ -358,7 +477,7 @@ export default function BoardGame() {
         clearInterval(timer);
         setIsMoving(false);
 
-        // 최종 도착 처리 (텍스트 + 특수칸 + 턴 넘김)
+        // 최종 도착 처리 (텍스트 + 특수칸 + 히든 + 턴 넘김)
         handleFinalLand(token, currentPos, steps, options);
       }
     }, stepMs);
@@ -426,8 +545,6 @@ export default function BoardGame() {
       targetIndex,
       0,
       {
-        // 목적지 선택 후에는 같은 턴에서 다시 턴 넘김을 할지 말지는 취향
-        // 여기서는 턴 즉시 넘기도록 false (기본값) 유지
         skipTurnAdvance: false,
       }
     );
@@ -462,6 +579,9 @@ export default function BoardGame() {
 
     setTravelSelect(null);
     resetBoardEffects();
+
+    // 보드 크기 바뀌면 히든 옵션도 리셋
+    setHiddenOptionSeed((prev) => prev + 1);
   };
 
   /** 전체 게임 초기화 */
@@ -490,6 +610,9 @@ export default function BoardGame() {
     setPrisonOverlay(null);
     setTravelSelect(null);
     resetBoardEffects();
+
+    // 히든 옵션도 리셋
+    setHiddenOptionSeed((prev) => prev + 1);
   };
 
   /** 말 선택 */
@@ -584,7 +707,7 @@ export default function BoardGame() {
   };
 
   // =========================
-  // 5. 렌더
+  // 6. 렌더
   // =========================
 
   return (
@@ -651,6 +774,7 @@ export default function BoardGame() {
             onRollDice={rollDiceAndMove}
             onTokenLand={handleTokenLand}
             prisonOverlay={prisonOverlay}
+            hiddenOptionCells={hiddenOptionCells} // ⬅ 히든 옵션 표시용
           />
         </div>
 

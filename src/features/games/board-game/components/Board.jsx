@@ -22,17 +22,16 @@ export default function Board({
   isRolling,
   onRollDice,
 
-  // 지금은 BoardGame 쪽에서 직접 처리하므로 사용 X (남겨만 둠)
-  onTokenLand,
-
   // ✅ 무인도 오버레이 (주사위 위에 뜨는 알림)
   prisonOverlay,
+   // ✅ 히든 옵션 칸 인덱스 배열 (예: [3, 7, 12, 18, 22])
+  hiddenOptionCells = [],
 }) {
   // =========================
   // 0. 기본 보드 구조
   // =========================
 
-  const perimeter = useMemo(() => {
+ const perimeter = useMemo(() => {
     if (rows < 2 || cols < 2) return 0;
     return 2 * (rows + cols) - 4;
   }, [rows, cols]);
@@ -159,6 +158,8 @@ export default function Board({
 
   const tokensOnCell = (pos) => tokens.filter((t) => t.pos === pos);
   const diceDisabled = !currentTurnToken || isMoving;
+    // ✅ 이 칸이 히든 옵션 칸인지 여부
+  const isHiddenCell = (pos) => hiddenOptionCells.includes(pos);
 
   const getCellStyleFromPos = (pos) => {
     const { r, c } = indexToCoord24(pos);
@@ -391,7 +392,7 @@ export default function Board({
       <div
         style={{
           position: "relative",
-          paddingBottom: "100%",
+           aspectRatio: "1 / 1",
           width: "100%",
           background: "linear-gradient(135deg, #374151, #1f2937)",
           borderRadius: 20,
@@ -407,6 +408,7 @@ export default function Board({
             inset: BOARD_BORDER,
             borderRadius: 20 - BOARD_BORDER,
             overflow: "visible",
+             height: "100%", 
           }}
         >
           {/* 중앙 가이드 */}
@@ -494,6 +496,7 @@ export default function Board({
             const displayName = base.name || cells[pos] || `칸${pos + 1}`;
             const isSelectedCell = selectedCellIndex === pos;
             const isLanded = lastLandedIndex === pos;
+            const hidden = isHiddenCell(pos);
 
             // 모든 칸 공통 토큰 영역
             const tokenStack = (
@@ -575,7 +578,9 @@ export default function Board({
                     : isLanded
                     ? ".1875rem solid #34d399"
                     : ".125rem solid rgba(0,0,0,0.3)",
-                  boxShadow: isSelectedCell
+                  boxShadow: hidden
+                    ? "0 0 10px rgba(250,204,21,0.85)" // ✅ 히든일 때만 살짝 빛
+                    : isSelectedCell
                     ? "0 0 1.125rem rgba(251,191,36,0.9)"
                     : isLanded
                     ? "0 0 1.125rem rgba(52,211,153,0.9)"
@@ -683,6 +688,27 @@ export default function Board({
                       )}
                     </div>
                   </>
+                )}
+                {/* ✅ 히든 옵션 뱃지 (UI 최소 변경) */}
+                {hidden && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 4,
+                      right: 4,
+                      padding: "1px 5px",
+                      borderRadius: 999,
+                      fontSize: 8,
+                      fontWeight: 900,
+                      background:
+                        "radial-gradient(circle at 0 0, #facc15, #b45309)",
+                      color: "#111827",
+                      boxShadow: "0 0 6px rgba(250, 204, 21, 0.9)",
+                      textShadow: "0 1px 1px rgba(255,255,255,0.7)",
+                    }}
+                  >
+                    ❓HIDDEN
+                  </div>
                 )}
 
                 {/* 코너/일반 공통 토큰 영역 */}
