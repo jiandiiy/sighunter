@@ -14,12 +14,13 @@ import {
 import "../styles/HpBattle.css";
 
 const { ATTACK_PER_SIG, HEAL_PER_SIG, SHIELD_PER_SIG } = SIG_CONFIG;
+const DEFAULT_SIG = 980;
 
 export default function HpControl({ battleId = "sig-hp" }) {
   const [state, setState] = useState(() =>
     createInitialBattleState(BATTLE_MODES.ONE_VS_ONE)
   );
-  const [sigValue, setSigValue] = useState(1);
+  const [sigValue, setSigValue] =  useState(DEFAULT_SIG);
   const [selectedFrom, setSelectedFrom] = useState("");
   const [selectedTo, setSelectedTo] = useState("");
   const [selectedItemId, setSelectedItemId] = useState("");
@@ -79,15 +80,15 @@ export default function HpControl({ battleId = "sig-hp" }) {
             ? fightersCopy.find((f) => f.id === fromId)
             : null;
 
-        let atkMult = 1;
-        attacker?.buffs?.forEach((b) => {
-          if (b.kind === "atk-mult") atkMult *= b.value;
-        });
+        let atkMult = attacker?.atkMult ?? 1;   // ★ 기본 배율
+  attacker?.buffs?.forEach((b) => {
+    if (b.kind === "atk-mult") atkMult *= b.value;
+  });
 
-        let defMult = 1;
-        target.debuffs?.forEach((d) => {
-          if (d.kind === "def-mult") defMult *= 1 / d.value;
-        });
+        let defMult = target.defMult ?? 1;      // ★ 방어 배율
+  target.debuffs?.forEach((d) => {
+    if (d.kind === "def-mult") defMult *= 1 / d.value;
+  });
 
         let damage = Math.round(baseDamage * atkMult * defMult);
         let remainingDamage = damage;
@@ -110,6 +111,26 @@ export default function HpControl({ battleId = "sig-hp" }) {
         const shieldGain = sig * SHIELD_PER_SIG;
         target.shield = (target.shield || 0) + shieldGain;
       }
+      // ★ 시그 자체를 누적 + 배율 계산
+    if (actionType === ACTION_TYPES.SIG) {
+      const nextSig = Math.max(0, (target.sig || 0) + sig);
+
+      // 예시 규칙: 시그 1개당 ATK +5%, DEF +2%
+      const atkMult = 1 + nextSig * 0.05;
+      const defMult = 1 + nextSig * 0.02;
+
+      // 시그에 따른 HP 보정(선택사항)
+      const hpDelta = sig * HEAL_PER_SIG; // 혹은 별도 상수
+      const nextHp = Math.max(
+        0,
+        Math.min(target.maxHp, target.hp + hpDelta)
+      );
+
+      target.sig = nextSig;
+      target.atkMult = atkMult;
+      target.defMult = defMult;
+      target.hp = nextHp;
+    }
 
       return {
         ...prev,
@@ -389,6 +410,9 @@ export default function HpControl({ battleId = "sig-hp" }) {
             <button onClick={() => applyAction(ACTION_TYPES.HEAL)}>
               증가(힐)
             </button>
+             <button onClick={() => applyAction(ACTION_TYPES.SIG)}>
+    시그만 적용(+/-)
+             </button>
           </div>
 
           <div className="hpctrl-item-block">

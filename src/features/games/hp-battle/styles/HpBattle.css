@@ -1,14 +1,15 @@
 /* src/components/HPBattle/HpBattle.css */
 
 /* =============================
-   페이지 레이아웃 (오버레이 + 컨트롤 분리)
+   페이지 레이아웃 (오버레이 + 컨트롤)
 ============================= */
-/* 페이지 전체 래퍼: 화면 전체 사용 */
+
 .hp-battle-root {
   width: 100vw;
   margin-left: 50%;
-  transform: translateX(-50%); /* 부모가 가운데 정렬되어 있어도 뚫고 나와서 전체 폭 사용 */
+  transform: translateX(-50%);
 }
+
 .hp-battle-page {
   display: flex;
   flex-direction: column;
@@ -17,25 +18,26 @@
   box-sizing: border-box;
 }
 
-/* 상단 오버레이 전용 영역 */
+/* 상단 오버레이 */
 .hp-battle-overlay-preview {
   position: relative;
   width: 100%;
-  max-width: none; /* 게이지 길어져서 전체 폭도 약간 확장 */
-  height: 160px; /* HP UI 전체가 조금 더 커져서 높이도 증가 */
+  max-width: none;
+  height: 160px;
   margin: 0;
   overflow: visible;
 }
 
-/* 아래 컨트롤 영역 */
+/* 하단 컨트롤 */
 .hp-battle-control-area {
   position: relative;
   z-index: 1;
 }
 
 /* =============================
-   전체 오버레이 (배경 투명)
+   오버레이 공통
 ============================= */
+
 .hp-overlay-root {
   position: relative;
   width: 100%;
@@ -47,7 +49,6 @@
   color: #f9fafb;
 }
 
-/* 실제 UI를 담는 래퍼 */
 .hp-overlay-inner {
   position: absolute;
   inset: 0;
@@ -57,8 +58,9 @@
 }
 
 /* =============================
-   상단 HP 영역 (이미지 상단바)
+   상단 HP 영역
 ============================= */
+
 .hp-overlay-top {
   margin-top: 10px;
   display: flex;
@@ -67,15 +69,13 @@
 
 .hp-overlay-top-inner {
   width: 96%;
-  max-width: none;
   display: grid;
-  /* 기존: 1fr auto 1fr  →  좌/우를 더 넓게, 중앙은 고정폭 */
   grid-template-columns: minmax(0, 1.5fr) auto minmax(0, 1.5fr);
-  column-gap: 40px; /* 좌우와 중앙 사이 간격 조금 확보 */
+  column-gap: 40px;
   align-items: flex-start;
 }
 
-/* 중앙 아이콘(∞) */
+/* 중앙 ∞ 아이콘 */
 .hp-overlay-center-icon {
   width: 80px;
   height: 80px;
@@ -93,20 +93,22 @@
   box-shadow: 0 0 18px rgba(250, 204, 21, 0.9);
 }
 
-/* 왼쪽/오른쪽 상단 HUD 래퍼 */
+/* 좌우 HUD 래퍼 */
 .hp-overlay-side {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
+
 .hp-overlay-side--left {
   align-items: flex-start;
 }
+
 .hp-overlay-side--right {
   align-items: flex-end;
 }
 
-/* 상단 이름 라벨 (캐릭터 이름 박스) */
+/* 이름 라벨 */
 .hp-name-label {
   min-width: 140px;
   padding: 5px 14px;
@@ -118,6 +120,7 @@
   font-weight: 700;
   letter-spacing: 0.04em;
 }
+
 .hp-overlay-side--right .hp-name-label {
   border-radius: 12px 4px 12px 4px;
   text-align: right;
@@ -126,21 +129,24 @@
 /* =============================
    HP Bar 공통
 ============================= */
+
 .hpbar-root {
   width: 100%;
-  max-width: none; /* 게이지 전체 길이 증가 */
+  max-width: none;
 }
 
-/* 숫자 표시 (게이지 위에 중앙 정렬) */
+/* 헤더: 숫자만 중앙 표시 (이름은 위 라벨에서) */
 .hpbar-header {
   display: flex;
   justify-content: space-between;
   margin-bottom: 4px;
-  font-size: 14px; /* 숫자 조금 키움 */
+  font-size: 14px;
 }
+
 .hpbar-name {
-  visibility: hidden; /* 이름은 위 라벨에서 표시하므로 숨김 */
+  visibility: hidden;
 }
+
 .hpbar-value {
   margin: 0 auto;
   font-weight: 700;
@@ -151,53 +157,50 @@
    ENERGY 스타일 바
 ============================= */
 
-/* 전체 바 래퍼: 공통 transform 제거 */
 .hpbar-bar {
   position: relative;
   width: 100%;
-  height: 26px; /* 20 -> 26 : 두께 증가 */
+  height: 26px;
   margin-top: 2px;
 }
 
-/* 왼쪽: 바깥쪽(좌측)으로 기울이기 */
 .hpbar-bar--left {
   transform-origin: left center;
   transform: skewX(8deg);
 }
 
-/* 오른쪽: 바깥쪽(우측)으로 기울이기 */
 .hpbar-bar--right {
   transform-origin: right center;
   transform: skewX(-8deg);
 }
 
-/* 어두운 외곽 프레임 */
+/* 외곽 프레임 */
 .hpbar-frame {
   position: relative;
   width: 100%;
   height: 100%;
   background: #111827;
   border-radius: 4px;
-  padding: 3px; /* 안쪽 여백도 살짝 키움 */
+  padding: 3px;
   box-sizing: border-box;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
   overflow: hidden;
 }
 
-/* 파란 에너지 채움 */
+/* 기본 에너지 채움 색상 (좌측 기준) */
 .hpbar-energy-fill {
   position: relative;
   height: 100%;
   background: linear-gradient(90deg, #1d4ed8, #38bdf8, #a5f3fc);
-  transition: width 0.2s ease-out;
+  transition: width 0.25s ease-out;
 }
 
-/* 오른쪽 플레이어는 색만 살짝 변경 */
+/* 오른쪽 플레이어 색상 */
 .hpbar-root--right .hpbar-energy-fill {
   background: linear-gradient(90deg, #f97316, #fb923c, #fee2e2);
 }
 
-/* 쉴드 */
+/* 쉴드 텍스트 */
 .hpbar-shield {
   position: absolute;
   right: 12px;
@@ -218,25 +221,120 @@
   gap: 4px;
   font-size: 10px;
 }
+
 .hpbar-tag {
   padding: 0 5px;
   border-radius: 999px;
   border: 1px solid rgba(248, 250, 252, 0.2);
   backdrop-filter: blur(3px);
 }
+
 .hpbar-tag--buff {
   background: rgba(22, 163, 74, 0.35);
 }
+
 .hpbar-tag--debuff {
   background: rgba(220, 38, 38, 0.35);
 }
 
 /* =============================
-   피격/회복 애니메이션
+   시그/배율 표시 + 시그 이펙트
 ============================= */
+
+.hpbar-bottom-info {
+  position: absolute;
+  bottom: -16px;
+  left: 8px;
+  display: flex;
+  gap: 8px;
+  font-size: 11px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.hpbar-sig-tag {
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #ffc94d, #ff7c4d);
+  color: #220;
+  font-weight: 700;
+}
+
+.hpbar-mults-tag {
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  color: #eee;
+}
+
+/* 시그 펄스 */
+.hpbar-sig {
+  animation: hpbar-sigpulse 0.6s ease-out;
+}
+
+@keyframes hpbar-sigpulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 204, 0, 0.9);
+    transform: scale(1);
+  }
+  70% {
+    box-shadow: 0 0 20px 4px rgba(255, 204, 0, 0.3);
+    transform: scale(1.02);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 204, 0, 0);
+    transform: scale(1);
+  }
+}
+
+/* =============================
+   저체력 / 보스 연출
+============================= */
+
+/* 30% 이하 HP: 붉은색 + 깜빡임 */
+.hpbar-lowhp .hpbar-energy-fill {
+  background: linear-gradient(90deg, #ff3b3b, #ff9b4d);
+}
+
+.hpbar-lowhp {
+  animation: hpbar-lowhp-blink 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes hpbar-lowhp-blink {
+  0% {
+    filter: brightness(1);
+  }
+  100% {
+    filter: brightness(1.4);
+  }
+}
+
+/* 보스 바: 더 두껍고 강조 */
+.hpbar-boss {
+  transform: scale(1.08);
+  z-index: 2;
+}
+
+.hpbar-boss .hpbar-frame {
+  height: 26px;
+  border-width: 3px;
+  border-color: #ffdf5a;
+  box-shadow:
+    0 0 12px rgba(255, 223, 90, 0.9),
+    0 0 24px rgba(255, 120, 0, 0.5);
+}
+
+.hpbar-boss .hpbar-energy-fill {
+  background: linear-gradient(90deg, #ff9f1c, #ff0040);
+}
+
+/* =============================
+   피격/회복/방어/아이템 이펙트
+============================= */
+
 .hpbar-attack {
   animation: hpbar-hit-flash 0.4s ease-out, hpbar-hit-shake 0.4s ease-out;
 }
+
 @keyframes hpbar-hit-flash {
   0% {
     box-shadow: 0 0 0 rgba(239, 68, 68, 0);
@@ -248,6 +346,7 @@
     box-shadow: 0 0 0 rgba(239, 68, 68, 0);
   }
 }
+
 @keyframes hpbar-hit-shake {
   0% {
     transform: translateX(0);
@@ -268,9 +367,11 @@
     transform: translateX(0);
   }
 }
+
 .hpbar-heal {
   animation: hpbar-heal-flash 0.4s ease-out;
 }
+
 @keyframes hpbar-heal-flash {
   0% {
     box-shadow: 0 0 0 rgba(34, 197, 94, 0);
@@ -282,9 +383,11 @@
     box-shadow: 0 0 0 rgba(34, 197, 94, 0);
   }
 }
+
 .hpbar-defend {
   animation: hpbar-guard-flash 0.4s ease-out;
 }
+
 @keyframes hpbar-guard-flash {
   0% {
     box-shadow: 0 0 0 rgba(59, 130, 246, 0);
@@ -296,9 +399,11 @@
     box-shadow: 0 0 0 rgba(59, 130, 246, 0);
   }
 }
+
 .hpbar-item {
   animation: hpbar-item-flash 0.4s ease-out;
 }
+
 @keyframes hpbar-item-flash {
   0% {
     box-shadow: 0 0 0 rgba(234, 179, 8, 0);
@@ -314,6 +419,7 @@
 /* =============================
    하단 About HP 영역
 ============================= */
+
 .hp-overlay-bottom {
   width: 100%;
   display: flex;
@@ -329,7 +435,6 @@
   font-size: 18px;
 }
 
-/* 왼쪽: About HP 라벨 */
 .hp-overlay-bottom-label {
   padding: 6px 20px;
   background: #000;
@@ -340,7 +445,6 @@
   white-space: nowrap;
 }
 
-/* 오른쪽: 설명 텍스트 */
 .hp-overlay-bottom-text {
   flex: 1;
   padding: 6px 22px;
@@ -351,7 +455,7 @@
 }
 
 /* =============================
-   HP Control Layout (좌우 플레이어 + 중앙 컨트롤)
+   HP Control 레이아웃
 ============================= */
 
 .hpctrl-root {
@@ -371,7 +475,7 @@
 .hpctrl-title {
   font-size: 32px;
   font-weight: 700;
-  text-align: center; 
+  text-align: center;
 }
 
 .hpctrl-mode-tabs {
@@ -393,7 +497,7 @@
   color: #f9fafb;
 }
 
-/* 메인 3컬럼 레이아웃 */
+/* 3컬럼 레이아웃 */
 .hpctrl-layout {
   display: grid;
   grid-template-columns: 1fr minmax(360px, 1.2fr) 1fr;
@@ -428,7 +532,7 @@
   flex: 1;
 }
 
-/* 중앙 영역 */
+/* 중앙 컨트롤 */
 .hpctrl-center {
   border: 1px solid #e5e7eb;
   background: #fefefe;
@@ -452,7 +556,7 @@
   gap: 4px;
 }
 
-/* 시그 */
+/* 시그 입력 */
 .hpctrl-label-inline {
   display: flex;
   align-items: center;
@@ -503,7 +607,7 @@
   margin-left: 4px;
 }
 
-/* 반응형: 좁은 화면에서는 세로 스택 */
+/* 반응형 */
 @media (max-width: 960px) {
   .hpctrl-layout {
     grid-template-columns: 1fr;

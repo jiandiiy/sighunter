@@ -14,6 +14,7 @@ export const ACTION_TYPES = {
   DEBUFF: "debuff",
   SET_HP: "set-hp",
   ITEM: "item",
+  SIG: "sig",
 };
 
 export const SIG_CONFIG = {
@@ -62,8 +63,9 @@ export const ITEMS = [
     },
   },
 ];
+const DEFAULT_SIG = 980;
 
-export function createFighter({ id, name, maxHp }) {
+export function createFighter({ id, name, maxHp, isBoss = false }) {
   return {
     id,
     name,
@@ -72,6 +74,10 @@ export function createFighter({ id, name, maxHp }) {
     shield: 0,
     buffs: [],
     debuffs: [],
+    sig: DEFAULT_SIG,       
+    atkMult: 1,   
+    defMult: 1, 
+    isBoss,  
   };
 }
 
@@ -79,8 +85,15 @@ export function createInitialBattleState(mode) {
   switch (mode) {
     case BATTLE_MODES.TEAM_VS_ONE:
       return {
-        mode,
-        fighters: [createFighter({ id: "boss", name: "BOSS", maxHp: 5000 })],
+         mode,
+        fighters: [
+          createFighter({
+            id: "boss",
+            name: "BOSS",
+            maxHp: 5000,
+            isBoss: true,   // ★ 보스 플래그
+          }),
+        ],
         teamInfo: { name: "TEAM", totalDamage: 0 },
         lastAction: null,
       };
