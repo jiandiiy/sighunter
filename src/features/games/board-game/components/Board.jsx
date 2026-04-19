@@ -24,14 +24,14 @@ export default function Board({
 
   // ✅ 무인도 오버레이 (주사위 위에 뜨는 알림)
   prisonOverlay,
-   // ✅ 히든 옵션 칸 인덱스 배열 (예: [3, 7, 12, 18, 22])
+  // ✅ 히든 옵션 칸 인덱스 배열 (예: [3, 7, 12, 18, 22])
   hiddenOptionCells = [],
 }) {
   // =========================
   // 0. 기본 보드 구조
   // =========================
 
- const perimeter = useMemo(() => {
+  const perimeter = useMemo(() => {
     if (rows < 2 || cols < 2) return 0;
     return 2 * (rows + cols) - 4;
   }, [rows, cols]);
@@ -158,7 +158,7 @@ export default function Board({
 
   const tokensOnCell = (pos) => tokens.filter((t) => t.pos === pos);
   const diceDisabled = !currentTurnToken || isMoving;
-    // ✅ 이 칸이 히든 옵션 칸인지 여부
+  // ✅ 이 칸이 히든 옵션 칸인지 여부
   const isHiddenCell = (pos) => hiddenOptionCells.includes(pos);
 
   const getCellStyleFromPos = (pos) => {
@@ -183,13 +183,13 @@ export default function Board({
     };
 
     const CORNER_SIZE_FACTOR = 1.5;
-    const CORNER_0_SHIFT_X = 0.35;
+    const CORNER_0_SHIFT_X = 0.4;
     const CORNER_0_SHIFT_Y = 0.5;
-    const CORNER_6_SHIFT_X = 0.5;
+    const CORNER_6_SHIFT_X = 0.4;
     const CORNER_6_SHIFT_Y = 0.5;
-    const CORNER_12_SHIFT_X = 0.1;
+    const CORNER_12_SHIFT_X = 0.3;
     const CORNER_12_SHIFT_Y = 0.5;
-    const CORNER_18_SHIFT_X = 0.0;
+    const CORNER_18_SHIFT_X = 0.4;
     const CORNER_18_SHIFT_Y = 0.55;
 
     const isCorner = pos === 0 || pos === 6 || pos === 12 || pos === 18;
@@ -223,16 +223,16 @@ export default function Board({
       };
     }
 
-    const H_WIDTH_FACTOR = 0.7;
+    const H_WIDTH_FACTOR = 1.0;
     const H_HEIGHT_FACTOR = 1.5;
     const H_TOP_OFFSET_TOP = 0.5;
     const H_TOP_OFFSET_BOTTOM = 0.4;
 
     const V_WIDTH_FACTOR = 1.6;
-    const V_HEIGHT_FACTOR = 0.15;
-    const V_LEFT_OFFSET_LEFT = 0.3;
+    const V_HEIGHT_FACTOR = 0.1;
+    const V_LEFT_OFFSET_LEFT = 0.5;
     const V_LEFT_OFFSET_RIGHT = 0.2;
-    const V_TOP_SHIFT = 0.2;
+    const V_TOP_SHIFT = 0.01;
 
     if (isTop || isBottom) {
       const width = cell * H_WIDTH_FACTOR;
@@ -254,7 +254,7 @@ export default function Board({
 
     if (isLeft || isRight) {
       const width = cell * V_WIDTH_FACTOR;
-      const height = cell * V_HEIGHT_FACTOR;
+      const height = V_HEIGHT_FACTOR;
 
       const left = isLeft
         ? leftBase - (width - cell) * V_LEFT_OFFSET_LEFT
@@ -392,7 +392,7 @@ export default function Board({
       <div
         style={{
           position: "relative",
-           aspectRatio: "1 / 1",
+          aspectRatio: "1 / 1",
           width: "100%",
           background: "linear-gradient(135deg, #374151, #1f2937)",
           borderRadius: 20,
@@ -408,7 +408,7 @@ export default function Board({
             inset: BOARD_BORDER,
             borderRadius: 20 - BOARD_BORDER,
             overflow: "visible",
-             height: "100%", 
+            height: "100%",
           }}
         >
           {/* 중앙 가이드 */}
@@ -464,14 +464,14 @@ export default function Board({
                 style={{
                   position: "absolute",
                   left: "50%",
-                  top: "-65%", // 주사위 위쪽에 배치
+                  top: "-65%",
                   transform: "translateX(-50%)",
                   padding: "6px 10px",
                   borderRadius: 999,
                   background:
                     "linear-gradient(135deg, rgba(239,68,68,0.95), rgba(249,115,22,0.95))",
                   color: "#f9fafb",
-                  fontSize: 10,
+                  fontSize: 20,
                   fontWeight: 800,
                   boxShadow:
                     "0 4px 10px rgba(0,0,0,0.7), 0 0 12px rgba(248,250,252,0.7)",
@@ -483,7 +483,8 @@ export default function Board({
               >
                 <span style={{ marginRight: 4 }}>🏝️ 무인도 당첨!</span>
                 <span>
-                  {prisonOverlay.tokenName} – {prisonOverlay.turns}턴 동안 이동 불가
+                  {prisonOverlay.tokenName} – {prisonOverlay.turns}턴 동안 이동
+                  불가
                 </span>
               </div>
             )}
@@ -491,12 +492,25 @@ export default function Board({
 
           {/* 둘레 칸들 */}
           {Array.from({ length: perimeter }, (_, pos) => {
-            const { base } = getMergedCellInfo(pos);
-            const onThis = tokensOnCell(pos);
-            const displayName = base.name || cells[pos] || `칸${pos + 1}`;
-            const isSelectedCell = selectedCellIndex === pos;
-            const isLanded = lastLandedIndex === pos;
-            const hidden = isHiddenCell(pos);
+  const { base } = getMergedCellInfo(pos);
+  const onThis = tokensOnCell(pos);
+  const displayName = base.name || cells[pos] || `칸${pos + 1}`;
+  const isSelectedCell = selectedCellIndex === pos;
+  const isLanded = lastLandedIndex === pos;
+  const hidden = isHiddenCell(pos);
+
+  // ✅ 방향 정보
+  const isTopRow = pos >= 0 && pos <= 6;
+  const isBottomRow = pos >= 12 && pos <= 18;
+
+  const isCorner =
+    pos === 0 || pos === 6 || pos === 12 || pos === 18;
+
+  // ✅ “세로 글씨”가 필요한 일반칸: 상단/하단 & 코너 아님
+  const isVerticalTextCell =
+    !isCorner && (isTopRow || isBottomRow);
+    // ✅ 일반칸의 황금열쇠 여부 (코너 아님 + special === "key")
+const isNormalKeyCell = !isCorner && base.special === "key";
 
             // 모든 칸 공통 토큰 영역
             const tokenStack = (
@@ -525,7 +539,7 @@ export default function Board({
                         borderRadius: 6,
                         background: t.color,
                         color: "#ffffff",
-                        fontSize: 9,
+                        fontSize: 20,
                         fontWeight: 700,
                         boxShadow: "0 .125rem .25rem rgba(0,0,0,0.5)",
                         transform: isMovingThis ? "scale(1.05)" : "none",
@@ -545,14 +559,11 @@ export default function Board({
                             top: -14,
                             left: "50%",
                             transform: "translateX(-50%)",
-                            fontSize: 9,
+                            fontSize: 20,
                             fontWeight: 900,
                             color:
-                              scoreChange.diff > 0
-                                ? "#4ade80"
-                                : "#f87171",
-                            textShadow:
-                              "0 0 .375rem rgba(0,0,0,0.9)",
+                              scoreChange.diff > 0 ? "#4ade80" : "#f87171",
+                            textShadow: "0 0 .375rem rgba(0,0,0,0.9)",
                             whiteSpace: "nowrap",
                           }}
                         >
@@ -579,7 +590,7 @@ export default function Board({
                     ? ".1875rem solid #34d399"
                     : ".125rem solid rgba(0,0,0,0.3)",
                   boxShadow: hidden
-                    ? "0 0 10px rgba(250,204,21,0.85)" // ✅ 히든일 때만 살짝 빛
+                    ? "0 0 10px rgba(250,204,21,0.85)"
                     : isSelectedCell
                     ? "0 0 1.125rem rgba(251,191,36,0.9)"
                     : isLanded
@@ -593,103 +604,143 @@ export default function Board({
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  justifyContent: base.isCorner ? "center" : "space-between",
+                  justifyContent: "flex-start", 
+                  gap: 2,
                 }}
               >
-                {base.isCorner ? (
-                  <div style={{ textAlign: "center" }}>
-                    {base.icon && (
-                      <div style={{ fontSize: 32, marginBottom: 4 }}>
-                        {base.icon}
-                      </div>
-                    )}
+                {/* 상단 컨텐츠: 아이콘 + 이름 (코너/일반 공통) */}
+                <div
+                   style={{
+    width: "100%",
+    height: "100%",
+    display: "flex",
+    flexDirection:
+      isVerticalTextCell && !isNormalKeyCell
+        ? "row"
+        : "column",
+    alignItems: "center",
+    justifyContent:
+      isVerticalTextCell && !isNormalKeyCell
+        ? "center"
+        : "flex-start",
+    gap:
+      isVerticalTextCell && !isNormalKeyCell
+        ? 4
+        : base.isCorner
+        ? 6
+        : 2,
+    marginBottom:
+      isVerticalTextCell && !isNormalKeyCell ? 0 : 4,
+      marginTop: base.isCorner ? -15 : -20,
+  }}
+>
+                  {/* 아이콘 – START, 무인도, 황금열쇠, 세계여행, 우주여행 등 */}
+                  {base.icon && (
                     <div
                       style={{
-                        fontSize: 12,
-                        fontWeight: 900,
-                        color: base.text,
+                        fontSize: base.isCorner ? 38 : 28,
+                        lineHeight: 1,
+                         marginBottom:
+          isVerticalTextCell && !isNormalKeyCell ? 0 : 4,
+                        marginTop: base.isCorner ? -15 : -20,
                       }}
                     >
-                      {displayName}
+                      {base.icon}
                     </div>
-                    {base.special === "prison" && (
-                      <div
-                        style={{
-                          marginTop: 4,
-                          fontSize: 9,
-                          color: base.text,
-                          fontWeight: 700,
-                        }}
-                      >
-                        2턴 동안 이동 불가
-                      </div>
-                    )}
+                  )}
+
+
+                  {/* 이름 – 코너/일반 모두 가로 텍스트 */}
+                  <div
+                     style={{
+      fontSize: base.isCorner
+        ? 22
+        : base.special
+        ? 20
+        : 22,
+      fontWeight: 800,
+      color: base.text,
+      textAlign: "center",
+      lineHeight: 1.2,
+      // ✅ 상·하 일반칸에서 세로쓰기 느낌
+      writingMode: isVerticalTextCell ? "vertical-rl" : "horizontal-tb",
+      textOrientation: isVerticalTextCell ? "upright" : "mixed",
+      whiteSpace: "nowrap",
+    }}
+  >
+                    {displayName}
                   </div>
-                ) : (
-                  <>
-                    <div style={{ width: "100%", textAlign: "center" }}>
-                      {base.special && base.icon && (
-                        <div style={{ fontSize: 18, marginBottom: 2 }}>
-                          {base.icon}
-                        </div>
-                      )}
-                      <div
+                </div>
+
+                {/* 하단 보조 영역: 특별칸 부가 정보 */}
+                <div
+                  style={{
+                    width: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
+                    marginTop: base.isCorner ? 2 : 4,
+                  }}
+                >
+                  {base.special === "prison" && (
+                    <div
+                      style={{ display: "flex", justifyContent: "center" }}
+                    >
+                      <span
                         style={{
-                          fontSize: base.special ? 10 : 8,
-                          fontWeight: 700,
-                          color: base.text,
-                          opacity: base.special ? 1 : 0.7,
+                          padding: "1px 6px",
+                          fontSize: base.isCorner ? 15 : 13,
+                          color: "#e5e7eb",
+                          writingMode: "horizontal-tb",
+          textOrientation: "mixed",
+          whiteSpace: "nowrap",
                         }}
                       >
-                        {base.special ? "" : `#${pos + 1}`}
-                      </div>
+                      (2턴 정지)
+                      </span>
                     </div>
+                  )}
 
+                  {base.special === "world" && (
                     <div
-                      style={{
-                        fontSize: 9,
-                        fontWeight: 700,
-                        color: base.text,
-                        textAlign: "center",
-                        lineHeight: 1.2,
-                      }}
+                      style={{ display: "flex", justifyContent: "center" }}
                     >
-                      {displayName}
+                      <span
+                        style={{
+                          padding: "1px 6px",
+                          fontSize: 15,
+                          color: "#000",
+                           writingMode: "horizontal-tb",
+          textOrientation: "mixed",
+          whiteSpace: "nowrap",
+                        }}
+                      >
+                        원하는 도시로 이동
+                      </span>
                     </div>
+                  )}
 
+                  {base.special === "space" && (
                     <div
-                      style={{
-                        width: "100%",
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 2,
-                        marginTop: 2,
-                      }}
+                      style={{ display: "flex", justifyContent: "center" }}
                     >
-                      {base.special === "prison" && (
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <span
-                            style={{
-                              padding: "1px 4px",
-                              borderRadius: 999,
-                              fontSize: 8,
-                              background: "#1f2937",
-                              color: "#e5e7eb",
-                            }}
-                          >
-                            무인도 (2턴 정지)
-                          </span>
-                        </div>
-                      )}
+                      <span
+                        style={{
+                          padding: "1px 6px",
+                          fontSize: 15,
+                          color: "#000",
+                           writingMode: "horizontal-tb",
+          textOrientation: "mixed",
+          whiteSpace: "nowrap",
+                        }}
+                      >
+                      (보너스 이동)
+                      </span>
                     </div>
-                  </>
-                )}
-                {/* ✅ 히든 옵션 뱃지 (UI 최소 변경) */}
+                  )}
+                </div>
+
+                {/* ✅ 히든 옵션 뱃지 */}
                 {hidden && (
                   <div
                     style={{
@@ -698,7 +749,7 @@ export default function Board({
                       right: 4,
                       padding: "1px 5px",
                       borderRadius: 999,
-                      fontSize: 8,
+                      fontSize: 15,
                       fontWeight: 900,
                       background:
                         "radial-gradient(circle at 0 0, #facc15, #b45309)",
