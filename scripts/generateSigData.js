@@ -28,24 +28,24 @@ if (!fs.existsSync(baseDir)) {
 }
 
 /* -------------------------------------------------------------------------- */
-/* 📌 프로젝트별 설정 (한 곳에서 관리 → 실수 방지)                           */
+/* 📌 프로젝트별 설정                                                         */
 /* -------------------------------------------------------------------------- */
 
 const PROJECT_CONFIG = {
   queendom: {
-    normalGroupCount: 9,   // group01~09
+    normalGroupCount: 9, // group01~09
     specialGroups: ["group10", "group11"],
     totalNormalCards: 10,
     startId: 1,
   },
   muse: {
-    normalGroupCount: 9,   // group01~09
+    normalGroupCount: 9, // group01~09
     specialGroups: ["group10"],
     totalNormalCards: 10,
     startId: 12,
   },
   holic: {
-    normalGroupCount: 9,   // group01~09
+    normalGroupCount: 9, // group01~09
     specialGroups: ["group10"],
     totalNormalCards: 10,
     startId: 23,
@@ -53,7 +53,7 @@ const PROJECT_CONFIG = {
 };
 
 /* -------------------------------------------------------------------------- */
-/* 🛡️ 그룹 겹침 검증 함수 (특별 그룹이 일반 그룹에 침범하면 즉시 종료)       */
+/* 🛡️ 그룹 겹침 검증                                                         */
 /* -------------------------------------------------------------------------- */
 
 function validateGroupSeparation(projectDir, normalGroups, specialGroups) {
@@ -71,7 +71,7 @@ function validateGroupSeparation(projectDir, normalGroups, specialGroups) {
 }
 
 /* -------------------------------------------------------------------------- */
-/* 🧩 특정 프로젝트의 이미지 그룹 로드 함수                                  */
+/* 🧩 특정 프로젝트의 이미지 그룹 로드                                       */
 /* -------------------------------------------------------------------------- */
 
 function readImagesForProject(projectDir, groupNames) {
@@ -100,7 +100,7 @@ function readImagesForProject(projectDir, groupNames) {
 }
 
 /* -------------------------------------------------------------------------- */
-/* 🎴 이미지 셔플 & 분배 로직                                                */
+/* 🎴 이미지 셔플 & 분배                                                     */
 /* -------------------------------------------------------------------------- */
 
 function shuffle(arr) {
@@ -122,7 +122,7 @@ function distributeImages(images, numCards, perCard) {
       cards.push(shuffled.slice(i * perCard, (i + 1) * perCard));
     }
   } else {
-    // 이미지가 부족할 때 → 사용 횟수 기반 균등 재분배
+    // 이미지 부족 → 사용 횟수 기반 균등 분배
     const usageCount = new Map(images.map((img) => [img, 0]));
     for (let c = 0; c < numCards; c++) {
       const cardImages = [];
@@ -141,10 +141,10 @@ function distributeImages(images, numCards, perCard) {
 }
 
 /* -------------------------------------------------------------------------- */
-/* 메시지 풀                                                                  */
+/* 🎯 프로젝트별 메시지 풀 (게임마다 다르게 커스터마이즈 가능)               */
 /* -------------------------------------------------------------------------- */
 
-const normalMessagePool = [
+const QUEENDOM_NORMAL_MESSAGES = [
   { text: "화장실\n1개", color: "#ffffff", bgColor: "#4a5568", weight: 0 },
   { text: "레전드 ✨", color: "#1f2937", bgColor: "#fcd34d", weight: 0 },
   { text: "기여도\n두배", color: "#ffffff", bgColor: "#6366f1", weight: 60 },
@@ -157,7 +157,7 @@ const normalMessagePool = [
   { text: "꽝 🤡", color: "#ffffff", bgColor: "#1f2937", weight: 5 },
 ];
 
-const specialMessagePool = [
+const QUEENDOM_SPECIAL_MESSAGES = [
   {
     text: "기여도 두배 🎁",
     color: "#ffffff",
@@ -220,8 +220,15 @@ const specialMessagePool = [
   },
 ];
 
+// 뮤즈/홀릭은 필요에 맞게 다른 텍스트·확률로 구성하면 됨
+const MUSE_NORMAL_MESSAGES = [...QUEENDOM_NORMAL_MESSAGES];
+const MUSE_SPECIAL_MESSAGES = [...QUEENDOM_SPECIAL_MESSAGES];
+
+const HOLIC_NORMAL_MESSAGES = [...QUEENDOM_NORMAL_MESSAGES];
+const HOLIC_SPECIAL_MESSAGES = [...QUEENDOM_SPECIAL_MESSAGES];
+
 /* -------------------------------------------------------------------------- */
-/* 🧮 프로젝트별 sigCards 생성 함수                                          */
+/* 🧮 프로젝트별 sigCards 생성                                               */
 /* -------------------------------------------------------------------------- */
 
 function generateProjectSigCards(projectDir) {
@@ -231,22 +238,20 @@ function generateProjectSigCards(projectDir) {
     process.exit(1);
   }
 
-  const { normalGroupCount, specialGroups, totalNormalCards, startId } = config;
+  const { normalGroupCount, specialGroups, totalNormalCards, startId } =
+    config;
 
   console.log(`\n📂 [${projectDir}] 이미지 로드 시작`);
 
-  // 일반 그룹 목록 생성
   const normalGroups = Array.from(
     { length: normalGroupCount },
     (_, i) => `group${String(i + 1).padStart(2, "0")}`
   );
 
-  // 🛡️ 핵심: 특별 그룹이 일반 그룹에 섞여있는지 검증 → 겹치면 즉시 종료
   console.log(`   normalGroups:  ${normalGroups.join(", ")}`);
   console.log(`   specialGroups: ${specialGroups.join(", ")}`);
   validateGroupSeparation(projectDir, normalGroups, specialGroups);
 
-  // 이미지 로드 (완전히 분리된 경로에서만 읽음)
   const normalImages = readImagesForProject(projectDir, normalGroups);
   let specialImages = readImagesForProject(projectDir, specialGroups);
 
@@ -258,7 +263,6 @@ function generateProjectSigCards(projectDir) {
     process.exit(1);
   }
 
-  // totalNormalCards(10)장으로 재분배
   const distributedCards = distributeImages(
     normalImages,
     totalNormalCards,
@@ -267,7 +271,7 @@ function generateProjectSigCards(projectDir) {
 
   const sigCards = [];
 
-  // 일반 카드 생성
+  // 일반 카드
   for (let i = 0; i < totalNormalCards; i++) {
     sigCards.push({
       id: startId + i,
@@ -277,14 +281,16 @@ function generateProjectSigCards(projectDir) {
     });
   }
 
-  // 특별 카드 생성 (특별 이미지 없으면 일반 이미지 일부 사용)
+  // 특별 카드
   if (specialImages.length === 0) {
-    console.warn(`⚠️  [${projectDir}] 특별 이미지가 없어 일반 이미지 일부를 사용합니다.`);
+    console.warn(
+      `⚠️  [${projectDir}] 특별 이미지가 없어 일반 이미지 일부를 사용합니다.`
+    );
     specialImages = shuffle(normalImages).slice(0, 50);
   }
 
   sigCards.push({
-    id: startId + totalNormalCards, // queendom: 11, muse: 22, holic: 33
+    id: startId + totalNormalCards,
     amount: 50000,
     frontImages: shuffle(specialImages),
     isSpecial: true,
@@ -298,17 +304,46 @@ function generateProjectSigCards(projectDir) {
 /* -------------------------------------------------------------------------- */
 
 const queendomSigCards = generateProjectSigCards("queendom");
-const museSigCards     = generateProjectSigCards("muse");
-const holicSigCards    = generateProjectSigCards("holic");
+const museSigCards = generateProjectSigCards("muse");
+const holicSigCards = generateProjectSigCards("holic");
 
 const output = `// ⚙️ 자동 생성된 파일 (퀸덤 + 뮤즈 + 홀릭)
 export const queendomSigCards = ${JSON.stringify(queendomSigCards, null, 2)};
 export const museSigCards = ${JSON.stringify(museSigCards, null, 2)};
 export const holicSigCards = ${JSON.stringify(holicSigCards, null, 2)};
 
-export const normalMessages = ${JSON.stringify(normalMessagePool, null, 2)};
-export const specialMessages = ${JSON.stringify(specialMessagePool, null, 2)};
-export const messages = [...normalMessages, ...specialMessages];
+export const queendomNormalMessages = ${JSON.stringify(
+  QUEENDOM_NORMAL_MESSAGES,
+  null,
+  2
+)};
+export const queendomSpecialMessages = ${JSON.stringify(
+  QUEENDOM_SPECIAL_MESSAGES,
+  null,
+  2
+)};
+
+export const museNormalMessages = ${JSON.stringify(
+  MUSE_NORMAL_MESSAGES,
+  null,
+  2
+)};
+export const museSpecialMessages = ${JSON.stringify(
+  MUSE_SPECIAL_MESSAGES,
+  null,
+  2
+)};
+
+export const holicNormalMessages = ${JSON.stringify(
+  HOLIC_NORMAL_MESSAGES,
+  null,
+  2
+)};
+export const holicSpecialMessages = ${JSON.stringify(
+  HOLIC_SPECIAL_MESSAGES,
+  null,
+  2
+)};
 `;
 
 const dataDir = path.dirname(outputFile);
@@ -329,7 +364,5 @@ console.log("\n📊 그룹 → 카드 분배 방식:");
 console.log("   • queendom: group01~09 (9그룹) → 10장 재분배");
 console.log("   • muse:     group01~09 (9그룹) → 10장 재분배");
 console.log("   • holic:    group01~09 (9그룹) → 10장 재분배");
-console.log("\n✅ 확률 설정:");
-console.log("📇 일반 카드 — 기여도 두배: 60 / 세배: 30 / 네배: 5 / 꽝: 5");
-console.log("🌟 특별 카드 — 기여도 두배: 60 / 세배: 35 / 네배: 5");
+console.log("\n✅ 확률 기본값은 게임별 메시지 풀에서 관리됩니다.");
 console.log("\n💡 이미지 침범 방지: validateGroupSeparation() 검증 통과 시에만 생성됨\n");
