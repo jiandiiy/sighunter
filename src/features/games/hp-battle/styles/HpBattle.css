@@ -135,7 +135,6 @@
   max-width: none;
 }
 
-/* 헤더: 숫자만 중앙 표시 (이름은 위 라벨에서) */
 .hpbar-header {
   display: flex;
   justify-content: space-between;
@@ -148,10 +147,25 @@
 }
 
 .hpbar-value {
-  margin: 0 auto;
+  position: absolute;
+  top: 50%;
+  font-size: 13px;
   font-weight: 700;
-  text-shadow: 0 0 5px rgba(0, 0, 0, 0.9);
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  white-space: nowrap;
+  z-index: 2;
+  padding: 0 20px;
 }
+
+/* 왼쪽 플레이어: skew 보정 */
+.hpbar-bar--left  .hpbar-value { transform: translateY(-50%) skewX(10deg); }
+/* 오른쪽 플레이어: 역방향 skew 보정 */
+.hpbar-bar--right .hpbar-value { transform: translateY(-50%) skewX(20deg) scaleX(-1); }
+
+/* 수치를 각각 바의 안쪽 끝에 붙임 */
+.hpbar-value--left  { right: auto; }
+.hpbar-value--right { left: auto; }
 
 /* =============================
    ENERGY 스타일 바
@@ -159,19 +173,21 @@
 
 .hpbar-bar {
   position: relative;
-  width: 100%;
-  height: 26px;
-  margin-top: 2px;
+  height: 28px;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 100%, 10px 100%);
+  overflow: hidden;
+}
+.hpbar-bar--left  { clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%); }
+.hpbar-bar--right { clip-path: polygon(0 0, 100% 0, 100% 100%, 10px 100%); }
+
+/* 오른쪽 플레이어: 프레임 전체를 좌우 반전 */
+.hpbar-root--right .hpbar-frame {
+  transform: scaleX(-1);
 }
 
-.hpbar-bar--left {
-  transform-origin: left center;
-  transform: skewX(8deg);
-}
-
-.hpbar-bar--right {
-  transform-origin: right center;
-  transform: skewX(-8deg);
+/* 안쪽 에너지 채움은 다시 한 번 반전해서 글로우/하이라이트 방향 유지 */
+.hpbar-root--right .hpbar-energy-fill {
+  transform: scaleX(-1);
 }
 
 /* 외곽 프레임 */
@@ -179,11 +195,13 @@
   position: relative;
   width: 100%;
   height: 100%;
-  background: #111827;
-  border-radius: 4px;
-  padding: 3px;
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  padding: 2px 3px;
   box-sizing: border-box;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+  box-shadow:
+    inset 0 0 0 1px rgba(148, 163, 184, 0.6),
+    inset 0 1px 0 rgba(255,255,255,0.15),
+    0 2px 8px rgba(0, 0, 0, 0.8);
   overflow: hidden;
 }
 
@@ -191,13 +209,106 @@
 .hpbar-energy-fill {
   position: relative;
   height: 100%;
-  background: linear-gradient(90deg, #1d4ed8, #38bdf8, #a5f3fc);
   transition: width 0.25s ease-out;
+  border-radius: 2px;
 }
 
-/* 오른쪽 플레이어 색상 */
-.hpbar-root--right .hpbar-energy-fill {
-  background: linear-gradient(90deg, #f97316, #fb923c, #fee2e2);
+/* HP: 코발트 블루 — 왼쪽 */
+.hpbar-root--left[data-variant="hp"] .hpbar-energy-fill {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.25) 0%, transparent 40%),
+    linear-gradient(90deg,
+      #1e3a8a 0%,
+      #1d4ed8 35%,
+      #3b82f6 70%,
+      #93c5fd 100%
+    );
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
+}
+
+/* HP: 코발트 블루 — 오른쪽 */
+.hpbar-root--right[data-variant="hp"] .hpbar-energy-fill {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.25) 0%, transparent 40%),
+    linear-gradient(270deg,
+      #1e3a8a 0%,
+      #1d4ed8 35%,
+      #3b82f6 70%,
+      #93c5fd 100%
+    );
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
+}
+
+/* MP: 퍼플/바이올렛 — 왼쪽 */
+.hpbar-root--left[data-variant="mp"] .hpbar-energy-fill {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 40%),
+    linear-gradient(90deg,
+      #3b0764 0%,
+      #7e22ce 35%,
+      #a855f7 70%,
+      #d8b4fe 100%
+    );
+  box-shadow: 0 0 6px rgba(168, 85, 247, 0.5);
+}
+
+/* MP: 퍼플/바이올렛 — 오른쪽 */
+.hpbar-root--right[data-variant="mp"] .hpbar-energy-fill {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 40%),
+    linear-gradient(270deg,
+      #3b0764 0%,
+      #7e22ce 35%,
+      #a855f7 70%,
+      #d8b4fe 100%
+    );
+  box-shadow: 0 0 6px rgba(168, 85, 247, 0.5);
+}
+
+/* 보조 바(MP)는 살짝 더 얇게 */
+/* 보조 바(MP)는 살짝 더 얇게 */
+.hpbar-root[data-variant="mp"] .hpbar-bar {
+  height: 20px;
+}
+
+/* MP 바: HP 바보다 짧게 (85%) */
+.hpbar-root[data-variant="mp"] {
+  width: 85%;
+}
+
+/* 왼쪽 플레이어 MP: 왼쪽 끝 정렬 */
+.hpbar-root--left[data-variant="mp"] {
+  align-self: flex-start;
+}
+
+/* 오른쪽 플레이어 MP: 오른쪽 끝 정렬 (HP 바 오른쪽 끝에 맞춤) */
+.hpbar-root--right[data-variant="mp"] {
+  align-self: flex-end;
+}
+
+
+/* 왼쪽 바: 왼쪽 끝 핀 */
+.hpbar-bar--left::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 6px;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(148,163,184,0.8), transparent);
+  z-index: 2;
+}
+
+/* 오른쪽 바: 오른쪽 끝 핀 */
+.hpbar-bar--right::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 6px;
+  height: 100%;
+  background: linear-gradient(270deg, rgba(148,163,184,0.8), transparent);
+  z-index: 2;
 }
 
 /* 쉴드 텍스트 */
@@ -210,60 +321,6 @@
   border-radius: 999px;
   padding: 0 8px;
   border: 1px solid rgba(96, 165, 250, 0.8);
-}
-
-/* 버프/디버프 태그 */
-.hpbar-tags {
-  position: absolute;
-  bottom: -16px;
-  left: 4px;
-  display: flex;
-  gap: 4px;
-  font-size: 10px;
-}
-
-.hpbar-tag {
-  padding: 0 5px;
-  border-radius: 999px;
-  border: 1px solid rgba(248, 250, 252, 0.2);
-  backdrop-filter: blur(3px);
-}
-
-.hpbar-tag--buff {
-  background: rgba(22, 163, 74, 0.35);
-}
-
-.hpbar-tag--debuff {
-  background: rgba(220, 38, 38, 0.35);
-}
-
-/* =============================
-   시그/배율 표시 + 시그 이펙트
-============================= */
-
-.hpbar-bottom-info {
-  position: absolute;
-  bottom: -16px;
-  left: 8px;
-  display: flex;
-  gap: 8px;
-  font-size: 11px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
-}
-
-.hpbar-sig-tag {
-  padding: 1px 6px;
-  border-radius: 8px;
-  background: linear-gradient(90deg, #ffc94d, #ff7c4d);
-  color: #220;
-  font-weight: 700;
-}
-
-.hpbar-mults-tag {
-  padding: 1px 6px;
-  border-radius: 8px;
-  background: rgba(0, 0, 0, 0.5);
-  color: #eee;
 }
 
 /* 시그 펄스 */
@@ -292,7 +349,9 @@
 
 /* 30% 이하 HP: 붉은색 + 깜빡임 */
 .hpbar-lowhp .hpbar-energy-fill {
-  background: linear-gradient(90deg, #ff3b3b, #ff9b4d);
+  background:
+    radial-gradient(circle at 15% 0%, rgba(255, 255, 255, 0.55), transparent 55%),
+    linear-gradient(90deg, #fecaca 0%, #f97316 30%, #dc2626 100%);
 }
 
 .hpbar-lowhp {
@@ -300,12 +359,8 @@
 }
 
 @keyframes hpbar-lowhp-blink {
-  0% {
-    filter: brightness(1);
-  }
-  100% {
-    filter: brightness(1.4);
-  }
+  0%   { filter: brightness(1); }
+  100% { filter: brightness(1.4); }
 }
 
 /* 보스 바: 더 두껍고 강조 */
@@ -336,36 +391,18 @@
 }
 
 @keyframes hpbar-hit-flash {
-  0% {
-    box-shadow: 0 0 0 rgba(239, 68, 68, 0);
-  }
-  20% {
-    box-shadow: 0 0 22px rgba(239, 68, 68, 0.9);
-  }
-  100% {
-    box-shadow: 0 0 0 rgba(239, 68, 68, 0);
-  }
+  0%   { box-shadow: 0 0 0 rgba(239, 68, 68, 0); }
+  20%  { box-shadow: 0 0 22px rgba(239, 68, 68, 0.9); }
+  100% { box-shadow: 0 0 0 rgba(239, 68, 68, 0); }
 }
 
 @keyframes hpbar-hit-shake {
-  0% {
-    transform: translateX(0);
-  }
-  20% {
-    transform: translateX(-3px);
-  }
-  40% {
-    transform: translateX(3px);
-  }
-  60% {
-    transform: translateX(-1px);
-  }
-  80% {
-    transform: translateX(1px);
-  }
-  100% {
-    transform: translateX(0);
-  }
+  0%   { transform: translateX(0); }
+  20%  { transform: translateX(-3px); }
+  40%  { transform: translateX(3px); }
+  60%  { transform: translateX(-1px); }
+  80%  { transform: translateX(1px); }
+  100% { transform: translateX(0); }
 }
 
 .hpbar-heal {
@@ -373,15 +410,9 @@
 }
 
 @keyframes hpbar-heal-flash {
-  0% {
-    box-shadow: 0 0 0 rgba(34, 197, 94, 0);
-  }
-  30% {
-    box-shadow: 0 0 18px rgba(34, 197, 94, 0.9);
-  }
-  100% {
-    box-shadow: 0 0 0 rgba(34, 197, 94, 0);
-  }
+  0%   { box-shadow: 0 0 0 rgba(34, 197, 94, 0); }
+  30%  { box-shadow: 0 0 18px rgba(34, 197, 94, 0.9); }
+  100% { box-shadow: 0 0 0 rgba(34, 197, 94, 0); }
 }
 
 .hpbar-defend {
@@ -389,15 +420,9 @@
 }
 
 @keyframes hpbar-guard-flash {
-  0% {
-    box-shadow: 0 0 0 rgba(59, 130, 246, 0);
-  }
-  30% {
-    box-shadow: 0 0 18px rgba(59, 130, 246, 0.9);
-  }
-  100% {
-    box-shadow: 0 0 0 rgba(59, 130, 246, 0);
-  }
+  0%   { box-shadow: 0 0 0 rgba(59, 130, 246, 0); }
+  30%  { box-shadow: 0 0 18px rgba(59, 130, 246, 0.9); }
+  100% { box-shadow: 0 0 0 rgba(59, 130, 246, 0); }
 }
 
 .hpbar-item {
@@ -405,15 +430,9 @@
 }
 
 @keyframes hpbar-item-flash {
-  0% {
-    box-shadow: 0 0 0 rgba(234, 179, 8, 0);
-  }
-  30% {
-    box-shadow: 0 0 18px rgba(234, 179, 8, 0.9);
-  }
-  100% {
-    box-shadow: 0 0 0 rgba(234, 179, 8, 0);
-  }
+  0%   { box-shadow: 0 0 0 rgba(234, 179, 8, 0); }
+  30%  { box-shadow: 0 0 18px rgba(234, 179, 8, 0.9); }
+  100% { box-shadow: 0 0 0 rgba(234, 179, 8, 0); }
 }
 
 /* =============================
@@ -618,4 +637,116 @@
     grid-template-columns: 1fr;
     row-gap: 8px;
   }
+}
+
+/* =============================
+   HP HUD (Level + HP + MP)
+============================= */
+
+.player-hud {
+  display: flex;
+  flex-direction: column;
+}
+
+.player-hud--left  { align-items: flex-start; }
+.player-hud--right { align-items: flex-end; }
+
+.player-hud-row {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;   
+  gap: 0;
+  overflow: visible; 
+  padding-top: 16px;     
+}
+
+.player-hud-row--left  { flex-direction: row; }         
+.player-hud-row--right { flex-direction: row-reverse; } 
+
+.player-hud-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: clamp(200px, 25vw, 380px);
+  min-width: 0;
+}
+
+.player-hud-level-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+/* =============================
+   HP 정보줄 (SIG / ATK·DEF / Guard)
+============================= */
+
+.hpbar-info-row {
+  margin-top: 4px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  color: #e5e7eb;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.hpbar-info-row--left  { flex-direction: row; }
+.hpbar-info-row--right { flex-direction: row-reverse; }
+
+.hpbar-info-sig,
+.hpbar-info-mults,
+.hpbar-info-guard {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.5);
+}
+
+/* =============================
+   Level 방패 배지
+============================= */
+
+.level-badge-root {
+  position: relative;
+  width: 85px;         
+  height: 85px;
+  flex-shrink: 0;      
+  overflow: visible;     
+  margin: -40px -20px 0;
+  z-index: 10;
+}
+
+.level-badge-img {
+  position: absolute;   
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  z-index: 1;            /* 이미지는 z-index 1 */
+}
+
+/* 중앙 레벨 숫자 */
+.level-badge-number {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+  font-weight: 2000;
+  color: #fff;
+  text-shadow:
+    -2px -2px 0 #000,
+     0   -2px 0 #000,
+     2px -2px 0 #000,
+     2px  0   0 #000,
+     2px  2px 0 #000,
+     0    2px 0 #000,
+    -2px  2px 0 #000,
+    -2px  0   0 #000,
+    0 0 10px rgba(0,0,0,1);
+  pointer-events: none;
+  z-index: 2;            /* 이미지(1) 위에 표시 */
+  white-space: nowrap;   /* ✅ 숫자 줄바꿈 방지 */
 }

@@ -1,6 +1,7 @@
 // src/components/HPBattle/HpOverlay.jsx
 import React, { useEffect, useState } from "react";
-import HpBar from "./HpBar";
+//import PlayerHud from "./PlayerHud";
+import PlayerHud from "./PlayerHud";
 import {
   BATTLE_MODES,
   createInitialBattleState,
@@ -36,7 +37,7 @@ export default function HpOverlay({ battleId = "sig-hp" }) {
                 {/* 왼쪽 */}
                 <div className="hp-overlay-side hp-overlay-side--left">
                   <div className="hp-name-label">{fighters[0].name}</div>
-                  <HpBar
+                  <PlayerHud
                     fighter={fighters[0]}
                     lastAction={lastAction}
                     side="left"
@@ -49,7 +50,7 @@ export default function HpOverlay({ battleId = "sig-hp" }) {
                 {/* 오른쪽 */}
                 <div className="hp-overlay-side hp-overlay-side--right">
                   <div className="hp-name-label">{fighters[1].name}</div>
-                  <HpBar
+                  <PlayerHud
                     fighter={fighters[1]}
                     lastAction={lastAction}
                     side="right"
@@ -87,7 +88,7 @@ export default function HpOverlay({ battleId = "sig-hp" }) {
                     {fighters
                       .filter((f) => f.id !== "boss")
                       .map((f) => (
-                        <HpBar
+                        <PlayerHud
                           key={f.id}
                           fighter={f}
                           lastAction={lastAction}
@@ -106,7 +107,7 @@ export default function HpOverlay({ battleId = "sig-hp" }) {
                     {fighters.find((f) => f.id === "boss")?.name ||
                       fighters[fighters.length - 1].name}
                   </div>
-                  <HpBar
+                  <PlayerHud
                     fighter={
                       fighters.find((f) => f.id === "boss") ||
                       fighters[fighters.length - 1]
@@ -142,7 +143,7 @@ export default function HpOverlay({ battleId = "sig-hp" }) {
                 {/* 왼쪽 */}
                 <div className="hp-overlay-side hp-overlay-side--left">
                   <div className="hp-name-label">{fighters[0].name}</div>
-                  <HpBar
+                  <PlayerHud
                     fighter={fighters[0]}
                     lastAction={lastAction}
                     side="left"
@@ -155,7 +156,7 @@ export default function HpOverlay({ battleId = "sig-hp" }) {
                 {/* 오른쪽 */}
                 <div className="hp-overlay-side hp-overlay-side--right">
                   <div className="hp-name-label">{fighters[1].name}</div>
-                  <HpBar
+                  <PlayerHud
                     fighter={fighters[1]}
                     lastAction={lastAction}
                     side="right"
@@ -171,7 +172,7 @@ export default function HpOverlay({ battleId = "sig-hp" }) {
                   {fighters[2].name}
                 </div>
                 <div className="hp-overlay-bottom-text">
-                  <HpBar
+                  <PlayerHud
                     fighter={fighters[2]}
                     lastAction={lastAction}
                     side="left"
