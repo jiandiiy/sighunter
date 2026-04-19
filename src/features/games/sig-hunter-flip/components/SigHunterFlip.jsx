@@ -3,7 +3,9 @@ import React, { useRef, useState, useEffect, useMemo } from "react";
 import {
   queendomSigCards,
   museSigCards,
-  holicSigCards, 
+  holicSigCards,
+  normalMessages as defaultNormalMessages,
+  specialMessages as defaultSpecialMessages,
 } from "../../../../shared/data";
 import { useSigStorage } from "../../../../shared/hooks";
 import {
@@ -35,10 +37,12 @@ export default function SigHunterFlip() {
   );
 
   // ✅ 스페셜 카드(특수 1장 가정)
-  const specialCard = useMemo(
+   const specialCard = useMemo(
     () => sigCards.find((c) => c.isSpecial),
     [sigCards]
   );
+
+   
 
   // ✅ 슬롯(card.id)별로 랜덤으로 로딩된 시그 아이템(이미지/메타를 fetch)
   const [sigItemsByCard, setSigItemsByCard] = useState({});
@@ -56,16 +60,23 @@ export default function SigHunterFlip() {
     locked,
     revealed,
     randomImages,
-    messages,
+    messagesByProject,
     cardWeights,
     setFlipped,
     setLocked,
     setRevealed,
     setRandomImages,
     setCardWeights,
-    setMessages,
+    setMessagesByProject,
     loaded,
   } = useSigStorage();
+
+   // ✅ 현재 프로젝트의 메시지 세트 (없으면 공통 기본값 사용)
+  const currentMessages =
+    messagesByProject?.[project] ?? {
+      normal: defaultNormalMessages,
+      special: defaultSpecialMessages,
+    };
 
   // ✅ 모달(어드민/에디트) 상태: { type: "admin" | "edit", id: cardId }
   const [modal, setModal] = useState(null);
@@ -271,7 +282,9 @@ export default function SigHunterFlip() {
     // 아직 뒤집히지 않았고(next=true) + edited가 아니면
     // confetti 메시지를 랜덤 pick해서 reveal 상태 세팅
     if (!currentlyFlipped && next && !(currentMsg && currentMsg.edited)) {
-      const base = card.isSpecial ? messages.special : messages.normal;
+       const base = card.isSpecial
+        ? currentMessages.special
+        : currentMessages.normal;
 
       // 카드별 가중치가 저장돼 있으면 그것을 사용
       const all = cardWeights || {};
@@ -396,7 +409,9 @@ export default function SigHunterFlip() {
       const next = { ...prev };
       cards.forEach((card) => {
         const key = String(card.id);
-        const base = card.isSpecial ? messages.special : messages.normal;
+          const base = card.isSpecial
+         ? currentMessages.special
+         : currentMessages.normal;
         next[key] = base.map((m) => m.weight ?? 1);
       });
 
@@ -726,28 +741,37 @@ export default function SigHunterFlip() {
         <AdminPopup
           project={project}
           cardId={modal.id}
-          messages={messages}
+          messages={messagesByProject}
           onClose={() => setModal(null)}
           onUpdate={(
             weights,
             id,
-            updatedMessages,
+            payload,
             allWeightsFromPopup
           ) => {
             const key = String(id);
-
-            // 카드 가중치 업데이트 (localStorage에도 저장)
+             const {
+              project: projectKey,
+              messagesForThisProject,
+              allWeightsForThisProject,
+            } = payload || {};
+             // 1) 카드 가중치 업데이트
             setCardWeights((prev) => {
               const next =
-                allWeightsFromPopup ?? { ...prev, [key]: weights };
+                allWeightsForThisProject ??
+                allWeightsFromPopup ??
+                { ...prev, [key]: weights };
 
               localStorage.setItem("cardWeights", JSON.stringify(next));
               return next;
             });
 
-            // 메시지 자체가 업데이트되는 경우 반영
-            if (updatedMessages) {
-              setMessages(updatedMessages);
+             // 2) messagesByProject 업데이트 (이 프로젝트 블록만 교체)
+            if (projectKey && messagesForThisProject) {
+              setMessagesByProject((prev) => ({
+                ...prev,
+                [projectKey]: messagesForThisProject,
+              }));
             }
           }}
         />

@@ -18,9 +18,19 @@ export function useSigStorage() {
   const [revealed, setRevealedBase] = useState({});
   const [randomImages, setRandomImagesState] = useState({});
   const [cardWeights, setCardWeightsState] = useState({});
-  const [messages, setMessagesState] = useState({
-    normal: defaultNormalMessages,
-    special: defaultSpecialMessages,
+   const [messagesByProject, setMessagesState] = useState({
+    queendom: {
+      normal: defaultNormalMessages,
+      special: defaultSpecialMessages,
+    },
+    muse: {
+      normal: defaultNormalMessages,
+      special: defaultSpecialMessages,
+    },
+    holic: {
+      normal: defaultNormalMessages,
+      special: defaultSpecialMessages,
+    },
   });
   const [loaded, setLoaded] = useState(false);
 
@@ -45,7 +55,9 @@ export function useSigStorage() {
 
     const initWeights = {};
     allSigCards.forEach((card) => {
-      const base = card.isSpecial ? defaultSpecialMessages : defaultNormalMessages;
+      const base = card.isSpecial
+        ? defaultSpecialMessages
+        : defaultNormalMessages;
       initWeights[String(card.id)] = base.map((m) => m.weight ?? 1);
     });
 
@@ -57,9 +69,19 @@ export function useSigStorage() {
       revealed: {},
       randomImages: initImgs,
       cardWeights: initWeights,
-      messages: {
-        normal: defaultNormalMessages,
-        special: defaultSpecialMessages,
+      messagesByProject: {
+        queendom: {
+          normal: defaultNormalMessages,
+          special: defaultSpecialMessages,
+        },
+        muse: {
+          normal: defaultNormalMessages,
+          special: defaultSpecialMessages,
+        },
+        holic: {
+          normal: defaultNormalMessages,
+          special: defaultSpecialMessages,
+        },
       },
     };
   };
@@ -80,10 +102,24 @@ export function useSigStorage() {
           setRevealedBase(data.revealed || {});
           setRandomImagesState(data.randomImages || {});
           setCardWeightsState(data.cardWeights || {});
-          setMessagesState({
-            normal: data.messages?.normal || defaultNormalMessages,
-            special: data.messages?.special || defaultSpecialMessages,
-          });
+ 
+          const remoteMessages = data.messagesByProject;
+         setMessagesState(
+           remoteMessages || {
+             queendom: {
+               normal: defaultNormalMessages,
+               special: defaultSpecialMessages,
+             },
+             muse: {
+               normal: defaultNormalMessages,
+               special: defaultSpecialMessages,
+             },
+             holic: {
+               normal: defaultNormalMessages,
+               special: defaultSpecialMessages,
+             },
+           }
+         );
 
           // cardWeights는 localStorage에도 미러링
           if (data.cardWeights) {
@@ -99,7 +135,7 @@ export function useSigStorage() {
           setRevealedBase(def.revealed);
           setRandomImagesState(def.randomImages);
           setCardWeightsState(def.cardWeights);
-          setMessagesState(def.messages);
+          setMessagesState(def.messagesByProject);
 
           setDoc(docRef, def).catch((e) =>
             console.error("[useSigStorage] 초기 문서 생성 실패:", e)
@@ -118,10 +154,20 @@ export function useSigStorage() {
           revealed:     tryParse("sigRevealed", {}),
           randomImages: tryParse("sigImages",  {}),
           cardWeights:  tryParse("cardWeights", {}),
-          messages: {
-            normal:  defaultNormalMessages,
-            special: defaultSpecialMessages,
-          },
+           messagesByProject: {
+           queendom: {
+             normal: defaultNormalMessages,
+             special: defaultSpecialMessages,
+           },
+           muse: {
+             normal: defaultNormalMessages,
+             special: defaultSpecialMessages,
+           },
+           holic: {
+             normal: defaultNormalMessages,
+             special: defaultSpecialMessages,
+           },
+         },
         };
 
         setFlippedState(fallback.flipped);
@@ -129,7 +175,7 @@ export function useSigStorage() {
         setRevealedBase(fallback.revealed);
         setRandomImagesState(fallback.randomImages);
         setCardWeightsState(fallback.cardWeights);
-        setMessagesState(fallback.messages);
+        setMessagesState(fallback.messagesByProject);
         setLoaded(true);
       }
     );
@@ -189,7 +235,10 @@ export function useSigStorage() {
   const setFlipped      = wrapSetter(setFlippedState,      "flipped");
   const setLocked       = wrapSetter(setLockedState,       "locked");
   const setRandomImages = wrapSetter(setRandomImagesState, "randomImages");
-  const setMessages     = wrapSetter(setMessagesState,     "messages");
+  const setMessagesByProject = wrapSetter(
+    setMessagesState,
+    "messagesByProject"
+  );
 
   // cardWeights: Firestore + localStorage 동시 저장
   const setCardWeights = (updater) => {
@@ -230,13 +279,13 @@ export function useSigStorage() {
     revealed,
     randomImages,
     cardWeights,
-    messages,
+    messagesByProject,
     setFlipped,
     setLocked,
     setRevealed,
     setRandomImages,
     setCardWeights,
-    setMessages,
+    setMessagesByProject,
     loaded,
   };
 }

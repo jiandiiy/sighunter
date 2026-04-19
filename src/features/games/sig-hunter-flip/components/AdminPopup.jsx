@@ -1,62 +1,43 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import {
   queendomSigCards,
   museSigCards,
   holicSigCards,
-  queendomNormalMessages,
-  queendomSpecialMessages,
-  museNormalMessages,
-  museSpecialMessages,
-  holicNormalMessages,
-  holicSpecialMessages,
+  normalMessages as defaultNormalMessages,
+  specialMessages as defaultSpecialMessages,
 } from "../../../../shared/data";
 import "../styles/adminPopup.css";
 
 export default function AdminPopup({
-  project,   // "queendom" | "muse" | "holic"
+  project, // "queendom" | "muse" | "holic"
   cardId,
-  messages,  // { normal: [...], special: [...] } | undefined - Firestore 등에서 온 override
+  // messages: { queendom?: {normal,special}, muse?: {...}, holic?: {...} }
+  messages,
   onClose,
-  // (weightsForThisCard, cardId, updatedMessagesWholeSet, allWeightsForAllCards?)
+  // onUpdate(weightsForThisCard, cardId, { project, messagesForThisProject }, allWeightsForAllCards?)
   onUpdate,
 }) {
   const id = String(cardId);
   const numId = Number(cardId);
 
-  /** 1) 프로젝트별 카드/기본 메시지 세트 선택 */
+  /** 1) 프로젝트별 카드 세트 + storageKey 분리 */
   const projectConfig = {
     queendom: {
       sigCards: queendomSigCards,
-      defaultMessages: {
-        normal: queendomNormalMessages,
-        special: queendomSpecialMessages,
-      },
       storageKey: "cardWeights_queendom",
     },
     muse: {
       sigCards: museSigCards,
-      defaultMessages: {
-        normal: museNormalMessages,
-        special: museSpecialMessages,
-      },
       storageKey: "cardWeights_muse",
     },
     holic: {
       sigCards: holicSigCards,
-      defaultMessages: {
-        normal: holicNormalMessages,
-        special: holicSpecialMessages,
-      },
       storageKey: "cardWeights_holic",
     },
   };
 
-  // 해당 프로젝트 설정 (없으면 queendom 기준)
-  const {
-    sigCards,
-    defaultMessages,
-    storageKey,
-  } = projectConfig[project] ?? projectConfig.queendom;
+  const { sigCards, storageKey } =
+    projectConfig[project] ?? projectConfig.queendom;
 
   const card = sigCards.find((c) => c.id === numId);
   const isSpecial = !!card?.isSpecial;
@@ -66,17 +47,29 @@ export default function AdminPopup({
   const [, setIsApplied] = useState(false);
   const modalRef = useRef(null);
 
-  /** 2) Firestore messages vs 게임별 defaultMessages 결정 */
-  const baseAllMessages =
-    messages && messages.normal && messages.special
-      ? messages
-      : defaultMessages; // <- 프로젝트별 기본값 사용
+  /**
+   * 2) 이 프로젝트에 해당하는 messages 선택
+   *    - 우선순위: messages[project] → 공통 default
+   */
+  const baseAllMessages = useMemo(() => {
+    const projectMessages = messages?.[project];
+    if (
+      projectMessages &&
+      projectMessages.normal &&
+      projectMessages.special
+    ) {
+      return projectMessages;
+    }
+    return {
+      normal: defaultNormalMessages,
+      special: defaultSpecialMessages,
+    };
+  }, [messages, project]);
 
   /** 카드 데이터 로드 */
   useEffect(() => {
     if (!card) return;
 
-    // 이 카드 타입(일반/스페셜)에 해당하는 메시지 배열
     const base = isSpecial ? baseAllMessages.special : baseAllMessages.normal;
 
     // 프로젝트별 localStorage 키 사용
@@ -145,10 +138,7 @@ export default function AdminPopup({
   /** 항목 추가 */
   const addMessageRow = () => {
     setIsApplied(false);
-    setLocalMessages((prev) => [
-      ...prev,
-      { text: "", weight: 1 },
-    ]);
+    setLocalMessages((prev) => [...prev, { text: "", weight: 1 }]);
     setWeights((prev) => [...prev, 1]);
   };
 
@@ -159,30 +149,38 @@ export default function AdminPopup({
     setWeights((prev) => prev.filter((_, i) => i !== index));
   };
 
+  /** 공통: 현재 프로젝트용 messages 세트 생성 */
+  const buildUpdatedProjectMessages = (mergedMessages) => {
+    return {
+      normal: isSpecial ? baseAllMessages.normal : mergedMessages,
+      special: isSpecial ? mergedMessages : baseAllMessages.special,
+    };
+  };
+
   /** 이 카드에만 적용 */
   const applyWeights = () => {
     if (!card) return;
 
-    // 1) 로컬 메시지 + 가중치 합치기
     const mergedMessages = localMessages.map((m, i) => ({
       ...m,
       weight: weights[i] ?? 0,
     }));
 
-    // 2) 이 카드 타입(일반/스페셜)에 맞게 전체 메시지 세트 구성
-    const updatedAll = {
-      normal: isSpecial ? baseAllMessages.normal : mergedMessages,
-      special: isSpecial ? mergedMessages : baseAllMessages.special,
-    };
+    const updatedProjectMessages =
+      buildUpdatedProjectMessages(mergedMessages);
 
-    // 3) 프로젝트별 cardWeights 갱신 (이 카드만)
+    // 프로젝트별 cardWeights 갱신 (이 카드만)
     const all =
       JSON.parse(localStorage.getItem(storageKey) || "{}") || {};
     all[id] = mergedMessages.map((m) => m.weight ?? 0);
     localStorage.setItem(storageKey, JSON.stringify(all));
 
-    // 4) 상위로 전달
-    onUpdate?.(all[id], id, updatedAll, undefined);
+    // 상위로 전달: 이 프로젝트에 대한 messages만 넘김
+    onUpdate?.(all[id], id, {
+      project,
+      messagesForThisProject: updatedProjectMessages,
+    });
+
     setIsApplied(true);
   };
 
@@ -205,10 +203,8 @@ export default function AdminPopup({
       weight: weights[i] ?? 0,
     }));
 
-    const updatedAll = {
-      normal: isSpecial ? baseAllMessages.normal : mergedMessages,
-      special: isSpecial ? mergedMessages : baseAllMessages.special,
-    };
+    const updatedProjectMessages =
+      buildUpdatedProjectMessages(mergedMessages);
 
     const allWeights =
       JSON.parse(localStorage.getItem(storageKey) || "{}") || {};
@@ -222,12 +218,12 @@ export default function AdminPopup({
 
     localStorage.setItem(storageKey, JSON.stringify(allWeights));
 
-    onUpdate?.(
-      allWeights[id],
-      id,
-      updatedAll,
-      allWeights
-    );
+    onUpdate?.(allWeights[id], id, {
+      project,
+      messagesForThisProject: updatedProjectMessages,
+      allWeightsForThisProject: allWeights,
+    });
+
     setIsApplied(true);
   };
 
@@ -245,15 +241,13 @@ export default function AdminPopup({
     }
 
     const base = isSpecial
-      ? defaultMessages.special
-      : defaultMessages.normal;
+      ? defaultSpecialMessages
+      : defaultNormalMessages;
 
     const init = base.map((m) => m.weight ?? 1);
 
-    const updatedAll = {
-      normal: isSpecial ? baseAllMessages.normal : base,
-      special: isSpecial ? base : baseAllMessages.special,
-    };
+    const updatedProjectMessages =
+      buildUpdatedProjectMessages(base);
 
     const all =
       JSON.parse(localStorage.getItem(storageKey) || "{}") || {};
@@ -264,7 +258,10 @@ export default function AdminPopup({
     setWeights(init);
     setIsApplied(false);
 
-    onUpdate?.(init, id, updatedAll, undefined);
+    onUpdate?.(init, id, {
+      project,
+      messagesForThisProject: updatedProjectMessages,
+    });
 
     alert("✅ 이 게임의 메시지와 확률이 기본값으로 복원되었습니다.");
   };
@@ -279,13 +276,13 @@ export default function AdminPopup({
       return;
     }
 
-    const updatedAll = {
-      normal: defaultMessages.normal,
-      special: defaultMessages.special,
+    const updatedProjectMessages = {
+      normal: defaultNormalMessages,
+      special: defaultSpecialMessages,
     };
 
-    const normalW = defaultMessages.normal.map((m) => m.weight ?? 1);
-    const specialW = defaultMessages.special.map((m) => m.weight ?? 1);
+    const normalW = defaultNormalMessages.map((m) => m.weight ?? 1);
+    const specialW = defaultSpecialMessages.map((m) => m.weight ?? 1);
     const all = {};
 
     sigCards.forEach((c) => {
@@ -296,15 +293,19 @@ export default function AdminPopup({
     localStorage.setItem(storageKey, JSON.stringify(all));
 
     const selfInit = isSpecial
-      ? defaultMessages.special
-      : defaultMessages.normal;
+      ? defaultSpecialMessages
+      : defaultNormalMessages;
     const selfWeights = selfInit.map((m) => m.weight ?? 1);
 
     setLocalMessages(selfInit.map((m) => ({ ...m })));
     setWeights(selfWeights);
     setIsApplied(false);
 
-    onUpdate?.(selfWeights, id, updatedAll, all);
+    onUpdate?.(selfWeights, id, {
+      project,
+      messagesForThisProject: updatedProjectMessages,
+      allWeightsForThisProject: all,
+    });
 
     alert("✅ 현재 게임의 모든 메시지와 확률이 기본값으로 복원되었습니다!");
   };
