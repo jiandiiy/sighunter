@@ -183,7 +183,7 @@ export default function Board({
     };
 
     const CORNER_SIZE_FACTOR = 1.5;
-    const CORNER_0_SHIFT_X = 0.4;
+    const CORNER_0_SHIFT_X = 0.5;
     const CORNER_0_SHIFT_Y = 0.5;
     const CORNER_6_SHIFT_X = 0.4;
     const CORNER_6_SHIFT_Y = 0.5;
@@ -223,7 +223,7 @@ export default function Board({
       };
     }
 
-    const H_WIDTH_FACTOR = 1.0;
+    const H_WIDTH_FACTOR = 0.9;
     const H_HEIGHT_FACTOR = 1.5;
     const H_TOP_OFFSET_TOP = 0.5;
     const H_TOP_OFFSET_BOTTOM = 0.4;
@@ -512,6 +512,9 @@ export default function Board({
     // ✅ 일반칸의 황금열쇠 여부 (코너 아님 + special === "key")
 const isNormalKeyCell = !isCorner && base.special === "key";
 
+const isTopRightKey = pos === 5;
+
+
             // 모든 칸 공통 토큰 영역
             const tokenStack = (
               <div
@@ -521,6 +524,7 @@ const isNormalKeyCell = !isCorner && base.special === "key";
                   gap: 2,
                   alignItems: "center",
                   marginTop: "auto",
+                   paddingBottom: 10,
                 }}
               >
                 {onThis.map((t) => {
@@ -582,68 +586,75 @@ const isNormalKeyCell = !isCorner && base.special === "key";
                 key={pos}
                 onClick={() => onClickCell(pos)}
                 style={{
-                  ...getCellStyleFromPos(pos),
-                  background: base.bg,
-                  border: isSelectedCell
-                    ? ".1875rem solid #fbbf24"
-                    : isLanded
-                    ? ".1875rem solid #34d399"
-                    : ".125rem solid rgba(0,0,0,0.3)",
-                  boxShadow: hidden
-                    ? "0 0 10px rgba(250,204,21,0.85)"
-                    : isSelectedCell
-                    ? "0 0 1.125rem rgba(251,191,36,0.9)"
-                    : isLanded
-                    ? "0 0 1.125rem rgba(52,211,153,0.9)"
-                    : "inset 0 .125rem .25rem rgba(255,255,255,0.2), 0 .125rem .5rem rgba(0,0,0,0.4)",
-                  borderRadius: base.isCorner ? 12 : 6,
-                  padding: base.isCorner ? "8%" : "7%",
-                  boxSizing: "border-box",
-                  cursor: "pointer",
-                  overflow: "hidden",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "flex-start", 
-                  gap: 2,
+ ...getCellStyleFromPos(pos),
+  background: base.bg,
+  border: isSelectedCell
+    ? ".1875rem solid #fbbf24"
+    : isLanded
+    ? ".1875rem solid #34d399"
+    : ".125rem solid rgba(0,0,0,0.3)",
+  boxShadow: hidden
+    ? "0 0 10px rgba(250,204,21,0.85)"
+    : isSelectedCell
+    ? "0 0 1.125rem rgba(251,191,36,0.9)"
+    : isLanded
+    ? "0 0 1.125rem rgba(52,211,153,0.9)"
+    : "inset 0 .125rem .25rem rgba(255,255,255,0.2), 0 .125rem .5rem rgba(0,0,0,0.4)",
+  borderRadius: base.isCorner ? 12 : 6,
+  padding: base.isCorner ? "8%" : "7%",
+  boxSizing: "border-box",
+  cursor: "pointer",
+  overflow: "hidden",
+
+  // 🔹 3단 레이아웃: 상단(아이콘+이름) / 중단(보조글) / 하단(말)
+  display: "grid",
+  gridTemplateRows: "auto auto minmax(20px, 1fr)",
+  alignItems: "start",
                 }}
               >
                 {/* 상단 컨텐츠: 아이콘 + 이름 (코너/일반 공통) */}
                 <div
-                   style={{
-    width: "100%",
-    height: "100%",
-    display: "flex",
-    flexDirection:
-      isVerticalTextCell && !isNormalKeyCell
-        ? "row"
-        : "column",
-    alignItems: "center",
-    justifyContent:
-      isVerticalTextCell && !isNormalKeyCell
-        ? "center"
-        : "flex-start",
-    gap:
-      isVerticalTextCell && !isNormalKeyCell
-        ? 4
-        : base.isCorner
-        ? 6
-        : 2,
-    marginBottom:
-      isVerticalTextCell && !isNormalKeyCell ? 0 : 4,
-      marginTop: base.isCorner ? -15 : -20,
-  }}
+                    style={
+    isCorner
+      ? {
+          // 🔹 코너/특별칸: 완전 중앙 정렬
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 6,
+          marginBottom: 4,
+          marginTop: -15, // 필요시 -6 ~ -10 정도로 조절
+        }
+      : {
+          // 🔹 일반칸: 기존 로직 그대로
+          width: "100%",
+          display: "flex",
+          flexDirection:
+            isVerticalTextCell && !isNormalKeyCell ? "row" : "column",
+          alignItems:
+            isVerticalTextCell && !isNormalKeyCell ? "flex-start" : "center",
+           justifyContent: "center",
+           gap:
+          isVerticalTextCell && !isNormalKeyCell ? 4 : 2,
+          marginBottom:
+            isVerticalTextCell && !isNormalKeyCell ? 0 : 4,
+           marginTop: -20,
+        }
+  }
 >
                   {/* 아이콘 – START, 무인도, 황금열쇠, 세계여행, 우주여행 등 */}
                   {base.icon && (
                     <div
-                      style={{
-                        fontSize: base.isCorner ? 38 : 28,
-                        lineHeight: 1,
-                         marginBottom:
-          isVerticalTextCell && !isNormalKeyCell ? 0 : 4,
-                        marginTop: base.isCorner ? -15 : -20,
-                      }}
+                     style={{
+      fontSize: base.isCorner ? 38 : 28,
+      lineHeight: 1,
+      marginBottom:
+        isVerticalTextCell && !isNormalKeyCell ? 0 : 4,
+       marginTop: isCorner ? 0 : -20,
+    }}
+
                     >
                       {base.icon}
                     </div>
@@ -665,8 +676,12 @@ const isNormalKeyCell = !isCorner && base.special === "key";
       // ✅ 상·하 일반칸에서 세로쓰기 느낌
       writingMode: isVerticalTextCell ? "vertical-rl" : "horizontal-tb",
       textOrientation: isVerticalTextCell ? "upright" : "mixed",
-      whiteSpace: "nowrap",
-    }}
+       whiteSpace: "nowrap",
+       ...(isVerticalTextCell && !isNormalKeyCell && !isCorner 
+      ? { marginLeft: -14 }
+      : {}),
+    ...(isTopRightKey ? { marginLeft: -20 } : {}),
+  }}
   >
                     {displayName}
                   </div>

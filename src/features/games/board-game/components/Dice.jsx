@@ -9,7 +9,7 @@ export function DiceBox({
   onRoll,
   disabled,
 }) {
-  const size = 64;
+  const size = 120;
   const half = size / 2;
 
   const getRotationForValue = (v) => {
