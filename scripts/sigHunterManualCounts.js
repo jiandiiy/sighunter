@@ -133,7 +133,6 @@ module.exports = {
   "muse/group07/sig_715.webp": 1515,
   "muse/group07/sig_720.webp": 1520,
   "muse/group07/sig_800.webp": 1600,
-  "muse/group07/sig_805.webp": 1605,
   "muse/group07/sig_856.webp": 1656,
   "muse/group07/sig_1018.webp": 1818,
   "muse/group07/sig_1121.webp": 1921,

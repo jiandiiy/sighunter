@@ -702,11 +702,6 @@ export const sigHunterImagePresets = {
         "count": 1600
       },
       {
-        "path": "/images/muse/group07/sig_805.webp",
-        "rawText": "[MANUAL]",
-        "count": 1605
-      },
-      {
         "path": "/images/muse/group07/sig_856.webp",
         "rawText": "[MANUAL]",
         "count": 1656
