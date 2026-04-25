@@ -189,18 +189,15 @@ export default function SigHunterBingoBoard({
     return { player: topPlayer, count: topCount };
   }, [mvpCandidate, playerTerritoryCounts]);
 
-  // 현재 라운드 참여자: 우선 participants 상태, 없으면 logs에서 actor 수집
+   // 현재 라운드 참여자: "현재 보드에서 한 칸 이상 점령 중인 사람"
   const localParticipants = useMemo(() => {
-    if (participants && participants.length > 0) return participants;
-
     const set = new Set();
-    logs.forEach((log) => {
-      const name = (log.actor || "").trim();
-      if (name) set.add(name);
+    cells.forEach((cell) => {
+      const owner = (cell.owner || "").trim();
+      if (owner) set.add(owner);
     });
-
     return Array.from(set).sort();
-  }, [participants, logs]);
+  }, [cells]);
 
   // 현재 라운드 미참여자: 전체 인원 - localParticipants
   const localNonParticipants = useMemo(() => {
