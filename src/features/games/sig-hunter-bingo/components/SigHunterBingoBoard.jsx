@@ -101,7 +101,6 @@ export default function SigHunterBingoBoard({
     getColorForPlayer,
 
     status,
-    participants,
     mvpCandidate,
     safeHandleClickCell,
     startNextRound,
