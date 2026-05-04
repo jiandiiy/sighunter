@@ -284,26 +284,53 @@ const spin = () => {
             />
           </div>
 
-          {/* 휠 재구성 */}
-          <div style={{ marginBottom: 20, textAlign: "center" }}>
-            <button
-              onClick={regenerateWheel}
-              disabled={isSpinning}
-              style={{
-                padding: "8px 20px",
-                borderRadius: 999,
-                border: "2px solid #93c5fd",
-                background: "#1d283a",
-                color: "#bfdbfe",
-                fontWeight: 700,
-                fontSize: 18,
-                cursor: isSpinning ? "not-allowed" : "pointer",
-                opacity: isSpinning ? 0.6 : 1,
-              }}
-            >
-              🔄 초기화
-            </button>
-          </div>
+        {/* 휠 컨트롤 */}
+<div
+  style={{
+    marginBottom: 20,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 12,
+  }}
+>
+  <button
+    onClick={regenerateWheel}
+    disabled={isSpinning}
+    style={{
+      padding: "8px 20px",
+      borderRadius: 999,
+      border: "2px solid #93c5fd",
+      background: "#1d283a",
+      color: "#bfdbfe",
+      fontWeight: 700,
+      fontSize: 18,
+      cursor: isSpinning ? "not-allowed" : "pointer",
+      opacity: isSpinning ? 0.6 : 1,
+    }}
+  >
+    🔄 초기화
+  </button>
+
+  <button
+    onClick={spin}
+    disabled={isSpinning}
+    style={{
+      padding: "8px 24px",
+      borderRadius: 999,
+      border: "2px solid #fef3c7",
+      background: "linear-gradient(145deg,#f97316,#fbbf24)",
+      color: "#111827",
+      fontWeight: 900,
+      fontSize: 18,
+      cursor: isSpinning ? "not-allowed" : "pointer",
+      opacity: isSpinning ? 0.6 : 1,
+      transition: "all 0.3s",
+    }}
+  >
+    {isSpinning ? "SPINNING..." : "🎰 회전"}
+  </button>
+</div>
 
           {/* 휠 + 버튼(세로 스택) */}
           <div
@@ -415,28 +442,6 @@ const spin = () => {
                 </div>
               </div>
             </WheelView>
-
-            {/* SPIN 버튼 */}
-            <div style={{ marginTop: 50 }}>
-              <button
-                onClick={spin}
-                disabled={isSpinning}
-                style={{
-                  padding: "16px 46px",
-                  borderRadius: 999,
-                  border: "3px solid #fef3c7",
-                  background: "linear-gradient(145deg,#f97316,#fbbf24)",
-                  color: "#111827",
-                  fontWeight: 900,
-                  fontSize: 24,
-                  cursor: isSpinning ? "not-allowed" : "pointer",
-                  opacity: isSpinning ? 0.6 : 1,
-                  transition: "all 0.3s",
-                }}
-              >
-                {isSpinning ? "SPINNING..." : "🎰 회전"}
-              </button>
-            </div>
           </div>
 
           {/* 하단 결과 요약 */}
