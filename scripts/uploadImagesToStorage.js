@@ -17,7 +17,7 @@ const baseDir = path.join(__dirname, "../public/images");
 
 // ✅ Storage 루트 경로 (폴더 구조 그대로 유지)
 //    public/images/muse/group01/a.webp → images/muse/group01/a.webp
-const remotePrefix = "sig-hunter/images";
+const remotePrefix = "images";
 
 // ✅ 진행 상황 카운터
 let uploadCount = 0;

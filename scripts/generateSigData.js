@@ -1,12 +1,12 @@
 /**
  * 🎲 SIG 카드 데이터 자동 생성 스크립트 (퀸덤 + 뮤즈 + 홀릭)
  *
- * - public/images/queendom/group01~09 : 퀸덤 일반 카드 (9그룹 → 10장 재분배)
- * - public/images/queendom/group10~11 : 퀸덤 특별 카드
- * - public/images/muse/group01~09     : 뮤즈 일반 카드 (9그룹 → 10장 재분배)
- * - public/images/muse/group10        : 뮤즈 특별 카드
- * - public/images/holic/group01~08    : 홀릭 일반 카드 (8그룹 → 10장 재분배)
- * - public/images/holic/group09       : 홀릭 특별 카드
+ * - public/images/queendom/group01~05 : 퀸덤 일반 카드 (5그룹 → 10장 재분배)
+ * - public/images/queendom/group06~07 : 퀸덤 특별 카드
+ * - public/images/muse/group01~05     : 뮤즈 일반 카드 (5그룹 → 10장 재분배)
+ * - public/images/muse/group06        : 뮤즈 특별 카드
+ * - public/images/holic/group01~05    : 홀릭 일반 카드 (5그룹 → 10장 재분배)
+ * - public/images/holic/group06       : 홀릭 특별 카드
  *
  * 실행: node scripts/generateSigData.js
  * 결과: src/data/sigData.js 자동 생성
@@ -17,7 +17,7 @@ const path = require("path");
 
 const rootDir = path.resolve(__dirname, "..");
 const baseDir = path.resolve(rootDir, "public/images");
-const outputFile = path.resolve(rootDir, "src/data/sigData.js");
+const outputFile = path.resolve(rootDir, "src/shared/data/sigData.js");
 
 console.log("📂 프로젝트 루트:", rootDir);
 console.log("📂 이미지 루트 경로:", baseDir);
@@ -33,20 +33,20 @@ if (!fs.existsSync(baseDir)) {
 
 const PROJECT_CONFIG = {
   queendom: {
-    normalGroupCount: 9, // group01~09
-    specialGroups: ["group10", "group11"],
+    normalGroupCount: 5, // group01~05
+    specialGroups: ["group06", "group07"],
     totalNormalCards: 10,
     startId: 1,
   },
   muse: {
-    normalGroupCount: 9, // group01~09
-    specialGroups: ["group10"],
+    normalGroupCount: 5, // group01~05
+    specialGroups: ["group06"],
     totalNormalCards: 10,
     startId: 12,
   },
   holic: {
-    normalGroupCount: 9, // group01~09
-    specialGroups: ["group10"],
+    normalGroupCount: 5, // group01~05
+    specialGroups: ["group06"],
     totalNormalCards: 10,
     startId: 23,
   },
@@ -361,8 +361,8 @@ console.log("   • queendom: 1~11  (일반 10장 + 스페셜 1장)");
 console.log("   • muse:    12~22  (일반 10장 + 스페셜 1장)");
 console.log("   • holic:   23~33  (일반 10장 + 스페셜 1장)");
 console.log("\n📊 그룹 → 카드 분배 방식:");
-console.log("   • queendom: group01~09 (9그룹) → 10장 재분배");
-console.log("   • muse:     group01~09 (9그룹) → 10장 재분배");
-console.log("   • holic:    group01~09 (9그룹) → 10장 재분배");
+console.log("   • queendom: group01~05 (5그룹) → 10장 재분배");
+console.log("   • muse:     group01~05 (5그룹) → 10장 재분배");
+console.log("   • holic:    group01~05 (5그룹) → 10장 재분배");
 console.log("\n✅ 확률 기본값은 게임별 메시지 풀에서 관리됩니다.");
 console.log("\n💡 이미지 침범 방지: validateGroupSeparation() 검증 통과 시에만 생성됨\n");

@@ -1,4 +1,4 @@
-// src/hooks/useSigStorage.js
+// src/shared/hooks/useSigStorage.js
 // 💾 시그헌터 공통 - Firestore 실시간 구독 + localStorage 동기화 통합 훅
 
 import { useState, useEffect, useRef } from "react";
@@ -6,11 +6,60 @@ import {
   queendomSigCards,
   museSigCards,
   holicSigCards,
-  normalMessages as defaultNormalMessages,
-  specialMessages as defaultSpecialMessages,
-} from "../data/sigData";
+  museNormalMessages,
+  museSpecialMessages,
+  queendomNormalMessages,
+  queendomSpecialMessages,
+  holicNormalMessages,
+  holicSpecialMessages,
+} from "../../shared/data/sigData";
 import { doc, onSnapshot, setDoc } from "firebase/firestore";
 import { firestore } from "../../resources/firestore/firebase";
+
+const messagesByProjectDefault = {
+  queendom: {
+    normal: queendomNormalMessages,
+    special: queendomSpecialMessages,
+  },
+  muse: {
+    normal: museNormalMessages,
+    special: museSpecialMessages,
+  },
+  holic: {
+    normal: holicNormalMessages,
+    special: holicSpecialMessages,
+  },
+};
+
+const normalMessagesByProject = {
+  queendom: queendomNormalMessages,
+  muse: museNormalMessages,
+  holic: holicNormalMessages,
+};
+
+const specialMessagesByProject = {
+  queendom: queendomSpecialMessages,
+  muse: museSpecialMessages,
+  holic: holicSpecialMessages,
+};
+
+const getCardProject = (card) => {
+  const id = Number(card.id);
+
+  if (id >= 1 && id <= 11) return "queendom";
+  if (id >= 12 && id <= 22) return "muse";
+  if (id >= 23 && id <= 33) return "holic";
+
+  return "queendom";
+};
+
+const getDefaultMessagesForCard = (card) => {
+  const project = getCardProject(card);
+
+  return card.isSpecial
+    ? specialMessagesByProject[project]
+    : normalMessagesByProject[project];
+};
 
 export function useSigStorage() {
   const [flipped, setFlippedState] = useState({});
@@ -18,20 +67,9 @@ export function useSigStorage() {
   const [revealed, setRevealedBase] = useState({});
   const [randomImages, setRandomImagesState] = useState({});
   const [cardWeights, setCardWeightsState] = useState({});
-   const [messagesByProject, setMessagesState] = useState({
-    queendom: {
-      normal: defaultNormalMessages,
-      special: defaultSpecialMessages,
-    },
-    muse: {
-      normal: defaultNormalMessages,
-      special: defaultSpecialMessages,
-    },
-    holic: {
-      normal: defaultNormalMessages,
-      special: defaultSpecialMessages,
-    },
-  });
+  const [messagesByProject, setMessagesState] = useState(
+    messagesByProjectDefault
+  );
   const [loaded, setLoaded] = useState(false);
 
   // ✅ holicSigCards 추가
@@ -46,19 +84,22 @@ export function useSigStorage() {
   // ─────────────────────────────────────────
   const buildDefaultState = () => {
     const initImgs = {};
-    allSigCards.forEach((c) => {
-      const imgs = c.frontImages;
+
+    allSigCards.forEach((card) => {
+      const imgs = card.frontImages;
+
       if (imgs?.length) {
-        initImgs[c.id] = imgs[Math.floor(Math.random() * imgs.length)];
+        initImgs[card.id] = imgs[Math.floor(Math.random() * imgs.length)];
       }
     });
 
     const initWeights = {};
+
     allSigCards.forEach((card) => {
-      const base = card.isSpecial
-        ? defaultSpecialMessages
-        : defaultNormalMessages;
-      initWeights[String(card.id)] = base.map((m) => m.weight ?? 1);
+      const baseMessages = getDefaultMessagesForCard(card);
+      initWeights[String(card.id)] = baseMessages.map((message) => {
+        return message.weight ?? 1;
+      });
     });
 
     localStorage.setItem("cardWeights", JSON.stringify(initWeights));
@@ -69,20 +110,7 @@ export function useSigStorage() {
       revealed: {},
       randomImages: initImgs,
       cardWeights: initWeights,
-      messagesByProject: {
-        queendom: {
-          normal: defaultNormalMessages,
-          special: defaultSpecialMessages,
-        },
-        muse: {
-          normal: defaultNormalMessages,
-          special: defaultSpecialMessages,
-        },
-        holic: {
-          normal: defaultNormalMessages,
-          special: defaultSpecialMessages,
-        },
-      },
+      messagesByProject: messagesByProjectDefault,
     };
   };
 
@@ -102,28 +130,15 @@ export function useSigStorage() {
           setRevealedBase(data.revealed || {});
           setRandomImagesState(data.randomImages || {});
           setCardWeightsState(data.cardWeights || {});
- 
-          const remoteMessages = data.messagesByProject;
-         setMessagesState(
-           remoteMessages || {
-             queendom: {
-               normal: defaultNormalMessages,
-               special: defaultSpecialMessages,
-             },
-             muse: {
-               normal: defaultNormalMessages,
-               special: defaultSpecialMessages,
-             },
-             holic: {
-               normal: defaultNormalMessages,
-               special: defaultSpecialMessages,
-             },
-           }
-         );
+
+          setMessagesState(data.messagesByProject || messagesByProjectDefault);
 
           // cardWeights는 localStorage에도 미러링
           if (data.cardWeights) {
-            localStorage.setItem("cardWeights", JSON.stringify(data.cardWeights));
+            localStorage.setItem(
+              "cardWeights",
+              JSON.stringify(data.cardWeights)
+            );
           }
         } else {
           // 문서 없으면 기본값으로 생성
@@ -149,25 +164,12 @@ export function useSigStorage() {
 
         // Firestore 실패 시 localStorage 폴백
         const fallback = {
-          flipped:      tryParse("sigFlipped", {}),
-          locked:       tryParse("sigLocked",  {}),
-          revealed:     tryParse("sigRevealed", {}),
-          randomImages: tryParse("sigImages",  {}),
-          cardWeights:  tryParse("cardWeights", {}),
-           messagesByProject: {
-           queendom: {
-             normal: defaultNormalMessages,
-             special: defaultSpecialMessages,
-           },
-           muse: {
-             normal: defaultNormalMessages,
-             special: defaultSpecialMessages,
-           },
-           holic: {
-             normal: defaultNormalMessages,
-             special: defaultSpecialMessages,
-           },
-         },
+          flipped: tryParse("sigFlipped", {}),
+          locked: tryParse("sigLocked", {}),
+          revealed: tryParse("sigRevealed", {}),
+          randomImages: tryParse("sigImages", {}),
+          cardWeights: tryParse("cardWeights", {}),
+          messagesByProject: messagesByProjectDefault,
         };
 
         setFlippedState(fallback.flipped);
@@ -219,21 +221,22 @@ export function useSigStorage() {
   // ─────────────────────────────────────────
   // 🔹 4) 공통 setter 래퍼 (로컬 변경 → Firestore 동기화)
   // ─────────────────────────────────────────
-  const wrapSetter =
-    (setState, key) =>
-    (updater) => {
-      setState((prev) => {
-        const next = typeof updater === "function" ? updater(prev) : updater;
-        if (!fromRemoteRef.current) {
-          pushToRemote({ [key]: next });
-        }
-        return next;
-      });
-      fromRemoteRef.current = false;
-    };
+  const wrapSetter = (setState, key) => (updater) => {
+    setState((prev) => {
+      const next = typeof updater === "function" ? updater(prev) : updater;
 
-  const setFlipped      = wrapSetter(setFlippedState,      "flipped");
-  const setLocked       = wrapSetter(setLockedState,       "locked");
+      if (!fromRemoteRef.current) {
+        pushToRemote({ [key]: next });
+      }
+
+      return next;
+    });
+
+    fromRemoteRef.current = false;
+  };
+
+  const setFlipped = wrapSetter(setFlippedState, "flipped");
+  const setLocked = wrapSetter(setLockedState, "locked");
   const setRandomImages = wrapSetter(setRandomImagesState, "randomImages");
   const setMessagesByProject = wrapSetter(
     setMessagesState,
@@ -244,12 +247,16 @@ export function useSigStorage() {
   const setCardWeights = (updater) => {
     setCardWeightsState((prev) => {
       const next = typeof updater === "function" ? updater(prev) : updater;
+
       localStorage.setItem("cardWeights", JSON.stringify(next));
+
       if (!fromRemoteRef.current) {
         pushToRemote({ cardWeights: next });
       }
+
       return next;
     });
+
     fromRemoteRef.current = false;
   };
 
@@ -258,9 +265,11 @@ export function useSigStorage() {
     if (typeof updater === "function") {
       setRevealedBase((prev) => {
         const next = updater(prev);
+
         if (!fromRemoteRef.current) {
           pushToRemote({ revealed: next });
         }
+
         fromRemoteRef.current = false;
         return next;
       });
@@ -268,6 +277,7 @@ export function useSigStorage() {
       if (!fromRemoteRef.current) {
         pushToRemote({ revealed: updater });
       }
+
       fromRemoteRef.current = false;
       setRevealedBase(updater);
     }

@@ -16,26 +16,14 @@ const bingoConfig = {
   muse: [
     "muse/group01",
     "muse/group02",
-    "muse/group03",
-    "muse/group04",
-    "muse/group05",
-    "muse/group06",
   ],
   queendom: [
     "queendom/group01",
     "queendom/group02",
-    "queendom/group03",
-    "queendom/group04",
-    "queendom/group05",
-    "queendom/group06",
   ],
   holic: [
     "holic/group01",
     "holic/group02",
-    "holic/group03",
-    "holic/group04",
-    "holic/group05",
-    "holic/group06",
   ],
 
 };
@@ -72,7 +60,7 @@ async function main() {
     result[mode] = await buildPoolForMode(mode, dirs);
   }
 
-  const outPath = path.join(PROJECT_ROOT, "src", "data", "sigBingoImagePool.js");
+  const outPath = path.join(PROJECT_ROOT, "src", "shared", "data", "sigBingoImagePresets.js");
 
   const fileContent = `// ⚙️ 자동 생성: 시그 빙고 이미지 풀
 // scripts/generateSigBingoImagePool.mjs 에 의해 생성됨

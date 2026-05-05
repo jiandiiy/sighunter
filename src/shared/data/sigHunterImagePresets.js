@@ -5,2295 +5,2264 @@ export const sigHunterImagePresets = {
   "muse": {
     "group01": [
       {
-        "path": "/images/muse/group01/sig_199.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1000.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1000
       },
       {
-        "path": "/images/muse/group01/sig_200.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1001.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1001
       },
       {
-        "path": "/images/muse/group01/sig_201.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1002.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1002
       },
       {
-        "path": "/images/muse/group01/sig_202.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1003.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1003
       },
       {
-        "path": "/images/muse/group01/sig_203.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1004.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1004
       },
       {
-        "path": "/images/muse/group01/sig_204.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1005.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1005
       },
       {
-        "path": "/images/muse/group01/sig_205.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1006.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1006
       },
       {
-        "path": "/images/muse/group01/sig_206.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1007.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1007
       },
       {
-        "path": "/images/muse/group01/sig_207.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1008.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1008
       },
       {
-        "path": "/images/muse/group01/sig_208.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1009.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1009
       },
       {
-        "path": "/images/muse/group01/sig_209.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1010.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1010
       },
       {
-        "path": "/images/muse/group01/sig_210.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1011.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1011
       },
       {
-        "path": "/images/muse/group01/sig_211.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1012.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1012
       },
       {
-        "path": "/images/muse/group01/sig_212.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1013.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1013
       },
       {
-        "path": "/images/muse/group01/sig_213.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1014.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1014
       },
       {
-        "path": "/images/muse/group01/sig_214.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1015.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1015
       },
       {
-        "path": "/images/muse/group01/sig_215.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1016.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1016
       },
       {
-        "path": "/images/muse/group01/sig_216.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1017.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1017
       },
       {
-        "path": "/images/muse/group01/sig_217.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1018.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1018
       },
       {
-        "path": "/images/muse/group01/sig_218.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1019.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1019
       },
       {
-        "path": "/images/muse/group01/sig_219.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1020.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1020
-      }
-    ],
-    "group02": [
+      },
       {
-        "path": "/images/muse/group02/sig_220.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1021.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1021
       },
       {
-        "path": "/images/muse/group02/sig_221.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1022.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1022
       },
       {
-        "path": "/images/muse/group02/sig_222.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1023.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1023
       },
       {
-        "path": "/images/muse/group02/sig_223.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1024.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1024
       },
       {
-        "path": "/images/muse/group02/sig_224.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1025.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1025
       },
       {
-        "path": "/images/muse/group02/sig_225.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1026.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1026
       },
       {
-        "path": "/images/muse/group02/sig_226.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1027.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1027
       },
       {
-        "path": "/images/muse/group02/sig_227.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1028.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1028
       },
       {
-        "path": "/images/muse/group02/sig_228.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1029.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1029
       },
       {
-        "path": "/images/muse/group02/sig_229.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1030.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1030
       },
       {
-        "path": "/images/muse/group02/sig_230.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1031.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1031
       },
       {
-        "path": "/images/muse/group02/sig_231.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1032.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1032
       },
       {
-        "path": "/images/muse/group02/sig_232.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1033.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1033
       },
       {
-        "path": "/images/muse/group02/sig_233.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1034.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1034
       },
       {
-        "path": "/images/muse/group02/sig_234.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1035.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1035
       },
       {
-        "path": "/images/muse/group02/sig_235.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1036.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1036
       },
       {
-        "path": "/images/muse/group02/sig_236.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1037.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1037
       },
       {
-        "path": "/images/muse/group02/sig_237.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1038.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1038
       },
       {
-        "path": "/images/muse/group02/sig_238.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1039.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1039
       },
       {
-        "path": "/images/muse/group02/sig_239.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1040.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1040
-      }
-    ],
-    "group03": [
+      },
       {
-        "path": "/images/muse/group03/sig_240.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1041.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1041
       },
       {
-        "path": "/images/muse/group03/sig_241.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1042.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1042
       },
       {
-        "path": "/images/muse/group03/sig_242.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1043.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1043
       },
       {
-        "path": "/images/muse/group03/sig_243.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1044.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1044
       },
       {
-        "path": "/images/muse/group03/sig_244.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1045.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1045
       },
       {
-        "path": "/images/muse/group03/sig_245.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1046.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1046
       },
       {
-        "path": "/images/muse/group03/sig_246.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1047.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1047
       },
       {
-        "path": "/images/muse/group03/sig_247.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1048.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1048
       },
       {
-        "path": "/images/muse/group03/sig_248.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1049.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1049
       },
       {
-        "path": "/images/muse/group03/sig_249.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1050.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1050
       },
       {
-        "path": "/images/muse/group03/sig_250.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1051.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1051
       },
       {
-        "path": "/images/muse/group03/sig_251.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1052.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1052
       },
       {
-        "path": "/images/muse/group03/sig_252.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1053.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1053
       },
       {
-        "path": "/images/muse/group03/sig_253.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1054.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1054
       },
       {
-        "path": "/images/muse/group03/sig_254.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1055.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1055
       },
       {
-        "path": "/images/muse/group03/sig_255.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1056.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1056
       },
       {
-        "path": "/images/muse/group03/sig_256.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1057.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1057
       },
       {
-        "path": "/images/muse/group03/sig_257.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1058.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1058
       },
       {
-        "path": "/images/muse/group03/sig_258.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1059.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1059
-      }
-    ],
-    "group04": [
+      },
       {
-        "path": "/images/muse/group04/sig_260.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1060.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1060
       },
       {
-        "path": "/images/muse/group04/sig_261.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1061.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1061
       },
       {
-        "path": "/images/muse/group04/sig_262.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1062.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1062
       },
       {
-        "path": "/images/muse/group04/sig_263.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1063.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1063
       },
       {
-        "path": "/images/muse/group04/sig_264.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1064.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1064
       },
       {
-        "path": "/images/muse/group04/sig_265.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1065.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1065
       },
       {
-        "path": "/images/muse/group04/sig_266.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1066.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1066
       },
       {
-        "path": "/images/muse/group04/sig_267.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1067.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1067
       },
       {
-        "path": "/images/muse/group04/sig_268.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1068.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1068
       },
       {
-        "path": "/images/muse/group04/sig_269.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1069.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1069
       },
       {
-        "path": "/images/muse/group04/sig_270.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1070.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1070
       },
       {
-        "path": "/images/muse/group04/sig_271.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1071.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1071
       },
       {
-        "path": "/images/muse/group04/sig_272.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1072.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1072
       },
       {
-        "path": "/images/muse/group04/sig_273.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1073.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1073
       },
       {
-        "path": "/images/muse/group04/sig_274.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1074.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1074
       },
       {
-        "path": "/images/muse/group04/sig_275.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1075.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1075
       },
       {
-        "path": "/images/muse/group04/sig_276.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1076.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1076
       },
       {
-        "path": "/images/muse/group04/sig_277.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1077.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1077
       },
       {
-        "path": "/images/muse/group04/sig_278.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1078.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1078
       },
       {
-        "path": "/images/muse/group04/sig_279.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1079.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1079
-      }
-    ],
-    "group05": [
+      },
       {
-        "path": "/images/muse/group05/sig_280.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1080.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1080
       },
       {
-        "path": "/images/muse/group05/sig_281.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1081.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1081
       },
       {
-        "path": "/images/muse/group05/sig_282.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1082.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1082
       },
       {
-        "path": "/images/muse/group05/sig_283.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1083.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1083
       },
       {
-        "path": "/images/muse/group05/sig_284.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1084.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1084
       },
       {
-        "path": "/images/muse/group05/sig_285.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1085.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1085
       },
       {
-        "path": "/images/muse/group05/sig_286.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1086.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1086
       },
       {
-        "path": "/images/muse/group05/sig_287.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1087.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1087
       },
       {
-        "path": "/images/muse/group05/sig_290.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1090.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1090
       },
       {
-        "path": "/images/muse/group05/sig_291.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1091.webp?alt=media",
         "rawText": "[NO_MANUAL]",
         "count": 0
       },
       {
-        "path": "/images/muse/group05/sig_292.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1092.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1092
       },
       {
-        "path": "/images/muse/group05/sig_293.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1093.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1093
       },
       {
-        "path": "/images/muse/group05/sig_294.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1094.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1094
       },
       {
-        "path": "/images/muse/group05/sig_295.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1095.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1095
       },
       {
-        "path": "/images/muse/group05/sig_296.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1096.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1096
       },
       {
-        "path": "/images/muse/group05/sig_297.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1097.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1097
       },
       {
-        "path": "/images/muse/group05/sig_298.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1098.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1098
       },
       {
-        "path": "/images/muse/group05/sig_299.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1099.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1099
       },
       {
-        "path": "/images/muse/group05/sig_300.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1100.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1100
-      },
-      {
-        "path": "/images/muse/group05/sig_301.webp",
-        "rawText": "[MANUAL]",
-        "count": 1101
-      },
-      {
-        "path": "/images/muse/group05/sig_302.webp",
-        "rawText": "[MANUAL]",
-        "count": 1102
-      },
-      {
-        "path": "/images/muse/group05/sig_303.webp",
-        "rawText": "[MANUAL]",
-        "count": 1103
-      },
-      {
-        "path": "/images/muse/group05/sig_304.webp",
-        "rawText": "[MANUAL]",
-        "count": 1104
-      },
-      {
-        "path": "/images/muse/group05/sig_305.webp",
-        "rawText": "[MANUAL]",
-        "count": 1105
-      },
-      {
-        "path": "/images/muse/group05/sig_306.webp",
-        "rawText": "[MANUAL]",
-        "count": 1106
-      }
-    ],
-    "group06": [
-      {
-        "path": "/images/muse/group06/sig_307.webp",
-        "rawText": "[MANUAL]",
-        "count": 1107
-      },
-      {
-        "path": "/images/muse/group06/sig_308.webp",
-        "rawText": "[MANUAL]",
-        "count": 1108
-      },
-      {
-        "path": "/images/muse/group06/sig_309.webp",
-        "rawText": "[MANUAL]",
-        "count": 1109
-      },
-      {
-        "path": "/images/muse/group06/sig_315.webp",
-        "rawText": "[MANUAL]",
-        "count": 1115
-      },
-      {
-        "path": "/images/muse/group06/sig_317.webp",
-        "rawText": "[MANUAL]",
-        "count": 1117
-      },
-      {
-        "path": "/images/muse/group06/sig_318.webp",
-        "rawText": "[MANUAL]",
-        "count": 1118
-      },
-      {
-        "path": "/images/muse/group06/sig_319.webp",
-        "rawText": "[MANUAL]",
-        "count": 1119
-      },
-      {
-        "path": "/images/muse/group06/sig_320.webp",
-        "rawText": "[MANUAL]",
-        "count": 1120
-      },
-      {
-        "path": "/images/muse/group06/sig_325.webp",
-        "rawText": "[MANUAL]",
-        "count": 1125
-      },
-      {
-        "path": "/images/muse/group06/sig_326.webp",
-        "rawText": "[MANUAL]",
-        "count": 1126
-      },
-      {
-        "path": "/images/muse/group06/sig_327.webp",
-        "rawText": "[MANUAL]",
-        "count": 1127
-      },
-      {
-        "path": "/images/muse/group06/sig_329.webp",
-        "rawText": "[MANUAL]",
-        "count": 1129
-      },
-      {
-        "path": "/images/muse/group06/sig_333.webp",
-        "rawText": "[MANUAL]",
-        "count": 1133
-      },
-      {
-        "path": "/images/muse/group06/sig_340.webp",
-        "rawText": "[MANUAL]",
-        "count": 1140
-      },
-      {
-        "path": "/images/muse/group06/sig_342.webp",
-        "rawText": "[MANUAL]",
-        "count": 1142
-      },
-      {
-        "path": "/images/muse/group06/sig_344.webp",
-        "rawText": "[MANUAL]",
-        "count": 1144
-      },
-      {
-        "path": "/images/muse/group06/sig_345.webp",
-        "rawText": "[MANUAL]",
-        "count": 1145
-      },
-      {
-        "path": "/images/muse/group06/sig_433.webp",
-        "rawText": "[MANUAL]",
-        "count": 1233
-      },
-      {
-        "path": "/images/muse/group06/sig_434.webp",
-        "rawText": "[MANUAL]",
-        "count": 1234
-      },
-      {
-        "path": "/images/muse/group06/sig_450.webp",
-        "rawText": "[MANUAL]",
-        "count": 1250
-      },
-      {
-        "path": "/images/muse/group06/sig_473.webp",
-        "rawText": "[MANUAL]",
-        "count": 1273
-      }
-    ],
-    "group07": [
-      {
-        "path": "/images/muse/group07/sig_1018.webp",
-        "rawText": "[MANUAL]",
-        "count": 1818
-      },
-      {
-        "path": "/images/muse/group07/sig_1121.webp",
-        "rawText": "[MANUAL]",
-        "count": 1921
-      },
-      {
-        "path": "/images/muse/group07/sig_500.webp",
-        "rawText": "[MANUAL]",
-        "count": 1300
-      },
-      {
-        "path": "/images/muse/group07/sig_501.webp",
-        "rawText": "[MANUAL]",
-        "count": 1301
-      },
-      {
-        "path": "/images/muse/group07/sig_600.webp",
-        "rawText": "[MANUAL]",
-        "count": 1400
-      },
-      {
-        "path": "/images/muse/group07/sig_614.webp",
-        "rawText": "[MANUAL]",
-        "count": 1414
-      },
-      {
-        "path": "/images/muse/group07/sig_656.webp",
-        "rawText": "[MANUAL]",
-        "count": 1456
-      },
-      {
-        "path": "/images/muse/group07/sig_700.webp",
-        "rawText": "[MANUAL]",
-        "count": 1500
-      },
-      {
-        "path": "/images/muse/group07/sig_715.webp",
-        "rawText": "[MANUAL]",
-        "count": 1515
-      },
-      {
-        "path": "/images/muse/group07/sig_720.webp",
-        "rawText": "[MANUAL]",
-        "count": 1520
-      },
-      {
-        "path": "/images/muse/group07/sig_800.webp",
-        "rawText": "[MANUAL]",
-        "count": 1600
-      },
-      {
-        "path": "/images/muse/group07/sig_856.webp",
-        "rawText": "[MANUAL]",
-        "count": 1656
-      }
-    ],
-    "group09": [
-      {
-        "path": "/images/muse/group09/sig_4000.webp",
-        "rawText": "[MANUAL]",
-        "count": 5000
-      },
-      {
-        "path": "/images/muse/group09/sig_4001.webp",
-        "rawText": "[MANUAL]",
-        "count": 5001
-      },
-      {
-        "path": "/images/muse/group09/sig_5000.webp",
-        "rawText": "[MANUAL]",
-        "count": 6000
-      },
-      {
-        "path": "/images/muse/group09/sig_6777.webp",
-        "rawText": "[MANUAL]",
-        "count": 7777
-      },
-      {
-        "path": "/images/muse/group09/sig_6788.webp",
-        "rawText": "[MANUAL]",
-        "count": 7788
-      },
-      {
-        "path": "/images/muse/group09/sig_7888.webp",
-        "rawText": "[MANUAL]",
-        "count": 8888
-      }
-    ],
-    "group10": [
-      {
-        "path": "/images/muse/group10/sig_10000.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
-      },
-      {
-        "path": "/images/muse/group10/sig_10027.webp",
-        "rawText": "[MANUAL]",
-        "count": 10027
-      },
-      {
-        "path": "/images/muse/group10/sig_10040.webp",
-        "rawText": "[MANUAL]",
-        "count": 10040
-      },
-      {
-        "path": "/images/muse/group10/sig_10042.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
-      },
-      {
-        "path": "/images/muse/group10/sig_10072.webp",
-        "rawText": "[MANUAL]",
-        "count": 10072
-      },
-      {
-        "path": "/images/muse/group10/sig_10077.webp",
-        "rawText": "[MANUAL]",
-        "count": 10077
-      },
-      {
-        "path": "/images/muse/group10/sig_10078.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
-      },
-      {
-        "path": "/images/muse/group10/sig_10079.webp",
-        "rawText": "[MANUAL]",
-        "count": 10079
-      },
-      {
-        "path": "/images/muse/group10/sig_10080.webp",
-        "rawText": "[MANUAL]",
-        "count": 10080
-      },
-      {
-        "path": "/images/muse/group10/sig_10083.webp",
-        "rawText": "[MANUAL]",
-        "count": 10083
-      },
-      {
-        "path": "/images/muse/group10/sig_10084.webp",
-        "rawText": "[MANUAL]",
-        "count": 10084
-      },
-      {
-        "path": "/images/muse/group10/sig_10089.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
-      },
-      {
-        "path": "/images/muse/group10/sig_10142.webp",
-        "rawText": "[MANUAL]",
-        "count": 10142
-      },
-      {
-        "path": "/images/muse/group10/sig_10145.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
-      },
-      {
-        "path": "/images/muse/group10/sig_10152.webp",
-        "rawText": "[MANUAL]",
-        "count": 10152
-      },
-      {
-        "path": "/images/muse/group10/sig_10162.webp",
-        "rawText": "[MANUAL]",
-        "count": 10162
-      },
-      {
-        "path": "/images/muse/group10/sig_10167.webp",
-        "rawText": "[MANUAL]",
-        "count": 10167
-      },
-      {
-        "path": "/images/muse/group10/sig_10186.webp",
-        "rawText": "[MANUAL]",
-        "count": 10186
-      },
-      {
-        "path": "/images/muse/group10/sig_10187.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
-      },
-      {
-        "path": "/images/muse/group10/sig_10188.webp",
-        "rawText": "[MANUAL]",
-        "count": 10188
-      },
-      {
-        "path": "/images/muse/group10/sig_10260.webp",
-        "rawText": "[MANUAL]",
-        "count": 10260
-      }
-    ],
-    "group11": [
-      {
-        "path": "/images/muse/group11/sig_10000.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
-      },
-      {
-        "path": "/images/muse/group11/sig_10042.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
-      },
-      {
-        "path": "/images/muse/group11/sig_10078.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
-      },
-      {
-        "path": "/images/muse/group11/sig_10145.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
-      },
-      {
-        "path": "/images/muse/group11/sig_10187.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
-      },
-      {
-        "path": "/images/muse/group11/sig_4000.webp",
-        "rawText": "[MANUAL]",
-        "count": 5000
-      },
-      {
-        "path": "/images/muse/group11/sig_4001.webp",
-        "rawText": "[MANUAL]",
-        "count": 5001
-      },
-      {
-        "path": "/images/muse/group11/sig_5000.webp",
-        "rawText": "[MANUAL]",
-        "count": 6000
-      },
-      {
-        "path": "/images/muse/group11/sig_6777.webp",
-        "rawText": "[MANUAL]",
-        "count": 7777
-      },
-      {
-        "path": "/images/muse/group11/sig_6788.webp",
-        "rawText": "[MANUAL]",
-        "count": 7788
-      },
-      {
-        "path": "/images/muse/group11/sig_7888.webp",
-        "rawText": "[MANUAL]",
-        "count": 8888
-      }
-    ],
-    "group12": []
-  },
-  "queendom": {
-    "group01": [
-      {
-        "path": "/images/queendom/group01/sig_01.webp",
-        "rawText": "[MANUAL]",
-        "count": 1000
-      },
-      {
-        "path": "/images/queendom/group01/sig_02.webp",
-        "rawText": "[MANUAL]",
-        "count": 1001
-      },
-      {
-        "path": "/images/queendom/group01/sig_03.webp",
-        "rawText": "[MANUAL]",
-        "count": 1002
-      },
-      {
-        "path": "/images/queendom/group01/sig_04.webp",
-        "rawText": "[MANUAL]",
-        "count": 1003
-      },
-      {
-        "path": "/images/queendom/group01/sig_05.webp",
-        "rawText": "[MANUAL]",
-        "count": 1004
-      },
-      {
-        "path": "/images/queendom/group01/sig_06.webp",
-        "rawText": "[MANUAL]",
-        "count": 1005
-      },
-      {
-        "path": "/images/queendom/group01/sig_07.webp",
-        "rawText": "[MANUAL]",
-        "count": 1006
-      },
-      {
-        "path": "/images/queendom/group01/sig_08.webp",
-        "rawText": "[MANUAL]",
-        "count": 1007
-      },
-      {
-        "path": "/images/queendom/group01/sig_09.webp",
-        "rawText": "[MANUAL]",
-        "count": 1008
-      },
-      {
-        "path": "/images/queendom/group01/sig_10.webp",
-        "rawText": "[MANUAL]",
-        "count": 1009
-      },
-      {
-        "path": "/images/queendom/group01/sig_11.webp",
-        "rawText": "[MANUAL]",
-        "count": 1010
-      },
-      {
-        "path": "/images/queendom/group01/sig_12.webp",
-        "rawText": "[MANUAL]",
-        "count": 1011
-      },
-      {
-        "path": "/images/queendom/group01/sig_13.webp",
-        "rawText": "[MANUAL]",
-        "count": 1012
-      },
-      {
-        "path": "/images/queendom/group01/sig_14.webp",
-        "rawText": "[MANUAL]",
-        "count": 1013
-      },
-      {
-        "path": "/images/queendom/group01/sig_15.webp",
-        "rawText": "[MANUAL]",
-        "count": 1014
-      },
-      {
-        "path": "/images/queendom/group01/sig_16.webp",
-        "rawText": "[MANUAL]",
-        "count": 1015
-      },
-      {
-        "path": "/images/queendom/group01/sig_17.webp",
-        "rawText": "[MANUAL]",
-        "count": 1016
-      },
-      {
-        "path": "/images/queendom/group01/sig_18.webp",
-        "rawText": "[MANUAL]",
-        "count": 1017
-      },
-      {
-        "path": "/images/queendom/group01/sig_19.webp",
-        "rawText": "[MANUAL]",
-        "count": 1018
-      },
-      {
-        "path": "/images/queendom/group01/sig_20.webp",
-        "rawText": "[MANUAL]",
-        "count": 1019
-      },
-      {
-        "path": "/images/queendom/group01/sig_21.webp",
-        "rawText": "[MANUAL]",
-        "count": 1020
-      },
-      {
-        "path": "/images/queendom/group01/sig_22.webp",
-        "rawText": "[MANUAL]",
-        "count": 1021
       }
     ],
     "group02": [
       {
-        "path": "/images/queendom/group02/sig_23.webp",
-        "rawText": "[MANUAL]",
-        "count": 1022
-      },
-      {
-        "path": "/images/queendom/group02/sig_24.webp",
-        "rawText": "[MANUAL]",
-        "count": 1023
-      },
-      {
-        "path": "/images/queendom/group02/sig_25.webp",
-        "rawText": "[MANUAL]",
-        "count": 1024
-      },
-      {
-        "path": "/images/queendom/group02/sig_26.webp",
-        "rawText": "[MANUAL]",
-        "count": 1025
-      },
-      {
-        "path": "/images/queendom/group02/sig_27.webp",
-        "rawText": "[MANUAL]",
-        "count": 1026
-      },
-      {
-        "path": "/images/queendom/group02/sig_28.webp",
-        "rawText": "[MANUAL]",
-        "count": 1027
-      },
-      {
-        "path": "/images/queendom/group02/sig_29.webp",
-        "rawText": "[MANUAL]",
-        "count": 1028
-      },
-      {
-        "path": "/images/queendom/group02/sig_30.webp",
-        "rawText": "[MANUAL]",
-        "count": 1029
-      },
-      {
-        "path": "/images/queendom/group02/sig_31.webp",
-        "rawText": "[MANUAL]",
-        "count": 1030
-      },
-      {
-        "path": "/images/queendom/group02/sig_32.webp",
-        "rawText": "[MANUAL]",
-        "count": 1031
-      },
-      {
-        "path": "/images/queendom/group02/sig_33.webp",
-        "rawText": "[MANUAL]",
-        "count": 1032
-      },
-      {
-        "path": "/images/queendom/group02/sig_34.webp",
-        "rawText": "[MANUAL]",
-        "count": 1033
-      },
-      {
-        "path": "/images/queendom/group02/sig_35.webp",
-        "rawText": "[MANUAL]",
-        "count": 1034
-      },
-      {
-        "path": "/images/queendom/group02/sig_36.webp",
-        "rawText": "[MANUAL]",
-        "count": 1035
-      },
-      {
-        "path": "/images/queendom/group02/sig_37.webp",
-        "rawText": "[MANUAL]",
-        "count": 1036
-      },
-      {
-        "path": "/images/queendom/group02/sig_38.webp",
-        "rawText": "[MANUAL]",
-        "count": 1037
-      },
-      {
-        "path": "/images/queendom/group02/sig_39.webp",
-        "rawText": "[MANUAL]",
-        "count": 1038
-      },
-      {
-        "path": "/images/queendom/group02/sig_40.webp",
-        "rawText": "[MANUAL]",
-        "count": 1039
-      },
-      {
-        "path": "/images/queendom/group02/sig_41.webp",
-        "rawText": "[MANUAL]",
-        "count": 1040
-      },
-      {
-        "path": "/images/queendom/group02/sig_42.webp",
-        "rawText": "[MANUAL]",
-        "count": 1041
-      },
-      {
-        "path": "/images/queendom/group02/sig_43.webp",
-        "rawText": "[MANUAL]",
-        "count": 1042
-      },
-      {
-        "path": "/images/queendom/group02/sig_44.webp",
-        "rawText": "[MANUAL]",
-        "count": 1043
-      },
-      {
-        "path": "/images/queendom/group02/sig_45.webp",
-        "rawText": "[MANUAL]",
-        "count": 1044
-      },
-      {
-        "path": "/images/queendom/group02/sig_46.webp",
-        "rawText": "[MANUAL]",
-        "count": 1045
-      },
-      {
-        "path": "/images/queendom/group02/sig_47.webp",
-        "rawText": "[MANUAL]",
-        "count": 1046
-      }
-    ],
-    "group03": [
-      {
-        "path": "/images/queendom/group03/sig_48.webp",
-        "rawText": "[MANUAL]",
-        "count": 1047
-      },
-      {
-        "path": "/images/queendom/group03/sig_49.webp",
-        "rawText": "[MANUAL]",
-        "count": 1048
-      },
-      {
-        "path": "/images/queendom/group03/sig_50.webp",
-        "rawText": "[MANUAL]",
-        "count": 1049
-      },
-      {
-        "path": "/images/queendom/group03/sig_51.webp",
-        "rawText": "[MANUAL]",
-        "count": 1050
-      },
-      {
-        "path": "/images/queendom/group03/sig_52.webp",
-        "rawText": "[MANUAL]",
-        "count": 1051
-      },
-      {
-        "path": "/images/queendom/group03/sig_53.webp",
-        "rawText": "[MANUAL]",
-        "count": 1052
-      },
-      {
-        "path": "/images/queendom/group03/sig_54.webp",
-        "rawText": "[MANUAL]",
-        "count": 1053
-      },
-      {
-        "path": "/images/queendom/group03/sig_56.webp",
-        "rawText": "[MANUAL]",
-        "count": 1055
-      },
-      {
-        "path": "/images/queendom/group03/sig_57.webp",
-        "rawText": "[MANUAL]",
-        "count": 1056
-      },
-      {
-        "path": "/images/queendom/group03/sig_58.webp",
-        "rawText": "[MANUAL]",
-        "count": 1057
-      },
-      {
-        "path": "/images/queendom/group03/sig_59.webp",
-        "rawText": "[MANUAL]",
-        "count": 1058
-      },
-      {
-        "path": "/images/queendom/group03/sig_60.webp",
-        "rawText": "[MANUAL]",
-        "count": 1059
-      },
-      {
-        "path": "/images/queendom/group03/sig_61.webp",
-        "rawText": "[MANUAL]",
-        "count": 1060
-      },
-      {
-        "path": "/images/queendom/group03/sig_62.webp",
-        "rawText": "[MANUAL]",
-        "count": 1061
-      },
-      {
-        "path": "/images/queendom/group03/sig_63.webp",
-        "rawText": "[MANUAL]",
-        "count": 1062
-      },
-      {
-        "path": "/images/queendom/group03/sig_64.webp",
-        "rawText": "[MANUAL]",
-        "count": 1063
-      },
-      {
-        "path": "/images/queendom/group03/sig_65.webp",
-        "rawText": "[MANUAL]",
-        "count": 1064
-      },
-      {
-        "path": "/images/queendom/group03/sig_66.webp",
-        "rawText": "[MANUAL]",
-        "count": 1065
-      },
-      {
-        "path": "/images/queendom/group03/sig_67.webp",
-        "rawText": "[MANUAL]",
-        "count": 1066
-      },
-      {
-        "path": "/images/queendom/group03/sig_68.webp",
-        "rawText": "[MANUAL]",
-        "count": 1067
-      },
-      {
-        "path": "/images/queendom/group03/sig_69.webp",
-        "rawText": "[MANUAL]",
-        "count": 1068
-      },
-      {
-        "path": "/images/queendom/group03/sig_70.webp",
-        "rawText": "[MANUAL]",
-        "count": 1069
-      },
-      {
-        "path": "/images/queendom/group03/sig_71.webp",
-        "rawText": "[MANUAL]",
-        "count": 1070
-      },
-      {
-        "path": "/images/queendom/group03/sig_72.webp",
-        "rawText": "[MANUAL]",
-        "count": 1071
-      },
-      {
-        "path": "/images/queendom/group03/sig_73.webp",
-        "rawText": "[MANUAL]",
-        "count": 1072
-      },
-      {
-        "path": "/images/queendom/group03/sig_74.webp",
-        "rawText": "[MANUAL]",
-        "count": 1073
-      },
-      {
-        "path": "/images/queendom/group03/sig_75.webp",
-        "rawText": "[MANUAL]",
-        "count": 1074
-      },
-      {
-        "path": "/images/queendom/group03/sig_76.webp",
-        "rawText": "[MANUAL]",
-        "count": 1075
-      },
-      {
-        "path": "/images/queendom/group03/sig_77.webp",
-        "rawText": "[MANUAL]",
-        "count": 1076
-      },
-      {
-        "path": "/images/queendom/group03/sig_78.webp",
-        "rawText": "[MANUAL]",
-        "count": 1077
-      },
-      {
-        "path": "/images/queendom/group03/sig_79.webp",
-        "rawText": "[MANUAL]",
-        "count": 1078
-      }
-    ],
-    "group04": [
-      {
-        "path": "/images/queendom/group04/sig_100.webp",
-        "rawText": "[MANUAL]",
-        "count": 1099
-      },
-      {
-        "path": "/images/queendom/group04/sig_101.webp",
-        "rawText": "[MANUAL]",
-        "count": 1100
-      },
-      {
-        "path": "/images/queendom/group04/sig_102.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1101.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1101
       },
       {
-        "path": "/images/queendom/group04/sig_103.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1102.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1102
       },
       {
-        "path": "/images/queendom/group04/sig_104.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1103.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1103
       },
       {
-        "path": "/images/queendom/group04/sig_105.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1104.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1104
       },
       {
-        "path": "/images/queendom/group04/sig_106.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1105.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1105
       },
       {
-        "path": "/images/queendom/group04/sig_108.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1106.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1106
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1107.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1107
       },
       {
-        "path": "/images/queendom/group04/sig_110.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1108.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1108
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1109.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1109
       },
       {
-        "path": "/images/queendom/group04/sig_112.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1115.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 1111
+        "count": 1115
       },
       {
-        "path": "/images/queendom/group04/sig_80.webp",
-        "rawText": "[MANUAL]",
-        "count": 1079
-      },
-      {
-        "path": "/images/queendom/group04/sig_81.webp",
-        "rawText": "[MANUAL]",
-        "count": 1080
-      },
-      {
-        "path": "/images/queendom/group04/sig_82.webp",
-        "rawText": "[MANUAL]",
-        "count": 1081
-      },
-      {
-        "path": "/images/queendom/group04/sig_83.webp",
-        "rawText": "[MANUAL]",
-        "count": 1082
-      },
-      {
-        "path": "/images/queendom/group04/sig_84.webp",
-        "rawText": "[MANUAL]",
-        "count": 1083
-      },
-      {
-        "path": "/images/queendom/group04/sig_85.webp",
-        "rawText": "[MANUAL]",
-        "count": 1084
-      },
-      {
-        "path": "/images/queendom/group04/sig_86.webp",
-        "rawText": "[MANUAL]",
-        "count": 1085
-      },
-      {
-        "path": "/images/queendom/group04/sig_87.webp",
-        "rawText": "[MANUAL]",
-        "count": 1086
-      },
-      {
-        "path": "/images/queendom/group04/sig_88.webp",
-        "rawText": "[MANUAL]",
-        "count": 1087
-      },
-      {
-        "path": "/images/queendom/group04/sig_89.webp",
-        "rawText": "[MANUAL]",
-        "count": 1088
-      },
-      {
-        "path": "/images/queendom/group04/sig_90.webp",
-        "rawText": "[MANUAL]",
-        "count": 1089
-      },
-      {
-        "path": "/images/queendom/group04/sig_91.webp",
-        "rawText": "[MANUAL]",
-        "count": 1090
-      },
-      {
-        "path": "/images/queendom/group04/sig_92.webp",
-        "rawText": "[MANUAL]",
-        "count": 1091
-      },
-      {
-        "path": "/images/queendom/group04/sig_93.webp",
-        "rawText": "[MANUAL]",
-        "count": 1092
-      },
-      {
-        "path": "/images/queendom/group04/sig_94.webp",
-        "rawText": "[MANUAL]",
-        "count": 1093
-      },
-      {
-        "path": "/images/queendom/group04/sig_95.webp",
-        "rawText": "[MANUAL]",
-        "count": 1094
-      },
-      {
-        "path": "/images/queendom/group04/sig_96.webp",
-        "rawText": "[MANUAL]",
-        "count": 1095
-      },
-      {
-        "path": "/images/queendom/group04/sig_97.webp",
-        "rawText": "[MANUAL]",
-        "count": 1096
-      },
-      {
-        "path": "/images/queendom/group04/sig_98.webp",
-        "rawText": "[MANUAL]",
-        "count": 1097
-      },
-      {
-        "path": "/images/queendom/group04/sig_99.webp",
-        "rawText": "[MANUAL]",
-        "count": 1098
-      }
-    ],
-    "group05": [
-      {
-        "path": "/images/queendom/group05/sig_113.webp",
-        "rawText": "[MANUAL]",
-        "count": 1112
-      },
-      {
-        "path": "/images/queendom/group05/sig_115.webp",
-        "rawText": "[MANUAL]",
-        "count": 1114
-      },
-      {
-        "path": "/images/queendom/group05/sig_118.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1117.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1117
       },
       {
-        "path": "/images/queendom/group05/sig_121.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1118.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1118
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1119.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1119
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1120.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1120
       },
       {
-        "path": "/images/queendom/group05/sig_122.webp",
-        "rawText": "[MANUAL]",
-        "count": 1121
-      },
-      {
-        "path": "/images/queendom/group05/sig_123.webp",
-        "rawText": "[MANUAL]",
-        "count": 1122
-      },
-      {
-        "path": "/images/queendom/group05/sig_124.webp",
-        "rawText": "[MANUAL]",
-        "count": 1123
-      },
-      {
-        "path": "/images/queendom/group05/sig_125.webp",
-        "rawText": "[MANUAL]",
-        "count": 1124
-      },
-      {
-        "path": "/images/queendom/group05/sig_126.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1125.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1125
       },
       {
-        "path": "/images/queendom/group05/sig_127.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1126.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1126
       },
       {
-        "path": "/images/queendom/group05/sig_129.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1127.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 1128
+        "count": 1127
       },
       {
-        "path": "/images/queendom/group05/sig_132.webp",
-        "rawText": "[MANUAL]",
-        "count": 1131
-      },
-      {
-        "path": "/images/queendom/group05/sig_133.webp",
-        "rawText": "[MANUAL]",
-        "count": 1132
-      },
-      {
-        "path": "/images/queendom/group05/sig_134.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1133.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1133
       },
       {
-        "path": "/images/queendom/group05/sig_136.webp",
-        "rawText": "[MANUAL]",
-        "count": 1135
-      },
-      {
-        "path": "/images/queendom/group05/sig_141.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1140.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1140
       },
       {
-        "path": "/images/queendom/group05/sig_159.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1142.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 1158
+        "count": 1142
       },
       {
-        "path": "/images/queendom/group05/sig_161.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1144.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 1160
+        "count": 1144
       },
       {
-        "path": "/images/queendom/group05/sig_171.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1145.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 1170
+        "count": 1145
       },
       {
-        "path": "/images/queendom/group05/sig_181.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1233.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 1180
+        "count": 1233
       },
       {
-        "path": "/images/queendom/group05/sig_201.webp",
-        "rawText": "[MANUAL]",
-        "count": 1200
-      }
-    ],
-    "group06": [
-      {
-        "path": "/images/queendom/group06/sig_235.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1234.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1234
       },
       {
-        "path": "/images/queendom/group06/sig_236.webp",
-        "rawText": "[MANUAL]",
-        "count": 1235
-      },
-      {
-        "path": "/images/queendom/group06/sig_251.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1250.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1250
       },
       {
-        "path": "/images/queendom/group06/sig_271.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1273.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 1270
-      },
-      {
-        "path": "/images/queendom/group06/sig_301.webp",
-        "rawText": "[MANUAL]",
-        "count": 1300
+        "count": 1273
       }
     ],
-    "group07": [
+    "group03": [
       {
-        "path": "/images/queendom/group07/sig_345.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup03%2F1300.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 1345
+        "count": 1300
       },
       {
-        "path": "/images/queendom/group07/sig_350.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup03%2F1301.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 1350
+        "count": 1301
       },
       {
-        "path": "/images/queendom/group07/sig_400.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup03%2F1400.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1400
       },
       {
-        "path": "/images/queendom/group07/sig_450.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup03%2F1414.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 1450
+        "count": 1414
       },
       {
-        "path": "/images/queendom/group07/sig_500.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup03%2F1456.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1456
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup03%2F1500.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1500
       },
       {
-        "path": "/images/queendom/group07/sig_501.webp",
-        "rawText": "[MANUAL]",
-        "count": 1501
-      },
-      {
-        "path": "/images/queendom/group07/sig_515.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup03%2F1515.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1515
       },
       {
-        "path": "/images/queendom/group07/sig_520.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup03%2F1520.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1520
       },
       {
-        "path": "/images/queendom/group07/sig_560.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup03%2F1600.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 1560
+        "count": 1600
       },
       {
-        "path": "/images/queendom/group07/sig_577.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup03%2F1656.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 1577
+        "count": 1656
       },
       {
-        "path": "/images/queendom/group07/sig_777.webp",
-        "rawText": "[MANUAL]",
-        "count": 1777
-      },
-      {
-        "path": "/images/queendom/group07/sig_800.webp",
-        "rawText": "[MANUAL]",
-        "count": 1800
-      },
-      {
-        "path": "/images/queendom/group07/sig_818.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup03%2F1818.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1818
       },
       {
-        "path": "/images/queendom/group07/sig_900.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup03%2F1921.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 1900
-      },
-      {
-        "path": "/images/queendom/group07/sig_999.webp",
-        "rawText": "[MANUAL]",
-        "count": 1999
+        "count": 1921
       }
     ],
-    "group09": [
+    "group05": [
       {
-        "path": "/images/queendom/group09/sig_5000.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup05%2F5000.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 5000
       },
       {
-        "path": "/images/queendom/group09/sig_5001.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup05%2F5001.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 5001
       },
       {
-        "path": "/images/queendom/group09/sig_5002.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup05%2F6000.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 5002
+        "count": 6000
       },
       {
-        "path": "/images/queendom/group09/sig_6666.webp",
-        "rawText": "[MANUAL]",
-        "count": 6666
-      },
-      {
-        "path": "/images/queendom/group09/sig_7000.webp",
-        "rawText": "[MANUAL]",
-        "count": 7000
-      },
-      {
-        "path": "/images/queendom/group09/sig_7007.webp",
-        "rawText": "[MANUAL]",
-        "count": 7007
-      },
-      {
-        "path": "/images/queendom/group09/sig_7700.webp",
-        "rawText": "[MANUAL]",
-        "count": 7700
-      },
-      {
-        "path": "/images/queendom/group09/sig_7777.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup05%2F7777.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 7777
       },
       {
-        "path": "/images/queendom/group09/sig_7788.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup05%2F7788.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 7788
       },
       {
-        "path": "/images/queendom/group09/sig_8282.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup05%2F8888.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 8282
-      },
-      {
-        "path": "/images/queendom/group09/sig_9000.webp",
-        "rawText": "[MANUAL]",
-        "count": 9000
+        "count": 8888
       }
     ],
-    "group10": [
+    "group06": [
       {
-        "path": "/images/queendom/group10/sig_10000.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10000.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10000
       },
       {
-        "path": "/images/queendom/group10/sig_10001.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10027.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 10001
+        "count": 10027
       },
       {
-        "path": "/images/queendom/group10/sig_10002.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10040.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 10002
+        "count": 10040
       },
       {
-        "path": "/images/queendom/group10/sig_10003.webp",
-        "rawText": "[MANUAL]",
-        "count": 10003
-      },
-      {
-        "path": "/images/queendom/group10/sig_10005.webp",
-        "rawText": "[MANUAL]",
-        "count": 10005
-      },
-      {
-        "path": "/images/queendom/group10/sig_10007.webp",
-        "rawText": "[MANUAL]",
-        "count": 10007
-      },
-      {
-        "path": "/images/queendom/group10/sig_10008.webp",
-        "rawText": "[MANUAL]",
-        "count": 10008
-      },
-      {
-        "path": "/images/queendom/group10/sig_10009.webp",
-        "rawText": "[MANUAL]",
-        "count": 10009
-      },
-      {
-        "path": "/images/queendom/group10/sig_10010.webp",
-        "rawText": "[MANUAL]",
-        "count": 10010
-      },
-      {
-        "path": "/images/queendom/group10/sig_10011.webp",
-        "rawText": "[MANUAL]",
-        "count": 10011
-      },
-      {
-        "path": "/images/queendom/group10/sig_10012.webp",
-        "rawText": "[MANUAL]",
-        "count": 10012
-      },
-      {
-        "path": "/images/queendom/group10/sig_10013.webp",
-        "rawText": "[MANUAL]",
-        "count": 10013
-      },
-      {
-        "path": "/images/queendom/group10/sig_10014.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10042.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10000
       },
       {
-        "path": "/images/queendom/group10/sig_10023.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10072.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 10023
+        "count": 10072
       },
       {
-        "path": "/images/queendom/group10/sig_10026.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10077.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 10026
+        "count": 10077
       },
       {
-        "path": "/images/queendom/group10/sig_10027.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
-      },
-      {
-        "path": "/images/queendom/group10/sig_10043.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10078.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10000
       },
       {
-        "path": "/images/queendom/group10/sig_10044.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10079.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 10044
+        "count": 10079
       },
       {
-        "path": "/images/queendom/group10/sig_10045.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10080.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 10045
+        "count": 10080
       },
       {
-        "path": "/images/queendom/group10/sig_10047.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10083.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 10000
+        "count": 10083
       },
       {
-        "path": "/images/queendom/group10/sig_10054.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10084.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 10054
+        "count": 10084
       },
       {
-        "path": "/images/queendom/group10/sig_10057.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
-      },
-      {
-        "path": "/images/queendom/group10/sig_10064.webp",
-        "rawText": "[MANUAL]",
-        "count": 10064
-      },
-      {
-        "path": "/images/queendom/group10/sig_10065.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10089.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10000
       },
       {
-        "path": "/images/queendom/group10/sig_10071.webp",
-        "rawText": "[MANUAL]",
-        "count": 10071
-      },
-      {
-        "path": "/images/queendom/group10/sig_10072.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
-      },
-      {
-        "path": "/images/queendom/group10/sig_10076.webp",
-        "rawText": "[MANUAL]",
-        "count": 10076
-      },
-      {
-        "path": "/images/queendom/group10/sig_10083.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
-      },
-      {
-        "path": "/images/queendom/group10/sig_10085.webp",
-        "rawText": "[MANUAL]",
-        "count": 10085
-      },
-      {
-        "path": "/images/queendom/group10/sig_10092.webp",
-        "rawText": "[MANUAL]",
-        "count": 10092
-      },
-      {
-        "path": "/images/queendom/group10/sig_10093.webp",
-        "rawText": "[MANUAL]",
-        "count": 10000
-      },
-      {
-        "path": "/images/queendom/group10/sig_10096.webp",
-        "rawText": "[MANUAL]",
-        "count": 10096
-      },
-      {
-        "path": "/images/queendom/group10/sig_10142.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10142.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10142
       },
       {
-        "path": "/images/queendom/group10/sig_10152.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10145.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10152.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10152
       },
       {
-        "path": "/images/queendom/group10/sig_10155.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10162.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10162
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10167.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10167
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10186.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10186
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10187.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10000
       },
       {
-        "path": "/images/queendom/group10/sig_10201.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10188.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 10201
+        "count": 10188
       },
       {
-        "path": "/images/queendom/group10/sig_10555.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10260.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 10555
-      },
-      {
-        "path": "/images/queendom/group10/sig_12486.webp",
-        "rawText": "[MANUAL]",
-        "count": 12486
-      },
-      {
-        "path": "/images/queendom/group10/sig_12487.webp",
-        "rawText": "[MANUAL]",
-        "count": 12487
-      },
-      {
-        "path": "/images/queendom/group10/sig_12488.webp",
-        "rawText": "[MANUAL]",
-        "count": 12488
+        "count": 10260
       }
     ],
-    "group11": [
+    "group07": [
       {
-        "path": "/images/queendom/group11/sig_10004.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10018.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10025.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10031.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10032.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10042.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10047.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10052.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10069.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10072.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10075.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10084.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10097.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10098.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10099.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10100.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10101.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10113.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10114.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10118.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10129.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10154.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10163.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10182.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10184.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10192.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10199.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10224.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10292.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10314.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10315.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10332.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10333.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10401.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10444.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10765.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_10972.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_11111.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_11818.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_12337.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_12412.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_12445.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_15787.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_15914.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_18620.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_20012.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      },
-      {
-        "path": "/images/queendom/group11/sig_54321.webp",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
-      }
-    ],
-    "group12": [
-      {
-        "path": "/images/queendom/group12/sig_10000.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup07%2F10000.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10000
       },
       {
-        "path": "/images/queendom/group12/sig_10001.webp",
-        "rawText": "[MANUAL]",
-        "count": 10001
-      },
-      {
-        "path": "/images/queendom/group12/sig_10002.webp",
-        "rawText": "[MANUAL]",
-        "count": 10002
-      },
-      {
-        "path": "/images/queendom/group12/sig_10003.webp",
-        "rawText": "[MANUAL]",
-        "count": 10003
-      },
-      {
-        "path": "/images/queendom/group12/sig_10005.webp",
-        "rawText": "[MANUAL]",
-        "count": 10005
-      },
-      {
-        "path": "/images/queendom/group12/sig_10007.webp",
-        "rawText": "[MANUAL]",
-        "count": 10007
-      },
-      {
-        "path": "/images/queendom/group12/sig_10008.webp",
-        "rawText": "[MANUAL]",
-        "count": 10008
-      },
-      {
-        "path": "/images/queendom/group12/sig_10009.webp",
-        "rawText": "[MANUAL]",
-        "count": 10009
-      },
-      {
-        "path": "/images/queendom/group12/sig_10010.webp",
-        "rawText": "[MANUAL]",
-        "count": 10010
-      },
-      {
-        "path": "/images/queendom/group12/sig_10012.webp",
-        "rawText": "[MANUAL]",
-        "count": 10012
-      },
-      {
-        "path": "/images/queendom/group12/sig_10026.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup07%2F10042.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10000
       },
       {
-        "path": "/images/queendom/group12/sig_10045.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup07%2F10078.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10000
       },
       {
-        "path": "/images/queendom/group12/sig_10071.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup07%2F10145.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10000
       },
       {
-        "path": "/images/queendom/group12/sig_12486.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup07%2F10187.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 12486
+        "count": 10000
       },
       {
-        "path": "/images/queendom/group12/sig_12487.webp",
-        "rawText": "[MANUAL]",
-        "count": 12487
-      },
-      {
-        "path": "/images/queendom/group12/sig_12488.webp",
-        "rawText": "[MANUAL]",
-        "count": 12488
-      },
-      {
-        "path": "/images/queendom/group12/sig_5000.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup07%2F5000.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 5000
       },
       {
-        "path": "/images/queendom/group12/sig_5001.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup07%2F5001.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 5001
       },
       {
-        "path": "/images/queendom/group12/sig_5002.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup07%2F6000.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 5002
+        "count": 6000
       },
       {
-        "path": "/images/queendom/group12/sig_6666.webp",
-        "rawText": "[MANUAL]",
-        "count": 6666
-      },
-      {
-        "path": "/images/queendom/group12/sig_7000.webp",
-        "rawText": "[MANUAL]",
-        "count": 7000
-      },
-      {
-        "path": "/images/queendom/group12/sig_7007.webp",
-        "rawText": "[MANUAL]",
-        "count": 7007
-      },
-      {
-        "path": "/images/queendom/group12/sig_7700.webp",
-        "rawText": "[MANUAL]",
-        "count": 7700
-      },
-      {
-        "path": "/images/queendom/group12/sig_7777.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup07%2F7777.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 7777
       },
       {
-        "path": "/images/queendom/group12/sig_7788.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup07%2F7788.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 7788
       },
       {
-        "path": "/images/queendom/group12/sig_8282.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup07%2F8888.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 8888
+      }
+    ],
+    "group08": []
+  },
+  "queendom": {
+    "group01": [
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1000.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1000
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1001.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1001
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1002.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1002
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1003.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1003
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1004.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1004
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1005.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1005
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1006.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1006
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1007.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1007
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1008.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1008
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1009.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1009
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1010.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1010
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1011.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1011
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1012.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1012
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1013.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1013
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1014.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1014
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1015.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1015
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1016.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1016
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1017.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1017
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1018.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1018
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1019.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1019
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1020.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1020
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1021.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1021
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1022.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1022
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1023.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1023
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1024.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1024
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1025.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1025
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1026.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1026
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1027.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1027
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1028.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1028
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1029.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1029
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1030.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1030
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1031.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1031
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1032.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1032
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1033.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1033
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1034.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1034
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1035.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1035
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1036.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1036
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1037.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1037
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1038.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1038
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1039.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1039
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1040.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1040
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1041.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1041
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1042.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1042
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1043.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1043
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1044.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1044
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1045.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1045
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1046.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1046
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1047.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1047
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1048.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1048
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1049.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1049
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1050.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1050
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1051.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1051
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1052.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1052
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1053.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1053
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1055.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1055
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1056.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1056
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1057.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1057
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1058.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1058
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1059.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1059
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1060.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1060
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1061.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1061
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1062.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1062
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1063.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1063
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1064.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1064
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1065.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1065
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1066.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1066
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1067.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1067
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1068.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1068
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1069.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1069
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1070.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1070
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1071.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1071
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1072.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1072
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1073.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1073
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1074.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1074
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1075.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1075
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1076.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1076
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1077.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1077
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1078.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1078
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1079.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1079
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1080.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1080
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1081.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1081
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1082.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1082
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1083.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1083
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1084.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1084
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1085.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1085
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1086.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1086
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1087.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1087
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1088.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1088
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1089.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1089
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1090.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1090
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1091.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1091
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1092.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1092
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1093.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1093
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1094.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1094
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1095.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1095
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1096.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1096
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1097.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1097
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1098.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1098
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1099.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1099
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup01%2F1100.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1100
+      }
+    ],
+    "group02": [
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1101.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1101
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1102.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1102
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1103.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1103
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1104.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1104
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1105.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1105
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1107.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1107
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1109.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1109
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1111.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1111
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1112.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1112
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1114.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1114
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1117.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1117
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1120.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1120
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1121.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1121
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1122.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1122
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1123.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1123
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1124.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1124
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1125.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1125
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1126.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1126
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1128.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1128
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1131.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1131
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1132.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1132
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1133.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1133
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1135.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1135
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1140.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1140
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1158.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1158
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1160.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1160
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1170.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1170
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1180.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1180
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1200.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1200
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1234.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1234
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1235.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1235
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1250.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1250
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup02%2F1270.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1270
+      }
+    ],
+    "group03": [
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup03%2F1300.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1300
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup03%2F1345.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1345
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup03%2F1350.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1350
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup03%2F1400.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1400
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup03%2F1450.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1450
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup03%2F1500.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1500
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup03%2F1501.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1501
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup03%2F1515.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1515
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup03%2F1520.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1520
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup03%2F1560.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1560
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup03%2F1577.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1577
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup03%2F1777.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1777
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup03%2F1800.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1800
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup03%2F1818.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1818
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup03%2F1900.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1900
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup03%2F1999.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1999
+      }
+    ],
+    "group05": [
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup05%2F5000.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 5000
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup05%2F5001.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 5001
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup05%2F5002.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 5002
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup05%2F6666.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 6666
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup05%2F7000.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 7000
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup05%2F7007.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 7007
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup05%2F7700.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 7700
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup05%2F7777.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 7777
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup05%2F7788.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 7788
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup05%2F8282.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 8282
       },
       {
-        "path": "/images/queendom/group12/sig_9000.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup05%2F9000.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 9000
+      }
+    ],
+    "group06": [
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10000.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10001.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10001
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10002.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10002
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10003.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10003
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10005.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10005
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10007.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10007
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10008.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10008
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10009.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10009
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10010.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10010
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10011.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10011
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10012.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10012
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10013.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10013
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10014.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10023.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10023
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10026.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10026
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10027.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10043.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10044.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10044
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10045.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10045
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10047.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10054.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10054
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10057.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10064.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10064
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10065.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10071.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10071
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10072.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10076.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10076
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10083.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10085.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10085
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10092.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10092
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10093.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10096.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10096
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10142.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10142
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10152.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10152
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10155.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10201.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10201
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10555.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10555
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F12486.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 12486
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F12487.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 12487
+      }
+    ],
+    "group07": [
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10004.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10018.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10025.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10031.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10032.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10042.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10047.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10052.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10069.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10072.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10075.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10084.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10097.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10098.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10099.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10100.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10101.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10113.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10114.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10118.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10129.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10154.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10163.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10182.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10184.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10192.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10199.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10224.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10292.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10314.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10315.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10332.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10333.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10401.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10444.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10765.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10972.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F11111.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F11818.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F12337.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F12412.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F12445.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F15787.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F15914.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F18620.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F20012.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F54321.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      }
+    ],
+    "group08": [
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup08%2F10000.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup08%2F10001.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10001
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup08%2F10002.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10002
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup08%2F10003.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10003
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup08%2F10005.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10005
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup08%2F10007.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10007
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup08%2F10008.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10008
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup08%2F10009.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10009
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup08%2F10010.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10010
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup08%2F10012.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10012
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup08%2F10026.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup08%2F10045.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup08%2F10071.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10000
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup08%2F12486.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 12486
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup08%2F12487.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 12487
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup08%2F5000.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 5000
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup08%2F5001.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 5001
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup08%2F5002.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 5002
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup08%2F6666.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 6666
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup08%2F7000.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 7000
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup08%2F7007.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 7007
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup08%2F7700.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 7700
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup08%2F7777.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 7777
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup08%2F7788.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 7788
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup08%2F8282.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 8282
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup08%2F9000.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 9000
       }
@@ -2302,669 +2271,661 @@ export const sigHunterImagePresets = {
   "holic": {
     "group01": [
       {
-        "path": "/images/holic/group01/sig_01.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1000.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1000
       },
       {
-        "path": "/images/holic/group01/sig_02.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1001.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1001
       },
       {
-        "path": "/images/holic/group01/sig_03.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1002.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1002
       },
       {
-        "path": "/images/holic/group01/sig_04.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1003.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1003
       },
       {
-        "path": "/images/holic/group01/sig_05.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1004.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1004
       },
       {
-        "path": "/images/holic/group01/sig_06.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1005.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1005
       },
       {
-        "path": "/images/holic/group01/sig_07.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1006.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1006
       },
       {
-        "path": "/images/holic/group01/sig_08.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1007.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1007
       },
       {
-        "path": "/images/holic/group01/sig_09.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1008.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1008
       },
       {
-        "path": "/images/holic/group01/sig_10.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1009.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1009
       },
       {
-        "path": "/images/holic/group01/sig_11.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1010.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1010
       },
       {
-        "path": "/images/holic/group01/sig_12.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1011.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1011
       },
       {
-        "path": "/images/holic/group01/sig_13.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1012.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1012
       },
       {
-        "path": "/images/holic/group01/sig_15.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1014.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1014
       },
       {
-        "path": "/images/holic/group01/sig_16.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1015.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1015
-      }
-    ],
-    "group02": [
+      },
       {
-        "path": "/images/holic/group02/sig_17.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1016.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1016
       },
       {
-        "path": "/images/holic/group02/sig_18.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1017.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1017
       },
       {
-        "path": "/images/holic/group02/sig_19.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1018.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1018
       },
       {
-        "path": "/images/holic/group02/sig_20.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1019.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1019
       },
       {
-        "path": "/images/holic/group02/sig_21.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1020.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1020
       },
       {
-        "path": "/images/holic/group02/sig_22.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1021.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1021
       },
       {
-        "path": "/images/holic/group02/sig_23.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1022.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1022
       },
       {
-        "path": "/images/holic/group02/sig_24.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1023.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1023
       },
       {
-        "path": "/images/holic/group02/sig_25.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1024.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1024
       },
       {
-        "path": "/images/holic/group02/sig_26.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1025.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1025
       },
       {
-        "path": "/images/holic/group02/sig_27.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1026.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1026
       },
       {
-        "path": "/images/holic/group02/sig_28.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1027.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1027
       },
       {
-        "path": "/images/holic/group02/sig_29.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1028.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1028
       },
       {
-        "path": "/images/holic/group02/sig_30.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1029.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1029
       },
       {
-        "path": "/images/holic/group02/sig_31.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1030.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1030
-      }
-    ],
-    "group03": [
+      },
       {
-        "path": "/images/holic/group03/sig_32.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1031.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1031
       },
       {
-        "path": "/images/holic/group03/sig_33.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1032.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1032
       },
       {
-        "path": "/images/holic/group03/sig_34.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1033.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1033
       },
       {
-        "path": "/images/holic/group03/sig_35.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1034.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1034
       },
       {
-        "path": "/images/holic/group03/sig_36.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1035.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1035
       },
       {
-        "path": "/images/holic/group03/sig_37.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1036.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1036
       },
       {
-        "path": "/images/holic/group03/sig_38.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1037.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1037
       },
       {
-        "path": "/images/holic/group03/sig_39.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1038.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1038
       },
       {
-        "path": "/images/holic/group03/sig_40.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1039.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1039
       },
       {
-        "path": "/images/holic/group03/sig_41.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1040.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1040
       },
       {
-        "path": "/images/holic/group03/sig_42.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1041.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1041
       },
       {
-        "path": "/images/holic/group03/sig_43.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1042.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1042
       },
       {
-        "path": "/images/holic/group03/sig_44.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1043.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1043
       },
       {
-        "path": "/images/holic/group03/sig_45.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1044.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1044
       },
       {
-        "path": "/images/holic/group03/sig_46.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1045.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1045
-      }
-    ],
-    "group04": [
+      },
       {
-        "path": "/images/holic/group04/sig_47.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1046.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1046
       },
       {
-        "path": "/images/holic/group04/sig_48.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1047.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1047
       },
       {
-        "path": "/images/holic/group04/sig_49.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1048.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1048
       },
       {
-        "path": "/images/holic/group04/sig_50.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1049.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1049
       },
       {
-        "path": "/images/holic/group04/sig_51.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1050.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1050
       },
       {
-        "path": "/images/holic/group04/sig_52.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1051.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1051
       },
       {
-        "path": "/images/holic/group04/sig_53.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1052.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1052
       },
       {
-        "path": "/images/holic/group04/sig_54.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1053.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1053
       },
       {
-        "path": "/images/holic/group04/sig_55.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1054.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1054
       },
       {
-        "path": "/images/holic/group04/sig_56.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1055.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1055
       },
       {
-        "path": "/images/holic/group04/sig_57.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1056.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1056
       },
       {
-        "path": "/images/holic/group04/sig_58.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1057.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1057
       },
       {
-        "path": "/images/holic/group04/sig_59.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1058.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1058
       },
       {
-        "path": "/images/holic/group04/sig_60.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1059.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1059
       },
       {
-        "path": "/images/holic/group04/sig_61.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1060.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1060
-      }
-    ],
-    "group05": [
+      },
       {
-        "path": "/images/holic/group05/sig_62.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1061.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1061
       },
       {
-        "path": "/images/holic/group05/sig_63.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1062.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1062
       },
       {
-        "path": "/images/holic/group05/sig_64.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1063.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1063
       },
       {
-        "path": "/images/holic/group05/sig_66.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1065.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1065
       },
       {
-        "path": "/images/holic/group05/sig_67.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1066.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1066
       },
       {
-        "path": "/images/holic/group05/sig_68.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1067.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1067
       },
       {
-        "path": "/images/holic/group05/sig_69.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1068.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1068
       },
       {
-        "path": "/images/holic/group05/sig_70.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1069.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1069
       },
       {
-        "path": "/images/holic/group05/sig_71.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1070.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1070
       },
       {
-        "path": "/images/holic/group05/sig_72.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1071.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1071
       },
       {
-        "path": "/images/holic/group05/sig_73.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1072.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1072
       },
       {
-        "path": "/images/holic/group05/sig_74.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1073.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1073
       },
       {
-        "path": "/images/holic/group05/sig_75.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1074.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1074
       },
       {
-        "path": "/images/holic/group05/sig_76.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1075.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1075
       },
       {
-        "path": "/images/holic/group05/sig_77.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup01%2F1076.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1076
       }
     ],
-    "group06": [
+    "group02": [
       {
-        "path": "/images/holic/group06/sig_101.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup02%2F1100.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1100
       },
       {
-        "path": "/images/holic/group06/sig_102.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup02%2F1101.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1101
       },
       {
-        "path": "/images/holic/group06/sig_103.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup02%2F1102.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1102
       },
       {
-        "path": "/images/holic/group06/sig_104.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup02%2F1103.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1103
       },
       {
-        "path": "/images/holic/group06/sig_105.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup02%2F1104.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1104
       },
       {
-        "path": "/images/holic/group06/sig_106.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup02%2F1105.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1105
       },
       {
-        "path": "/images/holic/group06/sig_107.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup02%2F1106.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1106
       },
       {
-        "path": "/images/holic/group06/sig_108.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup02%2F1107.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1107
       },
       {
-        "path": "/images/holic/group06/sig_109.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup02%2F1108.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1108
       },
       {
-        "path": "/images/holic/group06/sig_110.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup02%2F1109.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1109
       },
       {
-        "path": "/images/holic/group06/sig_111.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup02%2F1110.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1110
       },
       {
-        "path": "/images/holic/group06/sig_112.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup02%2F1111.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1111
       },
       {
-        "path": "/images/holic/group06/sig_113.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup02%2F1112.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1112
       },
       {
-        "path": "/images/holic/group06/sig_114.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup02%2F1113.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1113
       }
     ],
-    "group07": [
+    "group03": [
       {
-        "path": "/images/holic/group07/sig_501.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup03%2F1500.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1500
       },
       {
-        "path": "/images/holic/group07/sig_516.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup03%2F1515.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1515
       },
       {
-        "path": "/images/holic/group07/sig_601.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup03%2F1600.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1600
       },
       {
-        "path": "/images/holic/group07/sig_819.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup03%2F1818.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1818
       }
     ],
-    "group09": [
+    "group05": [
       {
-        "path": "/images/holic/group09/sig_5000.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup05%2F5000.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 5000
       },
       {
-        "path": "/images/holic/group09/sig_7000.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup05%2F7000.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 7000
       },
       {
-        "path": "/images/holic/group09/sig_7777.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup05%2F7777.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 7777
       },
       {
-        "path": "/images/holic/group09/sig_7788.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup05%2F7788.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 7788
       },
       {
-        "path": "/images/holic/group09/sig_8888.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup05%2F8888.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 8888
       }
     ],
-    "group10": [
+    "group06": [
       {
-        "path": "/images/holic/group10/sig_10000.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup06%2F10000.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10000
       },
       {
-        "path": "/images/holic/group10/sig_10004.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup06%2F10004.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10004
       },
       {
-        "path": "/images/holic/group10/sig_10005.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup06%2F10005.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10000
       },
       {
-        "path": "/images/holic/group10/sig_10018.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup06%2F10018.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10000
       },
       {
-        "path": "/images/holic/group10/sig_10062.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup06%2F10062.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10000
       },
       {
-        "path": "/images/holic/group10/sig_10100.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup06%2F10100.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10100
       },
       {
-        "path": "/images/holic/group10/sig_10101.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup06%2F10101.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10101
       },
       {
-        "path": "/images/holic/group10/sig_10102.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup06%2F10102.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10102
       },
       {
-        "path": "/images/holic/group10/sig_10103.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup06%2F10103.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10103
       },
       {
-        "path": "/images/holic/group10/sig_10104.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup06%2F10104.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10104
       },
       {
-        "path": "/images/holic/group10/sig_10105.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup06%2F10105.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10105
       },
       {
-        "path": "/images/holic/group10/sig_10106.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup06%2F10106.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10106
       },
       {
-        "path": "/images/holic/group10/sig_10107.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup06%2F10107.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10107
       },
       {
-        "path": "/images/holic/group10/sig_10108.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup06%2F10108.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10108
       },
       {
-        "path": "/images/holic/group10/sig_10109.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup06%2F10109.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10109
       },
       {
-        "path": "/images/holic/group10/sig_10110.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup06%2F10110.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10110
       },
       {
-        "path": "/images/holic/group10/sig_10111.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup06%2F10111.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10111
       },
       {
-        "path": "/images/holic/group10/sig_10112.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup06%2F10112.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10112
       },
       {
-        "path": "/images/holic/group10/sig_10113.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup06%2F10113.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10113
       },
       {
-        "path": "/images/holic/group10/sig_12486.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup06%2F12486.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 12486
       }
     ],
-    "group11": [
+    "group07": [
       {
-        "path": "/images/holic/group11/sig_10000.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup07%2F10000.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10000
       },
       {
-        "path": "/images/holic/group11/sig_10004.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup07%2F10004.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10004
       },
       {
-        "path": "/images/holic/group11/sig_10005.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup07%2F10005.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10000
       },
       {
-        "path": "/images/holic/group11/sig_10018.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup07%2F10018.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10000
       },
       {
-        "path": "/images/holic/group11/sig_10062.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup07%2F10062.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10000
       },
       {
-        "path": "/images/holic/group11/sig_12486.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup07%2F12486.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 12486
       },
       {
-        "path": "/images/holic/group11/sig_5000.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup07%2F5000.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 5000
       },
       {
-        "path": "/images/holic/group11/sig_7000.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup07%2F7000.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 7000
       },
       {
-        "path": "/images/holic/group11/sig_7777.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup07%2F7777.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 7777
       },
       {
-        "path": "/images/holic/group11/sig_7788.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup07%2F7788.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 7788
       },
       {
-        "path": "/images/holic/group11/sig_8888.webp",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fholic%2Fgroup07%2F8888.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 8888
       }
     ],
-    "group12": []
+    "group08": []
   }
 };

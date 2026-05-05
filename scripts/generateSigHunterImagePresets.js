@@ -1,6 +1,5 @@
+// scripts/generateSigHunterImagePresets.js
 /**
- * scripts/generateSigHunterImagePresets.js
- *
  * - IMAGE_SOURCE=local    : public/images 폴더를 읽어서 presets 생성
  * - IMAGE_SOURCE=storage  : Firebase Storage prefix를 list 해서 presets 생성
  *
@@ -17,10 +16,8 @@ const manualCounts = require("./sigHunterManualCounts");
 const rootDir = path.resolve(__dirname, "..");
 const outputFile = path.join(rootDir, "src/shared/data/sigHunterImagePresets.js");
 
-// 실행 방식 선택
-// 예) IMAGE_SOURCE=local node scripts/generateSigHunterImagePool.js
-// 예) IMAGE_SOURCE=storage node scripts/generateSigHunterImagePool.js
-const IMAGE_SOURCE = process.env.IMAGE_SOURCE || "local";
+// 실행 방식 선택 (기본을 storage로 바꿈: 현재 이슈가 creds/local 경로 문제라서)
+const IMAGE_SOURCE = process.env.IMAGE_SOURCE || "storage";
 
 // Storage 설정
 const STORAGE_BUCKET = process.env.STORAGE_BUCKET || "sig-hunter.firebasestorage.app";
@@ -33,9 +30,9 @@ const localBaseDir = path.join(rootDir, "public/images");
 const MODES = ["muse", "queendom", "holic"];
 
 const GROUPS_BY_MODE = {
-  muse: ["group01", "group02", "group03", "group04", "group05", "group06", "group07", "group09", "group10", "group11", "group12"],
-  queendom: ["group01", "group02", "group03", "group04", "group05", "group06", "group07", "group09", "group10", "group11", "group12"],
-  holic: ["group01", "group02", "group03", "group04", "group05", "group06", "group07", "group09", "group10", "group11", "group12"],
+  muse: ["group01", "group02", "group03", "group05", "group06", "group07", "group08"],
+  queendom: ["group01", "group02", "group03", "group05", "group06", "group07", "group08"],
+  holic: ["group01", "group02", "group03", "group05", "group06", "group07", "group08"],
 };
 
 function toPublicFirebaseStorageUrl(bucket, objectPath) {
@@ -54,12 +51,33 @@ async function main() {
 
   // storage 초기화는 1번만
   let storageBucket = null;
+
   if (IMAGE_SOURCE === "storage") {
     const admin = require("firebase-admin");
-    admin.initializeApp({
-      credential: admin.credential.applicationDefault(),
+
+     const serviceAccountPath =
+      process.env.GOOGLE_APPLICATION_CREDENTIALS ||
+      path.join(rootDir, "serviceAccountKey.json");
+
+    if (!fs.existsSync(serviceAccountPath)) {
+      console.error(
+        "❌ Firebase service account 키 파일을 찾을 수 없습니다:",
+        serviceAccountPath
+      );
+      console.error(
+        "serviceAccountKey.json 경로를 맞추거나, GOOGLE_APPLICATION_CREDENTIALS 환경변수를 설정하세요."
+      );
+      process.exit(1);
+    }
+
+    // eslint-disable-next-line global-require, import/no-dynamic-require
+    const serviceAccount = require(serviceAccountPath);
+
+     admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
       storageBucket: STORAGE_BUCKET,
     });
+
     storageBucket = admin.storage().bucket();
   }
 

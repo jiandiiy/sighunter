@@ -105,32 +105,32 @@ function getRandomImagesFromGroups(mode, groups, countPerCell) {
 const GROUPS_BY_MODE_AND_SIZE = {
   muse: {
     normal: {
-      5: ["group1", "group2", "group3", "group4", "group5", "group6", "group7"],
-      3: ["group1", "group2", "group3", "group4", "group5", "group6", "group7"],
+      5: ["group01", "group02", "group03"],
+      3: ["group01", "group02", "group03"],
     },
     center: {
-      5: ["group9", "group10"],
-      3: ["group11"],
+      5: ["group05", "group06"],
+      3: ["group07"],
     },
   },
   queendom: {
     normal: {
-      5: ["group1", "group2", "group3", "group4", "group5", "group6", "group7"],
-      3: ["group1", "group2", "group3", "group4", "group5", "group6", "group7"],
+      5: ["group01", "group02", "group03"],
+      3: ["group01", "group02", "group03"],
     },
     center: {
-      5: ["group9", "group10"],
-      3: ["group12"],
+      5: ["group05", "group06"],
+      3: ["group08"],
     },
   },
   holic: {
     normal: {
-      5: ["group1", "group2", "group3", "group4", "group5", "group6", "group7"],
-      3: ["group1", "group2", "group3", "group4", "group5", "group6", "group7"],
+      5: ["group01", "group02", "group03"],
+      3: ["group01", "group02", "group03"],
     },
     center: {
-      5: ["group9", "group10"],
-      3: ["group11"],
+      5: ["group05", "group06"],
+      3: ["group07"],
     },
   },
 };
