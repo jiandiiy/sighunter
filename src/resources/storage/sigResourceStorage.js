@@ -14,35 +14,23 @@ import {
  * (필요하다면 나중에 게임별 서브폴더를 추가할 수도 있음)
  * 지금은 프로그램/그룹 폴더를 공용으로 쓰므로,
  * 실제 파일 저장은 images/{program}/{group}/{fileName} 으로 통일.
- *
- * 이 매핑은 "게임별 전용 폴더"가 필요해질 때를 위해 남겨둔 상태.
- * 현재 직원용 어드민은 주로 아래의 program/group 유틸을 사용하게 됨.
  */
 const CATEGORY_PATH_MAP = {
-  sighunter: "sigHunterResources", // 시그헌터 전용 폴더 (필요 시 사용)
-  sigbingo: "sigBingoResources",   // 식대전 빙고 전용 폴더 (필요 시 사용)
-  sigtag: "sigTagResources",       // 시그땅따먹기 전용 폴더 (필요 시 사용)
+  sighunter: "sigHunterResources",
+  sigbingo: "sigBingoResources",
+  sigtag: "sigTagResources",
 };
 
-/**
- * 내부용: 카테고리 → Storage ref
- * (지금은 프로그램/그룹 구조를 많이 쓸 거라, 이 매핑은 선택적으로 사용)
- */
 function getCategoryRef(category) {
   const basePath = CATEGORY_PATH_MAP[category];
-  if (!basePath) {
-    throw new Error(`Unknown category: ${category}`);
-  }
+  if (!basePath) throw new Error(`Unknown category: ${category}`);
   return ref(storage, basePath);
 }
 
-/**
- * 카테고리별 이미지 목록 조회 (게임 폴더 버전)
- * 예: sighunter → sigHunterResources/ 이하 전체
- *
- * 현재 설계에서는 프로그램/그룹(images/{program}/{group})을 메인으로 쓰고,
- * 이 함수는 "게임별 전용 폴더"가 필요할 때 선택적으로 사용.
- */
+/* ──────────────────────────────────────────────
+   게임 카테고리 버전 (필요 시 사용)
+────────────────────────────────────────────── */
+
 export async function listGameResources(category) {
   const categoryRef = getCategoryRef(category);
   const result = await listAll(categoryRef);
@@ -51,8 +39,8 @@ export async function listGameResources(category) {
     result.items.map(async (itemRef) => {
       const url = await getDownloadURL(itemRef);
       return {
-        name: itemRef.name,       // 파일명 (예: "background.png")
-        fullPath: itemRef.fullPath, // 예: "sigHunterResources/background.png"
+        name: itemRef.name,
+        fullPath: itemRef.fullPath,
         url,
       };
     })
@@ -61,17 +49,9 @@ export async function listGameResources(category) {
   return items;
 }
 
-/**
- * 이미지 업로드 (게임 카테고리 버전)
- * 같은 이름의 파일이 있으면 덮어쓰기(교체)됨
- * 예: sighunter + background.png → sigHunterResources/background.png
- *
- * 마찬가지로, 지금 메인 흐름은 프로그램/그룹이라
- * 이 함수도 필요할 때만 사용.
- */
 export async function uploadGameResource(category, file) {
   const categoryRef = getCategoryRef(category);
-  const fileRef = ref(categoryRef, file.name); // 파일명을 그대로 사용
+  const fileRef = ref(categoryRef, file.name);
 
   await uploadBytes(fileRef, file);
   const url = await getDownloadURL(fileRef);
@@ -83,20 +63,11 @@ export async function uploadGameResource(category, file) {
   };
 }
 
-/**
- * 이미지 삭제 (게임 카테고리 버전)
- * fullPath 기준으로 직접 지움
- * 예: "sigHunterResources/background.png"
- */
 export async function deleteGameResource(fullPath) {
   const fileRef = ref(storage, fullPath);
   await deleteObject(fileRef);
 }
 
-/**
- * 게임에서 쓸 단일 리소스 조회 (게임 폴더 버전)
- * 예: getGameResourceUrl("sighunter", "background.png")
- */
 export async function getGameResourceUrl(category, filename) {
   const categoryRef = getCategoryRef(category);
   const fileRef = ref(categoryRef, filename);
@@ -107,21 +78,15 @@ export async function getGameResourceUrl(category, filename) {
 /* ──────────────────────────────────────────────
    ▼▼▼ 여기서부터 "프로그램 / 그룹"용 유틸 ▼▼▼
    직원용 어드민 페이지에서 실제로 많이 사용할 부분
-
-   실제 파일 경로 규칙:
-   images/{program}/{group}/{fileName}
-
-   program: 'queendom' | 'muse' | 'holic'
-   group: 'group1' ~ 'group12'
 ────────────────────────────────────────────── */
 
 /**
  * 프로그램/그룹별 이미지 목록 조회
  * @param {string} program - 'queendom' | 'muse' | 'holic'
- * @param {string} group   - 'group01' ~ 'group12'
+ * @param {string} group   - 'group01' ~ 'group08'
  *
- * 예: (queendom, group1)
- *  → images/queendom/group1/ 이하 모든 파일
+ * 예: (queendom, group01)
+ *  → images/queendom/group01/ 이하 모든 파일
  */
 export async function listProgramGroupImages(program, group) {
   const folderRef = ref(storage, `images/${program}/${group}`);
@@ -131,8 +96,8 @@ export async function listProgramGroupImages(program, group) {
     result.items.map(async (itemRef) => {
       const url = await getDownloadURL(itemRef);
       return {
-        fileName: itemRef.name,     // 예: "sig_001.png"
-        fullPath: itemRef.fullPath, // 예: "images/queendom/group1/sig_001.png"
+        fileName: itemRef.name,
+        fullPath: itemRef.fullPath,
         url,
       };
     })
@@ -142,22 +107,56 @@ export async function listProgramGroupImages(program, group) {
 }
 
 /**
+ * (추가) 업로드 시 저장 파일명 커스터마이즈용 헬퍼
+ * - "path/같은 것"이 들어오면 제거하고
+ * - 디렉터리 구분자(/, \)는 날려서 순수 파일명만 남김
+ */
+function normalizeUploadFileName(fileName) {
+  if (!fileName) return "";
+
+  // 브라우저가 이상한 값을 줄 때 대비 (예: c:\fakepath\name.png)
+  const normalized = String(fileName).replace(/^.*[\\/]/, ""); // 마지막 / \ 이후만
+  return normalized.trim();
+}
+
+/**
  * 프로그램/그룹 폴더에 이미지 업로드
  * 같은 이름 파일이면 덮어쓰기(교체)
  *
- * 예:
- *  program = "queendom"
- *  group   = "group1"
- *  file.name = "sig_001.png"
+ * ✅ 변경점:
+ * - 기존: uploadProgramGroupImage(program, group, file)
+ * - 추가: (옵션) 원하는 저장 파일명(확장자 포함)을 지정 가능
  *
- *  → images/queendom/group1/sig_001.png
+ * 예:
+ *  uploadProgramGroupImage("queendom","group01", file, { fileName: "1000.webp" })
+ *
+ * @param {string} program
+ * @param {string} group
+ * @param {File} file
+ * @param {{ fileName?: string }} [options]
  */
-export async function uploadProgramGroupImage(program, group, file) {
-  const fileRef = ref(storage, `images/${program}/${group}/${file.name}`);
+export async function uploadProgramGroupImage(
+  program,
+  group,
+  file,
+  options = {}
+) {
+  const desiredFileName = options?.fileName
+    ? normalizeUploadFileName(options.fileName)
+    : "";
+
+  const finalFileName = desiredFileName || file.name;
+
+  const fileRef = ref(
+    storage,
+    `images/${program}/${group}/${finalFileName}`
+  );
+
   await uploadBytes(fileRef, file);
   const url = await getDownloadURL(fileRef);
+
   return {
-    fileName: file.name,
+    fileName: finalFileName,
     fullPath: fileRef.fullPath,
     url,
   };
@@ -166,9 +165,77 @@ export async function uploadProgramGroupImage(program, group, file) {
 /**
  * 프로그램/그룹 이미지 삭제
  * fullPath 그대로 넘겨서 삭제
- * 예: "images/queendom/group1/sig_001.png"
+ * 예: "images/queendom/group01/sig_001.png"
  */
 export async function deleteProgramImage(fullPath) {
   const fileRef = ref(storage, fullPath);
   await deleteObject(fileRef);
+}
+
+/**
+ * 프로그램/그룹 이미지 파일명 변경 (확장자 포함)
+ * Firebase Storage는 직접 이름변경이 없으므로,
+ * 기존 파일을 다운로드 → 새 파일명으로 재업로드 → 기존 파일 삭제
+ *
+ * @param {string} program - 'queendom' | 'muse' | 'holic'
+ * @param {string} group   - 'group01' ~ 'group08'
+ * @param {string} oldFullPath - 기존 fullPath (예: "images/queendom/group01/old.png")
+ * @param {string} newFileName - 새 파일명 (확장자 포함, 예: "new.webp")
+ * @returns {{fileName: string, fullPath: string, url: string}}
+ */
+export async function renameImageFile(
+  program,
+  group,
+  oldFullPath,
+  newFileName
+) {
+  if (!newFileName || typeof newFileName !== "string") {
+    throw new Error("새 파일명(확장자 포함)을 입력해주세요.");
+  }
+
+  // 1) 경로 문자 제거 (보안)
+  const normalized = String(newFileName)
+    .trim()
+    .replace(/[\\/]/g, "");
+
+  if (!normalized) {
+    throw new Error("유효한 파일명을 입력해주세요.");
+  }
+
+  // 2) 기존 파일 다운로드 (blob)
+  const oldFileRef = ref(storage, oldFullPath);
+  let blob;
+  try {
+    const response = await fetch(await getDownloadURL(oldFileRef));
+    blob = await response.blob();
+  } catch (err) {
+    throw new Error("기존 파일을 다운로드할 수 없습니다: " + err.message);
+  }
+
+  // 3) 새 파일명으로 업로드
+  const newFullPath = `images/${program}/${group}/${normalized}`;
+  const newFileRef = ref(storage, newFullPath);
+
+  try {
+    await uploadBytes(newFileRef, blob);
+  } catch (err) {
+    throw new Error("새 파일명으로 업로드할 수 없습니다: " + err.message);
+  }
+
+  // 4) 기존 파일 삭제
+  try {
+    await deleteObject(oldFileRef);
+  } catch (err) {
+    console.warn("기존 파일 삭제 중 경고:", err.message);
+    // 삭제 실패해도 진행 (이미 새 파일은 생성됨)
+  }
+
+  // 5) 새 파일의 URL 조회
+  const newUrl = await getDownloadURL(newFileRef);
+
+  return {
+    fileName: normalized,
+    fullPath: newFullPath,
+    url: newUrl,
+  };
 }

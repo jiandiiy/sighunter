@@ -1,5 +1,5 @@
 // src/Admin/pages/SigImageAdminPage.jsx
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 
 // Storage 유틸: images/{program}/{group}/{fileName}
 import {
@@ -48,7 +48,8 @@ const MEAL_BINGO_BOARDS = [
   { value: "3", label: "3판" },
 ];
 
-const GROUPS = Array.from({ length: 12 }).map((_, i) => {
+// NOTE: 원래 코드에 group01~group12 말이 있으나, 현재는 8개로 구성되어 있음(기존 유지)
+const GROUPS = Array.from({ length: 8 }).map((_, i) => {
   const num = String(i + 1).padStart(2, "0"); // 01~12
   return { value: `group${num}`, label: `group${num}` };
 });
@@ -297,9 +298,7 @@ function ProgressBar({ progress }) {
           }}
         />
       </div>
-      <span
-        style={{ fontSize: 11, color: "#9ca3af", marginTop: 2, display: "block" }}
-      >
+      <span style={{ fontSize: 11, color: "#9ca3af", marginTop: 2, display: "block" }}>
         {progress < 100 ? `업로드 중... ${progress}%` : "처리 완료!"}
       </span>
     </div>
@@ -315,13 +314,17 @@ export default function SigResourceAdminPage() {
   const [mode, setMode] = useState("queendom"); // program
   const [rarity, setRarity] = useState("normal"); // UI용
   const [boardIndex, setBoardIndex] = useState("1"); // 식대전 전용
-  const [group, setGroup] = useState("group1"); // group1~group12
+  const [group, setGroup] = useState("group01"); // group01~group08 (기존 코드와 UI 동기)
 
   const isMealBingo = type === "meal-bingo";
 
   // ── 업로드 폼 상태 ──
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
+
+  // ✅ (추가) 사용자 커스텀 파일명 입력 상태
+  const [useCustomFileName, setUseCustomFileName] = useState(false);
+  const [customFileName, setCustomFileName] = useState(""); // 확장자 포함 추천
 
   // ── UI 상태 ──
   const [submitting, setSubmitting] = useState(false);
@@ -393,20 +396,30 @@ export default function SigResourceAdminPage() {
     return () => clearTimeout(t);
   }, [message, error]);
 
+  const derivedDefaultFileName = useMemo(() => {
+    if (!file) return "";
+    return file.name;
+  }, [file]);
+
   // ── 파일 선택 핸들러 ──
   const handleFileChange = useCallback((e) => {
     const f = e.target?.files?.[0] ?? null;
     setFile(f);
+
     if (f) {
       setPreviewUrl((prev) => {
         if (prev) URL.revokeObjectURL(prev);
         return URL.createObjectURL(f);
       });
+
+      // ✅ 파일 선택되면 커스텀 입력칸도 기본값으로 동기화(기존 UX 좋음)
+      setCustomFileName(f.name);
     } else {
       setPreviewUrl((prev) => {
         if (prev) URL.revokeObjectURL(prev);
         return "";
       });
+      setCustomFileName("");
     }
   }, []);
 
@@ -426,7 +439,34 @@ export default function SigResourceAdminPage() {
       if (prev) URL.revokeObjectURL(prev);
       return "";
     });
+    setUseCustomFileName(false);
+    setCustomFileName("");
   }, []);
+
+  // ── 커스텀 파일명 검증 (경로/확장자 강제는 정책에 맞게 조절 가능) ──
+  const getSafeTargetFileName = useCallback(() => {
+    if (!file) return null;
+
+    // 커스텀 off면 원본 파일명 그대로
+    if (!useCustomFileName) return file.name;
+
+    const raw = String(customFileName ?? "").trim();
+    if (!raw) return null;
+
+    // 경로 문자는 제거/차단 (Storage 경로를 오염시키는 걸 막음)
+    // 예: ../../a.png 같은 걸 막기 위해 /, \ 는 거부
+    if (raw.includes("/") || raw.includes("\\")) return null;
+
+    // 확장자가 없으면 원본 확장자를 붙이는 정책(원하면 바꿔도 됨)
+    const hasExt = /\.[a-z0-9]+$/i.test(raw);
+    if (!hasExt) {
+      const origExtMatch = String(file.name).match(/\.[a-z0-9]+$/i);
+      const origExt = origExtMatch?.[0] || "";
+      return raw + origExt;
+    }
+
+    return raw;
+  }, [customFileName, file, useCustomFileName]);
 
   // ── 리소스 목록 로딩 (Storage + Firestore 메타) ──
   const reloadResources = useCallback(async () => {
@@ -453,9 +493,11 @@ export default function SigResourceAdminPage() {
       // 3) 선택된 이미지가 있다면 그에 맞는 메타 반영
       if (selectedImage) {
         const found = metaList.find(
-  (m) =>
-    normalizeStoragePath(m.storagePath) === normalizeStoragePath(selectedImage.fullPath)
-);
+          (m) =>
+            normalizeStoragePath(m.storagePath) ===
+            normalizeStoragePath(selectedImage.fullPath)
+        );
+
         if (found) {
           setEditingMeta({
             id: found.id,
@@ -501,13 +543,22 @@ export default function SigResourceAdminPage() {
       return;
     }
 
+    const targetFileName = getSafeTargetFileName();
+    if (!targetFileName) {
+      setError("저장 파일명(경로 제외, 확장자 포함)을 올바르게 입력해주세요.");
+      return;
+    }
+
     try {
       setSubmitting(true);
       setError("");
       setUploadProgress(0);
 
-      // Storage 업로드: images/{program}/{group}/{fileName}
-      const uploaded = await uploadProgramGroupImage(mode, group, file);
+      // ✅ (수정) uploadProgramGroupImage에 custom fileName 전달
+      // 현재 시그니처가 fileName 인자를 받는지에 따라 아래 호출부만 바꾸면 됩니다.
+      // 예: uploadProgramGroupImage(mode, group, file, { fileName: targetFileName })
+      //      혹은 uploadProgramGroupImage(mode, group, file, targetFileName)
+      const uploaded = await uploadProgramGroupImage(mode, group, file, targetFileName);
       // uploaded: { fileName, fullPath, url }
 
       setSelectedImage(uploaded);
@@ -618,7 +669,6 @@ export default function SigResourceAdminPage() {
   const handleDeleteMetaOnly = async () => {
     if (!editingMeta.id) return;
 
-    // confirm는 모달로
     showConfirm({
       title: "정보 삭제 확인",
       message: "이 이미지의 칸/시그 정보만 삭제할까요? (이미지는 남습니다)",
@@ -710,7 +760,7 @@ export default function SigResourceAdminPage() {
   };
 
   // ─────────────────────────────────────────────
-  // 게임 타입 변경 ──
+  // 게임 타입 변경
   // ─────────────────────────────────────────────
   const handleChangeType = (e) => {
     const newType = e.target.value;
@@ -735,7 +785,6 @@ export default function SigResourceAdminPage() {
         confirmDisabled={deletingImg || savingMeta}
         onClose={closeConfirm}
         onConfirm={async () => {
-          // 모달 닫기는 onConfirm 내부에서 처리(성공/실패 후 closeConfirm 호출)
           if (typeof confirmOnConfirm === "function") await confirmOnConfirm();
         }}
       />
@@ -889,7 +938,11 @@ export default function SigResourceAdminPage() {
               {/* 그룹 */}
               <div>
                 <label style={labelStyle}>그룹</label>
-                <select value={group} onChange={(e) => setGroup(e.target.value)} style={inputStyle}>
+                <select
+                  value={group}
+                  onChange={(e) => setGroup(e.target.value)}
+                  style={inputStyle}
+                >
                   {GROUPS.map((g) => (
                     <option key={g.value} value={g.value}>
                       {g.label}
@@ -913,6 +966,52 @@ export default function SigResourceAdminPage() {
               <ImagePreview previewUrl={previewUrl} />
             </div>
 
+            {/* ✅ (추가) 저장 파일명 커스텀 입력 */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "minmax(0,1fr) minmax(0,2fr)",
+                gap: 12,
+                marginBottom: 14,
+                alignItems: "end",
+              }}
+            >
+              <div>
+                <label style={labelStyle}>저장 파일명 변경</label>
+                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                  <input
+                    id="useCustomFileName"
+                    type="checkbox"
+                    checked={useCustomFileName}
+                    onChange={(e) => setUseCustomFileName(e.target.checked)}
+                    disabled={!file || submitting}
+                  />
+                  <label htmlFor="useCustomFileName" style={{ margin: 0, color: "#cbd5e1", fontSize: 13 }}>
+                    체크 시 아래 입력값으로 저장됩니다.
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <label style={labelStyle}>저장 파일명 (확장자 포함 권장)</label>
+                <input
+                  type="text"
+                  value={customFileName}
+                  onChange={(e) => setCustomFileName(e.target.value)}
+                  disabled={!useCustomFileName || !file || submitting}
+                  placeholder={derivedDefaultFileName || "예) 1000.webp"}
+                  style={{
+                    ...tableInputStyle,
+                    border: useCustomFileName ? "1px solid #374151" : "1px solid rgba(55,65,81,0.6)",
+                    opacity: useCustomFileName ? 1 : 0.7,
+                  }}
+                />
+                <div style={{ marginTop: 6, fontSize: 11, color: "#6b7280" }}>
+                  원본: <code style={{ fontSize: 11 }}>{file?.name ?? "-"}</code>
+                </div>
+              </div>
+            </div>
+
             {/* 업로드 버튼 + 안내 */}
             <div
               style={{
@@ -928,7 +1027,14 @@ export default function SigResourceAdminPage() {
               <p style={{ margin: 0, fontSize: 11, color: "#9ca3af" }}>
                 * 이미지는{" "}
                 <code style={{ fontSize: 11 }}>images/{`{프로그램}`}/{`{그룹}`}</code> 에 업로드됩니다.
-                한 번 업로드된 이미지는 삭제하기 전까지 계속 재사용할 수 있습니다.
+                {useCustomFileName ? (
+                  <>
+                    {" "}
+                    저장 파일명은 <code style={{ fontSize: 11 }}>{customFileName || "-"}</code> 로 사용됩니다.
+                  </>
+                ) : (
+                  <> 저장 파일명은 원본 파일명을 사용합니다.</>
+                )}
               </p>
 
               <button
@@ -1012,7 +1118,14 @@ export default function SigResourceAdminPage() {
                 }}
               >
                 {loadingList ? (
-                  <div style={{ padding: 24, textAlign: "center", color: "#9ca3af", fontSize: 13 }}>
+                  <div
+                    style={{
+                      padding: 24,
+                      textAlign: "center",
+                      color: "#9ca3af",
+                      fontSize: 13,
+                    }}
+                  >
                     불러오는 중...
                   </div>
                 ) : images.length === 0 ? (
@@ -1140,14 +1253,7 @@ export default function SigResourceAdminPage() {
                 ) : (
                   <>
                     {/* 선택된 이미지 미리보기 */}
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: 10,
-                        marginBottom: 10,
-                        alignItems: "center",
-                      }}
-                    >
+                    <div style={{ display: "flex", gap: 10, marginBottom: 10, alignItems: "center" }}>
                       <div
                         style={{
                           width: 70,
