@@ -221,6 +221,9 @@ export default function SigImageManagePage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
+  // 검색
+  const [searchQuery, setSearchQuery] = useState("");
+
   const clearToast = () => {
     setMessage("");
     setError("");
@@ -277,6 +280,7 @@ export default function SigImageManagePage() {
     setLoadingImages(true);
     setError("");
     setSelectedImages(new Set());
+    setSearchQuery(""); // 그룹 변경 시 검색 초기화
 
     try {
       const items = await listProgramGroupImages(program, group);
@@ -494,15 +498,6 @@ export default function SigImageManagePage() {
     });
   }, []);
 
-  const toggleAllSelection = useCallback(() => {
-    if (selectedImages.size === images.length) {
-      setSelectedImages(new Set());
-    } else {
-      const all = new Set(images.map((img) => img.fullPath));
-      setSelectedImages(all);
-    }
-  }, [images, selectedImages.size]);
-
   const handleRenameStart = useCallback((image) => {
     setRenamingPath(image.fullPath);
     setRenameValue(image.fileName);
@@ -580,6 +575,51 @@ export default function SigImageManagePage() {
     return range ? `(${range})` : "";
   }, [program]);
 
+  // 검색된 이미지 필터링
+  const filteredImages = useMemo(() => {
+    if (!searchQuery.trim()) return images;
+    const query = searchQuery.toLowerCase();
+    return images.filter((img) =>
+      img.fileName.toLowerCase().includes(query)
+    );
+  }, [images, searchQuery]);
+
+  // 당일 업로드된 이미지 여부 판단
+  const isUploadedToday = useCallback((fullPath) => {
+    const today = new Date().toISOString().split("T")[0];
+    const uploadedToday = JSON.parse(
+      localStorage.getItem("uploadedToday") || "{}"
+    );
+    return uploadedToday[today]?.includes(fullPath) || false;
+  }, []);
+
+  // 파일 업로드 시 localStorage에 기록
+  useEffect(() => {
+    if (message.includes("업로드")) {
+      const today = new Date().toISOString().split("T")[0];
+      const uploadedToday = JSON.parse(
+        localStorage.getItem("uploadedToday") || "{}"
+      );
+      uploadedToday[today] = uploadedToday[today] || [];
+      images.forEach((img) => {
+        if (!uploadedToday[today].includes(img.fullPath)) {
+          uploadedToday[today].push(img.fullPath);
+        }
+      });
+      localStorage.setItem("uploadedToday", JSON.stringify(uploadedToday));
+    }
+  }, [message, images]);
+
+  // 전체 선택 토글
+  const toggleAllSelection = useCallback(() => {
+    if (selectedImages.size === filteredImages.length && filteredImages.length > 0) {
+      setSelectedImages(new Set());
+    } else {
+      const all = new Set(filteredImages.map((img) => img.fullPath));
+      setSelectedImages(all);
+    }
+  }, [filteredImages, selectedImages.size]);
+
   // ═══════════════════════════════════════════════════════════════
   // 렌더링
   // ═══════════════════════════════════════════════════════════════
@@ -600,11 +640,11 @@ export default function SigImageManagePage() {
         }}
       >
         <div>
-          <div style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>
+          <div style={{ fontSize: 15, fontWeight: 900, marginBottom: 6 }}>
             🖼️ 시그 이미지 관리
           </div>
           <div style={{ fontSize: 13, color: "#9ca3af" }}>
-            프로그램별 그룹 폴더 내 이미지 업로드, 삭제, 미리보기 가능
+            프로그램별 그룹 폴더 내 이미지를 업로드, 삭제, 미리보기합니다.
           </div>
         </div>
 
@@ -612,7 +652,7 @@ export default function SigImageManagePage() {
           <label
             style={{
               display: "block",
-              fontSize: 15,
+              fontSize: 12,
               color: "#cbd5e1",
               marginBottom: 6,
             }}
@@ -630,7 +670,7 @@ export default function SigImageManagePage() {
               background: "#020617",
               color: "#e5e7eb",
               outline: "none",
-              fontSize: 16,
+              fontSize: 14,
             }}
           >
             {PROGRAMS.map((p) => (
@@ -665,13 +705,13 @@ export default function SigImageManagePage() {
             overflow: "hidden",
           }}
         >
-          <div style={{ fontSize: 15, fontWeight: 900, color: "#e5e7eb" }}>
+          <div style={{ fontSize: 13, fontWeight: 900, color: "#e5e7eb" }}>
             📁 그룹 목록
           </div>
 
           <div
             style={{
-              fontSize: 15,
+              fontSize: 11,
               color: "#6b7280",
               paddingBottom: 8,
               borderBottom: "1px solid rgba(55,65,81,0.5)",
@@ -704,11 +744,11 @@ export default function SigImageManagePage() {
             }}
           >
             {loadingGroups ? (
-              <div style={{ fontSize: 14, color: "#9ca3af", padding: 8 }}>
+              <div style={{ fontSize: 12, color: "#9ca3af", padding: 8 }}>
                 그룹을 불러오는 중...
               </div>
             ) : groups.filter((g) => g.hasFiles).length === 0 ? (
-              <div style={{ fontSize: 14, color: "#6b7280", padding: 8 }}>
+              <div style={{ fontSize: 12, color: "#6b7280", padding: 8 }}>
                 파일이 있는 그룹이 없습니다.
               </div>
             ) : (
@@ -733,7 +773,7 @@ export default function SigImageManagePage() {
                         : "rgba(2,6,23,0.5)",
                       color: isSelected ? "#4ade80" : "#cbd5e1",
                       fontWeight: isSelected ? 800 : 600,
-                      fontSize: 18,
+                      fontSize: 12,
                       cursor: "pointer",
                       textAlign: "left",
                       transition: "all 0.2s",
@@ -744,7 +784,7 @@ export default function SigImageManagePage() {
                     </div>
                     <div
                       style={{
-                        fontSize: 15,
+                        fontSize: 11,
                         color: isSelected ? "#4ade80" : "#9ca3af",
                         marginTop: 4,
                       }}
@@ -846,14 +886,14 @@ export default function SigImageManagePage() {
                       background: "#020617",
                       color: "#e5e7eb",
                       outline: "none",
-                      fontSize: 14,
+                      fontSize: 12,
                     }}
                   />
                 )}
 
                 <div
                   style={{
-                    fontSize: 13,
+                    fontSize: 11,
                     color: "#6b7280",
                     marginTop: 6,
                   }}
@@ -871,10 +911,10 @@ export default function SigImageManagePage() {
               border: "1px solid rgba(55,65,81,0.9)",
               background: "rgba(15,23,42,0.95)",
               padding: 14,
-              flex: 1,
               display: "flex",
               flexDirection: "column",
               gap: 12,
+              height: 600,
             }}
           >
             {/* 헤더 */}
@@ -888,11 +928,11 @@ export default function SigImageManagePage() {
               }}
             >
               <div>
-                <div style={{ fontSize: 15, fontWeight: 900, color: "#e5e7eb" }}>
+                <div style={{ fontSize: 13, fontWeight: 900, color: "#e5e7eb" }}>
                   📷 이미지 목록
                 </div>
                 {selectedGroup && (
-                  <div style={{ fontSize: 13, color: "#6b7280", marginTop: 4 }}>
+                  <div style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>
                     {loadingImages
                       ? "로드 중..."
                       : `총 ${images.length}개 (선택: ${selectedImages.size}개)`}
@@ -900,39 +940,73 @@ export default function SigImageManagePage() {
                 )}
               </div>
 
-              {selectedImages.size > 0 && (
-                <button
-                  onClick={handleBulkDelete}
-                  disabled={deletingPaths.size > 0}
+              <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+                {/* 검색창 */}
+                <input
+                  type="text"
+                  placeholder="이미지명 검색..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   style={{
                     padding: "8px 12px",
-                    borderRadius: 999,
-                    border: "1px solid rgba(248,113,113,0.6)",
-                    background: "transparent",
-                    color: deletingPaths.size > 0 ? "#fecaca" : "#fda4af",
-                    fontWeight: 900,
-                    fontSize: 14,
-                    cursor: deletingPaths.size > 0 ? "default" : "pointer",
-                    whiteSpace: "nowrap",
+                    borderRadius: 8,
+                    border: "1px solid rgba(55,65,81,0.9)",
+                    background: "rgba(2,6,23,0.8)",
+                    color: "#e5e7eb",
+                    fontSize: 12,
+                    outline: "none",
+                    minWidth: 180,
+                    transition: "border-color 0.2s",
                   }}
-                >
-                  🗑️ 선택한 파일 삭제 ({selectedImages.size})
-                </button>
-              )}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "#22c55e";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "rgba(55,65,81,0.9)";
+                  }}
+                />
+
+                {selectedImages.size > 0 && (
+                  <button
+                    onClick={handleBulkDelete}
+                    disabled={deletingPaths.size > 0}
+                    style={{
+                      padding: "8px 12px",
+                      borderRadius: 999,
+                      border: "1px solid rgba(248,113,113,0.6)",
+                      background: "transparent",
+                      color: deletingPaths.size > 0 ? "#fecaca" : "#fda4af",
+                      fontWeight: 900,
+                      fontSize: 12,
+                      cursor: deletingPaths.size > 0 ? "default" : "pointer",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    🗑️ 선택한 파일 삭제 ({selectedImages.size})
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* 이미지 그리드 */}
-            <div style={{ flex: 1, overflow: "auto" }}>
+            <div
+              style={{
+                flex: 1,
+                overflow: "auto",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
               {!selectedGroup ? (
-                <div style={{ padding: 16, color: "#6b7280", fontSize: 15 }}>
+                <div style={{ padding: 16, color: "#6b7280", fontSize: 13 }}>
                   그룹을 선택하세요.
                 </div>
               ) : loadingImages ? (
-                <div style={{ padding: 16, color: "#9ca3af", fontSize: 15 }}>
+                <div style={{ padding: 16, color: "#9ca3af", fontSize: 13 }}>
                   이미지를 불러오는 중...
                 </div>
               ) : images.length === 0 ? (
-                <div style={{ padding: 16, color: "#6b7280", fontSize: 15 }}>
+                <div style={{ padding: 16, color: "#6b7280", fontSize: 13 }}>
                   이 그룹에 이미지가 없습니다.
                 </div>
               ) : (
@@ -950,210 +1024,238 @@ export default function SigImageManagePage() {
                   >
                     <input
                       type="checkbox"
-                      checked={selectedImages.size === images.length}
+                      checked={
+                        selectedImages.size === filteredImages.length &&
+                        filteredImages.length > 0
+                      }
                       onChange={toggleAllSelection}
                     />
-                    <span style={{ fontSize: 15, color: "#cbd5e1" }}>
+                    <span style={{ fontSize: 12, color: "#cbd5e1" }}>
                       전체 선택
                     </span>
                   </div>
 
-                  {/* 이미지 카드 그리드 */}
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-                      gap: 12,
-                    }}
-                  >
-                    {images.map((img) => {
-                      const isSelected = selectedImages.has(img.fullPath);
-                      const isDeleting = deletingPaths.has(img.fullPath);
+                  {/* 검색 결과 없음 */}
+                  {filteredImages.length === 0 && searchQuery ? (
+                    <div style={{ padding: 16, color: "#6b7280", fontSize: 12 }}>
+                      "{searchQuery}"에 일치하는 이미지가 없습니다.
+                    </div>
+                  ) : (
+                    /* 이미지 카드 그리드 */
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+                        gap: 12,
+                      }}
+                    >
+                      {filteredImages.map((img) => {
+                        const isSelected = selectedImages.has(img.fullPath);
+                        const isDeleting = deletingPaths.has(img.fullPath);
 
-                      return (
-                        <div
-                          key={img.fullPath}
-                          style={{
-                            borderRadius: 12,
-                            border: isSelected
-                              ? "2px solid #22c55e"
-                              : "1px solid rgba(55,65,81,0.9)",
-                            background: isSelected
-                              ? "rgba(34,197,94,0.05)"
-                              : "#020617",
-                            overflow: "hidden",
-                            display: "flex",
-                            flexDirection: "column",
-                          }}
-                        >
-                          {/* 이미지 미리보기 */}
+                        return (
                           <div
+                            key={img.fullPath}
                             style={{
-                              position: "relative",
-                              paddingBottom: "100%",
-                              background: "#0f172a",
+                              borderRadius: 12,
+                              border: isSelected
+                                ? "2px solid #22c55e"
+                                : "1px solid rgba(55,65,81,0.9)",
+                              background: isSelected
+                                ? "rgba(34,197,94,0.05)"
+                                : "#020617",
                               overflow: "hidden",
-                            }}
-                          >
-                            <img
-                              src={img.url}
-                              alt={img.fileName}
-                              style={{
-                                position: "absolute",
-                                inset: 0,
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "cover",
-                                cursor: "pointer",
-                              }}
-                              onClick={() => setPreviewImage(img)}
-                            />
-
-                            {/* 체크박스 오버레이 */}
-                            <div
-                              style={{
-                                position: "absolute",
-                                top: 8,
-                                right: 8,
-                              }}
-                            >
-                              <input
-                                type="checkbox"
-                                checked={isSelected}
-                                onChange={() =>
-                                  toggleImageSelection(img.fullPath)
-                                }
-                                style={{
-                                  width: 20,
-                                  height: 20,
-                                  cursor: "pointer",
-                                }}
-                              />
-                            </div>
-                          </div>
-
-                          {/* 파일명 & 버튼 */}
-                          <div
-                            style={{
-                              padding: 10,
                               display: "flex",
                               flexDirection: "column",
-                              gap: 8,
                             }}
                           >
-                            {renamingPath === img.fullPath ? (
-                              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                                <input
-                                  type="text"
-                                  value={renameValue}
-                                  onChange={(e) => setRenameValue(e.target.value)}
-                                  autoFocus
-                                  style={{
-                                    padding: "4px 6px",
-                                    borderRadius: 6,
-                                    border: "1px solid #22c55e",
-                                    background: "#020617",
-                                    color: "#e5e7eb",
-                                    fontSize: 14,
-                                    outline: "none",
-                                  }}
-                                  onKeyDown={(e) => {
-                                    if (e.key === "Enter") handleRenameSubmit(img);
-                                    if (e.key === "Escape") handleRenameCancel();
-                                  }}
-                                />
-                                <div style={{ display: "flex", gap: 4 }}>
-                                  <button
-                                    onClick={() => handleRenameSubmit(img)}
-                                    disabled={isDeleting}
-                                    style={{
-                                      flex: 1,
-                                      padding: "3px 6px",
-                                      borderRadius: 4,
-                                      border: "none",
-                                      background: "#22c55e",
-                                      color: "#022c22",
-                                      fontWeight: 700,
-                                      fontSize: 14,
-                                      cursor: isDeleting ? "default" : "pointer",
-                                    }}
-                                  >
-                                    ✓
-                                  </button>
-                                  <button
-                                    onClick={handleRenameCancel}
-                                    disabled={isDeleting}
-                                    style={{
-                                      flex: 1,
-                                      padding: "3px 6px",
-                                      borderRadius: 4,
-                                      border: "1px solid #6b7280",
-                                      background: "transparent",
-                                      color: "#9ca3af",
-                                      fontWeight: 700,
-                                      fontSize: 14,
-                                      cursor: isDeleting ? "default" : "pointer",
-                                    }}
-                                  >
-                                    ×
-                                  </button>
-                                </div>
-                              </div>
-                            ) : (
-                              <>
+                            {/* 이미지 미리보기 */}
+                            <div
+                              style={{
+                                position: "relative",
+                                paddingBottom: "100%",
+                                background: "#0f172a",
+                                overflow: "hidden",
+                              }}
+                            >
+                              <img
+                                src={img.url}
+                                alt={img.fileName}
+                                style={{
+                                  position: "absolute",
+                                  inset: 0,
+                                  width: "100%",
+                                  height: "100%",
+                                  objectFit: "cover",
+                                  cursor: "pointer",
+                                }}
+                                onClick={() => setPreviewImage(img)}
+                              />
+
+                              {/* NEW 배지 + 체크박스 오버레이 */}
+                              {isUploadedToday(img.fullPath) && (
                                 <div
                                   style={{
+                                    position: "absolute",
+                                    top: 8,
+                                    left: 8,
+                                    background: "#22c55e",
+                                    color: "#022c22",
+                                    padding: "2px 8px",
+                                    borderRadius: 4,
                                     fontSize: 11,
-                                    color: "#cbd5e1",
-                                    fontWeight: 700,
-                                    wordBreak: "break-word",
+                                    fontWeight: 900,
+                                    letterSpacing: "0.05em",
                                   }}
                                 >
-                                  {img.fileName}
+                                  NEW
                                 </div>
-                                <div style={{ display: "flex", gap: 4, flexDirection: "column" }}>
-                                  <button
-                                    onClick={() => handleRenameStart(img)}
-                                    disabled={isDeleting}
+                              )}
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: 8,
+                                  right: 8,
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={isSelected}
+                                  onChange={() =>
+                                    toggleImageSelection(img.fullPath)
+                                  }
+                                  style={{
+                                    width: 20,
+                                    height: 20,
+                                    cursor: "pointer",
+                                  }}
+                                />
+                              </div>
+                            </div>
+
+                            {/* 파일명 & 버튼 */}
+                            <div
+                              style={{
+                                padding: 10,
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: 8,
+                              }}
+                            >
+                              {renamingPath === img.fullPath ? (
+                                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                                  <input
+                                    type="text"
+                                    value={renameValue}
+                                    onChange={(e) => setRenameValue(e.target.value)}
+                                    autoFocus
                                     style={{
-                                      padding: "4px 8px",
+                                      padding: "4px 6px",
                                       borderRadius: 6,
-                                      border: "1px solid rgba(139,92,246,0.6)",
-                                      background: "transparent",
-                                      color: isDeleting ? "#9ca3af" : "#d8b4fe",
-                                      fontWeight: 600,
-                                      fontSize: 14,
-                                      cursor: isDeleting ? "default" : "pointer",
-                                      whiteSpace: "nowrap",
+                                      border: "1px solid #22c55e",
+                                      background: "#020617",
+                                      color: "#e5e7eb",
+                                      fontSize: 10,
+                                      outline: "none",
+                                    }}
+                                    onKeyDown={(e) => {
+                                      if (e.key === "Enter") handleRenameSubmit(img);
+                                      if (e.key === "Escape") handleRenameCancel();
+                                    }}
+                                  />
+                                  <div style={{ display: "flex", gap: 4 }}>
+                                    <button
+                                      onClick={() => handleRenameSubmit(img)}
+                                      disabled={isDeleting}
+                                      style={{
+                                        flex: 1,
+                                        padding: "3px 6px",
+                                        borderRadius: 4,
+                                        border: "none",
+                                        background: "#22c55e",
+                                        color: "#022c22",
+                                        fontWeight: 700,
+                                        fontSize: 10,
+                                        cursor: isDeleting ? "default" : "pointer",
+                                      }}
+                                    >
+                                      ✓
+                                    </button>
+                                    <button
+                                      onClick={handleRenameCancel}
+                                      disabled={isDeleting}
+                                      style={{
+                                        flex: 1,
+                                        padding: "3px 6px",
+                                        borderRadius: 4,
+                                        border: "1px solid #6b7280",
+                                        background: "transparent",
+                                        color: "#9ca3af",
+                                        fontWeight: 700,
+                                        fontSize: 10,
+                                        cursor: isDeleting ? "default" : "pointer",
+                                      }}
+                                    >
+                                      ×
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <>
+                                  <div
+                                    style={{
+                                      fontSize: 11,
+                                      color: "#cbd5e1",
+                                      fontWeight: 700,
+                                      wordBreak: "break-word",
                                     }}
                                   >
-                                    ✍️ 이름바꾸기
-                                  </button>
-                                  <button
-                                    onClick={() => handleDeleteSingle(img)}
-                                    disabled={isDeleting}
-                                    style={{
-                                      padding: "4px 8px",
-                                      borderRadius: 6,
-                                      border: "1px solid rgba(248,113,113,0.6)",
-                                      background: "transparent",
-                                      color: isDeleting ? "#fecaca" : "#fda4af",
-                                      fontWeight: 600,
-                                      fontSize: 14,
-                                      cursor: isDeleting ? "default" : "pointer",
-                                      whiteSpace: "nowrap",
-                                    }}
-                                  >
-                                    {isDeleting ? "삭제중..." : "삭제"}
-                                  </button>
-                                </div>
-                              </>
-                            )}
+                                    {img.fileName}
+                                  </div>
+                                  <div style={{ display: "flex", gap: 4, flexDirection: "column" }}>
+                                    <button
+                                      onClick={() => handleRenameStart(img)}
+                                      disabled={isDeleting}
+                                      style={{
+                                        padding: "4px 8px",
+                                        borderRadius: 6,
+                                        border: "1px solid rgba(139,92,246,0.6)",
+                                        background: "transparent",
+                                        color: isDeleting ? "#9ca3af" : "#d8b4fe",
+                                        fontWeight: 600,
+                                        fontSize: 10,
+                                        cursor: isDeleting ? "default" : "pointer",
+                                        whiteSpace: "nowrap",
+                                      }}
+                                    >
+                                      ✍️ 이름바꾸기
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeleteSingle(img)}
+                                      disabled={isDeleting}
+                                      style={{
+                                        padding: "4px 8px",
+                                        borderRadius: 6,
+                                        border: "1px solid rgba(248,113,113,0.6)",
+                                        background: "transparent",
+                                        color: isDeleting ? "#fecaca" : "#fda4af",
+                                        fontWeight: 600,
+                                        fontSize: 10,
+                                        cursor: isDeleting ? "default" : "pointer",
+                                        whiteSpace: "nowrap",
+                                      }}
+                                    >
+                                      {isDeleting ? "삭제중..." : "삭제"}
+                                    </button>
+                                  </div>
+                                </>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </>
               )}
             </div>
