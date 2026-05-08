@@ -176,10 +176,10 @@ function ImagePreviewModal({ image, onClose }) {
         </div>
 
         <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: 13, color: "#cbd5e1", fontWeight: 800 }}>
+          <div style={{ fontSize: 18, color: "#cbd5e1", fontWeight: 800 }}>
             {image.fileName}
           </div>
-          <div style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>
+          <div style={{ fontSize: 14, color: "#6b7280", marginTop: 4 }}>
             {image.fullPath}
           </div>
         </div>
@@ -640,11 +640,11 @@ export default function SigImageManagePage() {
         }}
       >
         <div>
-          <div style={{ fontSize: 15, fontWeight: 900, marginBottom: 6 }}>
+          <div style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>
             🖼️ 시그 이미지 관리
           </div>
-          <div style={{ fontSize: 13, color: "#9ca3af" }}>
-            프로그램별 그룹 폴더 내 이미지를 업로드, 삭제, 미리보기합니다.
+          <div style={{ fontSize: 15, color: "#9ca3af" }}>
+            프로그램별 그룹 폴더 내 이미지 업로드, 삭제, 미리보기
           </div>
         </div>
 
@@ -652,7 +652,7 @@ export default function SigImageManagePage() {
           <label
             style={{
               display: "block",
-              fontSize: 12,
+              fontSize: 15,
               color: "#cbd5e1",
               marginBottom: 6,
             }}
@@ -670,7 +670,7 @@ export default function SigImageManagePage() {
               background: "#020617",
               color: "#e5e7eb",
               outline: "none",
-              fontSize: 14,
+              fontSize: 16,
             }}
           >
             {PROGRAMS.map((p) => (
@@ -705,13 +705,13 @@ export default function SigImageManagePage() {
             overflow: "hidden",
           }}
         >
-          <div style={{ fontSize: 13, fontWeight: 900, color: "#e5e7eb" }}>
+          <div style={{ fontSize: 15, fontWeight: 900, color: "#e5e7eb" }}>
             📁 그룹 목록
           </div>
 
           <div
             style={{
-              fontSize: 11,
+              fontSize: 13,
               color: "#6b7280",
               paddingBottom: 8,
               borderBottom: "1px solid rgba(55,65,81,0.5)",
@@ -744,11 +744,11 @@ export default function SigImageManagePage() {
             }}
           >
             {loadingGroups ? (
-              <div style={{ fontSize: 12, color: "#9ca3af", padding: 8 }}>
+              <div style={{ fontSize: 15, color: "#9ca3af", padding: 8 }}>
                 그룹을 불러오는 중...
               </div>
             ) : groups.filter((g) => g.hasFiles).length === 0 ? (
-              <div style={{ fontSize: 12, color: "#6b7280", padding: 8 }}>
+              <div style={{ fontSize: 15, color: "#6b7280", padding: 8 }}>
                 파일이 있는 그룹이 없습니다.
               </div>
             ) : (
@@ -773,7 +773,7 @@ export default function SigImageManagePage() {
                         : "rgba(2,6,23,0.5)",
                       color: isSelected ? "#4ade80" : "#cbd5e1",
                       fontWeight: isSelected ? 800 : 600,
-                      fontSize: 12,
+                      fontSize: 18,
                       cursor: "pointer",
                       textAlign: "left",
                       transition: "all 0.2s",
@@ -784,7 +784,7 @@ export default function SigImageManagePage() {
                     </div>
                     <div
                       style={{
-                        fontSize: 11,
+                        fontSize: 15,
                         color: isSelected ? "#4ade80" : "#9ca3af",
                         marginTop: 4,
                       }}
@@ -810,7 +810,7 @@ export default function SigImageManagePage() {
                 padding: 14,
               }}
             >
-              <div style={{ fontSize: 13, fontWeight: 900, marginBottom: 12 }}>
+              <div style={{ fontSize: 15, fontWeight: 900, marginBottom: 12 }}>
                 ⬆️ 이미지 업로드
               </div>
 
@@ -832,10 +832,10 @@ export default function SigImageManagePage() {
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <div style={{ fontSize: 28 }}>📸</div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 800 }}>
+                    <div style={{ fontSize: 15, fontWeight: 800 }}>
                       여기에 파일을 드롭하거나 클릭하세요
                     </div>
-                    <div style={{ fontSize: 12, color: "#9ca3af", marginTop: 4 }}>
+                    <div style={{ fontSize: 15, color: "#9ca3af", marginTop: 4 }}>
                       허용: JPG, PNG, GIF, WebP (다중 선택 가능)
                     </div>
                   </div>
@@ -867,7 +867,7 @@ export default function SigImageManagePage() {
                     checked={useCustomName}
                     onChange={(e) => setUseCustomName(e.target.checked)}
                   />
-                  <span style={{ fontSize: 12, color: "#cbd5e1" }}>
+                  <span style={{ fontSize: 15, color: "#cbd5e1" }}>
                     저장 시 파일명 직접 지정하기
                   </span>
                 </label>
@@ -886,14 +886,14 @@ export default function SigImageManagePage() {
                       background: "#020617",
                       color: "#e5e7eb",
                       outline: "none",
-                      fontSize: 12,
+                      fontSize: 15,
                     }}
                   />
                 )}
 
                 <div
                   style={{
-                    fontSize: 11,
+                    fontSize: 13,
                     color: "#6b7280",
                     marginTop: 6,
                   }}
@@ -928,11 +928,11 @@ export default function SigImageManagePage() {
               }}
             >
               <div>
-                <div style={{ fontSize: 13, fontWeight: 900, color: "#e5e7eb" }}>
+                <div style={{ fontSize: 15, fontWeight: 900, color: "#e5e7eb" }}>
                   📷 이미지 목록
                 </div>
                 {selectedGroup && (
-                  <div style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>
+                  <div style={{ fontSize: 15, color: "#6b7280", marginTop: 4 }}>
                     {loadingImages
                       ? "로드 중..."
                       : `총 ${images.length}개 (선택: ${selectedImages.size}개)`}
@@ -953,7 +953,7 @@ export default function SigImageManagePage() {
                     border: "1px solid rgba(55,65,81,0.9)",
                     background: "rgba(2,6,23,0.8)",
                     color: "#e5e7eb",
-                    fontSize: 12,
+                    fontSize: 15,
                     outline: "none",
                     minWidth: 180,
                     transition: "border-color 0.2s",
@@ -977,7 +977,7 @@ export default function SigImageManagePage() {
                       background: "transparent",
                       color: deletingPaths.size > 0 ? "#fecaca" : "#fda4af",
                       fontWeight: 900,
-                      fontSize: 12,
+                      fontSize: 15,
                       cursor: deletingPaths.size > 0 ? "default" : "pointer",
                       whiteSpace: "nowrap",
                     }}
@@ -998,15 +998,15 @@ export default function SigImageManagePage() {
               }}
             >
               {!selectedGroup ? (
-                <div style={{ padding: 16, color: "#6b7280", fontSize: 13 }}>
+                <div style={{ padding: 16, color: "#6b7280", fontSize: 15 }}>
                   그룹을 선택하세요.
                 </div>
               ) : loadingImages ? (
-                <div style={{ padding: 16, color: "#9ca3af", fontSize: 13 }}>
+                <div style={{ padding: 16, color: "#9ca3af", fontSize: 15 }}>
                   이미지를 불러오는 중...
                 </div>
               ) : images.length === 0 ? (
-                <div style={{ padding: 16, color: "#6b7280", fontSize: 13 }}>
+                <div style={{ padding: 16, color: "#6b7280", fontSize: 15 }}>
                   이 그룹에 이미지가 없습니다.
                 </div>
               ) : (
@@ -1030,14 +1030,14 @@ export default function SigImageManagePage() {
                       }
                       onChange={toggleAllSelection}
                     />
-                    <span style={{ fontSize: 12, color: "#cbd5e1" }}>
+                    <span style={{ fontSize: 15, color: "#cbd5e1" }}>
                       전체 선택
                     </span>
                   </div>
 
                   {/* 검색 결과 없음 */}
                   {filteredImages.length === 0 && searchQuery ? (
-                    <div style={{ padding: 16, color: "#6b7280", fontSize: 12 }}>
+                    <div style={{ padding: 16, color: "#6b7280", fontSize: 15 }}>
                       "{searchQuery}"에 일치하는 이미지가 없습니다.
                     </div>
                   ) : (
@@ -1103,7 +1103,7 @@ export default function SigImageManagePage() {
                                     color: "#022c22",
                                     padding: "2px 8px",
                                     borderRadius: 4,
-                                    fontSize: 11,
+                                    fontSize: 14,
                                     fontWeight: 900,
                                     letterSpacing: "0.05em",
                                   }}
@@ -1155,7 +1155,7 @@ export default function SigImageManagePage() {
                                       border: "1px solid #22c55e",
                                       background: "#020617",
                                       color: "#e5e7eb",
-                                      fontSize: 10,
+                                      fontSize: 14,
                                       outline: "none",
                                     }}
                                     onKeyDown={(e) => {
@@ -1175,7 +1175,7 @@ export default function SigImageManagePage() {
                                         background: "#22c55e",
                                         color: "#022c22",
                                         fontWeight: 700,
-                                        fontSize: 10,
+                                        fontSize: 14,
                                         cursor: isDeleting ? "default" : "pointer",
                                       }}
                                     >
@@ -1192,7 +1192,7 @@ export default function SigImageManagePage() {
                                         background: "transparent",
                                         color: "#9ca3af",
                                         fontWeight: 700,
-                                        fontSize: 10,
+                                        fontSize: 14,
                                         cursor: isDeleting ? "default" : "pointer",
                                       }}
                                     >
@@ -1204,7 +1204,7 @@ export default function SigImageManagePage() {
                                 <>
                                   <div
                                     style={{
-                                      fontSize: 11,
+                                      fontSize: 14,
                                       color: "#cbd5e1",
                                       fontWeight: 700,
                                       wordBreak: "break-word",
@@ -1223,7 +1223,7 @@ export default function SigImageManagePage() {
                                         background: "transparent",
                                         color: isDeleting ? "#9ca3af" : "#d8b4fe",
                                         fontWeight: 600,
-                                        fontSize: 10,
+                                        fontSize: 14,
                                         cursor: isDeleting ? "default" : "pointer",
                                         whiteSpace: "nowrap",
                                       }}
@@ -1240,7 +1240,7 @@ export default function SigImageManagePage() {
                                         background: "transparent",
                                         color: isDeleting ? "#fecaca" : "#fda4af",
                                         fontWeight: 600,
-                                        fontSize: 10,
+                                        fontSize: 14,
                                         cursor: isDeleting ? "default" : "pointer",
                                         whiteSpace: "nowrap",
                                       }}
