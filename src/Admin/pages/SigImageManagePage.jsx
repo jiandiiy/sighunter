@@ -12,17 +12,12 @@ import {
   renameImageFile,
 } from "../../resources/storage/sigResourceStorage";
 
-/** ─────────────────────────────────────────────
-    프로그램 & 그룹 설정
-    ───────────────────────────────────────────── */
-
 const PROGRAMS = [
   { value: "muse", label: "뮤즈" },
   { value: "queendom", label: "퀸덤" },
   { value: "holic", label: "홀릭" },
 ];
 
-// 프로그램별 그룹 시그 범위 정의
 const GROUP_SIG_RANGES_BY_PROGRAM = {
   muse: {
     group01: "1000-1100",
@@ -62,10 +57,6 @@ const GROUPS = Array.from({ length: 8 }, (_, i) => {
   };
 });
 
-/** ─────────────────────────────────────────────
-    Toast 컴포넌트 (알림)
-    ───────────────────────────────────────────── */
-
 function ToastInline({ message, error, onClear }) {
   const visible = !!(message || error);
   useEffect(() => {
@@ -101,10 +92,6 @@ function ToastInline({ message, error, onClear }) {
     </div>
   );
 }
-
-/** ─────────────────────────────────────────────
-    이미지 미리보기 모달
-    ───────────────────────────────────────────── */
 
 function ImagePreviewModal({ image, onClose }) {
   if (!image) return null;
@@ -176,10 +163,10 @@ function ImagePreviewModal({ image, onClose }) {
         </div>
 
         <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: 17, color: "#cbd5e1", fontWeight: 800 }}>
+          <div style={{ fontSize: 18, color: "#cbd5e1", fontWeight: 800 }}>
             {image.fileName}
           </div>
-          <div style={{ fontSize: 15, color: "#6b7280", marginTop: 4 }}>
+          <div style={{ fontSize: 14, color: "#6b7280", marginTop: 4 }}>
             {image.fullPath}
           </div>
         </div>
@@ -188,45 +175,46 @@ function ImagePreviewModal({ image, onClose }) {
   );
 }
 
-/** ─────────────────────────────────────────────
-    다운로드 모달 컴포넌트
-    ───────────────────────────────────────────── */
+function BulkDownloadModal({ images, onClose, onDownload }) {
+  const [downloadPath, setDownloadPath] = useState("");
+  const [downloadPathName, setDownloadPathName] = useState("");
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [selectedImageIdx, setSelectedImageIdx] = useState(0);
+  const [editingFileNames, setEditingFileNames] = useState(
+    Object.fromEntries(images.map((img, idx) => [idx, img.fileName]))
+  );
 
-function DownloadModal({
-  modal,
-  onClose,
-  onDownload,
-  onFileNameChange,
-  onFormatChange,
-  onPathChange,
-}) {
-  const [showPathInput, setShowPathInput] = useState(false);
+  if (!images || images.length === 0) return null;
 
-  if (!modal.open || !modal.image) return null;
+  const selectedImage = images[selectedImageIdx];
+  const currentFileName = editingFileNames[selectedImageIdx] || selectedImage.fileName;
 
-  const nameWithoutExt = modal.image.fileName.replace(/\.[^/.]+$/, "");
-  const formats = [
-    { value: "original", label: "원본 형식" },
-    { value: "jpg", label: "JPG" },
-    { value: "png", label: "PNG" },
-    { value: "webp", label: "WebP" },
-    { value: "gif", label: "GIF" },
-  ];
-
-  const handlePathSelect = async () => {
-    if (window.showDirectoryPicker) {
-      try {
-        const dirHandle = await window.showDirectoryPicker();
-        onPathChange(dirHandle.name);
-        setShowPathInput(false);
-      } catch (e) {
-        // 사용자가 폴더 선택을 취소한 경우
-        setShowPathInput(true);
-      }
-    } else {
-      // File System Access API를 지원하지 않는 경우
-      setShowPathInput(true);
+  const handleSelectFolder = async () => {
+    try {
+      const dirHandle = await window.showDirectoryPicker();
+      setDownloadPath(dirHandle);
+      setDownloadPathName(dirHandle.name || "선택됨");
+    } catch (err) {
+      console.log("폴더 선택 취소됨");
     }
+  };
+
+  const handleFileNameChange = (idx, newName) => {
+    setEditingFileNames((prev) => ({
+      ...prev,
+      [idx]: newName,
+    }));
+  };
+
+  const handleDownload = async () => {
+    setIsDownloading(true);
+    const updatedImages = images.map((img, idx) => ({
+      ...img,
+      fileName: editingFileNames[idx] || img.fileName,
+    }));
+    await onDownload(updatedImages, downloadPath);
+    setIsDownloading(false);
+    onClose();
   };
 
   return (
@@ -249,438 +237,254 @@ function DownloadModal({
           background: "#020617",
           borderRadius: 16,
           padding: 24,
-          maxWidth: "95%",
-          maxHeight: "95%",
+          maxWidth: 1100,
+          maxHeight: "85vh",
           display: "flex",
-          flexDirection: "row",
-          gap: 24,
+          flexDirection: "column",
+          gap: 16,
           border: "1px solid rgba(55,65,81,0.9)",
           overflow: "auto",
         }}
       >
-        {/* 왼쪽: 이미지 미리보기 */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 12,
-            minWidth: 300,
-            flexShrink: 0,
-            alignItems: "center",
-          }}
-        >
-          <div
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <div style={{ fontSize: 16, fontWeight: 900, color: "#e5e7eb" }}>
+              📥 파일 일괄 다운로드
+            </div>
+            <div style={{ fontSize: 13, color: "#9ca3af", marginTop: 4 }}>
+              {images.length}개 파일을 다운로드합니다
+            </div>
+          </div>
+          <button
+            onClick={onClose}
             style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 300,
-              height: 300,
-              borderRadius: 12,
-              background: "#0f172a",
-              border: "1px solid rgba(55,65,81,0.5)",
-              overflow: "hidden",
+              background: "transparent",
+              border: "none",
+              fontSize: 24,
+              color: "#cbd5e1",
+              cursor: "pointer",
+              padding: 0,
+              width: 32,
+              height: 32,
             }}
           >
-            <img
-              src={modal.image.url}
-              alt={modal.image.fileName}
-              style={{
-                maxWidth: "100%",
-                maxHeight: "100%",
-                objectFit: "contain",
-              }}
-            />
+            ✕
+          </button>
+        </div>
+
+        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          <button
+            onClick={handleSelectFolder}
+            disabled={isDownloading}
+            style={{
+              padding: "10px 16px",
+              borderRadius: 8,
+              border: "1px solid rgba(59,130,246,0.6)",
+              background: "transparent",
+              color: isDownloading ? "#9ca3af" : "#93c5fd",
+              fontWeight: 700,
+              fontSize: 13,
+              cursor: isDownloading ? "default" : "pointer",
+              whiteSpace: "nowrap",
+            }}
+          >
+            📁 폴더 선택
+          </button>
+          <div style={{ fontSize: 13, color: "#4ade80", fontWeight: 600 }}>
+            {downloadPathName || "기본 다운로드 폴더"}
           </div>
-          <div style={{ textAlign: "center", width: "100%" }}>
+        </div>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "320px 1fr",
+            gap: 20,
+            borderTop: "1px solid rgba(55,65,81,0.5)",
+            paddingTop: 16,
+          }}
+        >
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <div
               style={{
-                fontSize: 17,
-                color: "#cbd5e1",
-                fontWeight: 700,
-                wordBreak: "break-word",
+                borderRadius: 12,
+                border: "1px solid rgba(55,65,81,0.9)",
+                background: "#0f172a",
+                overflow: "hidden",
               }}
             >
-              {modal.image.fileName}
+              <img
+                src={selectedImage.url}
+                alt={selectedImage.fileName}
+                style={{
+                  width: "100%",
+                  aspectRatio: "1",
+                  objectFit: "cover",
+                }}
+              />
             </div>
-            <div
-              style={{
-                fontSize: 15,
-                color: "#6b7280",
-                marginTop: 4,
-                wordBreak: "break-word",
-              }}
-            >
-              {modal.image.fullPath}
+            <div style={{ fontSize: 12, color: "#9ca3af", textAlign: "center" }}>
+              {selectedImageIdx + 1} / {images.length}
+            </div>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div>
+              <div style={{ fontSize: 12, color: "#cbd5e1", fontWeight: 700, marginBottom: 8 }}>
+                📄 파일명 수정
+              </div>
+              <input
+                type="text"
+                value={currentFileName}
+                onChange={(e) => handleFileNameChange(selectedImageIdx, e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "10px 12px",
+                  borderRadius: 8,
+                  border: "1px solid rgba(55,65,81,0.9)",
+                  background: "rgba(2,6,23,0.8)",
+                  color: "#e5e7eb",
+                  fontSize: 13,
+                  outline: "none",
+                  transition: "border-color 0.2s",
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "#22c55e";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "rgba(55,65,81,0.9)";
+                }}
+              />
+            </div>
+
+            <div>
+              <div style={{ fontSize: 12, color: "#cbd5e1", fontWeight: 700, marginBottom: 8 }}>
+                📋 파일 목록
+              </div>
+              <div
+                style={{
+                  maxHeight: 300,
+                  overflow: "auto",
+                  border: "1px solid rgba(55,65,81,0.5)",
+                  borderRadius: 8,
+                  background: "rgba(2,6,23,0.5)",
+                }}
+              >
+                {images.map((img, idx) => (
+                  <button
+                    key={img.fullPath}
+                    onClick={() => setSelectedImageIdx(idx)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      border: "none",
+                      background:
+                        selectedImageIdx === idx
+                          ? "rgba(34,197,94,0.15)"
+                          : "transparent",
+                      borderBottom: "1px solid rgba(55,65,81,0.3)",
+                      textAlign: "left",
+                      cursor: "pointer",
+                      transition: "all 0.2s",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (selectedImageIdx !== idx) {
+                        e.currentTarget.style.background = "rgba(55,65,81,0.2)";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (selectedImageIdx !== idx) {
+                        e.currentTarget.style.background = "transparent";
+                      }
+                    }}
+                  >
+                    <div style={{ fontSize: 12, color: "#cbd5e1", fontWeight: 600 }}>
+                      {idx + 1}. {editingFileNames[idx]}
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* 오른쪽: 파일명 & 형식 & 폴더 */}
         <div
           style={{
             display: "flex",
-            flexDirection: "column",
-            gap: 16,
-            flex: 1,
-            minWidth: 320,
+            gap: 10,
+            justifyContent: "flex-end",
+            borderTop: "1px solid rgba(55,65,81,0.5)",
+            paddingTop: 16,
           }}
         >
-          <div
+          <button
+            onClick={onClose}
+            disabled={isDownloading}
             style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
+              padding: "10px 16px",
+              borderRadius: 8,
+              border: "1px solid rgba(107,114,128,0.6)",
+              background: "transparent",
+              color: "#9ca3af",
+              fontWeight: 700,
+              fontSize: 13,
+              cursor: isDownloading ? "default" : "pointer",
             }}
           >
-            <div style={{ fontSize: 18, fontWeight: 900, color: "#e5e7eb" }}>
-              ⬇️ 다운로드
-            </div>
-            <button
-              onClick={onClose}
-              style={{
-                background: "transparent",
-                border: "none",
-                fontSize: 24,
-                color: "#cbd5e1",
-                cursor: "pointer",
-                padding: 0,
-                width: 32,
-                height: 32,
-              }}
-            >
-              ✕
-            </button>
-          </div>
-
-          {/* 파일명 입력 */}
-          <div>
-            <label
-              style={{
-                display: "block",
-                fontSize: 18,
-                color: "#cbd5e1",
-                marginBottom: 6,
-              }}
-            >
-              파일명
-            </label>
-            <input
-              type="text"
-              value={modal.fileName}
-              onChange={(e) => onFileNameChange(e.target.value)}
-              placeholder="파일명 입력"
-              style={{
-                width: "100%",
-                padding: "10px 12px",
-                borderRadius: 10,
-                border: "1px solid #374151",
-                background: "#020617",
-                color: "#e5e7eb",
-                outline: "none",
-                fontSize: 14,
-                boxSizing: "border-box",
-              }}
-            />
-            <div style={{ fontSize: 15, color: "#6b7280", marginTop: 4 }}>
-              기본값: {nameWithoutExt}
-            </div>
-          </div>
-
-          {/* 파일 형식 선택 */}
-          <div>
-            <label
-              style={{
-                display: "block",
-                fontSize: 18,
-                color: "#cbd5e1",
-                marginBottom: 6,
-              }}
-            >
-              파일 형식
-            </label>
-            <select
-              value={modal.format}
-              onChange={(e) => onFormatChange(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "10px 12px",
-                borderRadius: 10,
-                border: "1px solid #374151",
-                background: "#020617",
-                color: "#e5e7eb",
-                outline: "none",
-                fontSize: 14,
-                boxSizing: "border-box",
-              }}
-            >
-              {formats.map((fmt) => (
-                <option key={fmt.value} value={fmt.value}>
-                  {fmt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* 다운로드 폴더 경로 선택 */}
-          <div>
-            <label
-              style={{
-                display: "block",
-                fontSize: 18,
-                color: "#cbd5e1",
-                marginBottom: 6,
-              }}
-            >
-              다운로드 폴더
-            </label>
-            <div style={{ display: "flex", gap: 8 }}>
-              <input
-                type="text"
-                value={modal.folderPath || "기본 다운로드 폴더"}
-                readOnly
-                placeholder="폴더 선택 버튼을 눌러주세요"
-                style={{
-                  flex: 1,
-                  padding: "10px 12px",
-                  borderRadius: 10,
-                  border: "1px solid #374151",
-                  background: "#020617",
-                  color: modal.folderPath ? "#4ade80" : "#6b7280",
-                  outline: "none",
-                  fontSize: 14,
-                  boxSizing: "border-box",
-                }}
-              />
-              <button
-                onClick={handlePathSelect}
-                style={{
-                  padding: "10px 14px",
-                  borderRadius: 10,
-                  border: "1px solid #374151",
-                  background: "rgba(34,197,94,0.1)",
-                  color: "#4ade80",
-                  fontWeight: 700,
-                  fontSize: 18,
-                  cursor: "pointer",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                📁 선택
-              </button>
-            </div>
-            {showPathInput && (
-              <input
-                type="text"
-                placeholder="폴더 경로를 입력하세요 (예: Downloads, Documents)"
-                onChange={(e) => onPathChange(e.target.value)}
-                autoFocus
-                style={{
-                  width: "100%",
-                  padding: "8px 10px",
-                  borderRadius: 8,
-                  border: "1px solid #22c55e",
-                  background: "#020617",
-                  color: "#e5e7eb",
-                  outline: "none",
-                  fontSize: 18,
-                  marginTop: 8,
-                  boxSizing: "border-box",
-                }}
-              />
-            )}
-            <div
-              style={{
-                fontSize: 15,
-                color: "#6b7280",
-                marginTop: 6,
-              }}
-            >
-              {modal.folderPath
-                ? `선택됨: ${modal.folderPath}`
-                : "기본 다운로드 폴더로 저장됩니다"}
-            </div>
-          </div>
-
-          {/* 다운로드 파일명 미리보기 */}
-          <div
+            취소
+          </button>
+          <button
+            onClick={handleDownload}
+            disabled={isDownloading}
             style={{
-              padding: 12,
-              borderRadius: 10,
-              background: "rgba(15,23,42,0.9)",
-              border: "1px solid rgba(55,65,81,0.5)",
+              padding: "10px 16px",
+              borderRadius: 8,
+              border: "none",
+              background: isDownloading ? "#4b5563" : "#22c55e",
+              color: isDownloading ? "#9ca3af" : "#022c22",
+              fontWeight: 900,
+              fontSize: 13,
+              cursor: isDownloading ? "default" : "pointer",
             }}
           >
-            <div style={{ fontSize: 17, color: "#9ca3af", marginBottom: 6 }}>
-              다운로드 파일명
-            </div>
-            <div
-              style={{
-                fontSize: 14,
-                color: "#22c55e",
-                fontWeight: 700,
-                wordBreak: "break-all",
-              }}
-            >
-              {modal.fileName || nameWithoutExt}
-              {modal.format === "original"
-                ? modal.image.fileName.match(/\.[^/.]+$/)?.[0] || ".png"
-                : `.${modal.format}`}
-            </div>
-          </div>
-
-          {/* 버튼 */}
-          <div style={{ display: "flex", gap: 10, marginTop: "auto" }}>
-            <button
-              onClick={onDownload}
-              style={{
-                flex: 1,
-                padding: "10px 16px",
-                borderRadius: 10,
-                border: "none",
-                background: "linear-gradient(135deg, #22c55e, #16a34a)",
-                color: "#022c22",
-                fontWeight: 900,
-                fontSize: 14,
-                cursor: "pointer",
-              }}
-            >
-              ⬇️ 다운로드
-            </button>
-            <button
-              onClick={onClose}
-              style={{
-                flex: 1,
-                padding: "10px 16px",
-                borderRadius: 10,
-                border: "1px solid rgba(55,65,81,0.9)",
-                background: "transparent",
-                color: "#9ca3af",
-                fontWeight: 700,
-                fontSize: 14,
-                cursor: "pointer",
-              }}
-            >
-              취소
-            </button>
-          </div>
+            {isDownloading ? "다운로드 중..." : "다운로드"}
+          </button>
         </div>
       </div>
     </div>
   );
 }
 
-/** ─────────────────────────────────────────────
-    메인 페이지
-    ───────────────────────────────────────────── */
-
 export default function SigImageManagePage() {
-  // 선택 상태
   const [program, setProgram] = useState("muse");
   const [groups, setGroups] = useState([]);
   const [selectedGroup, setSelectedGroup] = useState(null);
 
-  // 이미지 목록 & 로딩
   const [images, setImages] = useState([]);
   const [loadingGroups, setLoadingGroups] = useState(false);
   const [loadingImages, setLoadingImages] = useState(false);
 
-  // 업로드 관련
   const [useCustomName, setUseCustomName] = useState(false);
   const [customFileName, setCustomFileName] = useState("");
   const inputRef = useRef(null);
 
-  // 선택 & 삭제
   const [selectedImages, setSelectedImages] = useState(new Set());
   const [deletingPaths, setDeletingPaths] = useState(new Set());
 
-  // 파일명 변경
   const [renamingPath, setRenamingPath] = useState(null);
   const [renameValue, setRenameValue] = useState("");
 
-  // 미리보기 & 메시지
   const [previewImage, setPreviewImage] = useState(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-
-  // 검색
   const [searchQuery, setSearchQuery] = useState("");
 
-  // 다운로드 모달
-  const [downloadModal, setDownloadModal] = useState({
-    open: false,
-    image: null,
-    fileName: "",
-    format: "original",
-    folderPath: "",
-  });
+  const [showBulkDownloadModal, setShowBulkDownloadModal] = useState(false);
 
   const clearToast = () => {
     setMessage("");
     setError("");
   };
-
-  // 다운로드 모달 열기
-  const openDownloadModal = useCallback((image) => {
-    const nameWithoutExt = image.fileName.replace(/\.[^/.]+$/, "");
-    setDownloadModal({
-      open: true,
-      image,
-      fileName: nameWithoutExt,
-      format: "original",
-      folderPath: "",
-    });
-  }, []);
-
-  // 다운로드 모달 닫기
-  const closeDownloadModal = useCallback(() => {
-    setDownloadModal({
-      open: false,
-      image: null,
-      fileName: "",
-      format: "original",
-      folderPath: "",
-    });
-  }, []);
-
-  // 이미지 다운로드 실행
-  const handleDownloadImage = useCallback(async () => {
-    const { image, fileName, format } = downloadModal;
-    if (!image) return;
-
-    const finalFileName = fileName.trim() || image.fileName.replace(/\.[^/.]+$/, "");
-    const getFileExtension = () => {
-      if (format === "original") {
-        const match = image.fileName.match(/\.[^/.]+$/);
-        return match ? match[0] : ".png";
-      }
-      return `.${format}`;
-    };
-    const extension = getFileExtension();
-    const downloadFileName = `${finalFileName}${extension}`;
-
-    try {
-      const response = await fetch(image.url);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = downloadFileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      setMessage(`"${downloadFileName}" 다운로드 완료`);
-      closeDownloadModal();
-    } catch (e) {
-      setError("다운로드 실패");
-      console.error(e);
-    }
-  }, [downloadModal, closeDownloadModal]);
-
-  /** ─────────────────────────────────────────────
-      ① 프로그램 선택 시: 그룹 목록 로드
-      ───────────────────────────────────────────── */
 
   const loadGroupList = useCallback(async () => {
     setLoadingGroups(true);
@@ -721,10 +525,6 @@ export default function SigImageManagePage() {
     loadGroupList();
   }, [loadGroupList]);
 
-  /** ─────────────────────────────────────────────
-      ② 그룹 클릭 시: 해당 그룹의 이미지 로드
-      ───────────────────────────────────────────── */
-
   const loadGroupImages = useCallback(async (group) => {
     setLoadingImages(true);
     setError("");
@@ -741,10 +541,6 @@ export default function SigImageManagePage() {
       setLoadingImages(false);
     }
   }, [program]);
-
-  /** ─────────────────────────────────────────────
-      ③ 파일 선택 & 유효성 검사
-      ───────────────────────────────────────────── */
 
   const isImageFile = (fileName) => {
     const lower = String(fileName || "").toLowerCase();
@@ -848,10 +644,6 @@ export default function SigImageManagePage() {
     e.stopPropagation();
   }, []);
 
-  /** ─────────────────────────────────────────────
-      ④ 삭제 로직
-      ───────────────────────────────────────────── */
-
   const handleDeleteSingle = useCallback(
     async (image) => {
       const ok = window.confirm(
@@ -930,9 +722,25 @@ export default function SigImageManagePage() {
     }
   }, [selectedImages, selectedGroup, loadGroupImages]);
 
-  /** ─────────────────────────────────────────────
-      ⑤ 토글 선택 (체크박스)
-      ───────────────────────────────────────────── */
+  const handleBulkDownload = async (imagesToDownload, downloadPath) => {
+    for (const img of imagesToDownload) {
+      try {
+        const response = await fetch(img.url);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = img.fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      } catch (e) {
+        console.error(`다운로드 실패: ${img.fileName}`, e);
+      }
+    }
+    setMessage(`${imagesToDownload.length}개 파일이 다운로드되었습니다.`);
+  };
 
   const toggleImageSelection = useCallback((fullPath) => {
     setSelectedImages((prev) => {
@@ -1004,10 +812,6 @@ export default function SigImageManagePage() {
     [program, selectedGroup, renameValue, loadGroupImages, handleRenameCancel]
   );
 
-  /** ─────────────────────────────────────────────
-      ⑥ UI 계산값
-      ───────────────────────────────────────────── */
-
   const currentFolderPath = useMemo(() => {
     if (!selectedGroup) return "";
     return `images/${program}/${selectedGroup}/`;
@@ -1064,15 +868,16 @@ export default function SigImageManagePage() {
     }
   }, [filteredImages, selectedImages.size]);
 
-  // ═══════════════════════════════════════════════════════════════
-  // 렌더링
-  // ═══════════════════════════════════════════════════════════════
+  const getSelectedImagesData = useCallback(() => {
+    return Array.from(selectedImages).map((path) =>
+      images.find((img) => img.fullPath === path)
+    ).filter(Boolean);
+  }, [selectedImages, images]);
 
   return (
     <div style={{ padding: 16 }}>
       <ToastInline message={message} error={error} onClear={clearToast} />
 
-      {/* 상단: 제목 + 프로그램 선택 */}
       <div
         style={{
           display: "flex",
@@ -1084,11 +889,11 @@ export default function SigImageManagePage() {
         }}
       >
         <div>
-          <div style={{ fontSize: 15, fontWeight: 900, marginBottom: 6 }}>
+          <div style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>
             🖼️ 시그 이미지 관리
           </div>
-          <div style={{ fontSize: 18, color: "#9ca3af" }}>
-            프로그램별 그룹 폴더 내 이미지를 업로드, 삭제, 미리보기합니다.
+          <div style={{ fontSize: 15, color: "#9ca3af" }}>
+            프로그램별 그룹 폴더 내 이미지 업로드, 삭제, 미리보기
           </div>
         </div>
 
@@ -1096,7 +901,7 @@ export default function SigImageManagePage() {
           <label
             style={{
               display: "block",
-              fontSize: 17,
+              fontSize: 15,
               color: "#cbd5e1",
               marginBottom: 6,
             }}
@@ -1114,7 +919,7 @@ export default function SigImageManagePage() {
               background: "#020617",
               color: "#e5e7eb",
               outline: "none",
-              fontSize: 14,
+              fontSize: 16,
             }}
           >
             {PROGRAMS.map((p) => (
@@ -1126,7 +931,6 @@ export default function SigImageManagePage() {
         </div>
       </div>
 
-      {/* 레이아웃: 좌측(그룹 목록) + 우측(이미지 관리) */}
       <div
         style={{
           display: "grid",
@@ -1134,7 +938,6 @@ export default function SigImageManagePage() {
           gap: 16,
         }}
       >
-        {/* 좌측: 그룹 폴더 목록 */}
         <div
           style={{
             borderRadius: 14,
@@ -1149,13 +952,13 @@ export default function SigImageManagePage() {
             overflow: "hidden",
           }}
         >
-          <div style={{ fontSize: 18, fontWeight: 900, color: "#e5e7eb" }}>
+          <div style={{ fontSize: 15, fontWeight: 900, color: "#e5e7eb" }}>
             📁 그룹 목록
           </div>
 
           <div
             style={{
-              fontSize: 15,
+              fontSize: 13,
               color: "#6b7280",
               paddingBottom: 8,
               borderBottom: "1px solid rgba(55,65,81,0.5)",
@@ -1188,11 +991,11 @@ export default function SigImageManagePage() {
             }}
           >
             {loadingGroups ? (
-              <div style={{ fontSize: 17, color: "#9ca3af", padding: 8 }}>
+              <div style={{ fontSize: 15, color: "#9ca3af", padding: 8 }}>
                 그룹을 불러오는 중...
               </div>
             ) : groups.filter((g) => g.hasFiles).length === 0 ? (
-              <div style={{ fontSize: 17, color: "#6b7280", padding: 8 }}>
+              <div style={{ fontSize: 15, color: "#6b7280", padding: 8 }}>
                 파일이 있는 그룹이 없습니다.
               </div>
             ) : (
@@ -1217,7 +1020,7 @@ export default function SigImageManagePage() {
                         : "rgba(2,6,23,0.5)",
                       color: isSelected ? "#4ade80" : "#cbd5e1",
                       fontWeight: isSelected ? 800 : 600,
-                      fontSize: 17,
+                      fontSize: 18,
                       cursor: "pointer",
                       textAlign: "left",
                       transition: "all 0.2s",
@@ -1242,9 +1045,7 @@ export default function SigImageManagePage() {
           </div>
         </div>
 
-        {/* 우측: 이미지 업로드 & 관리 */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {/* 업로드 섹션 */}
           {selectedGroup && (
             <div
               style={{
@@ -1254,7 +1055,7 @@ export default function SigImageManagePage() {
                 padding: 14,
               }}
             >
-              <div style={{ fontSize: 18, fontWeight: 900, marginBottom: 12 }}>
+              <div style={{ fontSize: 15, fontWeight: 900, marginBottom: 12 }}>
                 ⬆️ 이미지 업로드
               </div>
 
@@ -1276,10 +1077,10 @@ export default function SigImageManagePage() {
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <div style={{ fontSize: 28 }}>📸</div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 18, fontWeight: 800 }}>
+                    <div style={{ fontSize: 15, fontWeight: 800 }}>
                       여기에 파일을 드롭하거나 클릭하세요
                     </div>
-                    <div style={{ fontSize: 17, color: "#9ca3af", marginTop: 4 }}>
+                    <div style={{ fontSize: 15, color: "#9ca3af", marginTop: 4 }}>
                       허용: JPG, PNG, GIF, WebP (다중 선택 가능)
                     </div>
                   </div>
@@ -1295,7 +1096,6 @@ export default function SigImageManagePage() {
                 onChange={onPickFiles}
               />
 
-              {/* 저장 파일명 커스터마이즈 */}
               <div style={{ marginTop: 12 }}>
                 <label
                   style={{
@@ -1311,7 +1111,7 @@ export default function SigImageManagePage() {
                     checked={useCustomName}
                     onChange={(e) => setUseCustomName(e.target.checked)}
                   />
-                  <span style={{ fontSize: 17, color: "#cbd5e1" }}>
+                  <span style={{ fontSize: 15, color: "#cbd5e1" }}>
                     저장 시 파일명 직접 지정하기
                   </span>
                 </label>
@@ -1330,14 +1130,14 @@ export default function SigImageManagePage() {
                       background: "#020617",
                       color: "#e5e7eb",
                       outline: "none",
-                      fontSize: 17,
+                      fontSize: 15,
                     }}
                   />
                 )}
 
                 <div
                   style={{
-                    fontSize: 15,
+                    fontSize: 13,
                     color: "#6b7280",
                     marginTop: 6,
                   }}
@@ -1348,7 +1148,6 @@ export default function SigImageManagePage() {
             </div>
           )}
 
-          {/* 이미지 목록 섹션 */}
           <div
             style={{
               borderRadius: 14,
@@ -1361,7 +1160,6 @@ export default function SigImageManagePage() {
               height: 600,
             }}
           >
-            {/* 헤더 */}
             <div
               style={{
                 display: "flex",
@@ -1372,7 +1170,7 @@ export default function SigImageManagePage() {
               }}
             >
               <div>
-                <div style={{ fontSize: 18, fontWeight: 900, color: "#e5e7eb" }}>
+                <div style={{ fontSize: 15, fontWeight: 900, color: "#e5e7eb" }}>
                   📷 이미지 목록
                 </div>
                 {selectedGroup && (
@@ -1384,15 +1182,7 @@ export default function SigImageManagePage() {
                 )}
               </div>
 
-              <div
-                style={{
-                  display: "flex",
-                  gap: 10,
-                  alignItems: "center",
-                  flexWrap: "wrap",
-                }}
-              >
-                {/* 검색창 */}
+              <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
                 <input
                   type="text"
                   placeholder="이미지명 검색..."
@@ -1404,7 +1194,7 @@ export default function SigImageManagePage() {
                     border: "1px solid rgba(55,65,81,0.9)",
                     background: "rgba(2,6,23,0.8)",
                     color: "#e5e7eb",
-                    fontSize: 17,
+                    fontSize: 15,
                     outline: "none",
                     minWidth: 180,
                     transition: "border-color 0.2s",
@@ -1418,51 +1208,60 @@ export default function SigImageManagePage() {
                 />
 
                 {selectedImages.size > 0 && (
-                  <button
-                    onClick={handleBulkDelete}
-                    disabled={deletingPaths.size > 0}
-                    style={{
-                      padding: "8px 12px",
-                      borderRadius: 999,
-                      border: "1px solid rgba(248,113,113,0.6)",
-                      background: "transparent",
-                      color: deletingPaths.size > 0 ? "#fecaca" : "#fda4af",
-                      fontWeight: 900,
-                      fontSize: 17,
-                      cursor: deletingPaths.size > 0 ? "default" : "pointer",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    🗑️ 선택한 파일 삭제 ({selectedImages.size})
-                  </button>
+                  <>
+                    <button
+                      onClick={() => setShowBulkDownloadModal(true)}
+                      style={{
+                        padding: "8px 12px",
+                        borderRadius: 999,
+                        border: "1px solid rgba(59,130,246,0.6)",
+                        background: "transparent",
+                        color: "#93c5fd",
+                        fontWeight: 900,
+                        fontSize: 15,
+                        cursor: "pointer",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      ⬇️ 다운로드 ({selectedImages.size})
+                    </button>
+                    <button
+                      onClick={handleBulkDelete}
+                      disabled={deletingPaths.size > 0}
+                      style={{
+                        padding: "8px 12px",
+                        borderRadius: 999,
+                        border: "1px solid rgba(248,113,113,0.6)",
+                        background: "transparent",
+                        color: deletingPaths.size > 0 ? "#fecaca" : "#fda4af",
+                        fontWeight: 900,
+                        fontSize: 15,
+                        cursor: deletingPaths.size > 0 ? "default" : "pointer",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      🗑️ 삭제 ({selectedImages.size})
+                    </button>
+                  </>
                 )}
               </div>
             </div>
 
-            {/* 이미지 그리드 */}
-            <div
-              style={{
-                flex: 1,
-                overflow: "auto",
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
+            <div style={{ flex: 1, overflow: "auto", display: "flex", flexDirection: "column" }}>
               {!selectedGroup ? (
-                <div style={{ padding: 16, color: "#6b7280", fontSize: 13 }}>
+                <div style={{ padding: 16, color: "#6b7280", fontSize: 15 }}>
                   그룹을 선택하세요.
                 </div>
               ) : loadingImages ? (
-                <div style={{ padding: 16, color: "#9ca3af", fontSize: 13 }}>
+                <div style={{ padding: 16, color: "#9ca3af", fontSize: 15 }}>
                   이미지를 불러오는 중...
                 </div>
               ) : images.length === 0 ? (
-                <div style={{ padding: 16, color: "#6b7280", fontSize: 13 }}>
+                <div style={{ padding: 16, color: "#6b7280", fontSize: 15 }}>
                   이 그룹에 이미지가 없습니다.
                 </div>
               ) : (
                 <>
-                  {/* 전체 선택 토글 */}
                   <div
                     style={{
                       padding: "8px 12px",
@@ -1481,18 +1280,16 @@ export default function SigImageManagePage() {
                       }
                       onChange={toggleAllSelection}
                     />
-                    <span style={{ fontSize: 17, color: "#cbd5e1" }}>
+                    <span style={{ fontSize: 15, color: "#cbd5e1" }}>
                       전체 선택
                     </span>
                   </div>
 
-                  {/* 검색 결과 없음 */}
                   {filteredImages.length === 0 && searchQuery ? (
-                    <div style={{ padding: 16, color: "#6b7280", fontSize: 17 }}>
+                    <div style={{ padding: 16, color: "#6b7280", fontSize: 15 }}>
                       "{searchQuery}"에 일치하는 이미지가 없습니다.
                     </div>
                   ) : (
-                    /* 이미지 카드 그리드 */
                     <div
                       style={{
                         display: "grid",
@@ -1520,7 +1317,6 @@ export default function SigImageManagePage() {
                               flexDirection: "column",
                             }}
                           >
-                            {/* 이미지 미리보기 */}
                             <div
                               style={{
                                 position: "relative",
@@ -1543,7 +1339,6 @@ export default function SigImageManagePage() {
                                 onClick={() => setPreviewImage(img)}
                               />
 
-                              {/* NEW 배지 + 체크박스 오버레이 */}
                               {isUploadedToday(img.fullPath) && (
                                 <div
                                   style={{
@@ -1554,7 +1349,7 @@ export default function SigImageManagePage() {
                                     color: "#022c22",
                                     padding: "2px 8px",
                                     borderRadius: 4,
-                                    fontSize: 15,
+                                    fontSize: 14,
                                     fontWeight: 900,
                                     letterSpacing: "0.05em",
                                   }}
@@ -1584,7 +1379,6 @@ export default function SigImageManagePage() {
                               </div>
                             </div>
 
-                            {/* 파일명 & 버튼 */}
                             <div
                               style={{
                                 padding: 10,
@@ -1594,19 +1388,11 @@ export default function SigImageManagePage() {
                               }}
                             >
                               {renamingPath === img.fullPath ? (
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    gap: 6,
-                                  }}
-                                >
+                                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                                   <input
                                     type="text"
                                     value={renameValue}
-                                    onChange={(e) =>
-                                      setRenameValue(e.target.value)
-                                    }
+                                    onChange={(e) => setRenameValue(e.target.value)}
                                     autoFocus
                                     style={{
                                       padding: "4px 6px",
@@ -1618,10 +1404,8 @@ export default function SigImageManagePage() {
                                       outline: "none",
                                     }}
                                     onKeyDown={(e) => {
-                                      if (e.key === "Enter")
-                                        handleRenameSubmit(img);
-                                      if (e.key === "Escape")
-                                        handleRenameCancel();
+                                      if (e.key === "Enter") handleRenameSubmit(img);
+                                      if (e.key === "Escape") handleRenameCancel();
                                     }}
                                   />
                                   <div style={{ display: "flex", gap: 4 }}>
@@ -1637,9 +1421,7 @@ export default function SigImageManagePage() {
                                         color: "#022c22",
                                         fontWeight: 700,
                                         fontSize: 14,
-                                        cursor: isDeleting
-                                          ? "default"
-                                          : "pointer",
+                                        cursor: isDeleting ? "default" : "pointer",
                                       }}
                                     >
                                       ✓
@@ -1656,9 +1438,7 @@ export default function SigImageManagePage() {
                                         color: "#9ca3af",
                                         fontWeight: 700,
                                         fontSize: 14,
-                                        cursor: isDeleting
-                                          ? "default"
-                                          : "pointer",
+                                        cursor: isDeleting ? "default" : "pointer",
                                       }}
                                     >
                                       ×
@@ -1669,7 +1449,7 @@ export default function SigImageManagePage() {
                                 <>
                                   <div
                                     style={{
-                                      fontSize: 15,
+                                      fontSize: 14,
                                       color: "#cbd5e1",
                                       fontWeight: 700,
                                       wordBreak: "break-word",
@@ -1677,52 +1457,19 @@ export default function SigImageManagePage() {
                                   >
                                     {img.fileName}
                                   </div>
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      gap: 4,
-                                      flexDirection: "column",
-                                    }}
-                                  >
-                                    <button
-                                      onClick={() => openDownloadModal(img)}
-                                      disabled={isDeleting}
-                                      style={{
-                                        padding: "4px 8px",
-                                        borderRadius: 6,
-                                        border:
-                                          "1px solid rgba(59,130,246,0.6)",
-                                        background: "transparent",
-                                        color: isDeleting
-                                          ? "#9ca3af"
-                                          : "#93c5fd",
-                                        fontWeight: 600,
-                                        fontSize: 14,
-                                        cursor: isDeleting
-                                          ? "default"
-                                          : "pointer",
-                                        whiteSpace: "nowrap",
-                                      }}
-                                    >
-                                      ⬇️ 다운로드
-                                    </button>
+                                  <div style={{ display: "flex", gap: 4, flexDirection: "column" }}>
                                     <button
                                       onClick={() => handleRenameStart(img)}
                                       disabled={isDeleting}
                                       style={{
                                         padding: "4px 8px",
                                         borderRadius: 6,
-                                        border:
-                                          "1px solid rgba(139,92,246,0.6)",
+                                        border: "1px solid rgba(139,92,246,0.6)",
                                         background: "transparent",
-                                        color: isDeleting
-                                          ? "#9ca3af"
-                                          : "#d8b4fe",
+                                        color: isDeleting ? "#9ca3af" : "#d8b4fe",
                                         fontWeight: 600,
                                         fontSize: 14,
-                                        cursor: isDeleting
-                                          ? "default"
-                                          : "pointer",
+                                        cursor: isDeleting ? "default" : "pointer",
                                         whiteSpace: "nowrap",
                                       }}
                                     >
@@ -1734,17 +1481,12 @@ export default function SigImageManagePage() {
                                       style={{
                                         padding: "4px 8px",
                                         borderRadius: 6,
-                                        border:
-                                          "1px solid rgba(248,113,113,0.6)",
+                                        border: "1px solid rgba(248,113,113,0.6)",
                                         background: "transparent",
-                                        color: isDeleting
-                                          ? "#fecaca"
-                                          : "#fda4af",
+                                        color: isDeleting ? "#fecaca" : "#fda4af",
                                         fontWeight: 600,
                                         fontSize: 14,
-                                        cursor: isDeleting
-                                          ? "default"
-                                          : "pointer",
+                                        cursor: isDeleting ? "default" : "pointer",
                                         whiteSpace: "nowrap",
                                       }}
                                     >
@@ -1766,27 +1508,18 @@ export default function SigImageManagePage() {
         </div>
       </div>
 
-      {/* 이미지 미리보기 모달 */}
       <ImagePreviewModal
         image={previewImage}
         onClose={() => setPreviewImage(null)}
       />
 
-      {/* 다운로드 모달 */}
-      <DownloadModal
-        modal={downloadModal}
-        onClose={closeDownloadModal}
-        onDownload={handleDownloadImage}
-        onFileNameChange={(fileName) =>
-          setDownloadModal((prev) => ({ ...prev, fileName }))
-        }
-        onFormatChange={(format) =>
-          setDownloadModal((prev) => ({ ...prev, format }))
-        }
-        onPathChange={(folderPath) =>
-          setDownloadModal((prev) => ({ ...prev, folderPath }))
-        }
-      />
+      {showBulkDownloadModal && (
+        <BulkDownloadModal
+          images={getSelectedImagesData()}
+          onClose={() => setShowBulkDownloadModal(false)}
+          onDownload={handleBulkDownload}
+        />
+      )}
     </div>
   );
 }
