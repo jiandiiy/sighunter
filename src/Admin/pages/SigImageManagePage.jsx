@@ -90,7 +90,7 @@ function ToastInline({ message, error, onClear }) {
         background: isError ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)",
         border: `1px solid ${isError ? "#ef4444" : "#22c55e"}`,
         color: isError ? "#f97373" : "#4ade80",
-        fontSize: 14,
+        fontSize: 20,
         fontWeight: 700,
         boxShadow: "0 8px 24px rgba(0,0,0,0.35)",
         backdropFilter: "blur(8px)",
@@ -176,12 +176,196 @@ function ImagePreviewModal({ image, onClose }) {
         </div>
 
         <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: 18, color: "#cbd5e1", fontWeight: 800 }}>
+          <div style={{ fontSize: 17, color: "#cbd5e1", fontWeight: 800 }}>
             {image.fileName}
           </div>
-          <div style={{ fontSize: 14, color: "#6b7280", marginTop: 4 }}>
+          <div style={{ fontSize: 15, color: "#6b7280", marginTop: 4 }}>
             {image.fullPath}
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** ─────────────────────────────────────────────
+    다운로드 모달 컴포넌트
+    ───────────────────────────────────────────── */
+
+function DownloadModal({ modal, onClose, onDownload, onFileNameChange, onFormatChange }) {
+  if (!modal.open || !modal.image) return null;
+
+  const nameWithoutExt = modal.image.fileName.replace(/\.[^/.]+$/, "");
+  const formats = [
+    { value: "original", label: "원본 형식" },
+    { value: "jpg", label: "JPG" },
+    { value: "png", label: "PNG" },
+    { value: "webp", label: "WebP" },
+    { value: "gif", label: "GIF" },
+  ];
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.8)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 10001,
+        backdropFilter: "blur(4px)",
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: "#020617",
+          borderRadius: 16,
+          padding: 24,
+          minWidth: 380,
+          display: "flex",
+          flexDirection: "column",
+          gap: 16,
+          border: "1px solid rgba(55,65,81,0.9)",
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ fontSize: 18, fontWeight: 900, color: "#e5e7eb" }}>
+            ⬇️ 이미지 다운로드
+          </div>
+          <button
+            onClick={onClose}
+            style={{
+              background: "transparent",
+              border: "none",
+              fontSize: 24,
+              color: "#cbd5e1",
+              cursor: "pointer",
+              padding: 0,
+              width: 32,
+              height: 32,
+            }}
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* 파일명 입력 */}
+        <div>
+          <label style={{ display: "block", fontSize: 17, color: "#cbd5e1", marginBottom: 6 }}>
+            파일명
+          </label>
+          <input
+            type="text"
+            value={modal.fileName}
+            onChange={(e) => onFileNameChange(e.target.value)}
+            placeholder="파일명 입력"
+            style={{
+              width: "100%",
+              padding: "10px 12px",
+              borderRadius: 10,
+              border: "1px solid #374151",
+              background: "#020617",
+              color: "#e5e7eb",
+              outline: "none",
+              fontSize: 17,
+              boxSizing: "border-box",
+            }}
+          />
+          <div style={{ fontSize: 15, color: "#6b7280", marginTop: 4 }}>
+            기본값: {nameWithoutExt}
+          </div>
+        </div>
+
+        {/* 파일 형식 선택 */}
+        <div>
+          <label style={{ display: "block", fontSize: 17, color: "#cbd5e1", marginBottom: 6 }}>
+            파일 형식
+          </label>
+          <select
+            value={modal.format}
+            onChange={(e) => onFormatChange(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "10px 12px",
+              borderRadius: 10,
+              border: "1px solid #374151",
+              background: "#020617",
+              color: "#e5e7eb",
+              outline: "none",
+              fontSize: 17,
+              boxSizing: "border-box",
+            }}
+          >
+            {formats.map((fmt) => (
+              <option key={fmt.value} value={fmt.value}>
+                {fmt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* 미리보기 */}
+        <div
+          style={{
+            padding: 12,
+            borderRadius: 10,
+            background: "rgba(15,23,42,0.9)",
+            border: "1px solid rgba(55,65,81,0.5)",
+          }}
+        >
+          <div style={{ fontSize: 12, color: "#9ca3af", marginBottom: 6 }}>다운로드 파일명</div>
+          <div
+            style={{
+              fontSize: 17,
+              color: "#22c55e",
+              fontWeight: 700,
+              wordBreak: "break-all",
+            }}
+          >
+            {(modal.fileName || nameWithoutExt)}
+            {modal.format === "original"
+              ? modal.image.fileName.match(/\.[^/.]+$/)?.[0] || ".png"
+              : `.${modal.format}`}
+          </div>
+        </div>
+
+        {/* 버튼 */}
+        <div style={{ display: "flex", gap: 10 }}>
+          <button
+            onClick={onDownload}
+            style={{
+              flex: 1,
+              padding: "10px 16px",
+              borderRadius: 10,
+              border: "none",
+              background: "linear-gradient(135deg, #22c55e, #16a34a)",
+              color: "#022c22",
+              fontWeight: 900,
+              fontSize: 17,
+              cursor: "pointer",
+            }}
+          >
+            ⬇️ 다운로드
+          </button>
+          <button
+            onClick={onClose}
+            style={{
+              flex: 1,
+              padding: "10px 16px",
+              borderRadius: 10,
+              border: "1px solid rgba(55,65,81,0.9)",
+              background: "transparent",
+              color: "#9ca3af",
+              fontWeight: 700,
+              fontSize: 17,
+              cursor: "pointer",
+            }}
+          >
+            취소
+          </button>
         </div>
       </div>
     </div>
@@ -224,10 +408,69 @@ export default function SigImageManagePage() {
   // 검색
   const [searchQuery, setSearchQuery] = useState("");
 
+  // 다운로드 모달
+  const [downloadModal, setDownloadModal] = useState({
+    open: false,
+    image: null,
+    fileName: "",
+    format: "original",
+  });
+
   const clearToast = () => {
     setMessage("");
     setError("");
   };
+
+  // 다운로드 모달 열기
+  const openDownloadModal = useCallback((image) => {
+    const nameWithoutExt = image.fileName.replace(/\.[^/.]+$/, "");
+    setDownloadModal({
+      open: true,
+      image,
+      fileName: nameWithoutExt,
+      format: "original",
+    });
+  }, []);
+
+  // 다운로드 모달 닫기
+  const closeDownloadModal = useCallback(() => {
+    setDownloadModal({ open: false, image: null, fileName: "", format: "original" });
+  }, []);
+
+  // 이미지 다운로드 실행
+  const handleDownloadImage = useCallback(async () => {
+    const { image, fileName, format } = downloadModal;
+    if (!image) return;
+
+    const finalFileName = fileName.trim() || image.fileName.replace(/\.[^/.]+$/, "");
+    const getFileExtension = () => {
+      if (format === "original") {
+        const match = image.fileName.match(/\.[^/.]+$/);
+        return match ? match[0] : ".png";
+      }
+      return `.${format}`;
+    };
+    const extension = getFileExtension();
+    const downloadFileName = `${finalFileName}${extension}`;
+
+    try {
+      const response = await fetch(image.url);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = downloadFileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      setMessage(`"${downloadFileName}" 다운로드 완료`);
+      closeDownloadModal();
+    } catch (e) {
+      setError("다운로드 실패");
+      console.error(e);
+    }
+  }, [downloadModal, closeDownloadModal]);
 
   /** ─────────────────────────────────────────────
       ① 프로그램 선택 시: 그룹 목록 로드
@@ -556,25 +799,6 @@ export default function SigImageManagePage() {
     [program, selectedGroup, renameValue, loadGroupImages, handleRenameCancel]
   );
 
-    // 이미지 다운로드
-const handleDownloadImage = useCallback(async (image) => {
-  try {
-    const response = await fetch(image.url);
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = image.fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
-    setMessage(`"${image.fileName}" 다운로드 완료`);
-  } catch (e) {
-    setError("다운로드 실패");
-    console.error(e);
-  }
-}, []);
   /** ─────────────────────────────────────────────
       ⑥ UI 계산값
       ───────────────────────────────────────────── */
@@ -659,11 +883,11 @@ const handleDownloadImage = useCallback(async (image) => {
         }}
       >
         <div>
-          <div style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>
+          <div style={{ fontSize: 20, fontWeight: 900, marginBottom: 6 }}>
             🖼️ 시그 이미지 관리
           </div>
-          <div style={{ fontSize: 15, color: "#9ca3af" }}>
-            프로그램별 그룹 폴더 내 이미지 업로드, 삭제, 미리보기
+          <div style={{ fontSize: 17, color: "#9ca3af" }}>
+            프로그램별 그룹 폴더 내 이미지를 업로드, 삭제, 미리보기합니다.
           </div>
         </div>
 
@@ -671,7 +895,7 @@ const handleDownloadImage = useCallback(async (image) => {
           <label
             style={{
               display: "block",
-              fontSize: 15,
+              fontSize: 17,
               color: "#cbd5e1",
               marginBottom: 6,
             }}
@@ -689,7 +913,7 @@ const handleDownloadImage = useCallback(async (image) => {
               background: "#020617",
               color: "#e5e7eb",
               outline: "none",
-              fontSize: 16,
+              fontSize: 17,
             }}
           >
             {PROGRAMS.map((p) => (
@@ -724,13 +948,13 @@ const handleDownloadImage = useCallback(async (image) => {
             overflow: "hidden",
           }}
         >
-          <div style={{ fontSize: 15, fontWeight: 900, color: "#e5e7eb" }}>
+          <div style={{ fontSize: 17, fontWeight: 900, color: "#e5e7eb" }}>
             📁 그룹 목록
           </div>
 
           <div
             style={{
-              fontSize: 13,
+              fontSize: 15,
               color: "#6b7280",
               paddingBottom: 8,
               borderBottom: "1px solid rgba(55,65,81,0.5)",
@@ -763,11 +987,11 @@ const handleDownloadImage = useCallback(async (image) => {
             }}
           >
             {loadingGroups ? (
-              <div style={{ fontSize: 15, color: "#9ca3af", padding: 8 }}>
+              <div style={{ fontSize: 16, color: "#9ca3af", padding: 8 }}>
                 그룹을 불러오는 중...
               </div>
             ) : groups.filter((g) => g.hasFiles).length === 0 ? (
-              <div style={{ fontSize: 15, color: "#6b7280", padding: 8 }}>
+              <div style={{ fontSize: 16, color: "#6b7280", padding: 8 }}>
                 파일이 있는 그룹이 없습니다.
               </div>
             ) : (
@@ -792,7 +1016,7 @@ const handleDownloadImage = useCallback(async (image) => {
                         : "rgba(2,6,23,0.5)",
                       color: isSelected ? "#4ade80" : "#cbd5e1",
                       fontWeight: isSelected ? 800 : 600,
-                      fontSize: 18,
+                      fontSize: 16,
                       cursor: "pointer",
                       textAlign: "left",
                       transition: "all 0.2s",
@@ -803,7 +1027,7 @@ const handleDownloadImage = useCallback(async (image) => {
                     </div>
                     <div
                       style={{
-                        fontSize: 15,
+                        fontSize: 16,
                         color: isSelected ? "#4ade80" : "#9ca3af",
                         marginTop: 4,
                       }}
@@ -829,7 +1053,7 @@ const handleDownloadImage = useCallback(async (image) => {
                 padding: 14,
               }}
             >
-              <div style={{ fontSize: 15, fontWeight: 900, marginBottom: 12 }}>
+              <div style={{ fontSize: 17, fontWeight: 900, marginBottom: 12 }}>
                 ⬆️ 이미지 업로드
               </div>
 
@@ -851,10 +1075,10 @@ const handleDownloadImage = useCallback(async (image) => {
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <div style={{ fontSize: 28 }}>📸</div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 15, fontWeight: 800 }}>
+                    <div style={{ fontSize: 17, fontWeight: 800 }}>
                       여기에 파일을 드롭하거나 클릭하세요
                     </div>
-                    <div style={{ fontSize: 15, color: "#9ca3af", marginTop: 4 }}>
+                    <div style={{ fontSize: 16, color: "#9ca3af", marginTop: 4 }}>
                       허용: JPG, PNG, GIF, WebP (다중 선택 가능)
                     </div>
                   </div>
@@ -886,7 +1110,7 @@ const handleDownloadImage = useCallback(async (image) => {
                     checked={useCustomName}
                     onChange={(e) => setUseCustomName(e.target.checked)}
                   />
-                  <span style={{ fontSize: 15, color: "#cbd5e1" }}>
+                  <span style={{ fontSize: 16, color: "#cbd5e1" }}>
                     저장 시 파일명 직접 지정하기
                   </span>
                 </label>
@@ -905,14 +1129,14 @@ const handleDownloadImage = useCallback(async (image) => {
                       background: "#020617",
                       color: "#e5e7eb",
                       outline: "none",
-                      fontSize: 15,
+                      fontSize: 16,
                     }}
                   />
                 )}
 
                 <div
                   style={{
-                    fontSize: 13,
+                    fontSize: 16,
                     color: "#6b7280",
                     marginTop: 6,
                   }}
@@ -947,11 +1171,11 @@ const handleDownloadImage = useCallback(async (image) => {
               }}
             >
               <div>
-                <div style={{ fontSize: 15, fontWeight: 900, color: "#e5e7eb" }}>
+                <div style={{ fontSize: 17, fontWeight: 900, color: "#e5e7eb" }}>
                   📷 이미지 목록
                 </div>
                 {selectedGroup && (
-                  <div style={{ fontSize: 15, color: "#6b7280", marginTop: 4 }}>
+                  <div style={{ fontSize: 16, color: "#6b7280", marginTop: 4 }}>
                     {loadingImages
                       ? "로드 중..."
                       : `총 ${images.length}개 (선택: ${selectedImages.size}개)`}
@@ -972,7 +1196,7 @@ const handleDownloadImage = useCallback(async (image) => {
                     border: "1px solid rgba(55,65,81,0.9)",
                     background: "rgba(2,6,23,0.8)",
                     color: "#e5e7eb",
-                    fontSize: 15,
+                    fontSize: 16,
                     outline: "none",
                     minWidth: 180,
                     transition: "border-color 0.2s",
@@ -996,7 +1220,7 @@ const handleDownloadImage = useCallback(async (image) => {
                       background: "transparent",
                       color: deletingPaths.size > 0 ? "#fecaca" : "#fda4af",
                       fontWeight: 900,
-                      fontSize: 15,
+                      fontSize: 16,
                       cursor: deletingPaths.size > 0 ? "default" : "pointer",
                       whiteSpace: "nowrap",
                     }}
@@ -1017,15 +1241,15 @@ const handleDownloadImage = useCallback(async (image) => {
               }}
             >
               {!selectedGroup ? (
-                <div style={{ padding: 16, color: "#6b7280", fontSize: 15 }}>
+                <div style={{ padding: 16, color: "#6b7280", fontSize: 16 }}>
                   그룹을 선택하세요.
                 </div>
               ) : loadingImages ? (
-                <div style={{ padding: 16, color: "#9ca3af", fontSize: 15 }}>
+                <div style={{ padding: 16, color: "#9ca3af", fontSize: 16 }}>
                   이미지를 불러오는 중...
                 </div>
               ) : images.length === 0 ? (
-                <div style={{ padding: 16, color: "#6b7280", fontSize: 15 }}>
+                <div style={{ padding: 16, color: "#6b7280", fontSize: 16 }}>
                   이 그룹에 이미지가 없습니다.
                 </div>
               ) : (
@@ -1049,14 +1273,14 @@ const handleDownloadImage = useCallback(async (image) => {
                       }
                       onChange={toggleAllSelection}
                     />
-                    <span style={{ fontSize: 15, color: "#cbd5e1" }}>
+                    <span style={{ fontSize: 16, color: "#cbd5e1" }}>
                       전체 선택
                     </span>
                   </div>
 
                   {/* 검색 결과 없음 */}
                   {filteredImages.length === 0 && searchQuery ? (
-                    <div style={{ padding: 16, color: "#6b7280", fontSize: 15 }}>
+                    <div style={{ padding: 16, color: "#6b7280", fontSize: 16 }}>
                       "{searchQuery}"에 일치하는 이미지가 없습니다.
                     </div>
                   ) : (
@@ -1122,7 +1346,7 @@ const handleDownloadImage = useCallback(async (image) => {
                                     color: "#022c22",
                                     padding: "2px 8px",
                                     borderRadius: 4,
-                                    fontSize: 14,
+                                    fontSize: 16,
                                     fontWeight: 900,
                                     letterSpacing: "0.05em",
                                   }}
@@ -1194,7 +1418,7 @@ const handleDownloadImage = useCallback(async (image) => {
                                         background: "#22c55e",
                                         color: "#022c22",
                                         fontWeight: 700,
-                                        fontSize: 14,
+                                        fontSize: 13,
                                         cursor: isDeleting ? "default" : "pointer",
                                       }}
                                     >
@@ -1211,7 +1435,7 @@ const handleDownloadImage = useCallback(async (image) => {
                                         background: "transparent",
                                         color: "#9ca3af",
                                         fontWeight: 700,
-                                        fontSize: 14,
+                                        fontSize: 13,
                                         cursor: isDeleting ? "default" : "pointer",
                                       }}
                                     >
@@ -1233,22 +1457,22 @@ const handleDownloadImage = useCallback(async (image) => {
                                   </div>
                                   <div style={{ display: "flex", gap: 4, flexDirection: "column" }}>
                                     <button
-  onClick={() => handleDownloadImage(img)}
-  disabled={isDeleting}
-  style={{
-    padding: "4px 8px",
-    borderRadius: 6,
-    border: "1px solid rgba(59,130,246,0.6)",
-    background: "transparent",
-    color: isDeleting ? "#9ca3af" : "#93c5fd",
-    fontWeight: 600,
-    fontSize: 14,
-    cursor: isDeleting ? "default" : "pointer",
-    whiteSpace: "nowrap",
-  }}
->
-  ⬇️ 다운로드
-</button>
+                                      onClick={() => openDownloadModal(img)}
+                                      disabled={isDeleting}
+                                      style={{
+                                        padding: "4px 8px",
+                                        borderRadius: 6,
+                                        border: "1px solid rgba(59,130,246,0.6)",
+                                        background: "transparent",
+                                        color: isDeleting ? "#9ca3af" : "#93c5fd",
+                                        fontWeight: 600,
+                                        fontSize: 13,
+                                        cursor: isDeleting ? "default" : "pointer",
+                                        whiteSpace: "nowrap",
+                                      }}
+                                    >
+                                      ⬇️ 다운로드
+                                    </button>
                                     <button
                                       onClick={() => handleRenameStart(img)}
                                       disabled={isDeleting}
@@ -1259,7 +1483,7 @@ const handleDownloadImage = useCallback(async (image) => {
                                         background: "transparent",
                                         color: isDeleting ? "#9ca3af" : "#d8b4fe",
                                         fontWeight: 600,
-                                        fontSize: 14,
+                                        fontSize: 13,
                                         cursor: isDeleting ? "default" : "pointer",
                                         whiteSpace: "nowrap",
                                       }}
@@ -1276,7 +1500,7 @@ const handleDownloadImage = useCallback(async (image) => {
                                         background: "transparent",
                                         color: isDeleting ? "#fecaca" : "#fda4af",
                                         fontWeight: 600,
-                                        fontSize: 14,
+                                        fontSize: 13,
                                         cursor: isDeleting ? "default" : "pointer",
                                         whiteSpace: "nowrap",
                                       }}
@@ -1303,6 +1527,19 @@ const handleDownloadImage = useCallback(async (image) => {
       <ImagePreviewModal
         image={previewImage}
         onClose={() => setPreviewImage(null)}
+      />
+
+      {/* 다운로드 모달 */}
+      <DownloadModal
+        modal={downloadModal}
+        onClose={closeDownloadModal}
+        onDownload={handleDownloadImage}
+        onFileNameChange={(fileName) =>
+          setDownloadModal((prev) => ({ ...prev, fileName }))
+        }
+        onFormatChange={(format) =>
+          setDownloadModal((prev) => ({ ...prev, format }))
+        }
       />
     </div>
   );
