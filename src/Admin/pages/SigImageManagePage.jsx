@@ -556,6 +556,25 @@ export default function SigImageManagePage() {
     [program, selectedGroup, renameValue, loadGroupImages, handleRenameCancel]
   );
 
+    // 이미지 다운로드
+const handleDownloadImage = useCallback(async (image) => {
+  try {
+    const response = await fetch(image.url);
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = image.fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+    setMessage(`"${image.fileName}" 다운로드 완료`);
+  } catch (e) {
+    setError("다운로드 실패");
+    console.error(e);
+  }
+}, []);
   /** ─────────────────────────────────────────────
       ⑥ UI 계산값
       ───────────────────────────────────────────── */
@@ -1213,6 +1232,23 @@ export default function SigImageManagePage() {
                                     {img.fileName}
                                   </div>
                                   <div style={{ display: "flex", gap: 4, flexDirection: "column" }}>
+                                    <button
+  onClick={() => handleDownloadImage(img)}
+  disabled={isDeleting}
+  style={{
+    padding: "4px 8px",
+    borderRadius: 6,
+    border: "1px solid rgba(59,130,246,0.6)",
+    background: "transparent",
+    color: isDeleting ? "#9ca3af" : "#93c5fd",
+    fontWeight: 600,
+    fontSize: 14,
+    cursor: isDeleting ? "default" : "pointer",
+    whiteSpace: "nowrap",
+  }}
+>
+  ⬇️ 다운로드
+</button>
                                     <button
                                       onClick={() => handleRenameStart(img)}
                                       disabled={isDeleting}
