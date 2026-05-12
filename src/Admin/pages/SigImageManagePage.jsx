@@ -12,6 +12,27 @@ import {
   renameImageFile,
 } from "../../resources/storage/sigResourceStorage";
 
+// ⚠️ 보안: 실제 배포 시 환경변수(.env)로 관리하세요
+const TELEGRAM_BOT_TOKEN = process.env.REACT_APP_TELEGRAM_BOT_TOKEN;
+const TELEGRAM_CHAT_ID = process.env.REACT_APP_TELEGRAM_CHAT_ID;
+
+/** 텔레그램 알림 전송 */
+async function sendTelegramNotification(program, group, fileNames) {
+  const programLabel = { muse: "뮤즈", queendom: "퀸덤", holic: "홀릭" }[program] ?? program;
+  const fileList = fileNames.map((n) => `  • ${n}`).join("\n");
+  const text = `📸 시그 이미지 업로드 완료\n\n📁 ${programLabel} / ${group}\n📊 ${fileNames.length}개 파일\n\n${fileList}`;
+
+  try {
+    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text }),
+    });
+  } catch (err) {
+    console.warn("[Telegram] 알림 전송 실패:", err);
+  }
+}
+
 const PROGRAMS = [
   { value: "muse", label: "뮤즈" },
   { value: "queendom", label: "퀸덤" },
@@ -580,6 +601,11 @@ export default function SigImageManagePage() {
 
       if (successCount > 0) {
         setMessage(`${successCount}개 파일이 업로드되었습니다.`);
+        // 텔레그램 알림 전송 (업로드 성공한 파일명만)
+        const uploadedNames = fileList
+          .slice(0, successCount)
+          .map((f) => (useCustomName ? customFileName : f.name));
+        sendTelegramNotification(program, selectedGroup, uploadedNames);
       }
       if (failCount > 0) {
         setError(`${failCount}개 파일 업로드 실패`);
