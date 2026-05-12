@@ -78,6 +78,395 @@ const GROUPS = Array.from({ length: 8 }, (_, i) => {
   };
 });
 
+const MANUAL_SECTIONS = [
+  { id: "overview", title: "1. 시스템 개요" },
+  { id: "access", title: "2. 접속 방법" },
+  { id: "layout", title: "3. 화면 구성" },
+  { id: "upload", title: "4. 이미지 업로드" },
+  { id: "search", title: "5. 이미지 검색" },
+  { id: "download", title: "6. 이미지 다운로드" },
+  { id: "delete", title: "7. 이미지 삭제" },
+  { id: "rename", title: "8. 파일명 변경" },
+  { id: "notify", title: "9. 알림 기능" },
+  { id: "rules", title: "10. 주의사항" },
+];
+
+function ManualModal({ onClose }) {
+  const scrollRef = useRef(null);
+
+  const scrollToSection = (id) => {
+    const el = document.getElementById(`manual-section-${id}`);
+    if (el && scrollRef.current) {
+      scrollRef.current.scrollTo({ top: el.offsetTop - 16, behavior: "smooth" });
+    }
+  };
+
+  const sectionStyle = {
+    marginBottom: 28,
+    paddingBottom: 20,
+    borderBottom: "1px solid rgba(55,65,81,0.4)",
+  };
+  const h2Style = {
+    fontSize: 16,
+    fontWeight: 900,
+    color: "#4ade80",
+    marginBottom: 10,
+  };
+  const pStyle = { fontSize: 14, color: "#cbd5e1", lineHeight: 1.75, marginBottom: 6 };
+  const noteStyle = {
+    fontSize: 13,
+    color: "#fbbf24",
+    background: "rgba(251,191,36,0.08)",
+    border: "1px solid rgba(251,191,36,0.3)",
+    borderRadius: 8,
+    padding: "8px 12px",
+    marginTop: 8,
+  };
+  const tableStyle = {
+    width: "100%",
+    borderCollapse: "collapse",
+    fontSize: 13,
+    marginTop: 8,
+  };
+  const thStyle = {
+    background: "rgba(34,197,94,0.1)",
+    color: "#4ade80",
+    fontWeight: 700,
+    padding: "8px 12px",
+    border: "1px solid rgba(55,65,81,0.5)",
+    textAlign: "left",
+  };
+  const tdStyle = {
+    color: "#cbd5e1",
+    padding: "8px 12px",
+    border: "1px solid rgba(55,65,81,0.5)",
+    verticalAlign: "top",
+  };
+  const stepStyle = {
+    fontSize: 14,
+    color: "#e5e7eb",
+    lineHeight: 1.9,
+    paddingLeft: 16,
+  };
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.85)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 10002,
+        backdropFilter: "blur(6px)",
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: "#020617",
+          borderRadius: 16,
+          border: "1px solid rgba(55,65,81,0.9)",
+          width: "min(900px, 95vw)",
+          height: "85vh",
+          display: "grid",
+          gridTemplateColumns: "200px 1fr",
+          overflow: "hidden",
+        }}
+      >
+        {/* 왼쪽 목차 */}
+        <div
+          style={{
+            background: "rgba(15,23,42,0.98)",
+            borderRight: "1px solid rgba(55,65,81,0.5)",
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              padding: "18px 16px 12px",
+              fontSize: 14,
+              fontWeight: 900,
+              color: "#4ade80",
+              borderBottom: "1px solid rgba(55,65,81,0.4)",
+            }}
+          >
+            📋 목차
+          </div>
+          <div style={{ flex: 1, overflow: "auto", padding: "8px 0" }}>
+            {MANUAL_SECTIONS.map((sec) => (
+              <button
+                key={sec.id}
+                onClick={() => scrollToSection(sec.id)}
+                style={{
+                  width: "100%",
+                  padding: "9px 16px",
+                  background: "transparent",
+                  border: "none",
+                  textAlign: "left",
+                  fontSize: 13,
+                  color: "#9ca3af",
+                  cursor: "pointer",
+                  lineHeight: 1.5,
+                  transition: "color 0.15s, background 0.15s",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = "#e5e7eb";
+                  e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = "#9ca3af";
+                  e.currentTarget.style.background = "transparent";
+                }}
+              >
+                {sec.title}
+              </button>
+            ))}
+          </div>
+          <div style={{ padding: "12px 16px", borderTop: "1px solid rgba(55,65,81,0.4)" }}>
+            <div style={{ fontSize: 11, color: "#6b7280" }}>v1.0 · 2026-05-12</div>
+            <div style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>문의: 신지안</div>
+            <div style={{ fontSize: 11, color: "#6b7280" }}>010-4966-3066</div>
+          </div>
+        </div>
+
+        {/* 오른쪽 본문 */}
+        <div style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
+          <div
+            style={{
+              padding: "18px 24px 14px",
+              borderBottom: "1px solid rgba(55,65,81,0.4)",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <div>
+              <div style={{ fontSize: 18, fontWeight: 900, color: "#e5e7eb" }}>📖 운영 매뉴얼</div>
+              <div style={{ fontSize: 13, color: "#6b7280", marginTop: 3 }}>SIG 이미지 관리 시스템</div>
+            </div>
+            <button
+              onClick={onClose}
+              style={{
+                background: "transparent",
+                border: "none",
+                fontSize: 22,
+                color: "#6b7280",
+                cursor: "pointer",
+                padding: 4,
+                lineHeight: 1,
+              }}
+            >
+              ✕
+            </button>
+          </div>
+
+          <div ref={scrollRef} style={{ flex: 1, overflow: "auto", padding: "24px" }}>
+
+            {/* 1. 시스템 개요 */}
+            <div id="manual-section-overview" style={sectionStyle}>
+              <div style={h2Style}>1. 시스템 개요</div>
+              <p style={pStyle}>
+                SIG 이미지 관리 시스템은 뮤즈, 퀸덤, 홀릭 프로그램별 이미지를 그룹 단위로 업로드·조회·다운로드·삭제할 수 있는 사내 이미지 관리 도구입니다.
+              </p>
+              <table style={tableStyle}>
+                <tbody>
+                  {[
+                    ["지원 브라우저", "Chrome 최신 버전 권장, Edge"],
+                    ["지원 파일 형식", "JPG, PNG, WebP, GIF"],
+                    ["프로그램 구분", "뮤즈 / 퀸덤 / 홀릭"],
+                    ["알림 방식", "텔레그램 봇 (업로드 완료 시 자동 발송)"],
+                  ].map(([k, v]) => (
+                    <tr key={k}>
+                      <td style={{ ...tdStyle, fontWeight: 700, color: "#93c5fd", width: 140, whiteSpace: "nowrap" }}>{k}</td>
+                      <td style={tdStyle}>{v}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* 2. 접속 방법 */}
+            <div id="manual-section-access" style={sectionStyle}>
+              <div style={h2Style}>2. 접속 방법</div>
+              <ol style={stepStyle}>
+                <li>Chrome 브라우저를 실행합니다.</li>
+                <li>주소창에 <code style={{ color: "#4ade80", background: "rgba(34,197,94,0.08)", padding: "1px 6px", borderRadius: 4 }}>https://sighunter.vercel.app/admin</code> 을 입력합니다.</li>
+                <li>사내 네트워크 또는 VPN에 연결된 상태에서 접속합니다.</li>
+              </ol>
+              <div style={noteStyle}>⚠️ 외부 네트워크에서 접속이 안 될 경우 VPN 연결 여부를 먼저 확인하세요.</div>
+            </div>
+
+            {/* 3. 화면 구성 */}
+            <div id="manual-section-layout" style={sectionStyle}>
+              <div style={h2Style}>3. 화면 구성 안내</div>
+              <p style={pStyle}>관리센터 → 시그이미지 관리 메뉴로 이동합니다.</p>
+              <table style={tableStyle}>
+                <thead>
+                  <tr>
+                    <th style={thStyle}>구성 요소</th>
+                    <th style={thStyle}>설명</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    ["프로그램 선택", "뮤즈 / 퀸덤 / 홀릭 프로그램을 전환합니다."],
+                    ["그룹 목록 (왼쪽 패널)", "선택한 프로그램 내 세부 그룹을 선택합니다."],
+                    ["검색창", "파일명으로 이미지를 필터링합니다."],
+                    ["이미지 그리드", "업로드된 이미지 목록이 표시됩니다."],
+                    ["체크박스", "이미지를 개별 또는 전체 선택합니다."],
+                    ["NEW 배지", "당일 업로드된 이미지에 표시됩니다."],
+                  ].map(([k, v]) => (
+                    <tr key={k}>
+                      <td style={{ ...tdStyle, fontWeight: 700, color: "#93c5fd", whiteSpace: "nowrap" }}>{k}</td>
+                      <td style={tdStyle}>{v}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* 4. 업로드 */}
+            <div id="manual-section-upload" style={sectionStyle}>
+              <div style={h2Style}>4. 이미지 업로드</div>
+              <p style={{ ...pStyle, fontWeight: 700, color: "#e5e7eb" }}>방법 1. 드래그 앤 드롭</p>
+              <ol style={stepStyle}>
+                <li>업로드할 이미지 파일을 선택합니다.</li>
+                <li>이미지 그리드 영역에 파일을 끌어다 놓습니다.</li>
+              </ol>
+              <p style={{ ...pStyle, fontWeight: 700, color: "#e5e7eb", marginTop: 12 }}>방법 2. 파일 선택 버튼</p>
+              <ol style={stepStyle}>
+                <li>업로드 영역을 클릭합니다.</li>
+                <li>파일 탐색기에서 이미지를 선택합니다. (다중 선택 가능)</li>
+              </ol>
+              <p style={{ ...pStyle, fontWeight: 700, color: "#e5e7eb", marginTop: 12 }}>파일명 지정 규칙</p>
+              <p style={pStyle}>업로드 후 이름바꾸기 버튼을 클릭해 시그 숫자만 남기고 수정합니다.</p>
+              <p style={{ ...pStyle, color: "#4ade80" }}>예시: 1000 캐치캐치.jpg → 1000.webp</p>
+              <div style={noteStyle}>⚠️ 확장자명은 반드시 <strong>webp</strong>로 입력 후 체크 표시를 클릭해야 합니다.</div>
+            </div>
+
+            {/* 5. 검색 */}
+            <div id="manual-section-search" style={sectionStyle}>
+              <div style={h2Style}>5. 이미지 검색 및 조회</div>
+              <ol style={stepStyle}>
+                <li>상단 검색창에 파일명 키워드를 입력합니다.</li>
+                <li>입력과 동시에 해당 키워드가 포함된 이미지만 표시됩니다.</li>
+                <li>검색어를 지우면 전체 이미지가 다시 표시됩니다.</li>
+              </ol>
+              <p style={{ ...pStyle, color: "#9ca3af", marginTop: 6 }}>검색 시 대소문자는 구분하지 않습니다.</p>
+            </div>
+
+            {/* 6. 다운로드 */}
+            <div id="manual-section-download" style={sectionStyle}>
+              <div style={h2Style}>6. 이미지 다운로드</div>
+              <p style={{ ...pStyle, fontWeight: 700, color: "#e5e7eb" }}>단일 / 다중 다운로드</p>
+              <ol style={stepStyle}>
+                <li>다운로드할 이미지의 체크박스를 선택합니다. (전체선택 가능)</li>
+                <li>⬇️ 다운로드 버튼을 클릭합니다.</li>
+                <li>다운로드 모달에서 아래 옵션을 설정합니다.</li>
+              </ol>
+              <table style={{ ...tableStyle, marginTop: 10 }}>
+                <thead>
+                  <tr>
+                    <th style={thStyle}>기능</th>
+                    <th style={thStyle}>설명</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    ["이미지 미리보기", "다운로드 전 이미지를 확인할 수 있습니다."],
+                    ["파일명 수정", "저장될 파일명을 수정할 수 있습니다."],
+                    ["저장 경로 선택", "📁 폴더 선택 버튼으로 저장 폴더를 지정합니다."],
+                  ].map(([k, v]) => (
+                    <tr key={k}>
+                      <td style={{ ...tdStyle, fontWeight: 700, color: "#93c5fd", whiteSpace: "nowrap" }}>{k}</td>
+                      <td style={tdStyle}>{v}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* 7. 삭제 */}
+            <div id="manual-section-delete" style={sectionStyle}>
+              <div style={h2Style}>7. 이미지 삭제</div>
+              <ol style={stepStyle}>
+                <li>삭제할 이미지의 체크박스를 선택합니다.</li>
+                <li>🗑️ 삭제 버튼을 클릭합니다.</li>
+                <li>확인 팝업에서 확인을 클릭합니다.</li>
+              </ol>
+              <div style={{ ...noteStyle, color: "#f87171", background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.3)" }}>
+                ⚠️ 삭제된 이미지는 복구할 수 없습니다. 반드시 확인 후 삭제하세요.
+              </div>
+            </div>
+
+            {/* 8. 파일명 변경 */}
+            <div id="manual-section-rename" style={sectionStyle}>
+              <div style={h2Style}>8. 이미지 파일명 변경</div>
+              <ol style={stepStyle}>
+                <li>변경할 이미지 카드 하단의 ✍️ 이름바꾸기 버튼을 클릭합니다.</li>
+                <li>새로운 파일명을 입력합니다.</li>
+                <li>Enter 키를 누르면 저장, Esc 키를 누르면 취소됩니다.</li>
+              </ol>
+            </div>
+
+            {/* 9. 알림 */}
+            <div id="manual-section-notify" style={sectionStyle}>
+              <div style={h2Style}>9. 알림 기능 안내</div>
+              <p style={pStyle}>이미지 업로드가 완료되면 담당자의 텔레그램으로 자동 알림이 발송됩니다.</p>
+              <div style={{
+                background: "rgba(15,23,42,0.8)",
+                border: "1px solid rgba(55,65,81,0.5)",
+                borderRadius: 8,
+                padding: "12px 16px",
+                marginTop: 8,
+                fontFamily: "monospace",
+                fontSize: 13,
+                color: "#4ade80",
+                lineHeight: 1.8,
+              }}>
+                📸 시그 이미지 업로드 완료<br />
+                📁 뮤즈 / group01<br />
+                📊 3개 파일<br />
+                &nbsp;&nbsp;• 1000.webp<br />
+                &nbsp;&nbsp;• 1001.webp<br />
+                &nbsp;&nbsp;• 1002.webp
+              </div>
+            </div>
+
+            {/* 10. 주의사항 */}
+            <div id="manual-section-rules" style={{ marginBottom: 8 }}>
+              <div style={h2Style}>10. 주의사항 및 운영 규칙</div>
+              <table style={tableStyle}>
+                <tbody>
+                  {[
+                    ["1", "업무와 무관한 이미지는 업로드하지 않습니다."],
+                    ["2", "파일명은 식별 가능한 명칭으로 지정합니다. (예: 1000.webp)"],
+                    ["3", "삭제 전 반드시 필요 여부를 확인합니다. 삭제된 파일은 복구 불가합니다."],
+                    ["4", "시스템 이상 발생 시 임의로 조작하지 말고 담당자에게 즉시 보고합니다."],
+                    ["5", "본 시스템에 접근 가능한 계정 정보를 외부에 공유하지 않습니다."],
+                  ].map(([num, rule]) => (
+                    <tr key={num}>
+                      <td style={{ ...tdStyle, fontWeight: 900, color: "#4ade80", width: 32, textAlign: "center" }}>{num}</td>
+                      <td style={tdStyle}>{rule}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p style={{ ...pStyle, marginTop: 16, color: "#9ca3af" }}>문의사항은 신지안 (010-4966-3066)으로 연락 바랍니다.</p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ToastInline({ message, error, onClear }) {
   const visible = !!(message || error);
   useEffect(() => {
@@ -501,6 +890,7 @@ export default function SigImageManagePage() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const [showBulkDownloadModal, setShowBulkDownloadModal] = useState(false);
+  const [showManualModal, setShowManualModal] = useState(false);
 
   const clearToast = () => {
     setMessage("");
@@ -914,13 +1304,40 @@ export default function SigImageManagePage() {
           marginBottom: 16,
         }}
       >
-        <div>
-          <div style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>
-            🖼️ 시그 이미지 관리
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div>
+            <div style={{ fontSize: 18, fontWeight: 900, marginBottom: 6 }}>
+              🖼️ 시그 이미지 관리
+            </div>
+            <div style={{ fontSize: 15, color: "#9ca3af" }}>
+              프로그램별 그룹 폴더 내 이미지 업로드, 삭제, 미리보기
+            </div>
           </div>
-          <div style={{ fontSize: 15, color: "#9ca3af" }}>
-            프로그램별 그룹 폴더 내 이미지 업로드, 삭제, 미리보기
-          </div>
+          <button
+            onClick={() => setShowManualModal(true)}
+            style={{
+              padding: "7px 14px",
+              borderRadius: 8,
+              border: "1px solid rgba(99,102,241,0.6)",
+              background: "rgba(99,102,241,0.08)",
+              color: "#a5b4fc",
+              fontWeight: 700,
+              fontSize: 13,
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+              transition: "all 0.2s",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "rgba(99,102,241,0.18)";
+              e.currentTarget.style.color = "#c7d2fe";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "rgba(99,102,241,0.08)";
+              e.currentTarget.style.color = "#a5b4fc";
+            }}
+          >
+            📖 매뉴얼
+          </button>
         </div>
 
         <div style={{ minWidth: 240 }}>
@@ -1533,6 +1950,8 @@ export default function SigImageManagePage() {
           </div>
         </div>
       </div>
+
+      {showManualModal && <ManualModal onClose={() => setShowManualModal(false)} />}
 
       <ImagePreviewModal
         image={previewImage}
