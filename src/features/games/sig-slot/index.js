@@ -1,3 +1,5 @@
+// src/features/games/sig-slot/index.js
+
 import { useState, useEffect, useRef, useCallback } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getStorage, ref as storageRef, listAll, getDownloadURL } from "firebase/storage";
@@ -36,23 +38,25 @@ const SIG_RANGES = [
 ];
 
 const SPEED_STAGES = [
-  { interval: 60,  frames: null },  // FAST
-  { interval: 110, frames: 6  },   // MID
-  { interval: 200, frames: 5  },   // SLOW
-  { interval: 340, frames: 3  },   // CRAWL
+  { interval: 60,  frames: null },
+  { interval: 110, frames: 6  },
+  { interval: 200, frames: 5  },
+  { interval: 340, frames: 3  },
 ];
 const SPIN_MIN = 1500;
 const SPIN_MAX = 5000;
 
 // ─────────────────────────────────────────────
-// Firebase Storage — 이미지 목록 조회
+// 🚀 Fix 1 + Fix 3: 병렬 처리 + 점진적 로딩
 // ─────────────────────────────────────────────
-async function fetchImagesFromStorage(programKey, rangeFilter = null) {
+async function fetchImagesFromStorage(programKey, rangeFilter = null, onPartial = null) {
   const groups = ["group01","group02","group03","group04",
                   "group05","group06","group07","group08"];
-  const results = [];
+  
+  let accumulated = [];
 
-  for (const group of groups) {
+  // 8개 그룹 병렬 요청
+  const promises = groups.map(async (group) => {
     try {
       const folderRef = storageRef(storage, `images/${programKey}/${group}`);
       const listResult = await listAll(folderRef);
@@ -64,18 +68,33 @@ async function fetchImagesFromStorage(programKey, rangeFilter = null) {
           return { id: item.fullPath, url, name, sigNum: isNaN(sigNum) ? null : sigNum, group };
         })
       );
-      results.push(...items);
+      
+      // 점진적 로딩: 그룹 하나 완료될 때마다 콜백 호출
+      if (onPartial) {
+        accumulated = [...accumulated, ...items];
+        const filtered = rangeFilter
+          ? accumulated.filter((img) => img.sigNum !== null && img.sigNum >= rangeFilter.min && img.sigNum <= rangeFilter.max)
+          : accumulated;
+        onPartial(filtered);
+      }
+      
+      return items;
     } catch {
-      // 폴더 없으면 스킵
+      return [];
     }
-  }
+  });
+
+  const results = await Promise.allSettled(promises);
+  const allImages = results
+    .filter((r) => r.status === "fulfilled")
+    .flatMap((r) => r.value);
 
   if (rangeFilter) {
-    return results.filter(
+    return allImages.filter(
       (img) => img.sigNum !== null && img.sigNum >= rangeFilter.min && img.sigNum <= rangeFilter.max
     );
   }
-  return results;
+  return allImages;
 }
 
 // ─────────────────────────────────────────────
@@ -113,7 +132,6 @@ function pickReward(rewards) {
   return rewards[rewards.length - 1];
 }
 
-// Fisher-Yates 셔플
 function shuffleArray(arr) {
   const shuffled = [...arr];
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -124,7 +142,7 @@ function shuffleArray(arr) {
 }
 
 // ─────────────────────────────────────────────
-// useSlot 훅 — 슬롯 1개 로직
+// useSlot 훅
 // ─────────────────────────────────────────────
 function useSlot(images, rewards) {
   const [phase, setPhase] = useState("idle");
@@ -149,45 +167,34 @@ function useSlot(images, rewards) {
   const startLoop = useCallback((interval, stage) => {
     clearInterval(frameRef.current);
     setSpeedStage(stage);
-
     frameRef.current = setInterval(() => {
       const list = imagesRef.current.length > 0 ? imagesRef.current : images;
-
       setIdx((p) => (p + 1) % Math.max(list.length, 1));
     }, interval);
   }, [images]);
 
   const doStop = useCallback(() => {
     clearAll();
-
     setIdx((cur) => {
       const list = imagesRef.current.length > 0 ? imagesRef.current : images;
       const finalIdx = cur % Math.max(list.length, 1);
-
       setResultImage(list[finalIdx] ?? null);
       setResultReward(pickReward(rewards));
-
       setPhase("stopped");
       setBouncing(true);
       setTimeout(() => setBouncing(false), 600);
-
       setSparkle(true);
       setTimeout(() => setSparkle(false), 900);
-
       return finalIdx;
     });
   }, [clearAll, images, rewards]);
 
   const spin = useCallback((delayMs = 0) => {
     if (!images.length || !rewards.length) return;
-
     clearAll();
-
     const nextShuffledImages = shuffleArray(images);
-
     imagesRef.current = nextShuffledImages;
     setShuffledImages(nextShuffledImages);
-
     setPhase("spinning");
     setResultImage(null);
     setResultReward(null);
@@ -197,11 +204,9 @@ function useSlot(images, rewards) {
     setSparkle(false);
 
     const spinDuration = SPIN_MIN + Math.random() * (SPIN_MAX - SPIN_MIN);
-
     const s3Duration = SPEED_STAGES[3].frames * SPEED_STAGES[3].interval;
     const s2Duration = SPEED_STAGES[2].frames * SPEED_STAGES[2].interval;
     const s1Duration = SPEED_STAGES[1].frames * SPEED_STAGES[1].interval;
-
     const t1 = spinDuration - s3Duration - s2Duration - s1Duration;
     const t2 = t1 + s1Duration;
     const t3 = t2 + s2Duration;
@@ -221,18 +226,16 @@ function useSlot(images, rewards) {
 
   const reset = useCallback(() => {
     clearAll();
-
     imagesRef.current = [];
     setShuffledImages([]);
-
     setPhase("idle");
     setResultImage(null);
     setResultReward(null);
-    setIdx(0);
+    setIdx(images.length > 0 ? Math.floor(Math.random() * images.length) : 0);
     setSpeedStage(0);
     setBouncing(false);
     setSparkle(false);
-  }, [clearAll]);
+  }, [clearAll, images.length]);
 
   const flip = useCallback(() => {
     if (phase === "stopped") setPhase("flipped");
@@ -245,17 +248,8 @@ function useSlot(images, rewards) {
   useEffect(() => () => clearAll(), [clearAll]);
 
   return {
-    phase,
-    idx,
-    speedStage,
-    resultImage,
-    resultReward,
-    sparkle,
-    bouncing,
-    spin,
-    reset,
-    flip,
-    shuffledImages,
+    phase, idx, speedStage, resultImage, resultReward, sparkle, bouncing,
+    spin, reset, flip, shuffledImages,
   };
 }
 
@@ -263,37 +257,56 @@ function useSlot(images, rewards) {
 // 메인 SigSlot 컴포넌트
 // ─────────────────────────────────────────────
 export default function SigSlot() {
-  const [program, setProgram]       = useState("뮤즈");
-  const [slotMode, setSlotMode]     = useState(1);
-  const [showAdmin, setShowAdmin]   = useState(false);
+  const [program, setProgram] = useState("뮤즈");
+  const [slotMode, setSlotMode] = useState(1);
+  const [showAdmin, setShowAdmin] = useState(false);
   const [savedPrograms, setSavedPrograms] = useState({});
-  const [range, setRange]           = useState(SIG_RANGES[0]);
-  const [history, setHistory]       = useState([]);
+  const [range, setRange] = useState(SIG_RANGES[0]);
+  const [history, setHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
 
-  const [imagesMap, setImagesMap]   = useState(() => Object.fromEntries(PROGRAMS.map((p) => [p, []])));
+  // 🚀 Fix 2: 캐싱 — 키를 "프로그램-구간" 형태로 변경
+  const [imagesMap, setImagesMap] = useState({});
   const [imgLoading, setImgLoading] = useState(false);
-  const [imgError, setImgError]     = useState("");
+  const [imgError, setImgError] = useState("");
 
   const [rewardsMap, setRewardsMap] = useState(() =>
     Object.fromEntries(PROGRAMS.map((p) => [p, makeDefaultRewards()]))
   );
 
- // ── 프로그램/구간 바뀔 때 이미지 로드
+  // 캐시 키 생성
+  const cacheKey = `${program}-${range?.label ?? "전체"}`;
+  const currentImages = imagesMap[cacheKey] || [];
+  const currentRewards = rewardsMap[program] || [];
+  const programKey = PROGRAM_KEY_MAP[program];
+
+  // ── 프로그램/구간 바뀔 때 이미지 로드 (캐싱 적용)
   useEffect(() => {
+    // 이미 로드된 조합이면 스킵
+    if (imagesMap[cacheKey]) {
+      setImgLoading(false);
+      return;
+    }
+
     const key = PROGRAM_KEY_MAP[program];
     setImgLoading(true);
     setImgError("");
-    fetchImagesFromStorage(key, range)
+
+    // 점진적 로딩 콜백
+    const handlePartial = (partialImages) => {
+      setImagesMap((prev) => ({ ...prev, [cacheKey]: partialImages }));
+    };
+
+    fetchImagesFromStorage(key, range, handlePartial)
       .then((imgs) => {
-        setImagesMap((prev) => ({ ...prev, [program]: imgs }));
+        setImagesMap((prev) => ({ ...prev, [cacheKey]: imgs }));
         setImgLoading(false);
       })
       .catch((e) => {
         setImgError(e.message);
         setImgLoading(false);
       });
-  }, [program, range]);
+  }, [program, range, cacheKey, imagesMap]);
 
   // ── 프로그램 바뀔 때 보상 로드
   useEffect(() => {
@@ -321,17 +334,13 @@ export default function SigSlot() {
     [program]
   );
 
-  const currentImages = imagesMap[program] || [];
-  const currentRewards = rewardsMap[program] || [];
-  const programKey = PROGRAM_KEY_MAP[program];
-
   // ── 슬롯 훅 (3개)
   const s0 = useSlot(currentImages, currentRewards);
   const s1 = useSlot(currentImages, currentRewards);
   const s2 = useSlot(currentImages, currentRewards);
   const slots = [s0, s1, s2].slice(0, slotMode);
 
-  // 🔹 여기서 프로그램/구간 바뀔 때 슬롯 리셋
+  // 프로그램/구간 바뀔 때 슬롯 리셋
   useEffect(() => {
     s0.reset();
     s1.reset();
@@ -350,7 +359,6 @@ export default function SigSlot() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phaseKey]);
 
-
   const handleStart = () => {
     const anySpinning = slots.some((s) => s.phase === "spinning");
     if (anySpinning) return;
@@ -361,7 +369,6 @@ export default function SigSlot() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white flex flex-col items-center py-10 px-4 gap-5">
-
       {/* 헤더 */}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
@@ -405,7 +412,7 @@ export default function SigSlot() {
             className={`px-4 py-1.5 rounded-lg text-sm font-bold transition ${
               slotMode === n ? "bg-purple-600 text-white" : "text-gray-400 hover:text-white"
             }`}
-          >{n === 1 ? "🎴 1슬롯" : "🎴🎴🎴 3슬롯"}</button>
+          >{n === 1 ? "🎴" : "🎴🎴🎴"}</button>
         ))}
       </div>
 
@@ -432,8 +439,6 @@ export default function SigSlot() {
         >전체</button>
       </div>
 
-      
-
       {/* 관리자 모달 */}
       {showAdmin && (
         <AdminModal
@@ -448,33 +453,33 @@ export default function SigSlot() {
 
       {/* 이미지 로딩/에러 상태 */}
       <div className="min-h-[80px] flex flex-col items-center justify-center">
-      {imgLoading && (
-        <>
-        <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
-        <div className="text-purple-300 text-sm mt-2">이미지 불러오는 중...</div>
-        </>
-      )}
-      {imgError && !imgLoading && (
-        <div className="text-red-400 text-xs bg-red-900/30 rounded-lg px-4 py-2">
-          ⚠️ 이미지 로드 실패: {imgError}
-        </div>
-      )}
-      {!imgLoading && !imgError && currentImages.length === 0 && (
-        <div className="text-gray-500 text-xs">해당 구간의 이미지가 없습니다.</div>
-      )}
+        {imgLoading && (
+          <>
+            <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
+            <div className="text-purple-300 text-sm mt-2">이미지 불러오는 중...</div>
+          </>
+        )}
+        {imgError && !imgLoading && (
+          <div className="text-red-400 text-xs bg-red-900/30 rounded-lg px-4 py-2">
+            ⚠️ 이미지 로드 실패: {imgError}
+          </div>
+        )}
+        {!imgLoading && !imgError && currentImages.length === 0 && (
+          <div className="text-gray-500 text-xs">해당 구간의 이미지가 없습니다.</div>
+        )}
       </div>
 
       {/* 슬롯머신 */}
       {currentImages.length > 0 && (
-      <SlotMachine
-  images={currentImages}
-  rewards={currentRewards}
-  slotCount={slotMode}
-  onResult={addHistory}
-  slots={slots}
-  onStart={handleStart}
-  onRefresh={handleRefresh}
-/>
+        <SlotMachine
+          images={currentImages}
+          rewards={currentRewards}
+          slotCount={slotMode}
+          onResult={addHistory}
+          slots={slots}
+          onStart={handleStart}
+          onRefresh={handleRefresh}
+        />
       )}
 
       {/* 당첨 히스토리 */}

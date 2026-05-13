@@ -147,7 +147,7 @@ export function SlotMachine({
 
         {/* 슬롯 디스플레이 영역 */}
         <div className="bg-black/80 rounded-2xl p-6 border-2 border-gray-700 mb-6">
-          <div className={`flex gap-2 ${slotCount === 3 ? "flex-row" : "flex-col items-center"}`}>
+          <div className={`flex gap-0 ${slotCount === 3 ? "flex-row" : "flex-col items-center"}`}>
             {slots.map((slot, i) => (
               <div key={i} className="relative flex flex-col items-center gap-1">
                 {slotCount === 3 && <span className="text-xs text-yellow-400 mb-1 font-bold">SLOT {i + 1}</span>}
