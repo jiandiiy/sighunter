@@ -19,7 +19,8 @@ const BoardGame = lazy(() => import("./features/games/board-game"));
 const BigWheel = lazy(() => import("./features/games/big-wheel"));
 const HpBattle = lazy(() => import("./features/games/hp-battle"));
 const SigHunterBingoBoard = lazy(() => import("./features/games/sig-hunter-bingo"));
- const BingoBoard = lazy(() => import("./features/games/meal-bingo"));
+const BingoBoard = lazy(() => import("./features/games/meal-bingo"));
+const SigSlot = lazy(() => import("./features/games/sig-slot"));
 // ── lazy 로드: Admin ──────────────────────────────
 const SigImageAdminPage = lazy(() => import("./Admin/pages/SigImageAdminPage"));
 const SigHunterBoardControl = lazy(() => import("./Admin/components/SigHunterBoardControl"));
@@ -82,8 +83,7 @@ export default function App() {
             <Route path="/bigwheel" element={<BigWheel />} />
 
             {/* 식대전 빙고 1 / 2 / 3 */}
-           <Route path="/bingo/:boardNo" element={<BingoBoard />} />
-
+            <Route path="/bingo/:boardNo" element={<BingoBoard />} />
 
             {/* 시그헌터 빙고 */}
             <Route
@@ -91,12 +91,15 @@ export default function App() {
               element={<SigHunterBingoBoard boardId="hunter-main" />}
             />
 
+            {/* 시그슬롯 */}
+            <Route path="/sig-slot" element={<SigSlot />} />
+
             {/* HP 배틀 */}
             <Route path="/hp-battle" element={<HpBattle />} />
             <Route path="/hp-control" element={<HpControl battleId="sig-hp" />} />
 
             {/* Admin */}
-               <Route path="/admin" element={<AdminHub />} />
+            <Route path="/admin" element={<AdminHub />} />
             <Route path="/admin/sig" element={<SigImageAdminPage />} />
             <Route
               path="/admin/sig-hunter-bingo/:boardId"
@@ -128,30 +131,30 @@ export default function App() {
           <Route path="/hp-overlay" element={<HpOverlay battleId="sig-hp" />} />
 
           {/* ObsModule 안의 named export 사용 */}
-         <Route
-   path="/obs/sig-hunter-bingo/:boardId"
-   element={
-     <Suspense fallback={<PageFallback />}>
-       <SigHunterBingoObsView />
-     </Suspense>
-   }
- />
- <Route
-   path="/obs/bingo/:boardId"
-   element={
-     <Suspense fallback={<PageFallback />}>
-       <BingoObsView />
-     </Suspense>
-   }
- />
- <Route
-   path="/obs/sig-hunter-flip/:boardId"
-   element={
-     <Suspense fallback={<PageFallback />}>
-       <SigHunterFlipObsView />
-     </Suspense>
-   }
- />
+          <Route
+            path="/obs/sig-hunter-bingo/:boardId"
+            element={
+              <Suspense fallback={<PageFallback />}>
+                <SigHunterBingoObsView />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/obs/bingo/:boardId"
+            element={
+              <Suspense fallback={<PageFallback />}>
+                <BingoObsView />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/obs/sig-hunter-flip/:boardId"
+            element={
+              <Suspense fallback={<PageFallback />}>
+                <SigHunterFlipObsView />
+              </Suspense>
+            }
+          />
         </Routes>
       </Suspense>
     </Router>

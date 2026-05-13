@@ -1,4 +1,8 @@
-font-face {
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
     font-family: 'YUniverse';
     src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_yuniverse@1.0/YUniverse-L.woff2') format('woff2');
     font-weight: 300;

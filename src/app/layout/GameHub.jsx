@@ -5,8 +5,7 @@ import { useNavigate, Outlet } from "react-router-dom";
 export default function GameHub() {
   const navigate = useNavigate();
 
-  // "sig" | "mines" | "board" | "wheel" | "bingo" | "hunterBingo" | "hp"
-  // 👉 버튼 스타일(선택 표시) 용도로만 사용
+  // "sig" | "sigslot" | "mines" | "board" | "wheel" | "bingo" | "hunterBingo" | "hp"
   const [game, setGame] = useState(() => {
     if (typeof window === "undefined") return "sig";
     const saved = window.localStorage.getItem("gameHub.lastGame");
@@ -18,12 +17,14 @@ export default function GameHub() {
     window.localStorage.setItem("gameHub.lastGame", game);
   }, [game]);
 
-  // 버튼 클릭 시, game state 업데이트 + 해당 라우트로 이동
   const handleSelectGame = (targetGame) => {
     setGame(targetGame);
     switch (targetGame) {
       case "sig":
         navigate("/sig");
+        break;
+      case "sigslot":
+        navigate("/sig-slot"); // 👈 라우트 경로는 프로젝트에 맞게 조정
         break;
       case "mines":
         navigate("/mines");
@@ -35,7 +36,7 @@ export default function GameHub() {
         navigate("/bigwheel");
         break;
       case "bingo":
-        navigate("/bingo/1"); // 식대전 빙고 기본: 1번
+        navigate("/bingo/1");
         break;
       case "hunterBingo":
         navigate("/hunter-bingo");
@@ -75,13 +76,7 @@ export default function GameHub() {
         >
           🎮 GAME CENTER 🎮
         </h1>
-        <p
-          style={{
-            margin: "4px 0 0",
-            fontSize: 13,
-            opacity: 0.7,
-          }}
-        ></p>
+        <p style={{ margin: "4px 0 0", fontSize: 13, opacity: 0.7 }}></p>
       </div>
 
       {/* 게임 선택 버튼 */}
@@ -94,22 +89,20 @@ export default function GameHub() {
           justifyContent: "center",
         }}
       >
-        {/* 시그헌터 버튼 */}
+        {/* 시그헌터 */}
         <button
           type="button"
           onClick={() => handleSelectGame("sig")}
           style={{
             padding: "6px 14px",
             borderRadius: 999,
-            border:
-              game === "sig" ? "2px solid #ffb6c1" : "1px solid #4b5563",
+            border: game === "sig" ? "2px solid #ffb6c1" : "1px solid #4b5563",
             background:
               game === "sig"
                 ? "linear-gradient(135deg, #ff7eb3, #ffb6c1)"
                 : "linear-gradient(135deg, #111827, #020617)",
             cursor: "pointer",
-            fontFamily:
-              "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+            fontFamily: "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
             fontSize: 15,
             color: "#fff",
             fontWeight: 800,
@@ -118,7 +111,30 @@ export default function GameHub() {
           🔍 시그헌터
         </button>
 
-        {/* 식대전 빙고 버튼 */}
+        {/* 시그슬롯 ✨ 추가 */}
+        <button
+          type="button"
+          onClick={() => handleSelectGame("sigslot")}
+          style={{
+            padding: "6px 14px",
+            borderRadius: 999,
+            border:
+              game === "sigslot" ? "2px solid #fbbf24" : "1px solid #4b5563",
+            background:
+              game === "sigslot"
+                ? "linear-gradient(135deg, #f59e0b, #fbbf24)"
+                : "linear-gradient(135deg, #111827, #020617)",
+            cursor: "pointer",
+            fontFamily: "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+            fontSize: 15,
+            color: "#fff",
+            fontWeight: 800,
+          }}
+        >
+          🎰 시그슬롯
+        </button>
+
+        {/* 식대전 빙고 */}
         <button
           type="button"
           onClick={() => handleSelectGame("bingo")}
@@ -135,14 +151,13 @@ export default function GameHub() {
             fontWeight: 800,
             cursor: "pointer",
             fontSize: 15,
-            fontFamily:
-              "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+            fontFamily: "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
           }}
         >
           🍽️ 식대전 빙고
         </button>
 
-        {/* 시그헌터 빙고 버튼 */}
+        {/* 시그 땅따먹기 */}
         <button
           type="button"
           onClick={() => handleSelectGame("hunterBingo")}
@@ -150,9 +165,7 @@ export default function GameHub() {
             padding: "6px 14px",
             borderRadius: 999,
             border:
-              game === "hunterBingo"
-                ? "2px solid #22c55e"
-                : "1px solid #4b5563",
+              game === "hunterBingo" ? "2px solid #22c55e" : "1px solid #4b5563",
             background:
               game === "hunterBingo"
                 ? "linear-gradient(135deg, #22c55e, #a7f3d0)"
@@ -161,15 +174,13 @@ export default function GameHub() {
             fontWeight: 800,
             cursor: "pointer",
             fontSize: 15,
-            fontFamily:
-              "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+            fontFamily: "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
           }}
         >
           🎯 시그 땅따먹기
         </button>
 
-
-        {/* 지뢰게임 버튼 */}
+        {/* 지뢰게임 */}
         <button
           type="button"
           onClick={() => handleSelectGame("mines")}
@@ -182,8 +193,7 @@ export default function GameHub() {
               game === "mines"
                 ? "linear-gradient(135deg, #4c1d95, #6366f1)"
                 : "linear-gradient(135deg, #111827, #020617)",
-            fontFamily:
-              "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+            fontFamily: "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
             color: "#fff",
             fontWeight: 800,
             cursor: "pointer",
@@ -193,7 +203,7 @@ export default function GameHub() {
           💣 지뢰게임
         </button>
 
-        {/* 브루마블 버튼 */}
+        {/* 부루마불 */}
         <button
           type="button"
           onClick={() => handleSelectGame("board")}
@@ -209,15 +219,14 @@ export default function GameHub() {
             fontWeight: 800,
             cursor: "pointer",
             fontSize: 15,
-            fontFamily:
-              "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+            fontFamily: "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
             color: "#fff",
           }}
         >
           🎲 부루마불
         </button>
 
-        {/* 빅휠 게임 버튼 */}
+        {/* 빅휠게임 */}
         <button
           type="button"
           onClick={() => handleSelectGame("wheel")}
@@ -234,22 +243,20 @@ export default function GameHub() {
             fontWeight: 800,
             cursor: "pointer",
             fontSize: 15,
-            fontFamily:
-              "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+            fontFamily: "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
           }}
         >
           🎡 빅휠게임
         </button>
 
-        {/* HP 배틀 게이지 버튼 */}
+        {/* HP 배틀 게이지 */}
         <button
           type="button"
           onClick={() => handleSelectGame("hp")}
           style={{
             padding: "6px 14px",
             borderRadius: 999,
-            border:
-              game === "hp" ? "2px solid #22c55e" : "1px solid #4b5563",
+            border: game === "hp" ? "2px solid #22c55e" : "1px solid #4b5563",
             background:
               game === "hp"
                 ? "linear-gradient(135deg, #22c55e, #a7f3d0)"
@@ -258,14 +265,13 @@ export default function GameHub() {
             fontWeight: 800,
             cursor: "pointer",
             fontSize: 15,
-            fontFamily:
-              "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+            fontFamily: "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
           }}
         >
           💚 HP 배틀 게이지
         </button>
 
-       {/* 관리 센터 버튼 */}
+        {/* 관리 센터 */}
         <button
           type="button"
           onClick={() => navigate("/admin")}
@@ -278,15 +284,14 @@ export default function GameHub() {
             fontWeight: 800,
             cursor: "pointer",
             fontSize: 13,
-            fontFamily:
-              "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+            fontFamily: "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
           }}
         >
           🛠 관리 센터
         </button>
       </div>
 
-      {/* 게임 컨테이너: 현재 URL 의 자식 라우트가 렌더링됨 */}
+      {/* 게임 컨테이너 */}
       <div
         style={{
           width: "100%",
