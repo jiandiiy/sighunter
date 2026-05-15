@@ -150,12 +150,8 @@ export function useSigStorage() {
           const data = snap.data();
           fromRemoteRef.current = true;
 
-         const safeFlipped = {};
-
-          setFlippedState((prev) => 
-  Object.keys(prev).length === 0 ? safeFlipped : prev
-  //                               ↑ 최초 1회만 세팅, 이후 원격 덮어쓰기 차단
-);
+           const safeFlipped = sanitizeFlipped(data.flipped);
+          setFlippedState(safeFlipped);
           setLockedState(data.locked || {});
           setRevealedBase(data.revealed || {});
           setRandomImagesState(data.randomImages || {});
