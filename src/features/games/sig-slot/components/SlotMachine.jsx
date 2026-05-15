@@ -185,7 +185,7 @@ export function SlotMachine({
                 <div className="h-5 text-xs text-gray-400 text-center">
                   {slot.phase === "idle"     && "대기 중"}
                   {slot.phase === "spinning" && "🎰 돌아가는 중..."}
-                  {slot.phase === "stopped"  && "✨ 클릭하여 보상 확인!"}
+                  {slot.phase === "stopped"  && "🎁 보상 확인"}
                   {slot.phase === "flipped"  && `🎁 ${slot.resultReward?.name}`}
                 </div>
               </div>

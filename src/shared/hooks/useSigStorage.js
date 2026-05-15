@@ -16,6 +16,9 @@ import {
 import { doc, onSnapshot, setDoc } from "firebase/firestore";
 import { firestore } from "../../resources/firestore/firebase";
 
+// ─────────────────────────────────────────
+// 기본 메시지 세트
+// ─────────────────────────────────────────
 const messagesByProjectDefault = {
   queendom: {
     normal: queendomNormalMessages,
@@ -43,6 +46,9 @@ const specialMessagesByProject = {
   holic: holicSpecialMessages,
 };
 
+// ─────────────────────────────────────────
+// 카드 → 프로젝트 / 기본 메시지
+// ─────────────────────────────────────────
 const getCardProject = (card) => {
   const id = Number(card.id);
 
@@ -61,6 +67,17 @@ const getDefaultMessagesForCard = (card) => {
     : normalMessagesByProject[project];
 };
 
+// ─────────────────────────────────────────
+// 유틸: localStorage 안전 파싱
+// ─────────────────────────────────────────
+function tryParse(key, fallback) {
+  try {
+    return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
+  } catch {
+    return fallback;
+  }
+}
+
 export function useSigStorage() {
   const [flipped, setFlippedState] = useState({});
   const [locked, setLockedState] = useState({});
@@ -72,34 +89,42 @@ export function useSigStorage() {
   );
   const [loaded, setLoaded] = useState(false);
 
-  // ✅ holicSigCards 추가
+  // 모든 카드 목록 / ID 목록
   const allSigCards = [...queendomSigCards, ...museSigCards, ...holicSigCards];
-  const docRef = doc(firestore, "sigHunter", "main");
+  const allCardIds = allSigCards.map((c) => String(c.id));
 
-  // 원격 스냅샷으로 인한 setState 여부 표시 (무한 루프 방지)
+  const docRef = doc(firestore, "sigHunter", "main");
   const fromRemoteRef = useRef(false);
 
   // ─────────────────────────────────────────
-  // 🔹 기본 상태 생성
+  // flipped 정규화: 현재 카드 ID만, boolean 값만 유지
+  // ─────────────────────────────────────────
+  const sanitizeFlipped = (rawFlipped) => {
+    if (!rawFlipped || typeof rawFlipped !== "object") return {};
+    const safe = {};
+    allCardIds.forEach((id) => {
+      safe[id] = rawFlipped[id] === true;
+    });
+    return safe;
+  };
+
+  // ─────────────────────────────────────────
+  // 기본 상태 생성
   // ─────────────────────────────────────────
   const buildDefaultState = () => {
     const initImgs = {};
-
-    allSigCards.forEach((card) => {
-      const imgs = card.frontImages;
-
-      if (imgs?.length) {
-        initImgs[card.id] = imgs[Math.floor(Math.random() * imgs.length)];
-      }
-    });
-
     const initWeights = {};
 
     allSigCards.forEach((card) => {
+      const imgs = card.frontImages;
+      if (imgs?.length) {
+        initImgs[card.id] = imgs[Math.floor(Math.random() * imgs.length)];
+      }
+
       const baseMessages = getDefaultMessagesForCard(card);
-      initWeights[String(card.id)] = baseMessages.map((message) => {
-        return message.weight ?? 1;
-      });
+      initWeights[String(card.id)] = baseMessages.map(
+        (message) => message.weight ?? 1
+      );
     });
 
     localStorage.setItem("cardWeights", JSON.stringify(initWeights));
@@ -115,7 +140,7 @@ export function useSigStorage() {
   };
 
   // ─────────────────────────────────────────
-  // 🔹 1) Firestore 실시간 구독
+  // 1) Firestore 실시간 구독
   // ─────────────────────────────────────────
   useEffect(() => {
     const unsub = onSnapshot(
@@ -125,15 +150,18 @@ export function useSigStorage() {
           const data = snap.data();
           fromRemoteRef.current = true;
 
-          setFlippedState(data.flipped || {});
+         const safeFlipped = {};
+
+          setFlippedState((prev) => 
+  Object.keys(prev).length === 0 ? safeFlipped : prev
+  //                               ↑ 최초 1회만 세팅, 이후 원격 덮어쓰기 차단
+);
           setLockedState(data.locked || {});
           setRevealedBase(data.revealed || {});
           setRandomImagesState(data.randomImages || {});
           setCardWeightsState(data.cardWeights || {});
-
           setMessagesState(data.messagesByProject || messagesByProjectDefault);
 
-          // cardWeights는 localStorage에도 미러링
           if (data.cardWeights) {
             localStorage.setItem(
               "cardWeights",
@@ -164,7 +192,7 @@ export function useSigStorage() {
 
         // Firestore 실패 시 localStorage 폴백
         const fallback = {
-          flipped: tryParse("sigFlipped", {}),
+          flipped: sanitizeFlipped(tryParse("sigFlipped", {})),
           locked: tryParse("sigLocked", {}),
           revealed: tryParse("sigRevealed", {}),
           randomImages: tryParse("sigImages", {}),
@@ -187,7 +215,7 @@ export function useSigStorage() {
   }, []);
 
   // ─────────────────────────────────────────
-  // 🔹 2) localStorage 동기화
+  // 2) localStorage 동기화
   // ─────────────────────────────────────────
   useEffect(() => {
     localStorage.setItem("sigFlipped", JSON.stringify(flipped));
@@ -210,7 +238,7 @@ export function useSigStorage() {
   }, [cardWeights]);
 
   // ─────────────────────────────────────────
-  // 🔹 3) 원격 저장 헬퍼 (merge)
+  // 3) 원격 저장 헬퍼 (merge)
   // ─────────────────────────────────────────
   const pushToRemote = (next) => {
     setDoc(docRef, next, { merge: true }).catch((e) =>
@@ -219,7 +247,7 @@ export function useSigStorage() {
   };
 
   // ─────────────────────────────────────────
-  // 🔹 4) 공통 setter 래퍼 (로컬 변경 → Firestore 동기화)
+  // 4) 공통 setter 래퍼 (로컬 변경 → Firestore 동기화)
   // ─────────────────────────────────────────
   const wrapSetter = (setState, key) => (updater) => {
     setState((prev) => {
@@ -260,7 +288,7 @@ export function useSigStorage() {
     fromRemoteRef.current = false;
   };
 
-  // setRevealed: 디버그 로그 포함 (개발 완료 후 wrapSetter 로 교체 가능)
+  // setRevealed: Firestore 동기화
   const setRevealed = (updater) => {
     if (typeof updater === "function") {
       setRevealedBase((prev) => {
@@ -298,15 +326,4 @@ export function useSigStorage() {
     setMessagesByProject,
     loaded,
   };
-}
-
-// ─────────────────────────────────────────
-// 🔹 유틸: localStorage 안전 파싱
-// ─────────────────────────────────────────
-function tryParse(key, fallback) {
-  try {
-    return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
-  } catch {
-    return fallback;
-  }
 }

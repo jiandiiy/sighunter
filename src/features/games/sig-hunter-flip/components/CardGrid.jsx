@@ -28,7 +28,7 @@ function CardGrid({
           revealed={revealed}
           randomImages={randomImages}
           frontImageIndex={frontImageIndexByCard[card.id] ?? 0}
-          onFlip={onFlip}
+          onFlip={(cardArg, e) => onFlip(cardArg, e)}
           onAdmin={(e) => onAdmin(e, card.id)}
           onEdit={(e) => onEdit(e, card.id)}
           onUploadClick={onUploadClick}

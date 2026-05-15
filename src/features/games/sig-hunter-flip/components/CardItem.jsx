@@ -49,6 +49,15 @@ function CardItem({
       e.stopPropagation();
       return;
     }
+     if (
+    e.target.closest?.(".upload-btn") ||
+    e.target.closest?.(".admin-btn") ||
+    e.target.closest?.(".edit-msg-btn")
+  ) {
+    e.stopPropagation();
+    return;
+  }
+  
     if (isLocked) {
       e.stopPropagation();
       return;

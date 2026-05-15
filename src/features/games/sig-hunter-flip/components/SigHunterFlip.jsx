@@ -240,39 +240,32 @@ export default function SigHunterFlip() {
     }
 
     const key = String(card.id);
-    const currentlyFlipped = !!flipped[card.id];
-    const next = !currentlyFlipped;
-    const currentMsg = revealed[card.id];
 
-    if (!currentlyFlipped && next && !(currentMsg && currentMsg.edited)) {
-      const base = card.isSpecial
-        ? currentMessages.special
-        : currentMessages.normal;
+    const currentlyFlipped = !!flipped[key]; // 렌더 시점 값으로 읽기
+  const nextFlipped = !currentlyFlipped;
 
-      const stored = cardWeights?.[key];
+  setFlipped((prev) => ({ ...prev, [key]: nextFlipped }));
 
-      const weights =
-        Array.isArray(stored) && stored.length === base.length
-          ? stored
-          : base.map((message) => message.weight ?? 1);
+  // 앞면 → 뒷면으로 넘어갈 때만 메시지 처리
+  if (nextFlipped && !(revealed[card.id]?.edited)) {
+    const base = card.isSpecial
+      ? currentMessages.special
+      : currentMessages.normal;
 
-      const msg = weightedPick(base, weights);
+    const stored = cardWeights?.[key];
+    const weights =
+      Array.isArray(stored) && stored.length === base.length
+        ? stored
+        : base.map((m) => m.weight ?? 1);
 
-      fireConfetti(msg.text);
+    const msg = weightedPick(base, weights);
+    fireConfetti(msg.text);
 
-      setRevealed((prev) => ({
-        ...prev,
-        [card.id]: msg,
-      }));
-    }
+    setRevealed((prev) => ({ ...prev, [card.id]: msg }));
+  }
 
-    setFlipped((prev) => ({
-      ...prev,
-      [card.id]: next,
-    }));
-
-    setLastActiveCardId(card.id);
-  };
+  setLastActiveCardId(card.id);
+};
 
   const handleAdminClick = (event, cardId) => {
     event.stopPropagation();
