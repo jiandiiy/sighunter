@@ -6,6 +6,7 @@ import { getStorage, ref as storageRef, listAll, getDownloadURL } from "firebase
 import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 import { SlotMachine } from "./components/SlotMachine";
 import { AdminModal } from "./components/AdminModal";
+import { ManualModal } from "./components/ManualModal";
 import { HistoryPanel } from "./components/HistoryPanel";
 import "./styles/slot.css";
 
@@ -339,6 +340,7 @@ export default function SigSlot() {
   const [program, setProgram] = useState("뮤즈");
   const [slotMode, setSlotMode] = useState(1);
   const [showAdmin, setShowAdmin] = useState(false);
+  const [showManual, setShowManual] = useState(false);
   const [savedPrograms, setSavedPrograms] = useState({});
   const [range, setRange] = useState(SIG_RANGES[0]);
   const [history, setHistory] = useState([]);
@@ -495,10 +497,16 @@ export default function SigSlot() {
           </h1>
         </div>
         <div className="flex flex-col items-center gap-0.5">
-          <button
-            onClick={() => setShowAdmin((v) => !v)}
-            className="text-xs text-gray-400 border border-gray-700 rounded-lg px-2 py-1 hover:border-purple-500 hover:text-purple-300 transition"
-          >⚙️ 관리</button>
+          <div className="flex gap-1.5">
+            <button
+              onClick={() => setShowAdmin((v) => !v)}
+              className="text-xs text-gray-400 border border-gray-700 rounded-lg px-2 py-1 hover:border-purple-500 hover:text-purple-300 transition"
+            >⚙️ 관리</button>
+            <button
+              onClick={() => setShowManual(true)}
+              className="text-xs text-gray-400 border border-gray-700 rounded-lg px-2 py-1 hover:border-blue-500 hover:text-blue-300 transition"
+            >📖 매뉴얼</button>
+          </div>
           {savedPrograms[program] && (
             <span className="text-green-500 text-xs">✅ {savedPrograms[program]} 저장</span>
           )}
@@ -555,6 +563,11 @@ export default function SigSlot() {
           }`}
         >전체</button>
       </div>
+
+      {/* 매뉴얼 모달 */}
+      {showManual && (
+        <ManualModal onClose={() => setShowManual(false)} />
+      )}
 
       {/* 관리자 모달 */}
       {showAdmin && (
