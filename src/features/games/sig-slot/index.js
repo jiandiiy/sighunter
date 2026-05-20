@@ -169,12 +169,13 @@ function useSlot(images, rewards) {
   const [bouncing, setBouncing] = useState(false);
   const [shuffledImages, setShuffledImages] = useState([]);
 
-  const frameRef   = useRef(null);
-  const timerRefs  = useRef([]);
-  const imagesRef  = useRef([]);
-  // ✅ 핵심 수정: spin 진행 중인지 ref로 추적
-  // state로 관리하면 렌더 타이밍 때문에 판단이 늦음
-  const isSpinning = useRef(false);
+  const frameRef       = useRef(null);
+  const timerRefs      = useRef([]);
+  const imagesRef      = useRef([]);
+  const isSpinning     = useRef(false);
+  const lastIdxRef     = useRef(0);   // setInterval 콜백에서 최신 idx 기록
+  // softStopAt에서 지정한 목표 이미지 — doStop에서 이걸 직접 resultImage로 씀
+  const targetImageRef = useRef(null);
 
   // ✅ images가 바뀌어도 imagesRef는 항상 최신 유지
   // 단, spin 중일 땐 shuffledImages(회전용 배열)를 유지하고
@@ -197,26 +198,40 @@ function useSlot(images, rewards) {
     setSpeedStage(stage);
     frameRef.current = setInterval(() => {
       const list = imagesRef.current;
-      setIdx((p) => (p + 1) % Math.max(list.length, 1));
+      setIdx((p) => {
+        const next = (p + 1) % Math.max(list.length, 1);
+        lastIdxRef.current = next; // 최신 idx를 ref에 기록
+        return next;
+      });
     }, interval);
   }, []);
 
   const doStop = useCallback(() => {
     clearAll();
-    // ✅ spin 종료 시 isSpinning 해제 → 이후 images 변경 시 ref 정상 갱신
     isSpinning.current = false;
-    setIdx((cur) => {
-      const list = imagesRef.current;
-      const finalIdx = cur % Math.max(list.length, 1);
-      setResultImage(list[finalIdx] ?? null);
-      setResultReward(pickReward(rewards));
-      setPhase("stopped");
-      setBouncing(true);
-      setTimeout(() => setBouncing(false), 600);
-      setSparkle(true);
-      setTimeout(() => setSparkle(false), 900);
-      return finalIdx;
-    });
+
+    const list = imagesRef.current;
+    const curIdx = lastIdxRef.current;
+
+    // ── 결과 이미지 결정 ──────────────────────────
+    // targetImageRef가 있으면(softStopAt 경유) 그걸 직접 사용
+    // 없으면 현재 인덱스 기준으로 결정
+    const picked = targetImageRef.current ?? list[curIdx % Math.max(list.length, 1)] ?? null;
+    targetImageRef.current = null; // 사용 후 초기화
+
+    const finalIdx = picked
+      ? Math.max(list.findIndex((img) => img.id === picked.id), 0)
+      : curIdx % Math.max(list.length, 1);
+
+    // ── state 일괄 세팅 ───────────────────────────
+    setIdx(finalIdx);
+    setResultImage(picked);
+    setResultReward(pickReward(rewards));
+    setPhase("stopped");
+    setBouncing(true);
+    setTimeout(() => setBouncing(false), 600);
+    setSparkle(true);
+    setTimeout(() => setSparkle(false), 900);
   }, [clearAll, rewards]);
 
   // ✅ delayMs 파라미터 제거 — 딜레이는 외부 setTimeout으로 제어
@@ -279,16 +294,41 @@ function useSlot(images, rewards) {
     if (phase === "stopped") setPhase("flipped");
   }, [phase]);
 
-  // ✅ images 변경 시 자동 reset 완전 제거
-  // 이전: images → reset() 연결이 3개 슬롯에서 동시 발동 → spin 중 강제 중단
-  // 수정: 외부(SigSlot)에서 program/range 변경 시 명시적으로 reset() 호출
-  //       spin 중엔 reset()이 자체 가드로 무시됨 (isSpinning.current 체크)
+  // ✅ 원하는 이미지에서 감속 후 자연스럽게 정지
+  // spinning 중에 외부에서 특정 이미지를 지정하면,
+  // 현재 고속 루프를 멈추고 감속 단계(s1→s2→s3)를 거친 뒤 해당 이미지로 결과 세팅
+  const softStopAt = useCallback((targetImage) => {
+    if (!isSpinning.current) return;
+
+    // 목표 이미지를 ref에 저장 → doStop에서 resultImage로 직접 사용
+    targetImageRef.current = targetImage;
+
+    clearAll();
+
+    const s1 = SPEED_STAGES[1];
+    const s2 = SPEED_STAGES[2];
+    const s3 = SPEED_STAGES[3];
+    const t1 = 0;
+    const t2 = t1 + s1.frames * s1.interval;  // 660ms
+    const t3 = t2 + s2.frames * s2.interval;  // +1000ms
+    const t4 = t3 + s3.frames * s3.interval;  // +1020ms
+
+    const push = (fn, delay) => {
+      const id = setTimeout(fn, Math.max(delay, 0));
+      timerRefs.current.push(id);
+    };
+
+    push(() => startLoop(s1.interval, 1), t1);
+    push(() => startLoop(s2.interval, 2), t2);
+    push(() => startLoop(s3.interval, 3), t3);
+    push(doStop, t4);
+  }, [clearAll, startLoop, doStop]);
 
   useEffect(() => () => clearAll(), [clearAll]);
 
   return {
     phase, idx, speedStage, resultImage, resultReward, sparkle, bouncing,
-    spin, reset, flip, shuffledImages,
+    spin, reset, flip, softStopAt, shuffledImages,
   };
 }
 
@@ -384,6 +424,24 @@ export default function SigSlot() {
   const s1 = useSlot(currentImages, currentRewards);
   const s2 = useSlot(currentImages, currentRewards);
   const slots = [s0, s1, s2].slice(0, slotMode);
+
+  // ─── 슬롯 고정 선택 상태 ───────────────────────
+  // null: 미선택, 0~2: 사이드 패널에서 선택된 슬롯 인덱스
+  const [targetSlotIdx, setTargetSlotIdx] = useState(null);
+
+  // 사이드 패널에서 슬롯 탭 클릭 — 선택/해제 토글
+  const handleTargetSlot = useCallback((idx) => {
+    setTargetSlotIdx((prev) => (prev === idx ? null : idx));
+  }, []);
+
+  // 사이드 패널에서 sigNum 클릭 — 선택된 슬롯을 감속 후 해당 이미지에서 정지
+  const handlePickImage = useCallback((image) => {
+    if (targetSlotIdx === null) return;
+    const slot = [s0, s1, s2][targetSlotIdx];
+    if (!slot || slot.phase !== "spinning") return;
+    slot.softStopAt(image);
+    setTargetSlotIdx(null); // 선택 후 초기화
+  }, [targetSlotIdx, s0, s1, s2]);
 
   // ✅ program/range가 바뀔 때만 reset — slotMode 전환은 reset 불필요
   // (slotMode 변경은 단순히 몇 개를 보여줄지 slice만 바꾸는 것이므로)
@@ -528,7 +586,7 @@ export default function SigSlot() {
         )}
       </div>
 
-      {/* 슬롯머신 — 로딩 완료(isFullyLoaded)된 후에만 렌더 */}
+      {/* 슬롯머신 + 사이드 패널 — 로딩 완료(isFullyLoaded)된 후에만 렌더 */}
       {isFullyLoaded && currentImages.length > 0 && (
         <SlotMachine
           images={currentImages}
@@ -538,6 +596,9 @@ export default function SigSlot() {
           slots={slots}
           onStart={handleStart}
           onRefresh={handleRefresh}
+          targetSlotIdx={targetSlotIdx}
+          onTargetSlot={handleTargetSlot}  // 사이드 패널 슬롯 탭 선택
+          onPickImage={handlePickImage}    // 사이드 패널 sigNum 클릭
         />
       )}
 
