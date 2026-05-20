@@ -1,30 +1,44 @@
 import { useState } from "react";
 
 // ─────────────────────────────────────────────
-// 아이콘 선택기
+// 아이콘 선택기 — 인라인 펼침 방식
+// overflow:hidden 부모 안에서 absolute 드롭다운이
+// 다른 행과 겹치는 문제를 해결
 // ─────────────────────────────────────────────
 const REWARD_ICONS = ["🎁","💰","🔑","⭐","💎","🏆","🎖️","🎀","🌟","🔥","💫","🎊","🎯","🪙","📦"];
 
 function IconPicker({ value, onChange }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="relative">
+    <div className="flex flex-col gap-1">
+      {/* 트리거 버튼 */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-9 h-9 rounded-lg bg-gray-700 hover:bg-gray-600 text-lg flex items-center justify-center transition"
-      >{value || "🎁"}</button>
+        className={`w-9 h-9 rounded-lg text-lg flex items-center justify-center transition border-2 ${
+          open
+            ? "bg-purple-700 border-purple-400"
+            : "bg-gray-700 hover:bg-gray-600 border-transparent"
+        }`}
+      >
+        {value || "🎁"}
+      </button>
+
+      {/* 인라인 그리드 — absolute 미사용, 레이아웃 흐름 안에서 펼침 */}
       {open && (
-        <div className="absolute z-50 top-10 left-0 bg-gray-800 border border-gray-600 rounded-xl p-2 grid grid-cols-5 gap-1 shadow-2xl">
+        <div className="bg-gray-750 border border-gray-600 rounded-xl p-2 grid grid-cols-5 gap-1 shadow-inner"
+             style={{ background: "#1e2535" }}>
           {REWARD_ICONS.map((icon) => (
             <button
               key={icon}
               type="button"
               onClick={() => { onChange(icon); setOpen(false); }}
-              className={`text-lg w-8 h-8 rounded-lg hover:bg-gray-600 transition ${
+              className={`text-lg w-8 h-8 rounded-lg hover:bg-gray-600 transition flex items-center justify-center ${
                 value === icon ? "bg-purple-700" : ""
               }`}
-            >{icon}</button>
+            >
+              {icon}
+            </button>
           ))}
         </div>
       )}
@@ -39,13 +53,12 @@ export function AdminModal({ program, programKey, rewardsMap, onSave, onClose, s
   const [localRewards, setLocalRewards] = useState(() =>
     JSON.parse(JSON.stringify(rewardsMap[program] || []))
   );
-  const [saveStatus, setSaveStatus] = useState("idle"); // idle | saving | success | error
+  const [saveStatus, setSaveStatus] = useState("idle");
   const [saveMsg,    setSaveMsg]    = useState("");
 
   const total = localRewards.reduce((s, r) => s + r.probability, 0);
   const isValid = total === 100 && localRewards.every((r) => r.name.trim());
 
-  // ── 항목 조작
   const update = (i, field, val) =>
     setLocalRewards((prev) =>
       prev.map((r, j) =>
@@ -75,7 +88,6 @@ export function AdminModal({ program, programKey, rewardsMap, onSave, onClose, s
     });
   };
 
-  // ── 확률 자동 맞춤 (나머지를 마지막 항목에 배분)
   const autoFit = () => {
     if (localRewards.length === 0) return;
     setLocalRewards((prev) => {
@@ -88,7 +100,6 @@ export function AdminModal({ program, programKey, rewardsMap, onSave, onClose, s
     });
   };
 
-  // ── 저장
   const handleSave = async () => {
     setSaveStatus("saving");
     setSaveMsg("");
@@ -104,21 +115,19 @@ export function AdminModal({ program, programKey, rewardsMap, onSave, onClose, s
     }
   };
 
-  // 게이지 색상
   const gaugeColor =
     total === 100 ? "bg-green-500" :
     total  > 100  ? "bg-red-500"   : "bg-yellow-500";
 
   return (
-    // 모달 오버레이
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-gray-900 rounded-2xl w-full max-w-lg mx-4 border border-purple-700 shadow-2xl flex flex-col max-h-screen overflow-hidden">
+      <div className="bg-gray-900 rounded-2xl w-full max-w-lg mx-4 border border-purple-700 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
 
-        {/* 모달 헤더 */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800">
+        {/* 헤더 */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800 shrink-0">
           <div>
             <h2 className="text-white font-black text-lg">⚙️ 보상 설정</h2>
             <p className="text-gray-500 text-xs mt-0.5">
@@ -132,7 +141,7 @@ export function AdminModal({ program, programKey, rewardsMap, onSave, onClose, s
         </div>
 
         {/* 확률 게이지 */}
-        <div className="px-5 pt-4">
+        <div className="px-5 pt-4 shrink-0">
           <div className="flex items-center justify-between mb-1">
             <span className="text-xs text-gray-400">확률 합계</span>
             <div className="flex items-center gap-2">
@@ -159,8 +168,8 @@ export function AdminModal({ program, programKey, rewardsMap, onSave, onClose, s
           )}
         </div>
 
-        {/* 보상 목록 */}
-        <div className="flex flex-col gap-2 overflow-y-auto px-5 py-3" style={{ maxHeight: "380px" }}>
+        {/* 보상 목록 — 스크롤 영역 */}
+        <div className="flex flex-col gap-2 overflow-y-auto px-5 py-3">
           {localRewards.map((r, i) => (
             <div
               key={r.id}
@@ -168,10 +177,13 @@ export function AdminModal({ program, programKey, rewardsMap, onSave, onClose, s
             >
               {/* 행 1: 아이콘 + 보상명 + 확률 + 순서 + 삭제 */}
               <div className="flex items-center gap-2">
-                <IconPicker
-                  value={r.icon || "🎁"}
-                  onChange={(icon) => update(i, "icon", icon)}
-                />
+                {/* IconPicker는 flex-col로 아래로 펼쳐지므로 items-start */}
+                <div className="self-start">
+                  <IconPicker
+                    value={r.icon || "🎁"}
+                    onChange={(icon) => update(i, "icon", icon)}
+                  />
+                </div>
                 <input
                   className="flex-1 bg-gray-700 text-white rounded-lg px-3 py-1.5 text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
                   placeholder="보상명"
@@ -187,8 +199,7 @@ export function AdminModal({ program, programKey, rewardsMap, onSave, onClose, s
                   />
                   <span className="text-gray-400 text-xs">%</span>
                 </div>
-                {/* 순서 이동 */}
-                <div className="flex flex-col gap-0.5">
+                <div className="flex flex-col gap-0.5 self-start">
                   <button
                     onClick={() => moveUp(i)}
                     disabled={i === 0}
@@ -202,9 +213,10 @@ export function AdminModal({ program, programKey, rewardsMap, onSave, onClose, s
                 </div>
                 <button
                   onClick={() => remove(i)}
-                  className="text-red-400 hover:text-red-300 hover:bg-red-900/30 w-7 h-7 rounded-lg flex items-center justify-center transition text-sm"
+                  className="text-red-400 hover:text-red-300 hover:bg-red-900/30 w-7 h-7 rounded-lg flex items-center justify-center transition text-sm self-start"
                 >✕</button>
               </div>
+
               {/* 행 2: 설명 */}
               <input
                 className="bg-gray-700 text-white rounded-lg px-3 py-1.5 text-sm w-full placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
@@ -212,6 +224,7 @@ export function AdminModal({ program, programKey, rewardsMap, onSave, onClose, s
                 value={r.description}
                 onChange={(e) => update(i, "description", e.target.value)}
               />
+
               {/* 확률 미니 바 */}
               <div className="h-1 bg-gray-700 rounded-full overflow-hidden">
                 <div
@@ -229,11 +242,9 @@ export function AdminModal({ program, programKey, rewardsMap, onSave, onClose, s
           >+ 보상 항목 추가</button>
         </div>
 
-        {/* 모달 푸터 */}
-        <div className="px-5 py-4 border-t border-gray-800 flex items-center justify-between gap-3">
+        {/* 푸터 */}
+        <div className="px-5 py-4 border-t border-gray-800 flex items-center justify-between gap-3 shrink-0">
           <span className="text-xs text-gray-600">{localRewards.length}개 항목</span>
-
-          {/* 저장 피드백 */}
           <div className="flex-1 text-center text-xs">
             {saveStatus === "saving"  && <span className="text-purple-300 animate-pulse">⏳ Firestore 저장 중...</span>}
             {saveStatus === "success" && <span className="text-green-400">✅ {saveMsg}</span>}
@@ -245,7 +256,6 @@ export function AdminModal({ program, programKey, rewardsMap, onSave, onClose, s
               <span className="text-yellow-500">보상명을 모두 입력해주세요</span>
             )}
           </div>
-
           <button
             onClick={handleSave}
             disabled={!isValid || saveStatus === "saving"}

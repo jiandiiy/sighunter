@@ -43,19 +43,35 @@ const SPEED_STAGES = [
   { interval: 200, frames: 5  },
   { interval: 340, frames: 3  },
 ];
-const SPIN_MIN = 1500;
-const SPIN_MAX = 5000;
+
+// 감속 단계 총 소요 시간: 660 + 1000 + 1020 = 2680ms
+// SPIN_MIN은 반드시 이보다 커야 t1(고속 구간)이 양수가 됨
+// 이전 SPIN_MIN=1500은 2680보다 작아서 t1이 음수 → 모든 단계가 동시 실행 → 즉시 정지
+const DECEL_DURATION =
+  SPEED_STAGES.slice(1).reduce((sum, s) => sum + s.frames * s.interval, 0); // 2680ms
+const SPIN_MIN = DECEL_DURATION + 1500; // 4180ms — 고속 구간 최소 1.5초 보장
+const SPIN_MAX = DECEL_DURATION + 5000; // 7680ms
 
 // ─────────────────────────────────────────────
-// 🚀 Fix 1 + Fix 3: 병렬 처리 + 점진적 로딩
+// 이미지 프리로딩 유틸
+// ─────────────────────────────────────────────
+function preloadImages(images) {
+  images.forEach((img) => {
+    if (!img?.url) return;
+    const el = new Image();
+    el.src = img.url;
+  });
+}
+
+// ─────────────────────────────────────────────
+// fetchImagesFromStorage
 // ─────────────────────────────────────────────
 async function fetchImagesFromStorage(programKey, rangeFilter = null, onPartial = null) {
   const groups = ["group01","group02","group03","group04",
                   "group05","group06","group07","group08"];
-  
+
   let accumulated = [];
 
-  // 8개 그룹 병렬 요청
   const promises = groups.map(async (group) => {
     try {
       const folderRef = storageRef(storage, `images/${programKey}/${group}`);
@@ -68,8 +84,7 @@ async function fetchImagesFromStorage(programKey, rangeFilter = null, onPartial 
           return { id: item.fullPath, url, name, sigNum: isNaN(sigNum) ? null : sigNum, group };
         })
       );
-      
-      // 점진적 로딩: 그룹 하나 완료될 때마다 콜백 호출
+
       if (onPartial) {
         accumulated = [...accumulated, ...items];
         const filtered = rangeFilter
@@ -77,7 +92,7 @@ async function fetchImagesFromStorage(programKey, rangeFilter = null, onPartial 
           : accumulated;
         onPartial(filtered);
       }
-      
+
       return items;
     } catch {
       return [];
@@ -154,9 +169,22 @@ function useSlot(images, rewards) {
   const [bouncing, setBouncing] = useState(false);
   const [shuffledImages, setShuffledImages] = useState([]);
 
-  const frameRef = useRef(null);
-  const timerRefs = useRef([]);
-  const imagesRef = useRef([]);
+  const frameRef   = useRef(null);
+  const timerRefs  = useRef([]);
+  const imagesRef  = useRef([]);
+  // ✅ 핵심 수정: spin 진행 중인지 ref로 추적
+  // state로 관리하면 렌더 타이밍 때문에 판단이 늦음
+  const isSpinning = useRef(false);
+
+  // ✅ images가 바뀌어도 imagesRef는 항상 최신 유지
+  // 단, spin 중일 땐 shuffledImages(회전용 배열)를 유지하고
+  // imagesRef는 spin 종료 후 자연스럽게 갱신됨
+  useEffect(() => {
+    if (!isSpinning.current) {
+      // spin 중이 아닐 때만 ref 갱신 — spin 중엔 shuffleArray된 배열 유지
+      imagesRef.current = images;
+    }
+  }, [images]);
 
   const clearAll = useCallback(() => {
     clearInterval(frameRef.current);
@@ -168,15 +196,17 @@ function useSlot(images, rewards) {
     clearInterval(frameRef.current);
     setSpeedStage(stage);
     frameRef.current = setInterval(() => {
-      const list = imagesRef.current.length > 0 ? imagesRef.current : images;
+      const list = imagesRef.current;
       setIdx((p) => (p + 1) % Math.max(list.length, 1));
     }, interval);
-  }, [images]);
+  }, []);
 
   const doStop = useCallback(() => {
     clearAll();
+    // ✅ spin 종료 시 isSpinning 해제 → 이후 images 변경 시 ref 정상 갱신
+    isSpinning.current = false;
     setIdx((cur) => {
-      const list = imagesRef.current.length > 0 ? imagesRef.current : images;
+      const list = imagesRef.current;
       const finalIdx = cur % Math.max(list.length, 1);
       setResultImage(list[finalIdx] ?? null);
       setResultReward(pickReward(rewards));
@@ -187,13 +217,19 @@ function useSlot(images, rewards) {
       setTimeout(() => setSparkle(false), 900);
       return finalIdx;
     });
-  }, [clearAll, images, rewards]);
+  }, [clearAll, rewards]);
 
-  const spin = useCallback((delayMs = 0) => {
+  // ✅ delayMs 파라미터 제거 — 딜레이는 외부 setTimeout으로 제어
+  // 이전: spin(300ms) 내부에서 setTimeout을 걸면 그 사이 React 렌더로
+  //       images 참조가 바뀌어 reset()이 발동될 수 있었음
+  const spin = useCallback(() => {
     if (!images.length || !rewards.length) return;
     clearAll();
+
     const nextShuffledImages = shuffleArray(images);
     imagesRef.current = nextShuffledImages;
+    isSpinning.current = true;
+
     setShuffledImages(nextShuffledImages);
     setPhase("spinning");
     setResultImage(null);
@@ -213,7 +249,7 @@ function useSlot(images, rewards) {
     const t4 = t3 + s3Duration;
 
     const push = (fn, delay) => {
-      const id = setTimeout(fn, delayMs + Math.max(delay, 0));
+      const id = setTimeout(fn, Math.max(delay, 0));
       timerRefs.current.push(id);
     };
 
@@ -225,8 +261,10 @@ function useSlot(images, rewards) {
   }, [clearAll, startLoop, doStop, images, rewards]);
 
   const reset = useCallback(() => {
+    // ✅ spin 중이면 외부 reset 호출도 무시 (3개 슬롯 모드에서 slotMode 변경 시 안전)
+    if (isSpinning.current) return;
     clearAll();
-    imagesRef.current = [];
+    imagesRef.current = images;
     setShuffledImages([]);
     setPhase("idle");
     setResultImage(null);
@@ -235,15 +273,16 @@ function useSlot(images, rewards) {
     setSpeedStage(0);
     setBouncing(false);
     setSparkle(false);
-  }, [clearAll, images.length]);
+  }, [clearAll, images]);
 
   const flip = useCallback(() => {
     if (phase === "stopped") setPhase("flipped");
   }, [phase]);
 
-  useEffect(() => {
-    reset();
-  }, [images, reset]);
+  // ✅ images 변경 시 자동 reset 완전 제거
+  // 이전: images → reset() 연결이 3개 슬롯에서 동시 발동 → spin 중 강제 중단
+  // 수정: 외부(SigSlot)에서 program/range 변경 시 명시적으로 reset() 호출
+  //       spin 중엔 reset()이 자체 가드로 무시됨 (isSpinning.current 체크)
 
   useEffect(() => () => clearAll(), [clearAll]);
 
@@ -265,8 +304,9 @@ export default function SigSlot() {
   const [history, setHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
 
-  // 🚀 Fix 2: 캐싱 — 키를 "프로그램-구간" 형태로 변경
   const [imagesMap, setImagesMap] = useState({});
+  // ✅ 로딩 완료 여부를 별도 추적 — imgLoading과 구분
+  const [loadedKeys, setLoadedKeys] = useState(new Set());
   const [imgLoading, setImgLoading] = useState(false);
   const [imgError, setImgError] = useState("");
 
@@ -274,16 +314,15 @@ export default function SigSlot() {
     Object.fromEntries(PROGRAMS.map((p) => [p, makeDefaultRewards()]))
   );
 
-  // 캐시 키 생성
   const cacheKey = `${program}-${range?.label ?? "전체"}`;
   const currentImages = imagesMap[cacheKey] || [];
   const currentRewards = rewardsMap[program] || [];
   const programKey = PROGRAM_KEY_MAP[program];
+  // ✅ 로딩이 완전히 끝난 키인지 확인 — 부분 로딩 상태에서 spin 방지
+  const isFullyLoaded = loadedKeys.has(cacheKey);
 
-  // ── 프로그램/구간 바뀔 때 이미지 로드 (캐싱 적용)
   useEffect(() => {
-    // 이미 로드된 조합이면 스킵
-    if (imagesMap[cacheKey]) {
+    if (loadedKeys.has(cacheKey)) {
       setImgLoading(false);
       return;
     }
@@ -292,23 +331,30 @@ export default function SigSlot() {
     setImgLoading(true);
     setImgError("");
 
-    // 점진적 로딩 콜백
+    // 점진적 로딩: 그룹 완료마다 프리로드만 실행, state는 최종에만 반영
+    // ↓ 이전엔 handlePartial마다 imagesMap을 업데이트해서
+    //   images prop 변경 → reset() 연쇄 발동 → spin 중단 문제 발생
     const handlePartial = (partialImages) => {
-      setImagesMap((prev) => ({ ...prev, [cacheKey]: partialImages }));
+      // 부분 데이터는 프리로드만 — state 업데이트 X
+      // (state 업데이트 시 useSlot의 images 변경 → reset 트리거 됨)
+      preloadImages(partialImages);
     };
 
     fetchImagesFromStorage(key, range, handlePartial)
       .then((imgs) => {
+        // ✅ 로딩 완전히 끝난 후 한 번에 state 업데이트
+        preloadImages(imgs);
         setImagesMap((prev) => ({ ...prev, [cacheKey]: imgs }));
+        setLoadedKeys((prev) => new Set([...prev, cacheKey]));
         setImgLoading(false);
       })
       .catch((e) => {
         setImgError(e.message);
         setImgLoading(false);
       });
-  }, [program, range, cacheKey, imagesMap]);
+  }, [program, range, cacheKey, loadedKeys]);
+  // ↑ imagesMap 의존성 제거 — 이전엔 imagesMap 변경마다 effect 재실행으로 루프 위험
 
-  // ── 프로그램 바뀔 때 보상 로드
   useEffect(() => {
     const key = PROGRAM_KEY_MAP[program];
     fetchRewardsFromFirestore(key).then((items) => {
@@ -334,21 +380,20 @@ export default function SigSlot() {
     [program]
   );
 
-  // ── 슬롯 훅 (3개)
   const s0 = useSlot(currentImages, currentRewards);
   const s1 = useSlot(currentImages, currentRewards);
   const s2 = useSlot(currentImages, currentRewards);
   const slots = [s0, s1, s2].slice(0, slotMode);
 
-  // 프로그램/구간 바뀔 때 슬롯 리셋
+  // ✅ program/range가 바뀔 때만 reset — slotMode 전환은 reset 불필요
+  // (slotMode 변경은 단순히 몇 개를 보여줄지 slice만 바꾸는 것이므로)
   useEffect(() => {
     s0.reset();
     s1.reset();
     s2.reset();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [program, range, slotMode]);
+  }, [program, range]);
 
-  // 슬롯이 멈추면 히스토리에 추가
   const phaseKey = slots.map((s) => s.phase).join(",");
   useEffect(() => {
     slots.forEach((slot) => {
@@ -362,7 +407,21 @@ export default function SigSlot() {
   const handleStart = () => {
     const anySpinning = slots.some((s) => s.phase === "spinning");
     if (anySpinning) return;
-    slots.forEach((s, i) => s.spin(i * 500));
+    if (!isFullyLoaded) return;
+    // ✅ 딜레이를 외부 setTimeout으로 제어
+    // spin() 내부에서 delayMs를 처리하면 그 사이 React 렌더로
+    // images 참조 변경 → reset() 발동 위험이 있었음
+    // 외부에서 setTimeout으로 호출하면 spin() 자체는 즉시 실행 → 안전
+    slots.forEach((s, i) => {
+      if (i === 0) {
+        s.spin();
+      } else {
+        const id = setTimeout(() => s.spin(), i * 300);
+        // 언마운트 시 클리어할 필요 있으면 ref에 담아도 되나,
+        // 300ms 이내이므로 실용적으로는 무시해도 무방
+        void id;
+      }
+    });
   };
 
   const handleRefresh = () => slots.forEach((s) => s.reset());
@@ -469,8 +528,8 @@ export default function SigSlot() {
         )}
       </div>
 
-      {/* 슬롯머신 */}
-      {currentImages.length > 0 && (
+      {/* 슬롯머신 — 로딩 완료(isFullyLoaded)된 후에만 렌더 */}
+      {isFullyLoaded && currentImages.length > 0 && (
         <SlotMachine
           images={currentImages}
           rewards={currentRewards}

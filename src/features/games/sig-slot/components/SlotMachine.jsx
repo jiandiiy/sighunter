@@ -57,7 +57,7 @@ export function FlipCard({ image, reward, isFlipped, onFlip, canFlip, size = "lg
           className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-900 to-indigo-800 shadow-2xl border-4 border-yellow-400 flex flex-col items-center justify-center p-4 gap-2"
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
         >
-          <div className="text-3xl">🎁</div>
+          <div className="text-3xl">{reward?.icon || "🎁"}</div>
           <div className={`text-yellow-300 ${titleSize} font-extrabold text-center`}>{reward?.name}</div>
           <div className="w-12 h-0.5 bg-yellow-400 rounded" />
           <div className={`text-white text-center ${descSize} leading-relaxed`}>{reward?.description}</div>
@@ -99,9 +99,7 @@ export function SlotSpinner({ images, currentIndex, speedStage = 0, size = "lg" 
         className="w-full h-full object-cover"
         style={{ animation: getSlideAnim(speedStage) }}
       />
-      <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-center text-xs py-1 truncate px-2">
-        {img.sigNum ? `SIG ${img.sigNum}` : img.name}
-      </div>
+
     </div>
   );
 }
@@ -114,7 +112,7 @@ export function SlotMachine({
   rewards, 
   slotCount, 
   onResult,
-  slots, // [s0, s1, s2] useSlot 훅 결과 배열
+  slots,
   onStart,
   onRefresh
 }) {
@@ -174,12 +172,12 @@ export function SlotMachine({
                       {slot.sparkle && <Sparkles />}
                     </>
                   ) : (
-                  <SlotSpinner
-  images={slot.shuffledImages.length > 0 ? slot.shuffledImages : images}
-  currentIndex={slot.idx}
-  speedStage={slot.speedStage}
-  size={size}
-/>
+                    <SlotSpinner
+                      images={slot.shuffledImages.length > 0 ? slot.shuffledImages : images}
+                      currentIndex={slot.idx}
+                      speedStage={slot.speedStage}
+                      size={size}
+                    />
                   )}
                 </div>
                 <div className="h-5 text-xs text-gray-400 text-center">
