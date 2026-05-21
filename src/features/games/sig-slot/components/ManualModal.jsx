@@ -82,12 +82,135 @@ function Step({ num, title, children }) {
   );
 }
 
+// ✅ [추가] 이미지 로딩 단계 — 상태별 시각 안내
+function LoadingStatusGuide() {
+  const states = [
+    {
+      icon: "⏳",
+      label: "로딩 중",
+      bg: "bg-blue-900/30 border-blue-700",
+      labelColor: "text-blue-300",
+      desc: (
+        <>
+          보라색 스피너와 함께{" "}
+          <span className="text-blue-300 font-bold">이미지 불러오는 중...</span> 문구가 표시됩니다.
+          <br />
+          <span className="text-red-400 font-bold">이 상태에서는 START를 누를 수 없습니다.</span> 로딩이 끝날 때까지 기다려 주세요.
+        </>
+      ),
+    },
+    {
+      icon: "✅",
+      label: "로딩 완료",
+      bg: "bg-green-900/30 border-green-700",
+      labelColor: "text-green-300",
+      desc: (
+        <>
+          스피너가 사라지고 하단에{" "}
+          <span className="text-green-400 font-bold">뮤즈 · 1000~3000 · 120개 이미지 로드됨</span>
+          과 같은 문구가 나타납니다.
+          <br />
+          슬롯머신이 화면에 나타나면 <span className="text-yellow-300 font-bold">▶ START</span>를 눌러 추첨을 시작할 수 있습니다.
+        </>
+      ),
+    },
+    {
+      icon: "⚠️",
+      label: "이미지 없음",
+      bg: "bg-gray-800/60 border-gray-600",
+      labelColor: "text-gray-400",
+      desc: (
+        <>
+          <span className="text-gray-300 font-bold">해당 구간의 이미지가 없습니다</span> 메시지가 뜨면,
+          선택한 구간에 등록된 이미지가 없는 것입니다.
+          <br />
+          다른 구간을 선택하거나 <span className="text-yellow-300">전체</span> 버튼을 클릭해 주세요.
+        </>
+      ),
+    },
+    {
+      icon: "🔴",
+      label: "로드 실패",
+      bg: "bg-red-900/30 border-red-700",
+      labelColor: "text-red-400",
+      desc: (
+        <>
+          네트워크 오류 등으로 이미지를 가져오지 못한 경우입니다.
+          <br />
+          페이지를 새로고침하거나, 인터넷 연결을 확인한 후 다시 시도해 주세요.
+        </>
+      ),
+    },
+  ];
+
+  return (
+    <div className="flex flex-col gap-2">
+      {states.map((s) => (
+        <div
+          key={s.label}
+          className={`flex items-start gap-3 rounded-xl border p-3 ${s.bg}`}
+        >
+          <span className="text-xl shrink-0 mt-0.5">{s.icon}</span>
+          <div>
+            <div className={`font-bold text-s mb-1 ${s.labelColor}`}>{s.label}</div>
+            <div className="text-gray-300 text-s leading-relaxed">{s.desc}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function SectionBasic() {
   return (
-    <div className="flex flex-col gap-5">
-      {/* 준비 */}
+    <div className="flex flex-col gap-6">
+
+      {/* ✅ [추가] 이미지 로딩 안내 — 가장 먼저 */}
       <div className="flex flex-col gap-3">
-        <h3 className="text-purple-300 font-bold text-s border-b border-gray-700 pb-1">① 추첨 준비</h3>
+        <h3 className="text-purple-300 font-bold text-s border-b border-gray-700 pb-1">
+          ① 이미지 로딩
+        </h3>
+        <p className="text-gray-400 text-s leading-relaxed">
+          처음 접속하거나 프로그램 / 구간을 변경하면{" "}
+          <span className="text-yellow-300 font-bold">Firebase Storage</span>에서 이미지를 가져옵니다.
+          이미지가 완전히 로드된 후에야 슬롯머신이 나타납니다.
+          아래 상태 표시를 참고해 주세요.
+        </p>
+        <LoadingStatusGuide />
+
+        {/* 프로세스 흐름 */}
+        <div className="flex items-center justify-center gap-1 flex-wrap mt-1">
+          {[
+            "프로그램 / 구간 선택",
+            "→",
+            "이미지 다운로드",
+            "→",
+            "브라우저 캐시 저장",
+            "→",
+            "슬롯머신 표시",
+          ].map((item, i) =>
+            item === "→" ? (
+              <span key={i} className="text-gray-600 text-xs">{item}</span>
+            ) : (
+              <div
+                key={i}
+                className="bg-gray-800 border border-gray-700 rounded-lg px-2.5 py-1.5 text-xs text-gray-300 text-center"
+              >
+                {item}
+              </div>
+            )
+          )}
+        </div>
+
+        <div className="bg-blue-900/20 border border-blue-800 rounded-xl px-3 py-2.5 text-s text-blue-300">
+          💡 <span className="font-bold">한 번 로딩된 구간은 캐싱</span>됩니다. 같은 프로그램·구간으로
+          다시 돌아오면 추가 로딩 없이 즉시 사용할 수 있습니다.
+        </div>
+      </div>
+
+      {/* 추첨 준비 */}
+      <div className="flex flex-col gap-3">
+        <h3 className="text-purple-300 font-bold text-s border-b border-gray-700 pb-1">② 추첨 준비</h3>
         <Step num={1} title="프로그램 선택">
           상단 탭에서 <span className="text-yellow-300">뮤즈 / 퀸덤 / 홀릭</span> 중 하나를 클릭합니다.
           프로그램마다 이미지와 보상이 다르게 관리됩니다.
@@ -100,31 +223,26 @@ function SectionBasic() {
           <span className="text-yellow-300">🎴</span>: 1개 슬롯 &nbsp;·&nbsp;
           <span className="text-yellow-300">🎴🎴🎴</span>: 3개 동시 추첨
         </Step>
-        <Step num={4} title="이미지 로딩 확인">
-          화면 중앙에 로딩 스피너가 사라지고,
-          <span className="text-green-400"> "뮤즈 · 1000~3000 · 120개 이미지 로드됨"</span> 같은 문구가
-          나타나면 준비 완료입니다. <span className="text-red-400">스피너가 돌아가는 동안 START를 누르지 마세요.</span>
-        </Step>
       </div>
 
-      {/* 진행 */}
+      {/* 추첨 진행 */}
       <div className="flex flex-col gap-3">
-        <h3 className="text-purple-300 font-bold text-s border-b border-gray-700 pb-1">② 추첨 진행</h3>
-        <Step num={5} title="▶ START 클릭">
+        <h3 className="text-purple-300 font-bold text-s border-b border-gray-700 pb-1">③ 추첨 진행</h3>
+        <Step num={4} title="▶ START 클릭">
           슬롯이 빠르게 돌아가기 시작합니다. 상단 노란 경고등이 깜빡입니다.
           3개 슬롯 모드에서는 SLOT 1 → 2 → 3 순서로 0.3초 간격으로 시작됩니다.
         </Step>
-        <Step num={6} title="자동 감속 후 정지">
+        <Step num={5} title="자동 감속 후 정지">
           일정 시간(랜덤, 약 4~8초) 후 슬롯이 단계적으로 감속하며 멈춥니다.
         </Step>
-        <Step num={7} title="보상 카드 확인">
+        <Step num={6} title="보상 카드 확인">
           멈춘 슬롯 카드를 <span className="text-yellow-300">클릭</span>하면 카드가 뒤집히며
           아이콘 · 보상명 · 설명 · 시그 번호가 표시됩니다.
           결과는 하단 <span className="text-yellow-300">히스토리</span>에 자동 기록됩니다.
         </Step>
-        <Step num={8} title="다시 추첨">
+        <Step num={7} title="다시 추첨">
           바로 <span className="text-yellow-300">▶ START</span>를 눌러 재추첨하거나,
-          <span className="text-yellow-300">🔄 새로고침</span>으로 슬롯을 초기화 후 시작할 수 있습니다.
+          <span className="text-yellow-300"> 🔄 새로고침</span>으로 슬롯을 초기화 후 시작할 수 있습니다.
         </Step>
       </div>
     </div>
@@ -260,6 +378,14 @@ function SectionFaq() {
         "로딩 스피너가 돌아가는 도중 START를 눌렀을 수 있습니다. 로딩이 완전히 끝난 뒤 START를 눌러 주세요.",
         "선택한 구간에 이미지가 거의 없을 수 있습니다. 하단에 \"해당 구간의 이미지가 없습니다\" 메시지가 뜨면 구간을 변경하거나 '전체'를 선택하세요.",
         "그래도 이상하면 프로그램/구간/슬롯 수 조합을 기록해 개발 담당자에게 전달해 주세요.",
+      ],
+    },
+    {
+      q: "처음 접속하면 슬롯머신이 바로 안 보여요",
+      answers: [
+        "정상 동작입니다. Firebase Storage에서 이미지를 모두 내려받고 브라우저에 캐싱이 완료된 후에야 슬롯머신이 표시됩니다.",
+        "이미지 수에 따라 수초~수십 초가 걸릴 수 있습니다. 스피너가 사라질 때까지 기다려 주세요.",
+        "한 번 로딩된 구간은 이후에는 바로 표시됩니다.",
       ],
     },
     {
