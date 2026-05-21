@@ -335,17 +335,24 @@ export default function SigSlot() {
   );
 
   // ─────────────────────────────────────────────
-  // ✅ [추가 1] 사운드 ref 초기화
+  // 사운드 ref 초기화
+  // slot.mp3  : 슬롯 회전 중 루프 재생
+  // button.mp3: START 버튼 클릭 시 1회 재생
   // ─────────────────────────────────────────────
-  const audioRef = useRef(null);
+  const slotAudioRef   = useRef(null); // ✅ 기존 slot.mp3
+  const buttonAudioRef = useRef(null); // ✅ [추가] button.mp3
 
   useEffect(() => {
-    audioRef.current = new Audio("/sounds/slot.mp3");
-    audioRef.current.loop = true; // 슬롯 도는 동안 루프
+    slotAudioRef.current = new Audio("/sounds/slot.mp3");
+    slotAudioRef.current.loop = true;
+
+    buttonAudioRef.current = new Audio("/sounds/button.mp3"); // ✅ [추가]
+
     return () => {
-      // 언마운트 시 정리
-      audioRef.current.pause();
-      audioRef.current = null;
+      slotAudioRef.current.pause();
+      slotAudioRef.current = null;
+      buttonAudioRef.current.pause();                         // ✅ [추가]
+      buttonAudioRef.current = null;                          // ✅ [추가]
     };
   }, []);
 
@@ -433,19 +440,16 @@ export default function SigSlot() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [program, range]);
 
-  // ─────────────────────────────────────────────
-  // ✅ [추가 2] 슬롯 전체 정지 감지 → 사운드 중단
-  // ─────────────────────────────────────────────
+  // 슬롯 전체 정지 감지 → slot.mp3 중단
   const phaseKey = slots.map((s) => s.phase).join(",");
 
   useEffect(() => {
     const allStopped = slots.every((s) => s.phase !== "spinning");
-    if (allStopped && audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
+    if (allStopped && slotAudioRef.current) {
+      slotAudioRef.current.pause();
+      slotAudioRef.current.currentTime = 0;
     }
-  // phaseKey가 바뀔 때마다 체크
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phaseKey]);
 
   useEffect(() => {
@@ -457,20 +461,21 @@ export default function SigSlot() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phaseKey]);
 
-  // ─────────────────────────────────────────────
-  // ✅ [추가 3] handleStart — 사운드 재생 추가
-  // ─────────────────────────────────────────────
   const handleStart = () => {
     const anySpinning = slots.some((s) => s.phase === "spinning");
     if (anySpinning) return;
     if (!isFullyLoaded) return;
 
-    // 사운드 처음부터 재생
-    if (audioRef.current) {
-      audioRef.current.currentTime = 0;
-      audioRef.current.play().catch(() => {
-        // 브라우저 autoplay 정책으로 차단될 경우 조용히 무시
-      });
+    // ✅ [추가] button.mp3 — 클릭 즉시 1회 재생
+    if (buttonAudioRef.current) {
+      buttonAudioRef.current.currentTime = 0;
+      buttonAudioRef.current.play().catch(() => {});
+    }
+
+    // slot.mp3 — 슬롯 회전 시작과 함께 루프 재생
+    if (slotAudioRef.current) {
+      slotAudioRef.current.currentTime = 0;
+      slotAudioRef.current.play().catch(() => {});
     }
 
     slots.forEach((s, i) => {
