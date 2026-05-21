@@ -103,7 +103,7 @@ export function useSigStorage() {
     if (!rawFlipped || typeof rawFlipped !== "object") return {};
     const safe = {};
     allCardIds.forEach((id) => {
-      safe[id] = rawFlipped[id] === true;
+     if (rawFlipped[id] === true) safe[id] = true;
     });
     return safe;
   };
@@ -251,12 +251,13 @@ export function useSigStorage() {
 
       if (!fromRemoteRef.current) {
         pushToRemote({ [key]: next });
+      } else {
+        fromRemoteRef.current = false;
       }
 
       return next;
     });
 
-    fromRemoteRef.current = false;
   };
 
   const setFlipped = wrapSetter(setFlippedState, "flipped");
@@ -276,12 +277,13 @@ export function useSigStorage() {
 
       if (!fromRemoteRef.current) {
         pushToRemote({ cardWeights: next });
+      } else {
+        fromRemoteRef.current = false;
       }
 
       return next;
     });
 
-    fromRemoteRef.current = false;
   };
 
   // setRevealed: Firestore 동기화
@@ -292,9 +294,10 @@ export function useSigStorage() {
 
         if (!fromRemoteRef.current) {
           pushToRemote({ revealed: next });
+        } else {
+          fromRemoteRef.current = false;
         }
 
-        fromRemoteRef.current = false;
         return next;
       });
     } else {
