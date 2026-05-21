@@ -1,4 +1,3 @@
-// src/features/games/sig-slot/index.js
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { initializeApp, getApps } from "firebase/app";
@@ -22,7 +21,7 @@ const firebaseConfig = {
   appId:             process.env.REACT_APP_FIREBASE_APP_ID             || "1:702524786134:web:259a88e3cd473531571077",
 };
 
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+const app     = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 const storage = getStorage(app);
 const db      = getFirestore(app);
 
@@ -40,9 +39,9 @@ const SIG_RANGES = [
 
 const SPEED_STAGES = [
   { interval: 60,  frames: null },
-  { interval: 110, frames: 6  },
-  { interval: 200, frames: 5  },
-  { interval: 340, frames: 3  },
+  { interval: 110, frames: 6   },
+  { interval: 200, frames: 5   },
+  { interval: 340, frames: 3   },
 ];
 
 const DECEL_DURATION =
@@ -51,33 +50,53 @@ const SPIN_MIN = DECEL_DURATION + 1500;
 const SPIN_MAX = DECEL_DURATION + 5000;
 
 // ─────────────────────────────────────────────
-// 이미지 프리로딩 유틸
+// ✅ 이미지 프리로드 캐시 — 모듈 레벨에서 유지
+// Image 객체를 로컬 변수에만 담으면 GC가 즉시 수거해서 캐싱이 무효화됨
+// 모듈 레벨 Map에 url을 키로 보관하면 GC에서 살아남아 브라우저 캐시가 유지됨
 // ─────────────────────────────────────────────
+const imageCache = new Map(); // url → HTMLImageElement
+
+/**
+ * 이미지 배열을 프리로드하고, 모든 이미지 로드가 완료되면 resolve
+ * @param {Array<{url: string}>} images
+ * @returns {Promise<void>}
+ */
 function preloadImages(images) {
-  images.forEach((img) => {
-    if (!img?.url) return;
-    const el = new Image();
-    el.src = img.url;
+  const promises = images.map((img) => {
+    if (!img?.url) return Promise.resolve();
+    if (imageCache.has(img.url)) return Promise.resolve(); // 이미 로드된 이미지는 스킵
+
+    return new Promise((resolve) => {
+      const el = new window.Image();
+      el.onload  = () => resolve();
+      el.onerror = () => resolve(); // 실패해도 블로킹하지 않음
+      el.src     = img.url;
+      imageCache.set(img.url, el); // ✅ 모듈 레벨 캐시에 보관 → GC 방지
+    });
   });
+
+  return Promise.all(promises);
 }
 
 // ─────────────────────────────────────────────
 // fetchImagesFromStorage
 // ─────────────────────────────────────────────
 async function fetchImagesFromStorage(programKey, rangeFilter = null, onPartial = null) {
-  const groups = ["group01","group02","group03","group04",
-                  "group05","group06","group07","group08"];
+  const groups = [
+    "group01","group02","group03","group04",
+    "group05","group06","group07","group08",
+  ];
 
   let accumulated = [];
 
   const promises = groups.map(async (group) => {
     try {
-      const folderRef = storageRef(storage, `images/${programKey}/${group}`);
+      const folderRef  = storageRef(storage, `images/${programKey}/${group}`);
       const listResult = await listAll(folderRef);
-      const items = await Promise.all(
+      const items      = await Promise.all(
         listResult.items.map(async (item) => {
-          const url  = await getDownloadURL(item);
-          const name = item.name.replace(/\.[^.]+$/, "");
+          const url    = await getDownloadURL(item);
+          const name   = item.name.replace(/\.[^.]+$/, "");
           const sigNum = parseInt(name, 10);
           return { id: item.fullPath, url, name, sigNum: isNaN(sigNum) ? null : sigNum, group };
         })
@@ -86,7 +105,9 @@ async function fetchImagesFromStorage(programKey, rangeFilter = null, onPartial 
       if (onPartial) {
         accumulated = [...accumulated, ...items];
         const filtered = rangeFilter
-          ? accumulated.filter((img) => img.sigNum !== null && img.sigNum >= rangeFilter.min && img.sigNum <= rangeFilter.max)
+          ? accumulated.filter(
+              (img) => img.sigNum !== null && img.sigNum >= rangeFilter.min && img.sigNum <= rangeFilter.max
+            )
           : accumulated;
         onPartial(filtered);
       }
@@ -97,7 +118,7 @@ async function fetchImagesFromStorage(programKey, rangeFilter = null, onPartial 
     }
   });
 
-  const results = await Promise.allSettled(promises);
+  const results   = await Promise.allSettled(promises);
   const allImages = results
     .filter((r) => r.status === "fulfilled")
     .flatMap((r) => r.value);
@@ -137,7 +158,7 @@ const makeDefaultRewards = () => [
 
 function pickReward(rewards) {
   const total = rewards.reduce((s, r) => s + r.probability, 0);
-  let rand = Math.random() * total;
+  let rand    = Math.random() * total;
   for (const r of rewards) {
     rand -= r.probability;
     if (rand <= 0) return r;
@@ -158,13 +179,13 @@ function shuffleArray(arr) {
 // useSlot 훅
 // ─────────────────────────────────────────────
 function useSlot(images, rewards) {
-  const [phase, setPhase] = useState("idle");
-  const [idx, setIdx] = useState(0);
-  const [speedStage, setSpeedStage] = useState(0);
-  const [resultImage, setResultImage] = useState(null);
+  const [phase, setPhase]               = useState("idle");
+  const [idx, setIdx]                   = useState(0);
+  const [speedStage, setSpeedStage]     = useState(0);
+  const [resultImage, setResultImage]   = useState(null);
   const [resultReward, setResultReward] = useState(null);
-  const [sparkle, setSparkle] = useState(false);
-  const [bouncing, setBouncing] = useState(false);
+  const [sparkle, setSparkle]           = useState(false);
+  const [bouncing, setBouncing]         = useState(false);
   const [shuffledImages, setShuffledImages] = useState([]);
 
   const frameRef       = useRef(null);
@@ -192,7 +213,7 @@ function useSlot(images, rewards) {
     frameRef.current = setInterval(() => {
       const list = imagesRef.current;
       setIdx((p) => {
-        const next = (p + 1) % Math.max(list.length, 1);
+        const next         = (p + 1) % Math.max(list.length, 1);
         lastIdxRef.current = next;
         return next;
       });
@@ -203,10 +224,10 @@ function useSlot(images, rewards) {
     clearAll();
     isSpinning.current = false;
 
-    const list = imagesRef.current;
+    const list   = imagesRef.current;
     const curIdx = lastIdxRef.current;
 
-    const picked = targetImageRef.current ?? list[curIdx % Math.max(list.length, 1)] ?? null;
+    const picked   = targetImageRef.current ?? list[curIdx % Math.max(list.length, 1)] ?? null;
     targetImageRef.current = null;
 
     const finalIdx = picked
@@ -228,8 +249,8 @@ function useSlot(images, rewards) {
     clearAll();
 
     const nextShuffledImages = shuffleArray(images);
-    imagesRef.current = nextShuffledImages;
-    isSpinning.current = true;
+    imagesRef.current        = nextShuffledImages;
+    isSpinning.current       = true;
 
     setShuffledImages(nextShuffledImages);
     setPhase("spinning");
@@ -241,9 +262,9 @@ function useSlot(images, rewards) {
     setSparkle(false);
 
     const spinDuration = SPIN_MIN + Math.random() * (SPIN_MAX - SPIN_MIN);
-    const s3Duration = SPEED_STAGES[3].frames * SPEED_STAGES[3].interval;
-    const s2Duration = SPEED_STAGES[2].frames * SPEED_STAGES[2].interval;
-    const s1Duration = SPEED_STAGES[1].frames * SPEED_STAGES[1].interval;
+    const s3Duration   = SPEED_STAGES[3].frames * SPEED_STAGES[3].interval;
+    const s2Duration   = SPEED_STAGES[2].frames * SPEED_STAGES[2].interval;
+    const s1Duration   = SPEED_STAGES[1].frames * SPEED_STAGES[1].interval;
     const t1 = spinDuration - s3Duration - s2Duration - s1Duration;
     const t2 = t1 + s1Duration;
     const t3 = t2 + s2Duration;
@@ -316,54 +337,55 @@ function useSlot(images, rewards) {
 // 메인 SigSlot 컴포넌트
 // ─────────────────────────────────────────────
 export default function SigSlot() {
-  const [program, setProgram] = useState("뮤즈");
-  const [slotMode, setSlotMode] = useState(1);
-  const [showAdmin, setShowAdmin] = useState(false);
+  const [program, setProgram]       = useState("뮤즈");
+  const [slotMode, setSlotMode]     = useState(1);
+  const [showAdmin, setShowAdmin]   = useState(false);
   const [showManual, setShowManual] = useState(false);
   const [savedPrograms, setSavedPrograms] = useState({});
-  const [range, setRange] = useState(SIG_RANGES[0]);
-  const [history, setHistory] = useState([]);
+  const [range, setRange]           = useState(SIG_RANGES[0]);
+  const [history, setHistory]       = useState([]);
   const [showHistory, setShowHistory] = useState(false);
 
-  const [imagesMap, setImagesMap] = useState({});
-  const [loadedKeys, setLoadedKeys] = useState(new Set());
+  const [imagesMap, setImagesMap]   = useState({});
   const [imgLoading, setImgLoading] = useState(false);
-  const [imgError, setImgError] = useState("");
+  const [imgError, setImgError]     = useState("");
+
+  // ✅ 프리로드 완료 여부 — fetchImagesFromStorage 완료만으로는 부족
+  // 이미지가 브라우저에 실제로 로드된 후에만 SlotMachine을 렌더해야 검정화면 방지
+  const [preloadedKeys, setPreloadedKeys] = useState(new Set());
 
   const [rewardsMap, setRewardsMap] = useState(() =>
     Object.fromEntries(PROGRAMS.map((p) => [p, makeDefaultRewards()]))
   );
 
-  // ─────────────────────────────────────────────
-  // 사운드 ref 초기화
-  // slot.mp3  : 슬롯 회전 중 루프 재생
-  // button.mp3: START 버튼 클릭 시 1회 재생
-  // ─────────────────────────────────────────────
-  const slotAudioRef   = useRef(null); // ✅ 기존 slot.mp3
-  const buttonAudioRef = useRef(null); // ✅ [추가] button.mp3
+  // 사운드 ref
+  const slotAudioRef   = useRef(null);
+  const buttonAudioRef = useRef(null);
 
   useEffect(() => {
-    slotAudioRef.current = new Audio("/sounds/slot.mp3");
-    slotAudioRef.current.loop = true;
-
-    buttonAudioRef.current = new Audio("/sounds/button.mp3"); // ✅ [추가]
+    slotAudioRef.current             = new Audio("/sounds/slot.mp3");
+    slotAudioRef.current.loop        = true;
+    buttonAudioRef.current           = new Audio("/sounds/button.mp3");
 
     return () => {
       slotAudioRef.current.pause();
-      slotAudioRef.current = null;
-      buttonAudioRef.current.pause();                         // ✅ [추가]
-      buttonAudioRef.current = null;                          // ✅ [추가]
+      slotAudioRef.current   = null;
+      buttonAudioRef.current.pause();
+      buttonAudioRef.current = null;
     };
   }, []);
 
-  const cacheKey = `${program}-${range?.label ?? "전체"}`;
+  const cacheKey      = `${program}-${range?.label ?? "전체"}`;
   const currentImages = imagesMap[cacheKey] || [];
   const currentRewards = rewardsMap[program] || [];
-  const programKey = PROGRAM_KEY_MAP[program];
-  const isFullyLoaded = loadedKeys.has(cacheKey);
+  const programKey    = PROGRAM_KEY_MAP[program];
+
+  // ✅ isFullyLoaded: fetch + preload 모두 완료된 경우에만 true
+  const isFullyLoaded = preloadedKeys.has(cacheKey);
 
   useEffect(() => {
-    if (loadedKeys.has(cacheKey)) {
+    // 이미 프리로드까지 완료된 키는 재실행 불필요
+    if (preloadedKeys.has(cacheKey)) {
       setImgLoading(false);
       return;
     }
@@ -372,22 +394,25 @@ export default function SigSlot() {
     setImgLoading(true);
     setImgError("");
 
-    const handlePartial = (partialImages) => {
-      preloadImages(partialImages);
-    };
-
-    fetchImagesFromStorage(key, range, handlePartial)
-      .then((imgs) => {
-        preloadImages(imgs);
+    fetchImagesFromStorage(key, range, null) // onPartial 제거 — 최종 결과만 사용
+      .then(async (imgs) => {
+        // ✅ 1단계: state에 이미지 목록 저장
         setImagesMap((prev) => ({ ...prev, [cacheKey]: imgs }));
-        setLoadedKeys((prev) => new Set([...prev, cacheKey]));
+
+        // ✅ 2단계: 모든 이미지가 브라우저에 실제로 로드될 때까지 대기
+        await preloadImages(imgs);
+
+        // ✅ 3단계: 프리로드 완료 → SlotMachine 렌더 허용
+        setPreloadedKeys((prev) => new Set([...prev, cacheKey]));
         setImgLoading(false);
       })
       .catch((e) => {
         setImgError(e.message);
         setImgLoading(false);
       });
-  }, [program, range, cacheKey, loadedKeys]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [program, range, cacheKey]);
+  // ✅ preloadedKeys / loadedKeys 의존성 제거 — cacheKey 변경 시에만 재실행
 
   useEffect(() => {
     const key = PROGRAM_KEY_MAP[program];
@@ -414,9 +439,9 @@ export default function SigSlot() {
     [program]
   );
 
-  const s0 = useSlot(currentImages, currentRewards);
-  const s1 = useSlot(currentImages, currentRewards);
-  const s2 = useSlot(currentImages, currentRewards);
+  const s0    = useSlot(currentImages, currentRewards);
+  const s1    = useSlot(currentImages, currentRewards);
+  const s2    = useSlot(currentImages, currentRewards);
   const slots = [s0, s1, s2].slice(0, slotMode);
 
   const [targetSlotIdx, setTargetSlotIdx] = useState(null);
@@ -440,7 +465,6 @@ export default function SigSlot() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [program, range]);
 
-  // 슬롯 전체 정지 감지 → slot.mp3 중단
   const phaseKey = slots.map((s) => s.phase).join(",");
 
   useEffect(() => {
@@ -466,13 +490,11 @@ export default function SigSlot() {
     if (anySpinning) return;
     if (!isFullyLoaded) return;
 
-    // ✅ [추가] button.mp3 — 클릭 즉시 1회 재생
     if (buttonAudioRef.current) {
       buttonAudioRef.current.currentTime = 0;
       buttonAudioRef.current.play().catch(() => {});
     }
 
-    // slot.mp3 — 슬롯 회전 시작과 함께 루프 재생
     if (slotAudioRef.current) {
       slotAudioRef.current.currentTime = 0;
       slotAudioRef.current.play().catch(() => {});
@@ -568,12 +590,8 @@ export default function SigSlot() {
         >전체</button>
       </div>
 
-      {/* 매뉴얼 모달 */}
-      {showManual && (
-        <ManualModal onClose={() => setShowManual(false)} />
-      )}
+      {showManual && <ManualModal onClose={() => setShowManual(false)} />}
 
-      {/* 관리자 모달 */}
       {showAdmin && (
         <AdminModal
           program={program}
@@ -603,7 +621,7 @@ export default function SigSlot() {
         )}
       </div>
 
-      {/* 슬롯머신 */}
+      {/* ✅ isFullyLoaded: fetch + preload 완료 후에만 렌더 */}
       {isFullyLoaded && currentImages.length > 0 && (
         <SlotMachine
           images={currentImages}
@@ -619,14 +637,12 @@ export default function SigSlot() {
         />
       )}
 
-      {/* 당첨 히스토리 */}
       <HistoryPanel
         history={history}
         show={showHistory}
         onToggle={() => setShowHistory((v) => !v)}
       />
 
-      {/* 이미지 개수 표시 */}
       {currentImages.length > 0 && (
         <div className="text-gray-600 text-xs">
           {program} · {range?.label ?? "전체"} · {currentImages.length}개 이미지 로드됨
