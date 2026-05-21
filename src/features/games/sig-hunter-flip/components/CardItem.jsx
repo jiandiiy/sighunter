@@ -133,7 +133,7 @@ function CardItem({
           }
         >
           <div className="back-content">
-            {msg ? <h3>{msg.text || ""}</h3> : <h3>?</h3>}
+            {msg && <h3>{msg.text || ""}</h3>}
 
             <button
               type="button"
