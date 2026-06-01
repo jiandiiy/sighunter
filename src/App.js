@@ -21,6 +21,9 @@ const HpBattle = lazy(() => import("./features/games/hp-battle"));
 const SigHunterBingoBoard = lazy(() => import("./features/games/sig-hunter-bingo"));
 const BingoBoard = lazy(() => import("./features/games/meal-bingo"));
 const SigSlot = lazy(() => import("./features/games/sig-slot"));
+// ✅ SigSlot 플레이어 라우트 추가
+const SigSlotPlayer = lazy(() => import("./features/games/sig-slot/player"));
+
 // ── lazy 로드: Admin ──────────────────────────────
 const SigImageAdminPage = lazy(() => import("./Admin/pages/SigImageAdminPage"));
 const SigHunterBoardControl = lazy(() => import("./Admin/components/SigHunterBoardControl"));
@@ -93,6 +96,8 @@ export default function App() {
 
             {/* 시그슬롯 */}
             <Route path="/sig-slot" element={<SigSlot />} />
+            {/* ✅ SigSlot 플레이어별 라우트 추가 */}
+            <Route path="/sig-slot/:playerNum" element={<SigSlotPlayer />} />
 
             {/* HP 배틀 */}
             <Route path="/hp-battle" element={<HpBattle />} />

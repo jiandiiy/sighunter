@@ -1,31 +1,105 @@
-import { useEffect } from "react";
-import { useSlotGame } from "./hooks/useSlotGame";
-import { PROGRAMS, SIG_RANGES, saveRewardsToFirestore } from "./utils/slotUtils";
+// src/features/games/sig-slot/player.jsx
+// ✅ 플레이어별 독립 페이지 — useSlotGame 훅으로 간단히 구현
+
+import React, { useState, useCallback, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { useSlot, useSlotGame } from "./hooks/useSlotGame";
+import { PROGRAMS, SIG_RANGES } from "./utils/slotUtils";
 import { SlotMachine } from "./components/SlotMachine";
 import { AdminModal } from "./components/AdminModal";
 import { ManualModal } from "./components/ManualModal";
 import { HistoryPanel } from "./components/HistoryPanel";
 import "./styles/slot.css";
 
-// ─────────────────────────────────────────────
-// 메인 SigSlot 컴포넌트
-// ─────────────────────────────────────────────
-export default function SigSlot() {
-  const game = useSlotGame();
+export default function SigSlotPlayer() {
+  const { playerNum } = useParams();
+  const playerLabel = `${playerNum}`;
 
-  // 훅에서 제공하는 사운드 ref 재사용 (중복 생성 방지)
-  const { slotAudioRef } = game;
+  // ✅ useSlotGame 훅으로 모든 상태 관리
+  const game = useSlotGame(1); // 기본 1개 슬롯
 
-  // 모든 슬롯이 정지되면 사운드 중단
-  const phaseKey = game.slots.map((s) => s.phase).join(",");
+  const [showAdmin, setShowAdmin] = useState(false);
+  const [showManual, setShowManual] = useState(false);
+  const [targetSlotIdx, setTargetSlotIdx] = useState(null);
+
+  // 슬롯 생성
+  const s0 = useSlot(game.currentImages, game.currentRewards);
+  const s1 = useSlot(game.currentImages, game.currentRewards);
+  const s2 = useSlot(game.currentImages, game.currentRewards);
+  const slots = [s0, s1, s2].slice(0, game.slotMode);
+
+  // 슬롯 선택 핸들러
+  const handleTargetSlot = useCallback((idx) => {
+    setTargetSlotIdx((prev) => (prev === idx ? null : idx));
+  }, []);
+
+  const handlePickImage = useCallback(
+    (image) => {
+      if (targetSlotIdx === null) return;
+      const slot = [s0, s1, s2][targetSlotIdx];
+      if (!slot || slot.phase !== "spinning") return;
+      slot.softStopAt(image);
+      setTargetSlotIdx(null);
+    },
+    [targetSlotIdx, s0, s1, s2]
+  );
+
+  // reset 트리거
   useEffect(() => {
-    const allStopped = game.slots.every((s) => s.phase !== "spinning");
-    if (allStopped && slotAudioRef?.current) {
-      slotAudioRef.current.pause();
-      slotAudioRef.current.currentTime = 0;
+    s0.reset();
+    s1.reset();
+    s2.reset();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game.program, game.range]);
+
+  // 사운드 제어
+  const phaseKey = slots.map((s) => s.phase).join(",");
+
+  useEffect(() => {
+    const allStopped = slots.every((s) => s.phase !== "spinning");
+    if (allStopped && game.slotAudioRef.current) {
+      game.slotAudioRef.current.pause();
+      game.slotAudioRef.current.currentTime = 0;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phaseKey, slotAudioRef]);
+  }, [phaseKey]);
+
+  useEffect(() => {
+    slots.forEach((slot) => {
+      if (slot.phase === "stopped" && slot.resultImage && slot.resultReward) {
+        game.addHistory(slot.resultImage, slot.resultReward);
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phaseKey]);
+
+  // START 버튼
+  const handleStart = () => {
+    const anySpinning = slots.some((s) => s.phase === "spinning");
+    if (anySpinning) return;
+    if (!game.isFullyLoaded) return;
+
+    if (game.buttonAudioRef.current) {
+      game.buttonAudioRef.current.currentTime = 0;
+      game.buttonAudioRef.current.play().catch(() => {});
+    }
+
+    if (game.slotAudioRef.current) {
+      game.slotAudioRef.current.currentTime = 0;
+      game.slotAudioRef.current.play().catch(() => {});
+    }
+
+    slots.forEach((s, i) => {
+      if (i === 0) {
+        s.spin();
+      } else {
+        const id = setTimeout(() => s.spin(), i * 300);
+        void id;
+      }
+    });
+  };
+
+  const handleRefresh = () => slots.forEach((s) => s.reset());
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white flex flex-col items-center py-10 px-4 gap-5">
@@ -34,22 +108,28 @@ export default function SigSlot() {
         <div className="flex items-center gap-2">
           <span className="text-3xl">🎰</span>
           <h1 className="text-4xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-yellow-300 drop-shadow-lg">
-            SIG SLOT
+            {playerLabel}
           </h1>
         </div>
         <div className="flex flex-col items-center gap-0.5">
           <div className="flex gap-1.5">
             <button
-              onClick={() => game.setShowAdmin((v) => !v)}
+              onClick={() => setShowAdmin((v) => !v)}
               className="text-xs text-gray-400 border border-gray-700 rounded-lg px-2 py-1 hover:border-purple-500 hover:text-purple-300 transition"
-            >⚙️ 관리</button>
+            >
+              ⚙️ 관리
+            </button>
             <button
-              onClick={() => game.setShowManual(true)}
+              onClick={() => setShowManual(true)}
               className="text-xs text-gray-400 border border-gray-700 rounded-lg px-2 py-1 hover:border-blue-500 hover:text-blue-300 transition"
-            >📖 매뉴얼</button>
+            >
+              📖 매뉴얼
+            </button>
           </div>
           {game.savedPrograms[game.program] && (
-            <span className="text-green-500 text-xs">✅ {game.savedPrograms[game.program]} 저장</span>
+            <span className="text-green-500 text-xs">
+              ✅ {game.savedPrograms[game.program]} 저장
+            </span>
           )}
         </div>
       </div>
@@ -65,7 +145,9 @@ export default function SigSlot() {
                 ? "bg-purple-600 text-white shadow-lg shadow-purple-900"
                 : "bg-gray-800 text-gray-400 hover:bg-gray-700"
             }`}
-          >{p}</button>
+          >
+            {p}
+          </button>
         ))}
       </div>
 
@@ -78,7 +160,9 @@ export default function SigSlot() {
             className={`px-4 py-1.5 rounded-lg text-sm font-bold transition ${
               game.slotMode === n ? "bg-purple-600 text-white" : "text-gray-400 hover:text-white"
             }`}
-          >{n === 1 ? "🎴" : "🎴🎴🎴"}</button>
+          >
+            {n === 1 ? "🎴" : "🎴🎴🎴"}
+          </button>
         ))}
       </div>
 
@@ -93,7 +177,9 @@ export default function SigSlot() {
                 ? "border-yellow-400 text-yellow-300 bg-yellow-400/10"
                 : "border-gray-700 text-gray-400 hover:border-gray-500"
             }`}
-          >{r.label}</button>
+          >
+            {r.label}
+          </button>
         ))}
         <button
           onClick={() => game.setRange(null)}
@@ -102,19 +188,21 @@ export default function SigSlot() {
               ? "border-yellow-400 text-yellow-300 bg-yellow-400/10"
               : "border-gray-700 text-gray-400 hover:border-gray-500"
           }`}
-        >전체</button>
+        >
+          전체
+        </button>
       </div>
 
-      {game.showManual && <ManualModal onClose={() => game.setShowManual(false)} />}
+      {showManual && <ManualModal onClose={() => setShowManual(false)} />}
 
-      {game.showAdmin && (
+      {showAdmin && (
         <AdminModal
           program={game.program}
           programKey={game.programKey}
           rewardsMap={game.rewardsMap}
           onSave={game.handleSaveRewards}
-          onClose={() => game.setShowAdmin(false)}
-          saveRewardsToFirestore={saveRewardsToFirestore}
+          onClose={() => setShowAdmin(false)}
+          saveRewardsToFirestore={game.saveRewardsToFirestore}
         />
       )}
 
@@ -136,19 +224,19 @@ export default function SigSlot() {
         )}
       </div>
 
-      {/* ✅ 슬롯머신 렌더 */}
+      {/* 슬롯머신 */}
       {game.isFullyLoaded && game.currentImages.length > 0 && (
         <SlotMachine
           images={game.currentImages}
           rewards={game.currentRewards}
           slotCount={game.slotMode}
           onResult={game.addHistory}
-          slots={game.slots}
-          onStart={game.handleStart}
-          onRefresh={game.handleRefresh}
-          targetSlotIdx={game.targetSlotIdx}
-          onTargetSlot={game.handleTargetSlot}
-          onPickImage={game.handlePickImage}
+          slots={slots}
+          onStart={handleStart}
+          onRefresh={handleRefresh}
+          targetSlotIdx={targetSlotIdx}
+          onTargetSlot={handleTargetSlot}
+          onPickImage={handlePickImage}
         />
       )}
 

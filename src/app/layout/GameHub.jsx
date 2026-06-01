@@ -1,4 +1,3 @@
-// src/components/GameCenter/GameHub.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
 
@@ -12,6 +11,9 @@ export default function GameHub() {
     return saved || "sig";
   });
 
+  // 플레이어 선택 모달
+  const [showPlayerModal, setShowPlayerModal] = useState(false);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     window.localStorage.setItem("gameHub.lastGame", game);
@@ -24,7 +26,8 @@ export default function GameHub() {
         navigate("/sig");
         break;
       case "sigslot":
-        navigate("/sig-slot"); // 👈 라우트 경로는 프로젝트에 맞게 조정
+        // 플레이어 선택 모달 띄우기
+        setShowPlayerModal(true);
         break;
       case "mines":
         navigate("/mines");
@@ -47,6 +50,11 @@ export default function GameHub() {
       default:
         navigate("/");
     }
+  };
+
+  const handleSelectPlayer = (playerNum) => {
+    setShowPlayerModal(false);
+    navigate(`/sig-slot/${playerNum}`);
   };
 
   return (
@@ -111,7 +119,7 @@ export default function GameHub() {
           🔍 시그헌터
         </button>
 
-        {/* 시그슬롯 ✨ 추가 */}
+        {/* 시그슬롯 ✨ 플레이어 선택 모달 오픈 */}
         <button
           type="button"
           onClick={() => handleSelectGame("sigslot")}
@@ -304,6 +312,103 @@ export default function GameHub() {
       >
         <Outlet />
       </div>
+
+      {/* 플레이어 선택 모달 */}
+      {showPlayerModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+          }}
+          onClick={() => setShowPlayerModal(false)}
+        >
+          <div
+            style={{
+              backgroundColor: "#111827",
+              border: "2px solid #fbbf24",
+              borderRadius: 12,
+              padding: 24,
+              textAlign: "center",
+              boxShadow: "0 10px 40px rgba(0, 0, 0, 0.5)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2
+              style={{
+                margin: "0 0 20px",
+                color: "#fbbf24",
+                fontSize: 20,
+                fontWeight: 900,
+              }}
+            >
+              🎰 플레이어 선택
+            </h2>
+
+            {/* 플레이어 1, 2, 3 버튼 */}
+            <div
+              style={{
+                display: "flex",
+                gap: 12,
+                justifyContent: "center",
+                marginBottom: 16,
+              }}
+            >
+              {[1, 2, 3].map((playerNum) => (
+                <button
+                  key={playerNum}
+                  type="button"
+                  onClick={() => handleSelectPlayer(playerNum)}
+                  style={{
+                    padding: "10px 20px",
+                    borderRadius: 8,
+                    border: "2px solid #fbbf24",
+                    background: "linear-gradient(135deg, #f59e0b, #fbbf24)",
+                    color: "#000",
+                    fontWeight: 900,
+                    cursor: "pointer",
+                    fontSize: 16,
+                    fontFamily: "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                    transition: "transform 0.1s",
+                  }}
+                  onMouseDown={(e) =>
+                    (e.target.style.transform = "scale(0.95)")
+                  }
+                  onMouseUp={(e) => (e.target.style.transform = "scale(1)")}
+                >
+                  👤 {playerNum}
+                </button>
+              ))}
+            </div>
+
+            {/* 닫기 버튼 */}
+            <button
+              type="button"
+              onClick={() => setShowPlayerModal(false)}
+              style={{
+                padding: "8px 16px",
+                borderRadius: 6,
+                border: "1px solid #4b5563",
+                background: "linear-gradient(135deg, #1f2937, #111827)",
+                color: "#9ca3af",
+                fontWeight: 600,
+                cursor: "pointer",
+                fontSize: 14,
+                fontFamily: "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+              }}
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

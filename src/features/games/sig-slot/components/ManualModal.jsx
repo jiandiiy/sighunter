@@ -165,10 +165,42 @@ function SectionBasic() {
   return (
     <div className="flex flex-col gap-6">
 
+      {/* 🎮 배틀 모드 안내 */}
+      <div className="flex flex-col gap-3">
+        <h3 className="text-purple-300 font-bold text-s border-b border-gray-700 pb-1">
+          🎮 배틀 모드 — 여러 플레이어 동시 진행
+        </h3>
+        <p className="text-gray-300 text-s leading-relaxed">
+          같은 컴퓨터에서 <span className="text-yellow-300 font-bold">여러 브라우저 창</span>을 띄워
+          각 플레이어가 독립적으로 슬롯을 운영할 수 있습니다. 
+          배틀 게임이나 멀티 플레이 이벤트에서 활용하세요.
+        </p>
+        <div className="flex flex-col gap-2">
+          <div className="text-yellow-300 font-bold text-s">시작 방법:</div>
+          <ol className="flex flex-col gap-2 text-gray-300 text-s ml-2 bg-gray-800/50 rounded-lg p-3">
+            <li><span className="text-purple-300 font-bold">① 게임 허브 진입</span><br/>메인 화면에서 <span className="text-yellow-300">Game Hub</span>로 이동합니다.</li>
+            <li><span className="text-purple-300 font-bold">② 시그슬롯 클릭</span><br/><span className="text-yellow-300">🎰 시그슬롯</span> 버튼을 눌러 플레이어 선택 모달을 엽니다.</li>
+            <li><span className="text-purple-300 font-bold">③ 플레이어 선택</span><br/>모달에서 <span className="text-yellow-300">플레이어 1</span>, <span className="text-yellow-300">플레이어 2</span>, <span className="text-yellow-300">플레이어 3</span> 중 하나를 선택합니다.</li>
+            <li><span className="text-purple-300 font-bold">④ 여러 창 띄우기</span><br/>각 플레이어별 슬롯 페이지가 열립니다. 이 과정을 반복해 모든 플레이어 창을 띄웁니다.</li>
+            <li><span className="text-purple-300 font-bold">⑤ 독립 운영</span><br/>각 창에서 플레이어가 자신의 <span className="text-yellow-300">▶ START</span> 버튼을 눌러 슬롯을 회전시킵니다.</li>
+          </ol>
+        </div>
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          <div className="bg-green-900/30 border border-green-700 rounded-lg p-2.5">
+            <div className="text-green-300 font-bold">✅ 각 창은 독립적</div>
+            <div className="text-gray-300 mt-0.5">프로그램, 구간, 결과가 서로 영향 없음</div>
+          </div>
+          <div className="bg-blue-900/30 border border-blue-700 rounded-lg p-2.5">
+            <div className="text-blue-300 font-bold">💡 권장 배치</div>
+            <div className="text-gray-300 mt-0.5">3개 창을 나란히 배치하면 동시 진행 가능</div>
+          </div>
+        </div>
+      </div>
+
       {/* ✅ [추가] 이미지 로딩 안내 — 가장 먼저 */}
       <div className="flex flex-col gap-3">
         <h3 className="text-purple-300 font-bold text-s border-b border-gray-700 pb-1">
-          ① 이미지 로딩
+          ④ 이미지 로딩
         </h3>
         <p className="text-gray-400 text-s leading-relaxed">
           처음 접속하거나 프로그램 / 구간을 변경하면{" "}
