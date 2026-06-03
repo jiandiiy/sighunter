@@ -143,20 +143,31 @@ export async function fetchImagesFromStorage(programKey, rangeFilter = null, onP
 }
 
 /**
- * Firestore에서 보상 가져오기
+ * 프로그램 + 구간으로 Firestore 키 생성
+ * 예: "muse_1000-2000" "queendom_1000-5000"
  */
-export async function fetchRewardsFromFirestore(programKey) {
-  const docRef = doc(db, "sigSlotRewards", programKey);
+export function makeRewardsKey(programKey, rangeLabel) {
+  if (!rangeLabel) return programKey;
+  return `${programKey}_${rangeLabel.replace(/~/g, "-")}`;
+}
+
+/**
+ * Firestore에서 보상 가져오기 (프로그램 + 구간별)
+ */
+export async function fetchRewardsFromFirestore(programKey, rangeLabel = null) {
+  const key = makeRewardsKey(programKey, rangeLabel);
+  const docRef = doc(db, "sigSlotRewards", key);
   const snap = await getDoc(docRef);
   if (snap.exists()) return snap.data().items || [];
   return null;
 }
 
 /**
- * Firestore에 보상 저장
+ * Firestore에 보상 저장 (프로그램 + 구간별)
  */
-export async function saveRewardsToFirestore(programKey, rewards) {
-  const docRef = doc(db, "sigSlotRewards", programKey);
+export async function saveRewardsToFirestore(programKey, rangeLabel = null, rewards) {
+  const key = makeRewardsKey(programKey, rangeLabel);
+  const docRef = doc(db, "sigSlotRewards", key);
   await setDoc(docRef, { items: rewards, updatedAt: new Date().toISOString() });
 }
 
@@ -165,7 +176,7 @@ export async function saveRewardsToFirestore(programKey, rewards) {
 // ─────────────────────────────────────────────
 
 /**
- * 기본 보상 목록
+ * 기본 보상 목록 (모든 프로그램 & 구간에서 동일하게 사용)
  */
 export const makeDefaultRewards = () => [
   { id: "r1", icon: "🎁", name: "기여도 보상", description: "기여도 +500 지급", probability: 40 },
@@ -173,6 +184,23 @@ export const makeDefaultRewards = () => [
   { id: "r3", icon: "🔑", name: "열쇠 보상", description: "열쇠 알파벳 A 지급", probability: 20 },
   { id: "r4", icon: "⭐", name: "특별 보상", description: "특별 아이템 지급", probability: 10 },
 ];
+
+/**
+ * 확률 기반 보상 추첨
+ */
+/**
+ * Firestore에서 보상을 로드, 없으면 기본값 반환
+ * 구간별로 독립적인 보상책을 관리하지만,
+ * 처음에는 모두 동일한 기본 보상책으로 시작
+ */
+export async function getOrCreateRewards(programKey, rangeLabel) {
+  try {
+    const rewards = await fetchRewardsFromFirestore(programKey, rangeLabel);
+    return rewards || makeDefaultRewards();
+  } catch {
+    return makeDefaultRewards();
+  }
+}
 
 /**
  * 확률 기반 보상 추첨

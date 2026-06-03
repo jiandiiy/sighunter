@@ -27,8 +27,8 @@ export function Sparkles() {
 // ─────────────────────────────────────────────
 export function FlipCard({ image, reward, isFlipped, onFlip, canFlip, size = "lg" }) {
   const dim       = size === "lg" ? "w-64 h-64" : "w-44 h-44";
-  const titleSize = size === "lg" ? "text-xl"   : "text-base";
-  const descSize  = size === "lg" ? "text-sm"   : "text-xs";
+  const titleSize = size === "lg" ? "text-5xl"   : "text-base";
+  const descSize  = size === "lg" ? "text-3xl"   : "text-sm";
   return (
     <div
       className={`relative ${dim} cursor-pointer select-none transition-transform ${
@@ -58,12 +58,12 @@ export function FlipCard({ image, reward, isFlipped, onFlip, canFlip, size = "lg
           className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-900 to-indigo-800 shadow-2xl border-4 border-yellow-400 flex flex-col items-center justify-center p-4 gap-2"
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
         >
-          <div className="text-3xl">{reward?.icon || "🎁"}</div>
+          <div className="text-5xl">{reward?.icon || "🎁"}</div>
           <div className={`text-yellow-300 ${titleSize} font-extrabold text-center`}>{reward?.name}</div>
           <div className="w-12 h-0.5 bg-yellow-400 rounded" />
           <div className={`text-white text-center ${descSize} leading-relaxed`}>{reward?.description}</div>
           {image?.sigNum && (
-            <div className="mt-1 text-purple-300 text-xs">
+            <div className="mt-1 text-purple-300 text-xl">
               SIG <span className="font-bold text-yellow-300">{image.sigNum}</span>
             </div>
           )}
@@ -138,7 +138,7 @@ function SigPickerPanel({ images, slots, slotCount, targetSlotIdx, onTargetSlot,
   return (
     <div className="flex flex-col gap-3 w-44 bg-gray-900 border border-gray-700 rounded-2xl p-3 self-start">
       {/* 패널 헤더 */}
-      <div className="text-xs font-black text-purple-300 tracking-widest text-center">🎯 SIG PICKER</div>
+      <div className="text-sl font-black text-purple-300 tracking-widest text-center">🎯 SIG PICKER</div>
 
       {/* 슬롯 선택 탭 — 회전 중일 때만 활성화 */}
       <div className="flex gap-1 justify-center">
@@ -150,7 +150,7 @@ function SigPickerPanel({ images, slots, slotCount, targetSlotIdx, onTargetSlot,
               key={i}
               onClick={() => isSpinning && onTargetSlot(i)}
               disabled={!isSpinning}
-              className={`flex-1 py-1 rounded-lg text-xs font-bold transition border ${
+              className={`flex-1 py-1 rounded-lg text-sl font-bold transition border ${
                 isSelected
                   ? "bg-yellow-400 text-gray-900 border-yellow-300 shadow-lg"
                   : isSpinning
@@ -173,7 +173,7 @@ function SigPickerPanel({ images, slots, slotCount, targetSlotIdx, onTargetSlot,
 
       {/* 검색 */}
       <input
-        className="bg-gray-800 text-white text-xs rounded-lg px-2 py-1.5 placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-purple-500"
+        className="bg-gray-800 text-white text-sm rounded-lg px-2 py-1.5 placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-purple-500"
         placeholder="숫자 검색..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
@@ -182,7 +182,7 @@ function SigPickerPanel({ images, slots, slotCount, targetSlotIdx, onTargetSlot,
       {/* sigNum 목록 */}
       <div className="flex flex-col gap-1 overflow-y-auto" style={{ maxHeight: "320px" }}>
         {filtered.length === 0 && (
-          <div className="text-gray-600 text-xs text-center py-2">없음</div>
+          <div className="text-gray-600 text-sm text-center py-2">없음</div>
         )}
         {filtered.map((num) => {
           // 클릭 시: 선택된 슬롯 + spinning 상태일 때만 동작
@@ -193,7 +193,7 @@ function SigPickerPanel({ images, slots, slotCount, targetSlotIdx, onTargetSlot,
               key={num}
               onClick={() => canClick && targetImg && onPickImage(targetImg)}
               disabled={!canClick}
-              className={`w-full py-1.5 rounded-lg text-xs font-bold transition border ${
+              className={`w-full py-1.5 rounded-lg text-sl font-bold transition border ${
                 canClick
                   ? "bg-gray-800 border-gray-600 text-gray-200 hover:bg-yellow-400/20 hover:border-yellow-400 hover:text-yellow-300"
                   : "bg-gray-800 border-gray-700 text-gray-600 cursor-not-allowed"
@@ -263,7 +263,7 @@ export function SlotMachine({
               {slots.map((slot, i) => (
                 <div key={i} className="relative flex flex-col items-center gap-1">
                   {slotCount === 3 && (
-                    <span className="text-xs text-yellow-400 mb-1 font-bold">SLOT {i + 1}</span>
+                    <span className="text-sl text-yellow-400 mb-1 font-bold">SLOT {i + 1}</span>
                   )}
                   <div
                     className="relative"
@@ -296,7 +296,7 @@ export function SlotMachine({
                       />
                     )}
                   </div>
-                  <div className="h-5 text-xs text-gray-400 text-center">
+                  <div className="h-5 text-sm text-gray-400 text-center">
                     {slot.phase === "idle"     && "대기 중"}
                     {slot.phase === "spinning" && "🎰 돌아가는 중..."}
                     {slot.phase === "stopped"  && "🎁 보상 확인"}
