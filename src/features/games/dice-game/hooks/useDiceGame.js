@@ -9,7 +9,7 @@ import { create } from 'zustand';
  * - 애니메이션과 API 응답 독립적 관리
  */
 
-const API_URL = process.env.REACT_APP_DICE_API_URL || 'http://localhost:5001';
+const API_URL = process.env.REACT_APP_DICE_API_URL || 'https://impartial-determination-production-2dc2.up.railway.app';
 
 const useDiceGame = create((set, get) => ({
   // ────────────────────────────────────────────
