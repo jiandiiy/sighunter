@@ -17,7 +17,6 @@ export default function DiceGame() {
   const history = useDiceGame((state) => state.history);
   const isApiLoading = useDiceGame((state) => state.isApiLoading);
   const apiError = useDiceGame((state) => state.apiError);
-  const adminSettings = useDiceGame((state) => state.adminSettings);
 
   const setMode = useDiceGame((state) => state.setMode);
   const rollDice = useDiceGame((state) => state.rollDice);
