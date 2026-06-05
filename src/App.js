@@ -12,6 +12,7 @@ import EditMessageModal from "./features/games/sig-hunter-flip/components/EditMe
 import HpControl from "./features/games/hp-battle/components/HpControl";
 import HpOverlay from "./features/games/hp-battle/components/HpOverlay"; 
 console.log("[APP] ✅ 현재 App.js 버전이 로드되었습니다");
+
 // ── lazy 로드: 게임 엔트리 ─────────────────────────
 const SigHunterFlip = lazy(() => import("./features/games/sig-hunter-flip"));
 const MinesGame = lazy(() => import("./features/games/mines"));
@@ -23,6 +24,8 @@ const BingoBoard = lazy(() => import("./features/games/meal-bingo"));
 const SigSlot = lazy(() => import("./features/games/sig-slot"));
 // ✅ SigSlot 플레이어 라우트 추가
 const SigSlotPlayer = lazy(() => import("./features/games/sig-slot/player"));
+// ✅ DiceGame 추가
+const DiceGame = lazy(() => import("./features/games/dice-game"));
 
 // ── lazy 로드: Admin ──────────────────────────────
 const SigImageAdminPage = lazy(() => import("./Admin/pages/SigImageAdminPage"));
@@ -98,6 +101,9 @@ export default function App() {
             <Route path="/sig-slot" element={<SigSlot />} />
             {/* ✅ SigSlot 플레이어별 라우트 추가 */}
             <Route path="/sig-slot/:playerNum" element={<SigSlotPlayer />} />
+
+            {/* ✅ 다이스게임 추가 */}
+            <Route path="/dice-game" element={<DiceGame />} />
 
             {/* HP 배틀 */}
             <Route path="/hp-battle" element={<HpBattle />} />

@@ -3,26 +3,33 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@react-three/drei": "^9.100.0",
+    "@react-three/fiber": "^8.15.0",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
+    "ajv": "^8.20.0",
+    "axios": "^1.17.0",
     "canvas-confetti": "^1.9.4",
     "express": "^5.1.0",
     "firebase": "^12.10.0",
+    "framer-motion": "^12.40.0",
     "fs-extra": "^11.3.2",
     "jimp": "^1.6.0",
     "multer": "^2.0.2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-router-dom": "^6.30.1",
     "react-scripts": "5.0.1",
     "react-tsparticles": "^2.12.2",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "tesseract.js": "^6.0.1",
+    "three": "^0.140.0",
     "tsparticles-preset-fireworks": "^2.12.0",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "zustand": "^5.0.14"
   },
   "scripts": {
     "gen:sigHunter": "node scripts/generateSigHunterImagePoolWithOCR.js",
@@ -31,7 +38,8 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "server": "node server/index.js",
-    "dev": "concurrently \"npm run server\" \"npm start\""
+    "dice-server": "node diceServer/index.js",
+    "dev": "concurrently \"npm run server\" \"npm run dice-server\" \"npm start\""
   },
   "eslintConfig": {
     "extends": [
@@ -52,6 +60,8 @@
     ]
   },
   "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.2.0",
     "@vitejs/plugin-react": "^5.1.1",
     "@vitejs/plugin-react-swc": "^4.2.2",
     "autoprefixer": "^10.5.0",

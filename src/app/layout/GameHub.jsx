@@ -4,7 +4,7 @@ import { useNavigate, Outlet } from "react-router-dom";
 export default function GameHub() {
   const navigate = useNavigate();
 
-  // "sig" | "sigslot" | "mines" | "board" | "wheel" | "bingo" | "hunterBingo" | "hp"
+  // "sig" | "sigslot" | "mines" | "board" | "wheel" | "bingo" | "hunterBingo" | "hp" | "dice"
   const [game, setGame] = useState(() => {
     if (typeof window === "undefined") return "sig";
     const saved = window.localStorage.getItem("gameHub.lastGame");
@@ -46,6 +46,9 @@ export default function GameHub() {
         break;
       case "hp":
         navigate("/hp-battle");
+        break;
+      case "dice":
+        navigate("/dice-game");
         break;
       default:
         navigate("/");
@@ -140,6 +143,28 @@ export default function GameHub() {
           }}
         >
           🎰 시그슬롯
+        </button>
+
+        {/* 주사위 게임 */}
+        <button
+          type="button"
+          onClick={() => handleSelectGame("dice")}
+          style={{
+            padding: "6px 14px",
+            borderRadius: 999,
+            border: game === "dice" ? "2px solid #c084fc" : "1px solid #4b5563",
+            background:
+              game === "dice"
+                ? "linear-gradient(135deg, #a855f7, #c084fc)"
+                : "linear-gradient(135deg, #111827, #020617)",
+            color: "#f3e8ff",
+            fontWeight: 800,
+            cursor: "pointer",
+            fontSize: 15,
+            fontFamily: "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          }}
+        >
+          🎲 주사위게임
         </button>
 
         {/* 식대전 빙고 */}
