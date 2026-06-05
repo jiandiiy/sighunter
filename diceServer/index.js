@@ -8,9 +8,22 @@ const diceRoutes = require('./routes/diceRoutes');
 const app = express();
 const PORT = process.env.DICE_PORT || 5001;
 
-// CORS 설정
+// CORS 설정 - 환경에 따라 다르게
 const corsOptions = {
-  origin: ['http://localhost:3000', 'http://localhost:3001'],
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'https://sighunter.vercel.app',  // ✅ 프로덕션 추가
+    ];
+
+    // origin이 없으면 (같은 도메인 요청) 허용
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS policy violation'));
+    }
+  },
   credentials: true,
 };
 
