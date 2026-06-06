@@ -12,29 +12,32 @@ export default function DiceGame() {
   // Zustand에서 모든 필요한 상태와 액션 가져오기
   const phase = useDiceGame((state) => state.phase);
   const mode = useDiceGame((state) => state.mode);
-  const result = useDiceGame((state) => state.result);
   const history = useDiceGame((state) => state.history);
   const isApiLoading = useDiceGame((state) => state.isApiLoading);
   const apiError = useDiceGame((state) => state.apiError);
 
   const setMode = useDiceGame((state) => state.setMode);
   const rollDice = useDiceGame((state) => state.rollDice);
-  const flipResult = useDiceGame((state) => state.flipResult);
   const reset = useDiceGame((state) => state.reset);
   const toggleAdminPanel = useDiceGame((state) => state.toggleAdminPanel);
 
+  // ────────────────────────────────────────────
+  // 주사위 굴리기 (실제 API 호출)
+  // ────────────────────────────────────────────
   const handleRoll = async () => {
     await rollDice();
   };
 
-  const handleFlip = () => {
-    flipResult();
-  };
-
+  // ────────────────────────────────────────────
+  // 초기화
+  // ────────────────────────────────────────────
   const handleReset = () => {
     reset();
   };
 
+  // ────────────────────────────────────────────
+  // 어드민 패널 토글
+  // ────────────────────────────────────────────
   const handleAdminToggle = () => {
     setShowAdmin((v) => !v);
     toggleAdminPanel();
