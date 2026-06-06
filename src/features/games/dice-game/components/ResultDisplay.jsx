@@ -81,7 +81,7 @@ export default function ResultDisplay() {
           </div>
         ) : (
           <div className="text-center">
-            <p className="text-gray-400 text-sm mb-3">주사위 1 | 주사위 2 | 합계</p>
+            <p className="text-gray-400 text-sm mb-3">주사위 1 + 주사위 2 | 합계</p>
             <div className="flex items-end justify-center gap-4">
               {/* 주사위 1 */}
               <motion.div variants={itemVariants}>
@@ -95,7 +95,7 @@ export default function ResultDisplay() {
                 </motion.p>
               </motion.div>
 
-              <p className="text-2xl text-gray-500 mb-1">|</p>
+              <p className="text-2xl text-gray-500 mb-1">+</p>
 
               {/* 주사위 2 */}
               <motion.div variants={itemVariants}>

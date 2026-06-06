@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import useDiceGame from "../hooks/useDiceGame";
 import DiceContainer from "./DiceContainer";
 import ModeSelector from "./ModeSelector";
-import ResultDisplay from "./ResultDisplay";
 import ControlPanel from "./ControlPanel";
 import HistoryPanel from "./HistoryPanel";
 import AdminPanel from "./AdminPanel";
@@ -24,30 +23,18 @@ export default function DiceGame() {
   const reset = useDiceGame((state) => state.reset);
   const toggleAdminPanel = useDiceGame((state) => state.toggleAdminPanel);
 
-  // ────────────────────────────────────────────
-  // 주사위 굴리기 (실제 API 호출)
-  // ────────────────────────────────────────────
   const handleRoll = async () => {
-    await rollDice(); // rollDice는 내부에서 state를 읽음
+    await rollDice();
   };
 
-  // ────────────────────────────────────────────
-  // 결과 표시 (stopped → flipped로 전환)
-  // ────────────────────────────────────────────
   const handleFlip = () => {
     flipResult();
   };
 
-  // ────────────────────────────────────────────
-  // 초기화
-  // ────────────────────────────────────────────
   const handleReset = () => {
     reset();
   };
 
-  // ────────────────────────────────────────────
-  // 어드민 패널 토글
-  // ────────────────────────────────────────────
   const handleAdminToggle = () => {
     setShowAdmin((v) => !v);
     toggleAdminPanel();
@@ -90,15 +77,6 @@ export default function DiceGame() {
         <div className="text-center">
           <p className="text-gray-400 text-sm">🎲 주사위를 굴리는 중...</p>
         </div>
-      )}
-
-      {/* 결과 표시 (stopped 상태) */}
-      {result && phase === "stopped" && !isApiLoading && (
-        <ResultDisplay
-          mode={mode}
-          result={result}
-          onFlip={handleFlip}
-        />
       )}
 
       {/* 컨트롤 패널 */}

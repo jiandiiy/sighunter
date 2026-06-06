@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import useDiceGame from '../hooks/useDiceGame';
 
 /**
@@ -33,7 +34,6 @@ const faceToRotationZ = {
 
 /**
  * DiceContainer: CSS 3D Transform으로 주사위 렌더링
- * 애니메이션 + 타이머를 이 컴포넌트에서 관리
  */
 export default function DiceContainer() {
   const mode = useDiceGame((state) => state.mode);
@@ -55,6 +55,7 @@ export default function DiceContainer() {
   const randomRotation2Ref = useRef({ x: 0, y: 0, z: 0 });
 
   const isRolling = phase === 'rolling';
+  const shouldShowResult = phase === 'stopped' && result && result.dice1;
 
   // rolling 시작 시 각 주사위마다 다른 랜덤 회전값 생성
   useEffect(() => {
@@ -95,14 +96,11 @@ export default function DiceContainer() {
     ? randomRotation2Ref.current.z
     : faceToRotationZ[result?.dice2 || 1];
 
-  // ────────────────────────────────────────────
-  // useEffect: rolling 상태 시작/종료 관리
-  // DiceContainer에서 직접 타이머 설정
-  // ────────────────────────────────────────────
+  // rolling 상태 시작/종료 관리
   useEffect(() => {
     if (phase !== 'rolling') return;
 
-    const duration = 3500 + Math.random() * 1000; // 3.5~4.5초
+    const duration = 3500 + Math.random() * 1000;
     const timer = setTimeout(() => {
       finishRolling();
     }, duration);
@@ -110,9 +108,7 @@ export default function DiceContainer() {
     return () => clearTimeout(timer);
   }, [phase, finishRolling]);
 
-  // ────────────────────────────────────────────
   // Animation loop: 각 주사위 독립적 회전 + 위치 변화
-  // ────────────────────────────────────────────
   useEffect(() => {
     const animate = () => {
       // 주사위 1: 독립적인 회전
@@ -155,10 +151,10 @@ export default function DiceContainer() {
         return prev;
       });
 
-      // 위치 변화: rolling 중에만 (부드럽게 감소)
+      // 위치 변화: rolling 중에만
       setPosition1((prev) => {
         if (isRolling) {
-          const durationMs = 3500 + Math.random() * 1000; // 동기화를 위한 근사값
+          const durationMs = 3500 + Math.random() * 1000;
           const timeElapsed = timeRef.current * 0.016;
           const decayFactor = Math.max(1 - timeElapsed / (durationMs * 0.001), 0);
           const wobbleX = Math.sin(timeRef.current * 0.08) * 15 * decayFactor;
@@ -170,7 +166,7 @@ export default function DiceContainer() {
 
       setPosition2((prev) => {
         if (isRolling) {
-          const durationMs = 3500 + Math.random() * 1000; // 동기화를 위한 근사값
+          const durationMs = 3500 + Math.random() * 1000;
           const timeElapsed = timeRef.current * 0.016;
           const decayFactor = Math.max(1 - timeElapsed / (durationMs * 0.001), 0);
           const wobbleX = Math.sin(timeRef.current * 0.08 + Math.PI) * 15 * decayFactor;
@@ -181,7 +177,6 @@ export default function DiceContainer() {
       });
 
       timeRef.current += 1;
-
       animationRef.current = requestAnimationFrame(animate);
     };
 
@@ -192,9 +187,7 @@ export default function DiceContainer() {
     };
   }, [phase, isRolling, targetRotation1X, targetRotation1Y, targetRotation1Z, targetRotation2X, targetRotation2Y, targetRotation2Z]);
 
-  // ────────────────────────────────────────────
   // 주사위 면 컴포넌트
-  // ────────────────────────────────────────────
   const DiceFace = ({ number, transform }) => {
     const pipPositions = {
       1: [4],
@@ -259,7 +252,7 @@ export default function DiceContainer() {
           }}
         />
 
-        {/* 비네팅 (가장자리 암부) */}
+        {/* 비네팅 */}
         <div
           style={{
             position: 'absolute',
@@ -309,7 +302,6 @@ export default function DiceContainer() {
     WebkitTransformStyle: 'preserve-3d',
   };
 
-  // 각 주사위별 독립적인 transform
   const cubeTransform1 = {
     position: 'relative',
     width: '100%',
@@ -332,76 +324,106 @@ export default function DiceContainer() {
     willChange: 'transform',
   };
 
-  // ────────────────────────────────────────────
-  // 렌더링
-  // ────────────────────────────────────────────
   return (
     <div
-      className="flex justify-center items-center w-full h-96 bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl border border-purple-700/30 relative overflow-hidden"
+      className="flex flex-col justify-start items-center w-full h-96 bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl border border-purple-700/30 relative overflow-hidden"
       style={{
         perspective: mode === 2 ? '1500px' : '1200px',
         WebkitPerspective: mode === 2 ? '1500px' : '1200px',
       }}
     >
-      {/* 바닥 그림자 */}
-      <div
-        className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-48 h-16 pointer-events-none"
-        style={{
-          background:
-            'radial-gradient(ellipse at center, rgba(0,0,0,0.5), rgba(0,0,0,0))',
-          filter: 'blur(12px)',
-          zIndex: 0,
-        }}
-      />
+      {/* 결과값 - 컨테이너 내부 상단 */}
+      {shouldShowResult && (
+        <motion.div
+          className="pt-8 text-center z-20"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <p className="text-gray-500 text-sm mb-1">결과</p>
+          {mode === 1 ? (
+            <motion.p
+              className="text-7xl font-black text-yellow-300"
+              style={{
+                textShadow: '0 0 20px rgba(253, 224, 71, 0.8), 0 0 40px rgba(253, 224, 71, 0.4)',
+              }}
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            >
+              {result.dice1}
+            </motion.p>
+          ) : (
+            <div className="flex items-end justify-center gap-3">
+              <motion.p
+                className="text-6xl font-black text-yellow-300"
+                style={{
+                  textShadow: '0 0 20px rgba(253, 224, 71, 0.8), 0 0 40px rgba(253, 224, 71, 0.4)',
+                }}
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              >
+                {result.dice1}
+              </motion.p>
+              <p className="text-2xl text-gray-500 mb-1">+</p>
+              <motion.p
+                className="text-6xl font-black text-yellow-300"
+                style={{
+                  textShadow: '0 0 20px rgba(253, 224, 71, 0.8), 0 0 40px rgba(253, 224, 71, 0.4)',
+                }}
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              >
+                {result.dice2}
+              </motion.p>
+              <p className="text-2xl text-gray-500 mb-1">=</p>
+              <motion.p
+                className="text-7xl font-black text-green-400"
+                style={{
+                  textShadow: '0 0 20px rgba(74, 222, 128, 0.8), 0 0 40px rgba(74, 222, 128, 0.4)',
+                }}
+                animate={{ scale: [1, 1.08, 1] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              >
+                {result.sum}
+              </motion.p>
+            </div>
+          )}
+        </motion.div>
+      )}
 
-      {/* Glow animation */}
-      {isRolling && (
+      {/* 주사위 영역 - flex-1로 나머지 공간 차지 */}
+      <div className="flex-1 flex items-center justify-center w-full">
+        {/* 바닥 그림자 */}
         <div
-          className="absolute inset-0 rounded-2xl opacity-60 pointer-events-none"
+          className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-48 h-16 pointer-events-none"
           style={{
             background:
-              'radial-gradient(circle at 50% 50%, rgba(147, 51, 234, 0.4), rgba(59, 130, 246, 0.1))',
-            animation: 'pulse 0.5s ease-in-out infinite',
+              'radial-gradient(ellipse at center, rgba(0,0,0,0.5), rgba(0,0,0,0))',
+            filter: 'blur(12px)',
+            zIndex: 0,
           }}
         />
-      )}
 
-      {/* 1개 모드 */}
-      {mode === 1 && (
-        <div
-          style={{
-            ...diceStyle,
-            transform: `translate(${position1.x}px, ${position1.y}px)`,
-          }}
-          className="relative z-10"
-        >
-          <div style={cubeTransform1}>
-            <DiceFace number={1} transform={`translateZ(${half}px)`} />
-            <DiceFace number={6} transform={`rotateY(180deg) translateZ(${half}px)`} />
-            <DiceFace number={2} transform={`rotateX(90deg) translateZ(${half}px)`} />
-            <DiceFace number={5} transform={`rotateX(-90deg) translateZ(${half}px)`} />
-            <DiceFace number={3} transform={`rotateY(90deg) translateZ(${half}px)`} />
-            <DiceFace number={4} transform={`rotateY(-90deg) translateZ(${half}px)`} />
-          </div>
-        </div>
-      )}
+        {/* Glow animation */}
+        {isRolling && (
+          <div
+            className="absolute inset-0 rounded-2xl opacity-60 pointer-events-none"
+            style={{
+              background:
+                'radial-gradient(circle at 50% 50%, rgba(147, 51, 234, 0.4), rgba(59, 130, 246, 0.1))',
+              animation: 'pulse 0.5s ease-in-out infinite',
+            }}
+          />
+        )}
 
-      {/* 2개 모드 - 3D 배치 강화 */}
-      {mode === 2 && (
-        <div
-          className="flex gap-16 relative z-10"
-          style={{
-            transformStyle: 'preserve-3d',
-            WebkitTransformStyle: 'preserve-3d',
-            transform: 'rotateX(-15deg) rotateZ(5deg)',
-          }}
-        >
-          {/* 왼쪽 주사위 */}
+        {/* 1개 모드 */}
+        {mode === 1 && (
           <div
             style={{
               ...diceStyle,
-              transform: `translate(${position1.x}px, ${position1.y}px) translateZ(20px) rotateY(10deg)`,
+              transform: `translate(${position1.x}px, ${position1.y}px)`,
             }}
+            className="relative z-10"
           >
             <div style={cubeTransform1}>
               <DiceFace number={1} transform={`translateZ(${half}px)`} />
@@ -412,25 +434,54 @@ export default function DiceContainer() {
               <DiceFace number={4} transform={`rotateY(-90deg) translateZ(${half}px)`} />
             </div>
           </div>
+        )}
 
-          {/* 오른쪽 주사위 */}
+        {/* 2개 모드 - 3D 배치 강화 */}
+        {mode === 2 && (
           <div
+            className="flex gap-16 relative z-10"
             style={{
-              ...diceStyle,
-              transform: `translate(${position2.x}px, ${position2.y}px) translateZ(-20px) rotateY(-10deg)`,
+              transformStyle: 'preserve-3d',
+              WebkitTransformStyle: 'preserve-3d',
+              transform: 'rotateX(-15deg) rotateZ(5deg)',
             }}
           >
-            <div style={cubeTransform2}>
-              <DiceFace number={1} transform={`translateZ(${half}px)`} />
-              <DiceFace number={6} transform={`rotateY(180deg) translateZ(${half}px)`} />
-              <DiceFace number={2} transform={`rotateX(90deg) translateZ(${half}px)`} />
-              <DiceFace number={5} transform={`rotateX(-90deg) translateZ(${half}px)`} />
-              <DiceFace number={3} transform={`rotateY(90deg) translateZ(${half}px)`} />
-              <DiceFace number={4} transform={`rotateY(-90deg) translateZ(${half}px)`} />
+            {/* 왼쪽 주사위 */}
+            <div
+              style={{
+                ...diceStyle,
+                transform: `translate(${position1.x}px, ${position1.y}px) translateZ(20px) rotateY(10deg)`,
+              }}
+            >
+              <div style={cubeTransform1}>
+                <DiceFace number={1} transform={`translateZ(${half}px)`} />
+                <DiceFace number={6} transform={`rotateY(180deg) translateZ(${half}px)`} />
+                <DiceFace number={2} transform={`rotateX(90deg) translateZ(${half}px)`} />
+                <DiceFace number={5} transform={`rotateX(-90deg) translateZ(${half}px)`} />
+                <DiceFace number={3} transform={`rotateY(90deg) translateZ(${half}px)`} />
+                <DiceFace number={4} transform={`rotateY(-90deg) translateZ(${half}px)`} />
+              </div>
+            </div>
+
+            {/* 오른쪽 주사위 */}
+            <div
+              style={{
+                ...diceStyle,
+                transform: `translate(${position2.x}px, ${position2.y}px) translateZ(-20px) rotateY(-10deg)`,
+              }}
+            >
+              <div style={cubeTransform2}>
+                <DiceFace number={1} transform={`translateZ(${half}px)`} />
+                <DiceFace number={6} transform={`rotateY(180deg) translateZ(${half}px)`} />
+                <DiceFace number={2} transform={`rotateX(90deg) translateZ(${half}px)`} />
+                <DiceFace number={5} transform={`rotateX(-90deg) translateZ(${half}px)`} />
+                <DiceFace number={3} transform={`rotateY(90deg) translateZ(${half}px)`} />
+                <DiceFace number={4} transform={`rotateY(-90deg) translateZ(${half}px)`} />
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <style>{`
         @keyframes pulse {
