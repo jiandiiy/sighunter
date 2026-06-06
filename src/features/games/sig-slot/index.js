@@ -618,16 +618,15 @@ export default function SigSlot() {
 
       {/* 관리자 모달 */}
       {showAdmin && (
-        <AdminModal
-          program={program}
-          programKey={programKey}
-          rewardsMap={rewardsMap}
-          onSave={handleSaveRewards}
-          onClose={() => setShowAdmin(false)}
-          saveRewardsToFirestore={saveRewardsToFirestore}
-          currentRange={range}
-        />
-      )}
+  <AdminModal
+    program={program}
+    programKey={programKey}
+    rewardsMap={rewardsMap}
+    onSave={handleSaveRewards}
+    onClose={() => setShowAdmin(false)}
+    currentRange={range}
+  />
+)}
 
       {/* 이미지 로딩/에러 상태 */}
       <div className="min-h-[80px] flex flex-col items-center justify-center">

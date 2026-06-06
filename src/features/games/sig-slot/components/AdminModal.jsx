@@ -1,5 +1,22 @@
 import { useState, useEffect } from "react";
+import { initializeApp, getApps } from "firebase/app";
+import { getFirestore, doc, setDoc } from "firebase/firestore";
 import { SIG_RANGES } from "../utils/slotUtils";
+
+// ─────────────────────────────────────────────
+// Firebase 초기화
+// ─────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey:            process.env.REACT_APP_FIREBASE_API_KEY            || "AIzaSyDtSFww9PH2CEMJz9caYvN__C_SXmyxr0w",
+  authDomain:        process.env.REACT_APP_FIREBASE_AUTH_DOMAIN        || "sig-hunter.firebaseapp.com",
+  projectId:         process.env.REACT_APP_FIREBASE_PROJECT_ID         || "sig-hunter",
+  storageBucket:     process.env.REACT_APP_FIREBASE_STORAGE_BUCKET     || "sig-hunter.firebasestorage.app",
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID|| "702524786134",
+  appId:             process.env.REACT_APP_FIREBASE_APP_ID             || "1:702524786134:web:259a88e3cd473531571077",
+};
+
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+const db = getFirestore(app);
 
 // ─────────────────────────────────────────────
 // 아이콘 선택기 — 인라인 펼침 방식
@@ -51,8 +68,7 @@ export function AdminModal({
   programKey, 
   rewardsMap, 
   onSave, 
-  onClose, 
-  saveRewardsToFirestore,
+  onClose,
   currentRange = null,
 }) {
   // ✅ 현재 선택된 구간 — null이면 "전체"
@@ -126,12 +142,24 @@ export function AdminModal({
     // localRewards 로드는 useEffect에서 처리됨 (cacheKey 변경 감지)
   };
 
+  // ✅ Firebase에 직접 저장
   const handleSave = async () => {
     setSaveStatus("saving");
     setSaveMsg("");
     try {
-      await saveRewardsToFirestore(programKey, selectedRange, localRewards);
+      // docId 구성: 구간 있으면 "muse_1000-2000", 없으면 "muse"
+      const docId = selectedRange ? `${programKey}_${selectedRange}` : programKey;
+      const docRef = doc(db, "sigSlotRewards", docId);
+      
+      // Firebase에 저장
+      await setDoc(docRef, { 
+        items: localRewards, 
+        updatedAt: new Date().toISOString() 
+      });
+
+      // 로컬 state 업데이트
       onSave(program, selectedRange, localRewards);
+      
       setSaveStatus("success");
       setSaveMsg("보상책이 저장됐습니다!");
       setTimeout(onClose, 1200);
@@ -310,7 +338,7 @@ export function AdminModal({
         <div className="px-5 py-4 border-t border-gray-800 flex items-center justify-between gap-3 shrink-0">
           <span className="text-xs text-gray-600">{localRewards.length}개 항목</span>
           <div className="flex-1 text-center text-xs">
-            {saveStatus === "saving" && <span className="text-purple-300 animate-pulse">⏳ Firestore 저장 중...</span>}
+            {saveStatus === "saving" && <span className="text-purple-300 animate-pulse">⏳ Firebase 저장 중...</span>}
             {saveStatus === "success" && <span className="text-green-400">✅ {saveMsg}</span>}
             {saveStatus === "error" && <span className="text-red-400">❌ {saveMsg}</span>}
             {!isValid && saveStatus === "idle" && total !== 100 && (
