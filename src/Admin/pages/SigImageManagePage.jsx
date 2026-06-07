@@ -12,26 +12,38 @@ import {
   renameImageFile,
 } from "../../resources/storage/sigResourceStorage";
 
-// ⚠️ 보안: 실제 배포 시 환경변수(.env)로 관리하세요
-const TELEGRAM_BOT_TOKEN = process.env.REACT_APP_TELEGRAM_BOT_TOKEN;
-const TELEGRAM_CHAT_ID = process.env.REACT_APP_TELEGRAM_CHAT_ID;
-
-/** 텔레그램 알림 전송 */
 async function sendTelegramNotification(program, group, fileNames) {
-  const programLabel = { muse: "뮤즈", queendom: "퀸덤", holic: "홀릭" }[program] ?? program;
-  const fileList = fileNames.map((n) => `  • ${n}`).join("\n");
-  const text = `📸 시그 이미지 업로드 완료\n\n📁 ${programLabel} / ${group}\n📊 ${fileNames.length}개 파일\n\n${fileList}`;
-
   try {
-    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+    // 백엔드 URL 결정 (빌드 타임에 고정, 배포 환경변수로 관리)
+    const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
+    if (!backendUrl) {
+      console.warn(
+        "[Telegram] ⚠️ REACT_APP_BACKEND_URL 환경변수가 설정되지 않았습니다."
+      );
+      return;
+    }
+
+    const response = await fetch(`${backendUrl}/api/telegram/notify`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text }),
+      body: JSON.stringify({ program, group, fileNames }),
     });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log("[Telegram] ✅ 알림 전송 성공:", result.messageId);
   } catch (err) {
-    console.warn("[Telegram] 알림 전송 실패:", err);
+    console.warn("[Telegram] ❌ 알림 전송 실패:", err.message);
   }
 }
+
+export { sendTelegramNotification };
+
 
 const PROGRAMS = [
   { value: "muse", label: "뮤즈" },

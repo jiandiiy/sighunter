@@ -4,6 +4,10 @@
 /node_modules
 /.pnp
 .pnp.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
 
 # testing
 /coverage
@@ -11,10 +15,23 @@
 # production
 /build
 
-# misc
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
 .DS_Store
+Thumbs.db
+EOF
+
+cat > .gitignore << 'EOF'
+
+# misc
 .env
 .env.local
+.env.*.local
+server/.env
 .env.development.local
 .env.test.local
 .env.production.local

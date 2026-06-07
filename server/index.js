@@ -1,11 +1,17 @@
 // server/index.js
 // Express 앱 초기 세팅 및 시그 관련 라우터 연결
+require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
 
 const sigRoutes = require("./routes/sigRoutes");
+const telegramRoutes = require("./routes/telegramRoutes");
+
+console.log("[DEBUG] TELEGRAM_BOT_TOKEN:", process.env.TELEGRAM_BOT_TOKEN ? "✅ 설정됨" : "❌ 없음");
+console.log("[DEBUG] TELEGRAM_CHAT_ID:", process.env.TELEGRAM_CHAT_ID ? "✅ 설정됨" : "❌ 없음");
+
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -26,6 +32,9 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // 시그 관련 API 라우트 연결 (/api/sigs/...)
 app.use("/api/sigs", sigRoutes);
+
+// Telegram 알림 API 라우트 연결 (/api/telegram/...)
+app.use("/api/telegram", telegramRoutes);
 
 // 서버 시작
 app.listen(PORT, () => {
