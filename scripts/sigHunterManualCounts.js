@@ -124,6 +124,7 @@ module.exports = {
   "muse/group02/1126.webp": 1126,
   "muse/group02/1127.webp": 1127,
   "muse/group02/1133.webp": 1133,
+  "muse/group02/1135.webp": 1135,
   "muse/group02/1140.webp": 1140,
   "muse/group02/1142.webp": 1142,
   "muse/group02/1144.webp": 1144,
