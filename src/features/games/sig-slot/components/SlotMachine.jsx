@@ -26,9 +26,9 @@ export function Sparkles() {
 // 카드 플립
 // ─────────────────────────────────────────────
 export function FlipCard({ image, reward, isFlipped, onFlip, canFlip, size = "lg" }) {
-  const dim       = size === "lg" ? "w-64 h-64" : "w-44 h-44";
-  const titleSize = size === "lg" ? "text-5xl"   : "text-base";
-  const descSize  = size === "lg" ? "text-3xl"   : "text-sm";
+  const dim       = size === "lg" ? "w-64 h-64" : "w-64 h-64";
+  const titleSize = size === "lg" ? "text-5xl"   : "text-4xl";
+  const descSize  = size === "lg" ? "text-3xl"   : "text-2xl";
   return (
     <div
       className={`relative ${dim} cursor-pointer select-none transition-transform ${
@@ -58,7 +58,7 @@ export function FlipCard({ image, reward, isFlipped, onFlip, canFlip, size = "lg
           className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-900 to-indigo-800 shadow-2xl border-4 border-yellow-400 flex flex-col items-center justify-center p-4 gap-2"
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
         >
-          <div className="text-5xl">{reward?.icon || "🎁"}</div>
+          <div className="text-4xl">{reward?.icon || "🎁"}</div>
           <div className={`text-yellow-300 ${titleSize} font-extrabold text-center`}>{reward?.name}</div>
           <div className="w-12 h-0.5 bg-yellow-400 rounded" />
           <div className={`text-white text-center ${descSize} leading-relaxed`}>{reward?.description}</div>
@@ -84,7 +84,7 @@ function getSlideAnim(stage) {
 }
 
 export function SlotSpinner({ images, currentIndex, speedStage = 0, size = "lg" }) {
-  const dim = size === "lg" ? "w-64 h-64" : "w-44 h-44";
+  const dim = size === "lg" ? "w-64 h-64" : "w-64 h-64";
   if (!images.length) return (
     <div className={`${dim} rounded-2xl bg-gray-800 border-4 border-gray-700 flex items-center justify-center`}>
       <span className="text-gray-500 text-xs text-center px-4">이미지 로딩 중...</span>

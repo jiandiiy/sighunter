@@ -445,14 +445,24 @@ export const sigHunterImagePresets = {
         "count": 1087
       },
       {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1088.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1088
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1089.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1089
+      },
+      {
         "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1090.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1090
       },
       {
         "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1091.webp?alt=media",
-        "rawText": "[NO_MANUAL]",
-        "count": 0
+        "rawText": "[MANUAL]",
+        "count": 1091
       },
       {
         "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup01%2F1092.webp?alt=media",
@@ -542,6 +552,21 @@ export const sigHunterImagePresets = {
         "count": 1109
       },
       {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1110.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1110
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1111.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1111
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1112.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1112
+      },
+      {
         "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1115.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1115
@@ -565,6 +590,26 @@ export const sigHunterImagePresets = {
         "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1120.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1120
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1121.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1121
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1122.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1122
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1123.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1123
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1124.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1124
       },
       {
         "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup02%2F1125.webp?alt=media",
@@ -637,6 +682,11 @@ export const sigHunterImagePresets = {
         "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup03%2F1301.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 1301
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup03%2F1333.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 1333
       },
       {
         "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup03%2F1400.webp?alt=media",
@@ -728,19 +778,19 @@ export const sigHunterImagePresets = {
         "count": 10000
       },
       {
-        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10027.webp?alt=media",
-        "rawText": "[MANUAL]",
-        "count": 10027
-      },
-      {
-        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10040.webp?alt=media",
-        "rawText": "[MANUAL]",
-        "count": 10040
-      },
-      {
         "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10042.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10000
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10043.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10043
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10057.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10057
       },
       {
         "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10072.webp?alt=media",
@@ -758,16 +808,6 @@ export const sigHunterImagePresets = {
         "count": 10000
       },
       {
-        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10079.webp?alt=media",
-        "rawText": "[MANUAL]",
-        "count": 10079
-      },
-      {
-        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10080.webp?alt=media",
-        "rawText": "[MANUAL]",
-        "count": 10080
-      },
-      {
         "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10083.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10083
@@ -783,6 +823,21 @@ export const sigHunterImagePresets = {
         "count": 10000
       },
       {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10111.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10111
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10133.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10133
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10135.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10135
+      },
+      {
         "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10142.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10142
@@ -790,7 +845,7 @@ export const sigHunterImagePresets = {
       {
         "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10145.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 10000
+        "count": 10145
       },
       {
         "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10152.webp?alt=media",
@@ -798,19 +853,9 @@ export const sigHunterImagePresets = {
         "count": 10152
       },
       {
-        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10162.webp?alt=media",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10164.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 10162
-      },
-      {
-        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10167.webp?alt=media",
-        "rawText": "[MANUAL]",
-        "count": 10167
-      },
-      {
-        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10186.webp?alt=media",
-        "rawText": "[MANUAL]",
-        "count": 10186
+        "count": 10164
       },
       {
         "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10187.webp?alt=media",
@@ -823,9 +868,9 @@ export const sigHunterImagePresets = {
         "count": 10188
       },
       {
-        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10260.webp?alt=media",
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fmuse%2Fgroup06%2F10272.webp?alt=media",
         "rawText": "[MANUAL]",
-        "count": 10260
+        "count": 10272
       }
     ],
     "group07": [
@@ -1773,9 +1818,19 @@ export const sigHunterImagePresets = {
         "count": 10010
       },
       {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10011.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10011
+      },
+      {
         "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10012.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10012
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10013.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10013
       },
       {
         "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10014.webp?alt=media",
@@ -1851,6 +1906,11 @@ export const sigHunterImagePresets = {
         "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10072.webp?alt=media",
         "rawText": "[MANUAL]",
         "count": 10000
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10076.webp?alt=media",
+        "rawText": "[MANUAL]",
+        "count": 10076
       },
       {
         "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup06%2F10082.webp?alt=media",
@@ -1935,12 +1995,22 @@ export const sigHunterImagePresets = {
         "count": 0
       },
       {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10030.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
         "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10031.webp?alt=media",
         "rawText": "[NO_MANUAL]",
         "count": 0
       },
       {
         "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10032.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10034.webp?alt=media",
         "rawText": "[NO_MANUAL]",
         "count": 0
       },
@@ -2025,6 +2095,11 @@ export const sigHunterImagePresets = {
         "count": 0
       },
       {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10121.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
         "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10129.webp?alt=media",
         "rawText": "[NO_MANUAL]",
         "count": 0
@@ -2056,6 +2131,11 @@ export const sigHunterImagePresets = {
       },
       {
         "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10199.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10202.webp?alt=media",
         "rawText": "[NO_MANUAL]",
         "count": 0
       },
@@ -2100,6 +2180,26 @@ export const sigHunterImagePresets = {
         "count": 0
       },
       {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10445.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10455.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10486.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10545.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
         "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F10765.webp?alt=media",
         "rawText": "[NO_MANUAL]",
         "count": 0
@@ -2131,6 +2231,11 @@ export const sigHunterImagePresets = {
       },
       {
         "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F12445.webp?alt=media",
+        "rawText": "[NO_MANUAL]",
+        "count": 0
+      },
+      {
+        "path": "https://firebasestorage.googleapis.com/v0/b/sig-hunter.firebasestorage.app/o/images%2Fqueendom%2Fgroup07%2F12576.webp?alt=media",
         "rawText": "[NO_MANUAL]",
         "count": 0
       },
