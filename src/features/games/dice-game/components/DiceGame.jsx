@@ -44,7 +44,7 @@ export default function DiceGame() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white flex flex-col items-center py-10 px-4 gap-6">
+    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white flex flex-col items-center py-10 px-20 gap-6 w-full">
       {/* 헤더 */}
       <div className="flex flex-col items-center gap-2">
         <div className="flex items-center gap-2">
@@ -73,7 +73,10 @@ export default function DiceGame() {
       />
 
       {/* 3D 주사위 */}
-      <DiceContainer />
+       <div className="w-full max-w-5xl">
+        <DiceContainer />
+      </div>
+
 
       {/* 로딩 상태 표시 */}
       {isApiLoading && (

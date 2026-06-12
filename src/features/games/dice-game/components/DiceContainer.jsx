@@ -112,44 +112,51 @@ export default function DiceContainer() {
   useEffect(() => {
     const animate = () => {
       // 주사위 1: 독립적인 회전
-      setRotation1((prev) => {
-        if (isRolling) {
-          const speed1 = 0.5;
-          return {
-            x: prev.x + speed1 * 6.2,
-            y: prev.y + speed1 * 8.1,
-            z: prev.z + speed1 * 5.3,
-          };
-        } else if (phase === 'stopped') {
-          const lerpSpeed = 0.08;
-          return {
-            x: prev.x + (targetRotation1X - prev.x) * lerpSpeed,
-            y: prev.y + (targetRotation1Y - prev.y) * lerpSpeed,
-            z: prev.z + (targetRotation1Z - prev.z) * lerpSpeed,
-          };
-        }
-        return prev;
-      });
+      // 주사위 1
+setRotation1((prev) => {
+  if (isRolling) {
+    // 경과 시간 비율 (0 → 1)
+    const elapsed = Math.min(timeRef.current / (3500 / 16.7), 1);
+    // 초반 빠름 → 후반 느림: easeOutCubic 감속
+    const decay = Math.pow(1 - elapsed, 2);           // 1.0 → 0.0 으로 감소
+    const speed1 = 3.5 * decay + 0.15;               // 최소 0.15 유지 (완전 정지 방지)
+    return {
+      x: prev.x + speed1 * 6.2,
+      y: prev.y + speed1 * 8.1,
+      z: prev.z + speed1 * 5.3,
+    };
+  } else if (phase === 'stopped') {
+    const lerpSpeed = 0.08;
+    return {
+      x: prev.x + (targetRotation1X - prev.x) * lerpSpeed,
+      y: prev.y + (targetRotation1Y - prev.y) * lerpSpeed,
+      z: prev.z + (targetRotation1Z - prev.z) * lerpSpeed,
+    };
+  }
+  return prev;
+});
 
       // 주사위 2: 다른 회전 속도
       setRotation2((prev) => {
-        if (isRolling) {
-          const speed2 = 0.5;
-          return {
-            x: prev.x + speed2 * 5.9,
-            y: prev.y + speed2 * 7.8,
-            z: prev.z + speed2 * 5.7,
-          };
-        } else if (phase === 'stopped') {
-          const lerpSpeed = 0.08;
-          return {
-            x: prev.x + (targetRotation2X - prev.x) * lerpSpeed,
-            y: prev.y + (targetRotation2Y - prev.y) * lerpSpeed,
-            z: prev.z + (targetRotation2Z - prev.z) * lerpSpeed,
-          };
-        }
-        return prev;
-      });
+  if (isRolling) {
+    const elapsed = Math.min(timeRef.current / (3500 / 16.7), 1);
+    const decay = Math.pow(1 - elapsed, 2);
+    const speed2 = 3.5 * decay + 0.15;
+    return {
+      x: prev.x + speed2 * 5.9,
+      y: prev.y + speed2 * 7.8,
+      z: prev.z + speed2 * 5.7,
+    };
+  } else if (phase === 'stopped') {
+    const lerpSpeed = 0.08;
+    return {
+      x: prev.x + (targetRotation2X - prev.x) * lerpSpeed,
+      y: prev.y + (targetRotation2Y - prev.y) * lerpSpeed,
+      z: prev.z + (targetRotation2Z - prev.z) * lerpSpeed,
+    };
+  }
+  return prev;
+});
 
       // 위치 변화: rolling 중에만
       setPosition1((prev) => {
@@ -289,7 +296,7 @@ export default function DiceContainer() {
     );
   };
 
-  const cubeSize = 120;
+  const cubeSize = 150;
   const half = cubeSize / 2;
 
   const diceStyle = {
