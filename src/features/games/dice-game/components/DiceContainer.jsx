@@ -126,15 +126,16 @@ setRotation1((prev) => {
       z: prev.z + speed1 * 5.3,
     };
   } else if (phase === 'stopped') {
-    const lerpSpeed = 0.08;
+    // lerp 제거 → 목표값으로 즉시 snap
     return {
-      x: prev.x + (targetRotation1X - prev.x) * lerpSpeed,
-      y: prev.y + (targetRotation1Y - prev.y) * lerpSpeed,
-      z: prev.z + (targetRotation1Z - prev.z) * lerpSpeed,
+      x: targetRotation1X,
+      y: targetRotation1Y,
+      z: targetRotation1Z,
     };
   }
   return prev;
 });
+  
 
       // 주사위 2: 다른 회전 속도
       setRotation2((prev) => {
@@ -148,11 +149,11 @@ setRotation1((prev) => {
       z: prev.z + speed2 * 5.7,
     };
   } else if (phase === 'stopped') {
-    const lerpSpeed = 0.08;
+     // lerp 제거 → 목표값으로 즉시 snap
     return {
-      x: prev.x + (targetRotation2X - prev.x) * lerpSpeed,
-      y: prev.y + (targetRotation2Y - prev.y) * lerpSpeed,
-      z: prev.z + (targetRotation2Z - prev.z) * lerpSpeed,
+      x: targetRotation2X,
+      y: targetRotation2Y,
+      z: targetRotation2Z,
     };
   }
   return prev;
@@ -446,7 +447,7 @@ setRotation1((prev) => {
         {/* 2개 모드 - 3D 배치 강화 */}
         {mode === 2 && (
           <div
-            className="flex gap-16 relative z-10"
+            className="flex gap-20 relative z-10"
             style={{
               transformStyle: 'preserve-3d',
               WebkitTransformStyle: 'preserve-3d',
