@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { initializeApp, getApps } from "firebase/app";
-import { getFirestore, doc, setDoc } from "firebase/firestore";
+import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 import { SIG_RANGES } from "../utils/slotUtils";
 
 // ─────────────────────────────────────────────
@@ -40,8 +40,10 @@ function IconPicker({ value, onChange }) {
       </button>
 
       {open && (
-        <div className="bg-gray-750 border border-gray-600 rounded-xl p-2 grid grid-cols-5 gap-1 shadow-inner"
-             style={{ background: "#1e2535" }}>
+        <div
+          className="bg-gray-750 border border-gray-600 rounded-xl p-2 grid grid-cols-5 gap-1 shadow-inner"
+          style={{ background: "#1e2535" }}
+        >
           {REWARD_ICONS.map((icon) => (
             <button
               key={icon}
@@ -63,49 +65,99 @@ function IconPicker({ value, onChange }) {
 // ─────────────────────────────────────────────
 // 관리자 보상 설정 모달
 // ─────────────────────────────────────────────
-export function AdminModal({ 
-  program, 
-  programKey, 
-  rewardsMap, 
-  onSave, 
+export function AdminModal({
+  program,
+  programKey,
+  rewardsMap,
+  onSave,
   onClose,
   currentRange = null,
 }) {
-  // ✅ 현재 선택된 구간 — null이면 "전체"
   const [selectedRange, setSelectedRange] = useState(currentRange?.label || null);
   const [localRewards, setLocalRewards] = useState([]);
   const [saveStatus, setSaveStatus] = useState("idle");
   const [saveMsg, setSaveMsg] = useState("");
+  const [isFetching, setIsFetching] = useState(false);
 
-  // ✅ rewardsMap이 준비되면 localRewards 로드
+  const prevCacheKey = useRef(null);
   const cacheKey = selectedRange ? `${program}_${selectedRange}` : program;
-  
-  useEffect(() => {
-    if (rewardsMap && rewardsMap[cacheKey]) {
-      setLocalRewards(JSON.parse(JSON.stringify(rewardsMap[cacheKey])));
+
+  // ✅ Firebase에서 직접 fetch — rewardsMap 캐시 의존 제거
+  // rewardsMap은 Firebase fetch 실패 시 fallback으로만 사용
+  const fetchRewards = useCallback(async (key) => {
+    setIsFetching(true);
+    try {
+      // docId: 구간 있으면 "programKey_range", 없으면 "programKey"
+      const rangeLabel = key.startsWith(program + "_")
+        ? key.slice(program.length + 1)
+        : null;
+      const docId = rangeLabel ? `${programKey}_${rangeLabel}` : programKey;
+      const docRef = doc(db, "sigSlotRewards", docId);
+      const snap = await getDoc(docRef);
+
+      if (snap.exists()) {
+        const items = snap.data().items;
+        if (Array.isArray(items) && items.length > 0) {
+          setLocalRewards(JSON.parse(JSON.stringify(items)));
+          setSaveStatus("idle");
+          setSaveMsg("");
+          return;
+        }
+      }
+
+      // Firebase에 데이터 없으면 rewardsMap fallback
+      const fallback = rewardsMap?.[key];
+      if (Array.isArray(fallback) && fallback.length > 0) {
+        setLocalRewards(JSON.parse(JSON.stringify(fallback)));
+      } else {
+        setLocalRewards([]);
+      }
       setSaveStatus("idle");
       setSaveMsg("");
+    } catch (e) {
+      console.error("fetchRewards error:", e);
+      // 에러 시 rewardsMap fallback
+      const fallback = rewardsMap?.[key];
+      if (Array.isArray(fallback) && fallback.length > 0) {
+        setLocalRewards(JSON.parse(JSON.stringify(fallback)));
+      } else {
+        setLocalRewards([]);
+      }
+    } finally {
+      setIsFetching(false);
     }
-  }, [rewardsMap, cacheKey]);
+  }, [program, programKey, rewardsMap]);
 
-  const total = localRewards.reduce((s, r) => s + r.probability, 0);
-  const isValid = total === 100 && localRewards.every((r) => r.name.trim());
+  // ✅ 모달 오픈 시 최초 1회 + 구간 탭 변경 시 Firebase fetch
+  useEffect(() => {
+    if (prevCacheKey.current === cacheKey) return; // 변경 없으면 스킵
+    prevCacheKey.current = cacheKey;
+    fetchRewards(cacheKey);
+  }, [cacheKey, fetchRewards]);
+
+  // ─────────────────────────────────────────────
+  // 보상 목록 조작
+  // ─────────────────────────────────────────────
+  const total = localRewards.reduce((s, r) => s + (Number(r.probability) || 0), 0);
+  const isValid = total === 100 && localRewards.every((r) => r.name?.trim());
 
   const update = (i, field, val) =>
     setLocalRewards((prev) =>
       prev.map((r, j) =>
-        j === i ? { ...r, [field]: field === "probability" ? Math.max(0, Number(val)) : val } : r
+        j === i
+          ? { ...r, [field]: field === "probability" ? Math.max(0, Number(val) || 0) : val }
+          : r
       )
     );
-  
+
   const add = () =>
     setLocalRewards((prev) => [
       ...prev,
       { id: `r${Date.now()}`, icon: "🎁", name: "", description: "", probability: 0 },
     ]);
-  
+
   const remove = (i) => setLocalRewards((prev) => prev.filter((_, j) => j !== i));
-  
+
   const moveUp = (i) => {
     if (i === 0) return;
     setLocalRewards((prev) => {
@@ -114,7 +166,7 @@ export function AdminModal({
       return next;
     });
   };
-  
+
   const moveDown = (i) => {
     setLocalRewards((prev) => {
       if (i === prev.length - 1) return prev;
@@ -136,30 +188,28 @@ export function AdminModal({
     });
   };
 
-  // ✅ 구간 변경 시 새 구간 로드 — useEffect가 자동으로 처리
+  // ✅ 구간 탭 변경 — prevCacheKey와의 비교는 useEffect에서 처리
   const handleRangeChange = (newRangeLabel) => {
     setSelectedRange(newRangeLabel);
-    // localRewards 로드는 useEffect에서 처리됨 (cacheKey 변경 감지)
   };
 
-  // ✅ Firebase에 직접 저장
+  // ─────────────────────────────────────────────
+  // Firebase 저장
+  // ─────────────────────────────────────────────
   const handleSave = async () => {
     setSaveStatus("saving");
     setSaveMsg("");
     try {
-      // docId 구성: 구간 있으면 "muse_1000-2000", 없으면 "muse"
       const docId = selectedRange ? `${programKey}_${selectedRange}` : programKey;
       const docRef = doc(db, "sigSlotRewards", docId);
-      
-      // Firebase에 저장
-      await setDoc(docRef, { 
-        items: localRewards, 
-        updatedAt: new Date().toISOString() 
+
+      await setDoc(docRef, {
+        items: localRewards,
+        updatedAt: new Date().toISOString(),
       });
 
-      // 로컬 state 업데이트
       onSave(program, selectedRange, localRewards);
-      
+
       setSaveStatus("success");
       setSaveMsg("보상책이 저장됐습니다!");
       setTimeout(onClose, 1200);
@@ -169,12 +219,15 @@ export function AdminModal({
     }
   };
 
+  // ─────────────────────────────────────────────
+  // UI 헬퍼
+  // ─────────────────────────────────────────────
   const gaugeColor =
     total === 100 ? "bg-green-500" :
-    total > 100 ? "bg-red-500" : "bg-yellow-500";
+    total > 100   ? "bg-red-500"   : "bg-yellow-500";
 
-  const docLabel = selectedRange 
-    ? `${program} · ${selectedRange}` 
+  const docLabel = selectedRange
+    ? `${program} · ${selectedRange}`
     : `${program} · 전체`;
 
   return (
@@ -198,11 +251,10 @@ export function AdminModal({
           >✕</button>
         </div>
 
-        {/* ✅ 구간 선택 탭 */}
+        {/* 구간 선택 탭 */}
         <div className="px-5 pt-3 shrink-0 border-b border-gray-800 pb-3">
           <div className="text-xs text-gray-400 mb-2 font-bold">구간 선택</div>
           <div className="flex gap-1 overflow-x-auto pb-1">
-            {/* 전체 */}
             <button
               onClick={() => handleRangeChange(null)}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition ${
@@ -213,8 +265,6 @@ export function AdminModal({
             >
               전체
             </button>
-
-            {/* 각 구간 */}
             {SIG_RANGES.map((range) => (
               <button
                 key={range.label}
@@ -239,11 +289,15 @@ export function AdminModal({
               <button
                 onClick={autoFit}
                 className="text-xs text-purple-400 border border-purple-700 rounded-md px-2 py-0.5 hover:border-purple-400 transition"
-              >자동 맞춤</button>
+              >
+                자동 맞춤
+              </button>
               <span className={`text-sm font-black ${
                 total === 100 ? "text-green-400" :
-                total > 100 ? "text-red-400" : "text-yellow-400"
-              }`}>{total}%</span>
+                total > 100   ? "text-red-400"   : "text-yellow-400"
+              }`}>
+                {total}%
+              </span>
             </div>
           </div>
           <div className="h-2 bg-gray-800 rounded-full overflow-hidden mb-1">
@@ -254,16 +308,22 @@ export function AdminModal({
           </div>
           {total !== 100 && (
             <p className="text-xs text-yellow-400 mb-2">
-              {total < 100 ? `${100 - total}% 부족합니다.` : `${total - 100}% 초과입니다.`}
+              {total < 100
+                ? `${100 - total}% 부족합니다.`
+                : `${total - 100}% 초과입니다.`}
             </p>
           )}
         </div>
 
         {/* 보상 목록 — 스크롤 영역 */}
         <div className="flex flex-col gap-2 overflow-y-auto px-5 py-3">
-          {localRewards.length === 0 ? (
+          {isFetching ? (
+            <div className="text-gray-500 text-sm text-center py-8 animate-pulse">
+              ⏳ 데이터 불러오는 중...
+            </div>
+          ) : localRewards.length === 0 ? (
             <div className="text-gray-500 text-sm text-center py-8">
-              로드 중...
+              항목이 없습니다. 보상을 추가해주세요.
             </div>
           ) : (
             localRewards.map((r, i) => (
@@ -287,7 +347,9 @@ export function AdminModal({
                   <div className="flex items-center gap-1 shrink-0">
                     <input
                       className="w-14 bg-gray-700 text-white rounded-lg px-2 py-1.5 text-sm text-center focus:outline-none focus:ring-1 focus:ring-purple-500"
-                      type="number" min={0} max={100}
+                      type="number"
+                      min={0}
+                      max={100}
                       value={r.probability}
                       onChange={(e) => update(i, "probability", e.target.value)}
                     />
@@ -331,16 +393,24 @@ export function AdminModal({
           <button
             onClick={add}
             className="w-full py-2.5 rounded-xl border-2 border-dashed border-gray-700 hover:border-purple-600 text-gray-500 hover:text-purple-400 text-sm font-bold transition"
-          >+ 보상 항목 추가</button>
+          >
+            + 보상 항목 추가
+          </button>
         </div>
 
         {/* 푸터 */}
         <div className="px-5 py-4 border-t border-gray-800 flex items-center justify-between gap-3 shrink-0">
           <span className="text-xs text-gray-600">{localRewards.length}개 항목</span>
           <div className="flex-1 text-center text-xs">
-            {saveStatus === "saving" && <span className="text-purple-300 animate-pulse">⏳ Firebase 저장 중...</span>}
-            {saveStatus === "success" && <span className="text-green-400">✅ {saveMsg}</span>}
-            {saveStatus === "error" && <span className="text-red-400">❌ {saveMsg}</span>}
+            {saveStatus === "saving" && (
+              <span className="text-purple-300 animate-pulse">⏳ Firebase 저장 중...</span>
+            )}
+            {saveStatus === "success" && (
+              <span className="text-green-400">✅ {saveMsg}</span>
+            )}
+            {saveStatus === "error" && (
+              <span className="text-red-400">❌ {saveMsg}</span>
+            )}
             {!isValid && saveStatus === "idle" && total !== 100 && (
               <span className="text-yellow-500">확률 합계를 100%로 맞춰주세요</span>
             )}
@@ -360,6 +430,7 @@ export function AdminModal({
             {saveStatus === "saving" ? "저장 중..." : "💾 저장"}
           </button>
         </div>
+
       </div>
     </div>
   );
