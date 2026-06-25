@@ -26,6 +26,8 @@ const SigSlot = lazy(() => import("./features/games/sig-slot"));
 const SigSlotPlayer = lazy(() => import("./features/games/sig-slot/player"));
 // ✅ DiceGame 추가
 const DiceGame = lazy(() => import("./features/games/dice-game"));
+// ✅ TreasureGame 추가
+const TreasureGame = lazy(() => import("./features/games/treasure-game"));
 
 // ── lazy 로드: Admin ──────────────────────────────
 const SigImageAdminPage = lazy(() => import("./Admin/pages/SigImageAdminPage"));
@@ -34,7 +36,6 @@ const SigHunterFlipControl = lazy(() => import("./Admin/components/SigHunterFlip
 const AdminHub = lazy(() => import("./Admin/pages/AdminHub"));
 
 // ── lazy 로드: OBS 뷰어 ────────────────────────────
-// ./obs/index.js 에서 named export 로 나오는 걸 각각 lazy 로 래핑
 const SigHunterBingoObsView = lazy(() =>
   import("./app/layout/obs").then((mod) => ({ default: mod.SigHunterBingoView }))
 );
@@ -102,8 +103,11 @@ export default function App() {
             {/* ✅ SigSlot 플레이어별 라우트 추가 */}
             <Route path="/sig-slot/:playerNum" element={<SigSlotPlayer />} />
 
-            {/* ✅ 다이스게임 추가 */}
+            {/* ✅ 다이스게임 */}
             <Route path="/dice-game" element={<DiceGame />} />
+
+            {/* ✅ 보물찾기 */}
+            <Route path="/treasure" element={<TreasureGame />} />
 
             {/* HP 배틀 */}
             <Route path="/hp-battle" element={<HpBattle />} />

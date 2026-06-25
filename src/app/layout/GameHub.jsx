@@ -4,14 +4,13 @@ import { useNavigate, Outlet } from "react-router-dom";
 export default function GameHub() {
   const navigate = useNavigate();
 
-  // "sig" | "sigslot" | "mines" | "board" | "wheel" | "bingo" | "hunterBingo" | "hp" | "dice"
+  // "sig" | "sigslot" | "mines" | "board" | "wheel" | "bingo" | "hunterBingo" | "hp" | "dice" | "treasure"
   const [game, setGame] = useState(() => {
     if (typeof window === "undefined") return "sig";
     const saved = window.localStorage.getItem("gameHub.lastGame");
     return saved || "sig";
   });
 
-  // 플레이어 선택 모달
   const [showPlayerModal, setShowPlayerModal] = useState(false);
 
   useEffect(() => {
@@ -26,7 +25,6 @@ export default function GameHub() {
         navigate("/sig");
         break;
       case "sigslot":
-        // 플레이어 선택 모달 띄우기
         setShowPlayerModal(true);
         break;
       case "mines":
@@ -49,6 +47,9 @@ export default function GameHub() {
         break;
       case "dice":
         navigate("/dice-game");
+        break;
+      case "treasure":
+        navigate("/treasure");
         break;
       default:
         navigate("/");
@@ -122,15 +123,14 @@ export default function GameHub() {
           🔍 시그헌터
         </button>
 
-        {/* 시그슬롯 ✨ 플레이어 선택 모달 오픈 */}
+        {/* 시그슬롯 */}
         <button
           type="button"
           onClick={() => handleSelectGame("sigslot")}
           style={{
             padding: "6px 14px",
             borderRadius: 999,
-            border:
-              game === "sigslot" ? "2px solid #fbbf24" : "1px solid #4b5563",
+            border: game === "sigslot" ? "2px solid #fbbf24" : "1px solid #4b5563",
             background:
               game === "sigslot"
                 ? "linear-gradient(135deg, #f59e0b, #fbbf24)"
@@ -167,6 +167,28 @@ export default function GameHub() {
           🎲 주사위게임
         </button>
 
+        {/* 보물찾기 ✨ 신규 */}
+        <button
+          type="button"
+          onClick={() => handleSelectGame("treasure")}
+          style={{
+            padding: "6px 14px",
+            borderRadius: 999,
+            border: game === "treasure" ? "2px solid #fcd34d" : "1px solid #4b5563",
+            background:
+              game === "treasure"
+                ? "linear-gradient(135deg, #d97706, #fcd34d)"
+                : "linear-gradient(135deg, #111827, #020617)",
+            color: game === "treasure" ? "#1c1600" : "#fcd34d",
+            fontWeight: 800,
+            cursor: "pointer",
+            fontSize: 15,
+            fontFamily: "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          }}
+        >
+          🏆 보물찾기
+        </button>
+
         {/* 식대전 빙고 */}
         <button
           type="button"
@@ -174,8 +196,7 @@ export default function GameHub() {
           style={{
             padding: "6px 14px",
             borderRadius: 999,
-            border:
-              game === "bingo" ? "2px solid #f97316" : "1px solid #4b5563",
+            border: game === "bingo" ? "2px solid #f97316" : "1px solid #4b5563",
             background:
               game === "bingo"
                 ? "linear-gradient(135deg, #f97316, #facc15)"
@@ -197,8 +218,7 @@ export default function GameHub() {
           style={{
             padding: "6px 14px",
             borderRadius: 999,
-            border:
-              game === "hunterBingo" ? "2px solid #22c55e" : "1px solid #4b5563",
+            border: game === "hunterBingo" ? "2px solid #22c55e" : "1px solid #4b5563",
             background:
               game === "hunterBingo"
                 ? "linear-gradient(135deg, #22c55e, #a7f3d0)"
@@ -220,8 +240,7 @@ export default function GameHub() {
           style={{
             padding: "6px 14px",
             borderRadius: 999,
-            border:
-              game === "mines" ? "2px solid #a5b4fc" : "1px solid #4b5563",
+            border: game === "mines" ? "2px solid #a5b4fc" : "1px solid #4b5563",
             background:
               game === "mines"
                 ? "linear-gradient(135deg, #4c1d95, #6366f1)"
@@ -243,8 +262,7 @@ export default function GameHub() {
           style={{
             padding: "6px 14px",
             borderRadius: 999,
-            border:
-              game === "board" ? "2px solid #6ee7b7" : "1px solid #4b5563",
+            border: game === "board" ? "2px solid #6ee7b7" : "1px solid #4b5563",
             background:
               game === "board"
                 ? "linear-gradient(135deg, #10b981, #6ee7b7)"
@@ -266,8 +284,7 @@ export default function GameHub() {
           style={{
             padding: "6px 14px",
             borderRadius: 999,
-            border:
-              game === "wheel" ? "2px solid #f9a8d4" : "1px solid #4b5563",
+            border: game === "wheel" ? "2px solid #f9a8d4" : "1px solid #4b5563",
             background:
               game === "wheel"
                 ? "linear-gradient(135deg, #ec4899, #a855f7)"
@@ -377,7 +394,6 @@ export default function GameHub() {
               🎰 플레이어 선택
             </h2>
 
-            {/* 플레이어 1, 2, 3 버튼 */}
             <div
               style={{
                 display: "flex",
@@ -403,9 +419,7 @@ export default function GameHub() {
                     fontFamily: "YUniverse, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                     transition: "transform 0.1s",
                   }}
-                  onMouseDown={(e) =>
-                    (e.target.style.transform = "scale(0.95)")
-                  }
+                  onMouseDown={(e) => (e.target.style.transform = "scale(0.95)")}
                   onMouseUp={(e) => (e.target.style.transform = "scale(1)")}
                 >
                   👤 {playerNum}
@@ -413,7 +427,6 @@ export default function GameHub() {
               ))}
             </div>
 
-            {/* 닫기 버튼 */}
             <button
               type="button"
               onClick={() => setShowPlayerModal(false)}
